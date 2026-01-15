@@ -1,39 +1,44 @@
-# See http://help.github.com/ignore-files/ for more about ignoring files.
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+.browserslistrc
 
-# compiled output
-/dist
-/tmp
-/out-tsc
+node_modules
+dist
+dist-ssr
+*.local
 
-# dependencies
-/node_modules
+# Build and cache files
+.vite
+.turbo
+*.tsbuildinfo
+node.json
 
-# IDEs and editors
-/.idea
-.project
-.classpath
-.c9/
-*.launch
-.settings/
-*.sublime-workspace
+# Environment variables
+.env
+.env.local
+.env.*.local
 
-# IDE - VSCode
+# Test coverage
+coverage
+.nyc_output
+
+# Editor directories and files
 .vscode/*
-!.vscode/settings.json
-!.vscode/tasks.json
-!.vscode/launch.json
 !.vscode/extensions.json
-
-# misc
-/.sass-cache
-/connect.lock
-/coverage
-/libpeerconnection.log
-npm-debug.log
-yarn-error.log
-testem.log
-/typings
-
-# System Files
+.idea
 .DS_Store
-Thumbs.db
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+lib
+# Ignore all .md files in root directory except README.md
+/*.md
+!/README.md
