@@ -1,6 +1,6 @@
 <template>
   <div class="inline-flex w-full flex-col items-start justify-start gap-2">
-    <label v-if="label" :for="inputId" class="mb-2.5 block text-sm font-medium" :class="labelClasses">
+    <label v-if="label" :for="inputId" class="mb-2 block text-base font-medium" :class="labelClasses">
       {{ label }}
     </label>
     <input
@@ -10,8 +10,8 @@
       :value="modelValue"
       :disabled="disabled"
       :required="required"
-      class="block w-full rounded-lg border p-3 text-sm text-gray-900 shadow-sm transition-colors disabled:bg-gray-200 disabled:text-gray-700"
-      :class="inputClasses"
+      class="block w-full rounded-lg border text-gray-900 shadow-sm transition-colors disabled:bg-gray-200 disabled:text-gray-700"
+      :class="[inputClasses, sizeClasses]"
       @input="handleInput"
       v-bind="$attrs"
     />
@@ -35,6 +35,7 @@ const props = withDefaults(
     disabled?: boolean;
     required?: boolean;
     variant?: "default" | "disabled";
+    size?: "sm" | "base" | "lg"; // 輸入框尺寸
     error?: boolean;
     errorMessage?: string;
     errorTitle?: string;
@@ -45,6 +46,7 @@ const props = withDefaults(
     disabled: false,
     required: false,
     variant: "default",
+    size: "base",
     error: false,
     clearErrorOnInput: true, // 預設為 true，輸入時自動清除錯誤
   }
@@ -85,7 +87,7 @@ const inputClasses = computed(() => {
   }
 
   // 預設狀態
-  return "bg-white border-gray-300 placeholder:text-gray-500 focus:border-primary-500 focus:ring-2 focus:ring-primary-500";
+  return "bg-gray-50 border-gray-300 placeholder:text-gray-500 focus:border-primary-500 focus:ring-2 focus:ring-primary-500";
 });
 
 const labelClasses = computed(() => {
@@ -93,5 +95,15 @@ const labelClasses = computed(() => {
     return "text-red-600";
   }
   return "text-gray-900";
+});
+
+// 尺寸類別
+const sizeClasses = computed(() => {
+  const sizeMap = {
+    sm: "px-4 py-3 text-sm",
+    base: "px-4 py-3 text-sm",
+    lg: "px-4 py-3.5 text-lg h-[52px]",
+  };
+  return sizeMap[props.size];
 });
 </script>

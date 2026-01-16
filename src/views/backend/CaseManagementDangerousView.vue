@@ -9,7 +9,7 @@
         <!-- Breadcrumb and Title -->
         <div class="flex flex-col gap-6">
           <Breadcrumb />
-          <h1 class="text-3xl font-bold leading-[30px] text-gray-900">都市更新案件</h1>
+          <h1 class="text-3xl font-bold leading-[30px] text-gray-900">危老重建案件</h1>
         </div>
 
         <!-- Case List Card -->
@@ -21,7 +21,7 @@
               <div class="flex flex-col gap-2">
                 <div class="flex items-center gap-3">
                   <div class="h-7 w-1 rounded bg-primary-600"></div>
-                  <h2 class="text-2xl font-medium leading-6 text-gray-900">都市更新案件列表</h2>
+                  <h2 class="text-2xl font-medium leading-6 text-gray-900">危老重建案件</h2>
                 </div>
               </div>
               <ButtonDropdown
@@ -37,6 +37,7 @@
                 @item-click="handleAddCaseOption"
               />
             </div>
+
             <!-- Filters -->
             <div class="flex items-center gap-4">
               <div class="w-40">
@@ -98,23 +99,16 @@ interface CaseItem {
 }
 
 // Filter Options
-const stageOptions: DropdownItem[] = [
-  { label: "全部案件階段" },
-  { label: "案件申請" },
-  { label: "公辦公聽會" },
-  { label: "專案小組" },
-  { label: "都更大會" },
-];
+const stageOptions: DropdownItem[] = [{ label: "全部案件階段" }, { label: "專案小組" }, { label: "其他階段" }];
 
 const statusOptions: DropdownItem[] = [{ label: "全部案件狀態" }, { label: "進行中" }, { label: "已中斷" }, { label: "已完成" }];
 
-// Add Case Options
+// Add Case Options - 危老重建案件專用
 const addCaseOptions: ButtonDropdownItem[] = [
-  { label: "申請審議(事業計畫)", value: "business-plan" },
-  { label: "申請審議(權利變換)", value: "rights-exchange" },
-  { label: "申請審議(整建維護)", value: "renovation-maintenance" },
-  { label: "申請審議(事權併送)", value: "concurrent-submission" },
-  { label: "變更案", value: "amendment" },
+  { label: "申請審議(一般案件)", value: "general-case" },
+  { label: "第一次變更", value: "first-amendment" },
+  { label: "第二次變更", value: "second-amendment" },
+  { label: "申請審議(簡化案件)", value: "simplified-case" },
 ];
 
 // State
@@ -124,48 +118,76 @@ const selectedAddCaseIndex = ref<number | undefined>(undefined);
 const currentPage = ref<number>(1);
 const pageSize = ref<number>(10);
 
-// Mock Data
+// Mock Data - 危老重建案件
 const allCases: CaseItem[] = [
   {
-    caseNumber: "B202308220001",
-    caseName: "臺中市東區行政段645地號等21筆土地 都市更新事業計畫及權利變換計畫案",
-    caseCategory: "都市更新",
-    caseStage: "案件申請",
+    caseNumber: "111-1-1",
+    caseName: "擬訂臺中市豐原區三村段三小段20地號(等)3筆土地重建計畫案",
+    caseCategory: "危老重建",
+    caseStage: "專案小組",
     caseStatus: "進行中",
   },
   {
-    caseNumber: "B202308220001",
-    caseName: "臺中市東區行政段645地號等21筆土地 都市更新事業計畫及權利變換計畫案",
-    caseCategory: "都市更新",
-    caseStage: "公辦公聽會",
+    caseNumber: "111-2-1",
+    caseName: "擬訂臺中市豐原區三村段三小段20地號(等)3筆土地重建計畫案",
+    caseCategory: "危老重建",
+    caseStage: "專案小組",
     caseStatus: "進行中",
   },
   {
-    caseNumber: "B202308220001",
-    caseName: "臺中市東區行政段645地號等21筆土地 都市更新事業計畫及權利變換計畫案",
-    caseCategory: "都市更新",
+    caseNumber: "111-3-1",
+    caseName: "擬訂臺中市豐原區三村段三小段20地號(等)3筆土地重建計畫案",
+    caseCategory: "危老重建",
     caseStage: "專案小組",
     caseStatus: "已中斷",
   },
   {
-    caseNumber: "B202308220001",
-    caseName: "臺中市東區行政段645地號等21筆土地 都市更新事業計畫及權利變換計畫案",
-    caseCategory: "都市更新",
-    caseStage: "都更大會",
+    caseNumber: "111-4-1",
+    caseName: "擬訂臺中市豐原區三村段三小段20地號(等)3筆土地重建計畫案",
+    caseCategory: "危老重建",
+    caseStage: "專案小組",
     caseStatus: "已完成",
   },
   {
-    caseNumber: "B202308220001",
-    caseName: "臺中市東區行政段645地號等21筆土地 都市更新事業計畫及權利變換計畫案",
-    caseCategory: "都市更新",
-    caseStage: "都更大會",
+    caseNumber: "111-5-1",
+    caseName: "擬訂臺中市豐原區三村段三小段20地號(等)3筆土地重建計畫案",
+    caseCategory: "危老重建",
+    caseStage: "專案小組",
     caseStatus: "進行中",
   },
   {
-    caseNumber: "B202308220001",
-    caseName: "臺中市東區行政段645地號等21筆土地 都市更新事業計畫及權利變換計畫案",
-    caseCategory: "都市更新",
-    caseStage: "公辦公聽會",
+    caseNumber: "111-6-1",
+    caseName: "擬訂臺中市豐原區三村段三小段20地號(等)3筆土地重建計畫案",
+    caseCategory: "危老重建",
+    caseStage: "專案小組",
+    caseStatus: "進行中",
+  },
+  {
+    caseNumber: "111-7-1",
+    caseName: "擬訂臺中市豐原區三村段三小段20地號(等)3筆土地重建計畫案",
+    caseCategory: "危老重建",
+    caseStage: "專案小組",
+    caseStatus: "進行中",
+  },
+  {
+    caseNumber: "111-8-1",
+    caseName: "擬訂臺中市豐原區三村段三小段20地號(等)3筆土地重建計畫案",
+    caseCategory: "危老重建",
+    caseStage: "專案小組",
+    caseStatus: "進行中",
+  },
+  {
+    caseNumber: "111-9-1",
+    caseName: "擬訂臺中市豐原區三村段三小段20地號(等)3筆土地重建計畫案",
+    caseCategory: "危老重建",
+    caseStage: "專案小組",
+    caseStatus: "進行中",
+  },
+  {
+    caseNumber: "111-10-1",
+    caseName: "擬訂臺中市豐原區三村段三小段20地號(等)3筆土地重建計畫案",
+    caseCategory: "危老重建",
+    caseStage: "專案小組",
     caseStatus: "進行中",
   },
 ];

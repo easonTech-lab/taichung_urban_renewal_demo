@@ -36,12 +36,25 @@
 import { ref, computed, onMounted, onUnmounted, watch } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import ButtonCTA from "@/components/atoms/ButtonCTA.vue";
-import { getNavRoutes } from "@/config/routes";
+import * as routerModule from "@/router/index";
 
 const router = useRouter();
 const route = useRoute();
 
 // 獲取導航欄顯示的路由
+const getNavRoutes = (): Array<{ path: string; label: string }> => {
+  const routes = routerModule.routes;
+  return routes
+    .filter((route: any) => {
+      // 只包含 meta.showInNav 為 true 的路由
+      return route.meta?.showInNav === true;
+    })
+    .map((route: any) => ({
+      path: route.path,
+      label: route.meta?.navLabel || route.name,
+    }));
+};
+
 const navRoutes = computed(() => getNavRoutes());
 
 // 使用 ref 來追蹤登入狀態，確保響應式更新

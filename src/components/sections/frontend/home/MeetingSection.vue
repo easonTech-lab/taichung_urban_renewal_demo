@@ -14,27 +14,27 @@
       </div>
 
       <!-- Meeting List Card -->
-      <div class="relative flex w-full shrink-0 flex-col items-start rounded-card bg-white p-6 shadow-card">
+      <div class="relative flex w-full shrink-0 flex-col items-start rounded-lg bg-white p-6 shadow-sm">
         <div
           v-for="(meeting, index) in meetings"
           :key="meeting.id"
           :class="[
-            'relative flex w-full shrink-0 items-center justify-between px-0 py-4',
+            'relative flex w-full shrink-0 flex-col items-center px-0 py-4 sm:flex-row sm:justify-between',
             index < meetings.length - 1 ? 'border-b border-solid border-gray-300' : '',
           ]"
         >
           <!-- Date and Title -->
-          <div class="relative flex shrink-0 items-center gap-16 leading-normal">
+          <div class="relative flex min-w-0 flex-1 shrink items-center gap-4 leading-normal sm:gap-8 md:gap-16">
             <!-- Date -->
             <div
-              class="relative flex w-20 shrink-0 flex-col justify-center text-base font-normal not-italic text-gray-500"
+              class="relative flex w-[72px] shrink-0 flex-col justify-center text-sm font-normal not-italic text-gray-500 sm:text-base"
             >
               {{ meeting.date }}
             </div>
             <!-- Meeting Title -->
             <div
               :class="[
-                'relative flex shrink-0 flex-col justify-center whitespace-nowrap text-lg text-black',
+                'relative flex min-w-0 flex-1 shrink flex-col justify-center text-base text-black sm:text-lg',
                 meeting.isMedium ? 'font-medium' : 'font-normal',
               ]"
             >
@@ -43,7 +43,7 @@
           </div>
 
           <!-- Download Section -->
-          <div class="relative flex h-14 w-[120px] shrink-0 flex-col items-end justify-center gap-0 p-4">
+          <div class="relative mt-4 flex h-14 w-full shrink-0 flex-col items-start justify-center gap-0 p-4 sm:mt-0 sm:w-[120px] sm:items-end">
             <a
               :href="meeting.fileUrl"
               class="inline-flex h-10 items-center gap-2 rounded-lg px-0 py-2 text-sm font-medium leading-normal text-primary-700 underline hover:text-primary-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-600 focus-visible:ring-offset-2"

@@ -1,13 +1,13 @@
 <template>
   <div class="relative w-full overflow-hidden bg-[#7EB68F]">
     <section class="relative z-10 mx-auto max-w-6xl overflow-visible bg-[#7EB68F] px-4 pb-32 sm:px-6 lg:px-8">
-      <div class="rounded-card bg-white p-6 shadow-card">
+      <div class="rounded-lg bg-white p-6 shadow-sm">
         <div class="relative grid gap-20 md:grid-cols-2">
           <!-- 都更案件 -->
           <div class="flex items-center justify-between gap-4">
             <StatCard title="都更案件" :count="128" />
             <div class="flex h-auto min-h-[170px] w-auto min-w-[170px] items-center justify-center rounded-lg">
-              <img src="/urban%20renewal.png" alt="都更案件圖示" class="object-contain" />
+              <img src="/urban-renewal.png" alt="都更案件圖示" class="object-contain" />
             </div>
           </div>
           <!-- 分隔線 -->
@@ -18,14 +18,14 @@
           <div class="flex items-center justify-between gap-4">
             <StatCard title="危老案件" :count="103" />
             <div class="flex h-auto min-h-[170px] w-auto min-w-[170px] items-center justify-center rounded-lg">
-              <img src="/dangerous%20building.png" alt="危老案件圖示" class="object-contain" />
+              <img src="/dangerous-building.png" alt="危老案件圖示" class="object-contain" />
             </div>
           </div>
         </div>
       </div>
 
       <!-- 電子領標專區 -->
-      <div class="mt-6 flex items-center justify-between rounded-card bg-white px-6 py-4 shadow-card">
+      <div class="mt-6 flex items-center justify-between rounded-lg bg-white px-6 py-4 shadow-sm">
         <div>
           <h2 class="mb-5 text-2xl font-semibold text-gray-900">電子領標專區</h2>
           <p class="mt-1 text-xl text-gray-500">前往查看 最新招標公告、招標結果查詢</p>

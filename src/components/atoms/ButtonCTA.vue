@@ -159,7 +159,7 @@ const buttonClasses = computed(() => {
     return getDisabledClasses();
   }
 
-  if (props.outline) {
+  if (props.variant === "outline" || props.outline) {
     return getOutlineClasses();
   }
 
@@ -182,9 +182,10 @@ const getSolidClasses = () => {
 };
 
 const getOutlineClasses = () => {
-  const base = "border-2 bg-transparent focus-visible:ring-primary-600";
+  const base = "border bg-transparent focus-visible:ring-primary-600";
   const variants: Record<string, string> = {
-    primary: "border-primary-600 text-primary-600 hover:bg-primary-50 focus-visible:ring-primary-600",
+    primary: "border-primary-700 text-primary-700 hover:bg-primary-50 focus-visible:ring-primary-600",
+    outline: "border-primary-700 text-primary-700 hover:bg-primary-50 focus-visible:ring-primary-600",
     dark: "border-gray-900 text-gray-900 hover:bg-gray-50 focus-visible:ring-gray-600",
     green: "border-green-500 text-green-500 hover:bg-green-50 focus-visible:ring-green-600",
     red: "border-red-500 text-red-500 hover:bg-red-50 focus-visible:ring-red-600",
@@ -193,7 +194,7 @@ const getOutlineClasses = () => {
     alternative: "border-indigo-600 text-indigo-600 hover:bg-indigo-50 focus-visible:ring-indigo-600",
     alternativeDark: "border-indigo-900 text-indigo-900 hover:bg-indigo-50 focus-visible:ring-indigo-600",
   };
-  return variants[props.variant] || variants.primary;
+  return `${base} ${variants[props.variant] || variants.primary}`;
 };
 
 const getNoneClasses = () => {

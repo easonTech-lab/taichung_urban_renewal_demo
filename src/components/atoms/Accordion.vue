@@ -2,15 +2,15 @@
   <div
     id="accordion-flush"
     data-accordion="collapse"
-    data-active-classes="bg-neutral-primary text-heading"
-    data-inactive-classes="text-body"
+    data-active-classes="bg-gray-100 text-gray-900"
+    data-inactive-classes="text-gray-700"
   >
     <template v-for="(item, index) in items" :key="index">
       <h2 :id="`accordion-flush-heading-${index}`">
         <button
           type="button"
-          class="border-default flex w-full items-center justify-between gap-3 border-b py-5 font-medium rtl:text-right"
-          :class="isOpen(index) ? 'bg-neutral-primary text-heading' : 'text-body'"
+          class="flex w-full items-center justify-between gap-3 border-b border-gray-300 py-5 font-medium text-gray-700 rtl:text-right"
+          :class="isOpen(index) ? 'bg-gray-100 text-gray-900' : 'text-gray-700'"
           :data-accordion-target="`#accordion-flush-body-${index}`"
           :aria-expanded="isOpen(index)"
           :aria-controls="`accordion-flush-body-${index}`"
@@ -32,7 +32,7 @@
         :class="isOpen(index) ? '' : 'hidden'"
         :aria-labelledby="`accordion-flush-heading-${index}`"
       >
-        <div class="text-body py-5" :class="index < items.length - 1 ? 'border-default border-b' : ''">
+        <div class="py-5 text-gray-700" :class="index < items.length - 1 ? 'border-b border-gray-300' : ''">
           <slot :name="`content-${index}`" :item="item">
             <div v-html="item.content"></div>
           </slot>

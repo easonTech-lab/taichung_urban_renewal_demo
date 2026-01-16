@@ -23,7 +23,40 @@
 import { ref, computed, onMounted, watch } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import SidebarAccordion, { type SidebarSubItem } from "@/components/atoms/SidebarAccordion.vue";
-import { backendMenuConfig, getValueByRoute, getRouteByValue } from "@/config/routes";
+
+// 側邊欄選單配置
+const sidebarMenuConfig = [
+  {
+    title: "我的案件",
+    icon: "chartPie",
+    iconClass: "shrink-0 text-gray-800",
+    subItems: [
+      {
+        label: "都市更新案件",
+        value: "都市更新案件",
+        route: "/case-management",
+      },
+      {
+        label: "危老重建案件",
+        value: "危老重建案件",
+        route: "/case-management-dangerous",
+      },
+    ],
+    defaultExpanded: true,
+  },
+  {
+    title: "我的帳號",
+    icon: "userSettings",
+    iconClass: "shrink-0 text-gray-500",
+    subItems: [
+      {
+        label: "編輯個人資料",
+        value: "編輯個人資料",
+        route: "/profile",
+      },
+    ],
+  },
+];
 
 const router = useRouter();
 const route = useRoute();
@@ -33,7 +66,7 @@ const selectedItem = ref<string>("");
 
 // 將配置轉換為 SidebarAccordion 需要的格式
 const menuItems = computed(() => {
-  return backendMenuConfig.map((item) => ({
+  return sidebarMenuConfig.map((item) => ({
     title: item.title,
     icon: item.icon,
     iconClass: item.iconClass,
@@ -47,13 +80,16 @@ const menuItems = computed(() => {
 
 // 更新選中項目的函數
 const updateSelectedItem = () => {
-  const currentValue = getValueByRoute(route.path);
-  if (currentValue) {
-    selectedItem.value = currentValue;
-  } else {
-    // 預設選中第一個子選單項
-    selectedItem.value = backendMenuConfig[0]?.subItems[0]?.value || "";
+  // 直接在 sidebarMenuConfig 中查找
+  for (const menuItem of sidebarMenuConfig) {
+    const subItem = menuItem.subItems.find((item) => item.route === route.path);
+    if (subItem) {
+      selectedItem.value = subItem.value;
+      return;
+    }
   }
+  // 預設選中第一個子選單項
+  selectedItem.value = sidebarMenuConfig[0]?.subItems[0]?.value || "";
 };
 
 // 初始化選中項目
@@ -71,11 +107,15 @@ watch(
 
 const selectItem = (itemName: string) => {
   selectedItem.value = itemName;
-  const routePath = getRouteByValue(itemName);
-  if (routePath) {
-    router.push(routePath);
+  // 直接在 sidebarMenuConfig 中查找
+  for (const menuItem of sidebarMenuConfig) {
+    const subItem = menuItem.subItems.find((item) => item.value === itemName);
+    if (subItem) {
+      router.push(subItem.route);
+      emit("item-select", itemName);
+      return;
+    }
   }
-  emit("item-select", itemName);
 };
 
 const emit = defineEmits<{

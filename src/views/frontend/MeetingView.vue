@@ -37,7 +37,7 @@
         </div>
 
         <!-- Table -->
-        <div class="border-default rounded-lg border bg-white p-6 shadow-sm">
+        <div class="rounded-lg border border-gray-300 bg-white p-6 shadow-sm">
           <Table :columns="tableColumns" :rows="filteredData" :pagination="pagination" @page-change="handlePageChange">
             <!-- Index Column -->
             <template #cell-index="{ rowIndex }">
@@ -228,32 +228,28 @@ const tableColumns: TableColumn[] = [
   {
     key: "index",
     label: "項次",
-    headerClass: "w-[60px] bg-gray-50 px-4 py-3.5 rounded-tl-lg",
-    cellClass: "w-[60px] px-4 py-5",
+    headerClass: "w-[60px]",
+    cellClass: "w-[60px]",
   },
   {
     key: "agenda",
     label: "議程",
-    headerClass: "bg-gray-50 px-4 py-3.5",
-    cellClass: "px-4 py-5",
   },
   {
     key: "stage",
     label: "案件階段",
-    headerClass: "w-[200px] bg-gray-50 px-4 py-3.5",
-    cellClass: "w-[200px] px-4 py-5",
+    headerClass: "w-[200px]",
+    cellClass: "w-[200px]",
   },
   {
     key: "date",
     label: "會議日期",
-    headerClass: "w-[200px] bg-gray-50 px-4 py-3.5",
-    cellClass: "w-[200px] px-4 py-5",
+    headerClass: "w-[200px]",
+    cellClass: "w-[200px]",
   },
   {
     key: "action",
     label: "動作",
-    headerClass: "bg-gray-50 px-4 py-3.5 rounded-tr-lg",
-    cellClass: "px-4 py-5",
   },
 ];
 

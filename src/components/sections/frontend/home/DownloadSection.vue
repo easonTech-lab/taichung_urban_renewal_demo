@@ -19,7 +19,7 @@
       <!-- Download Content -->
       <div class="flex flex-col items-start gap-6 md:flex-row">
         <!-- Left Image -->
-        <div class="min-h-[196px] w-full max-w-[260px] shrink-0 overflow-hidden rounded-card">
+        <div class="min-h-[196px] w-full max-w-[260px] shrink-0 overflow-hidden rounded-lg">
           <img src="/download.png" alt="下載專區插圖" class="h-full w-full object-cover" />
         </div>
 

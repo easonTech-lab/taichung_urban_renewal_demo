@@ -9,8 +9,11 @@ import FAQView from "../views/frontend/FAQView.vue";
 import MeetingView from "../views/frontend/MeetingView.vue";
 import ForgotPasswordView from "../views/frontend/ForgotPasswordView.vue";
 import CaseManagementView from "../views/backend/CaseManagementView.vue";
+import CaseManagementDangerousView from "../views/backend/CaseManagementDangerousView.vue";
+import ProfileView from "../views/backend/ProfileView.vue";
+import ChangePasswordView from "../views/backend/ChangePasswordView.vue";
 
-// 導出路由配置，供 config/routes.ts 使用
+// 導出路由配置，供組件使用
 export const routes: RouteRecordRaw[] = [
   {
     path: "/",
@@ -31,11 +34,19 @@ export const routes: RouteRecordRaw[] = [
     path: "/news",
     name: "news",
     component: NewsView,
+    meta: {
+      showInNav: true,
+      navLabel: "公開消息",
+    },
   },
   {
     path: "/downloads",
     name: "downloads",
     component: DownloadsView,
+    meta: {
+      showInNav: true,
+      navLabel: "下載專區",
+    },
   },
   {
     path: "/e-services",
@@ -46,6 +57,10 @@ export const routes: RouteRecordRaw[] = [
     path: "/faq",
     name: "faq",
     component: FAQView,
+    meta: {
+      showInNav: true,
+      navLabel: "常見問題",
+    },
   },
   {
     path: "/meetings",
@@ -61,6 +76,57 @@ export const routes: RouteRecordRaw[] = [
     path: "/case-management",
     name: "case-management",
     component: CaseManagementView,
+    meta: {
+      breadcrumb: {
+        label: "都市更新案件",
+        parent: {
+          label: "我的案件",
+        },
+      },
+    },
+  },
+  {
+    path: "/case-management-dangerous",
+    name: "case-management-dangerous",
+    component: CaseManagementDangerousView,
+    meta: {
+      breadcrumb: {
+        label: "危老重建案件",
+        parent: {
+          label: "我的案件",
+        },
+      },
+    },
+  },
+  {
+    path: "/profile",
+    name: "profile",
+    component: ProfileView,
+    meta: {
+      breadcrumb: {
+        label: "編輯個人資料",
+        parent: {
+          label: "我的帳號",
+        },
+      },
+    },
+  },
+  {
+    path: "/change-password",
+    name: "change-password",
+    component: ChangePasswordView,
+    meta: {
+      breadcrumb: {
+        label: "變更密碼",
+        parent: {
+          label: "編輯個人資料",
+          to: "/profile",
+          parent: {
+            label: "我的帳號",
+          },
+        },
+      },
+    },
   },
 ];
 

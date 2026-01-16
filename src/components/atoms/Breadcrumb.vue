@@ -72,7 +72,7 @@
 import { computed } from "vue";
 import { useRoute } from "vue-router";
 import Icon from "@/components/atoms/Icon.vue";
-import { getBreadcrumbItems } from "@/config/routes";
+import * as routerModule from "@/router/index";
 
 export interface BreadcrumbItem {
   label: string;
@@ -90,6 +90,48 @@ const props = withDefaults(
 );
 
 const route = useRoute();
+
+// 根據路由路徑獲取麵包屑項目
+const getBreadcrumbItems = (routePath: string): Array<{ label: string; to?: string; href?: string }> => {
+  const items: Array<{ label: string; to?: string }> = [];
+  // 如果是首頁
+  if (routePath === "/") {
+    return [{ label: "首頁" }];
+  }
+  // 從 router/index.ts 的路由配置中查找
+  const routes = routerModule.routes;
+  const currentRoute = routes.find((route: any) => route.path === routePath);
+  if (!currentRoute) {
+    // 如果找不到，返回首頁
+    return [{ label: "首頁", to: "/" }];
+  }
+  // 添加首頁
+  items.push({ label: "首頁", to: "/" });
+  // 從 meta.breadcrumb 中讀取麵包屑信息
+  const breadcrumbMeta = (currentRoute as any).meta?.breadcrumb;
+  if (breadcrumbMeta) {
+    // 遞歸添加所有父級
+    const addParents = (parent: any) => {
+      if (parent) {
+        if (parent.parent) {
+          addParents(parent.parent);
+        }
+        items.push({ label: parent.label, to: parent.to });
+      }
+    };
+    if (breadcrumbMeta.parent) {
+      addParents(breadcrumbMeta.parent);
+    }
+    // 添加當前路由
+    items.push({ label: breadcrumbMeta.label });
+  } else {
+    // 如果沒有 meta，使用路由名稱作為 fallback
+    const routeName = (currentRoute as any).name as string;
+    const navLabel = (currentRoute as any).meta?.navLabel;
+    items.push({ label: navLabel || routeName });
+  }
+  return items;
+};
 
 // 如果提供了 items，使用提供的；否則根據當前路由自動生成
 const breadcrumbItems = computed<BreadcrumbItem[]>(() => {

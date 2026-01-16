@@ -1,5 +1,5 @@
 <template>
-  <div class="flex w-full flex-col overflow-hidden rounded-bl-card rounded-br-card shadow-card">
+  <div class="flex w-full flex-col overflow-hidden rounded-bl-lg rounded-br-lg shadow-sm">
     <!-- Header -->
     <div
       class="flex h-[54px] w-full items-center justify-center rounded-tl-card rounded-tr-card bg-[#3f83f8] px-0 py-3"

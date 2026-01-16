@@ -1,7 +1,7 @@
 <template>
   <a
     :href="href"
-    class="flex h-[95px] flex-1 items-center rounded-card bg-white px-8 py-10 shadow-card transition-shadow hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
+    class="flex h-[95px] flex-1 items-center rounded-lg bg-white px-8 py-10 shadow-sm transition-shadow hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
     :aria-label="`前往${title}服務`"
   >
     <div class="flex flex-1 items-center justify-between">

@@ -7,7 +7,7 @@
     <!-- Main Content -->
     <div class="px-[60px] py-[40px]">
       <!-- Title -->
-      <h1 class="text-heading mb-6 text-[30px] font-bold leading-[30px]">下載專區</h1>
+      <h1 class="mb-6 text-[30px] font-bold leading-[30px] text-gray-900">下載專區</h1>
       <!-- Search and Filter Section -->
       <div class="mb-6 flex items-center gap-4">
         <!-- Category Dropdown -->
@@ -35,19 +35,19 @@
           </template>
           <!-- 文件名稱欄位 -->
           <template #cell-fileName="{ row }">
-            <p class="text-heading line-clamp-2 text-base font-normal">
+            <p class="line-clamp-2 text-base text-gray-900">
               {{ row.fileName }}
             </p>
           </template>
           <!-- 案件類別欄位 -->
           <template #cell-category="{ row }">
-            <p class="text-body text-base font-normal">
+            <p class="text-base text-gray-700">
               {{ row.category }}
             </p>
           </template>
           <!-- 發布日期欄位 -->
           <template #cell-publishDate="{ row }">
-            <p class="text-body text-base font-normal">
+            <p class="text-base text-gray-700">
               {{ row.publishDate }}
             </p>
           </template>
@@ -173,32 +173,28 @@ const tableColumns: TableColumn[] = [
   {
     key: "index",
     label: "項次",
-    headerClass: "px-4 py-3.5 w-[60px]",
-    cellClass: "px-4 py-5 w-[60px]",
+    headerClass: "w-[60px]",
+    cellClass: "w-[60px]",
   },
   {
     key: "fileName",
     label: "文件名稱",
-    headerClass: "px-4 py-3.5",
-    cellClass: "px-4 py-5",
   },
   {
     key: "category",
     label: "案件類別",
-    headerClass: "px-4 py-3.5 w-[200px]",
-    cellClass: "px-4 py-5 w-[200px]",
+    headerClass: "w-[200px]",
+    cellClass: "w-[200px]",
   },
   {
     key: "publishDate",
     label: "發布日期",
-    headerClass: "px-4 py-3.5 w-[140px]",
-    cellClass: "px-4 py-5 w-[140px]",
+    headerClass: "w-[140px]",
+    cellClass: "w-[140px]",
   },
   {
     key: "action",
     label: "動作",
-    headerClass: "px-4 py-3.5 rounded-tr-lg",
-    cellClass: "px-4 py-5",
   },
 ];
 

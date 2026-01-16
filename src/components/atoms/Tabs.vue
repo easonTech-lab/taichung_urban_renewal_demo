@@ -6,7 +6,7 @@
         <router-link
           v-if="item.to && !item.disabled"
           :to="item.to"
-          class="rounded-t-base inline-block border-b p-4 transition-colors"
+          class="inline-block rounded-t-lg border-b p-4 transition-colors"
           :class="
             index === activeIndex
               ? 'active border-primary-700 text-primary-700'
@@ -22,7 +22,7 @@
         <a
           v-else-if="item.href && !item.disabled"
           :href="item.href"
-          class="rounded-t-base inline-block border-b p-4 transition-colors"
+          class="inline-block rounded-t-lg border-b p-4 transition-colors"
           :class="
             index === activeIndex
               ? 'active border-primary-700 text-primary-700'
@@ -38,7 +38,7 @@
         <a
           v-else-if="!item.disabled"
           href="#"
-          class="rounded-t-base inline-block border-b p-4 transition-colors"
+          class="inline-block rounded-t-lg border-b p-4 transition-colors"
           :class="
             index === activeIndex
               ? 'active border-primary-700 text-primary-700'
@@ -51,7 +51,7 @@
         </a>
 
         <!-- Disabled -->
-        <a v-else class="rounded-t-base inline-block cursor-not-allowed p-4 text-gray-400 dark:text-gray-600">
+        <a v-else class="inline-block cursor-not-allowed rounded-t-lg p-4 text-gray-400 dark:text-gray-600">
           {{ item.label }}
         </a>
       </li>

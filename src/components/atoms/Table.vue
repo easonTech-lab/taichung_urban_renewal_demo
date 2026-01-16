@@ -1,7 +1,7 @@
 <template>
-  <div class="border-default relative overflow-x-auto rounded-lg border bg-white shadow-sm">
-    <table class="text-body w-full text-left text-sm rtl:text-right">
-      <thead class="border-default-medium text-body border-b bg-gray-50 text-sm">
+  <div class="relative overflow-x-auto rounded-lg border border-gray-300 bg-white shadow-sm">
+    <table class="w-full table-auto text-left text-sm text-gray-900 rtl:text-right">
+      <thead class="border-b border-gray-300 bg-gray-50 text-sm text-gray-900">
         <tr>
           <!-- Checkbox 欄位 -->
           <th v-if="showCheckbox" scope="col" class="p-4">
@@ -10,7 +10,7 @@
                 :id="`table-checkbox-all-${tableId}`"
                 type="checkbox"
                 :checked="isAllSelected"
-                class="border-default-medium bg-neutral-secondary-medium focus:ring-brand-soft rounded-xs h-4 w-4 border focus:ring-2"
+                class="h-4 w-4 rounded border border-gray-300 bg-gray-100 focus:ring-2 focus:ring-primary-500"
                 @change="handleSelectAll"
               />
               <label :for="`table-checkbox-all-${tableId}`" class="sr-only"> Select all </label>
@@ -18,26 +18,13 @@
           </th>
 
           <!-- 欄位標題 -->
-          <th
-            v-for="(column, index) in columns"
-            :key="index"
-            scope="col"
-            :class="[
-              column.headerClass || 'px-6 py-3.5',
-              index === 0 ? 'rounded-tl-lg' : '',
-              index === columns.length - 1 && !showCheckbox ? 'rounded-tr-lg' : '',
-            ]"
-          >
+          <th v-for="(column, index) in columns" :key="index" scope="col" :class="getHeaderClass(column, index)">
             {{ column.label }}
           </th>
         </tr>
       </thead>
       <tbody>
-        <tr
-          v-for="(row, rowIndex) in rows"
-          :key="rowIndex"
-          class="border-default bg-neutral-primary-soft hover:bg-neutral-secondary-medium border-b"
-        >
+        <tr v-for="(row, rowIndex) in rows" :key="rowIndex" class="border-b border-gray-300 bg-white hover:bg-gray-50">
           <!-- Checkbox 欄位 -->
           <td v-if="showCheckbox" class="w-4 p-4">
             <div class="flex items-center">
@@ -45,7 +32,7 @@
                 :id="`table-checkbox-${tableId}-${rowIndex}`"
                 type="checkbox"
                 :checked="isRowSelected(rowIndex)"
-                class="border-default-medium bg-neutral-secondary-medium focus:ring-brand-soft rounded-xs h-4 w-4 border focus:ring-2"
+                class="h-4 w-4 rounded border border-gray-300 bg-gray-100 focus:ring-2 focus:ring-primary-500"
                 @change="handleRowSelect(rowIndex, $event)"
               />
               <label :for="`table-checkbox-${tableId}-${rowIndex}`" class="sr-only"> Table checkbox </label>
@@ -54,17 +41,12 @@
 
           <!-- 資料欄位 -->
           <template v-for="(column, colIndex) in columns" :key="colIndex">
-            <th
-              v-if="column.isRowHeader"
-              :key="`th-${colIndex}`"
-              scope="row"
-              :class="column.cellClass || 'text-heading whitespace-nowrap px-6 py-4 font-medium'"
-            >
+            <th v-if="column.isRowHeader" :key="`th-${colIndex}`" scope="row" :class="getCellClass(column, true)">
               <slot :name="`cell-${column.key}`" :row="row" :column="column" :rowIndex="rowIndex">
                 {{ getCellValue(row, column) }}
               </slot>
             </th>
-            <td v-else :key="`td-${colIndex}`" :class="column.cellClass || 'px-6 py-4'">
+            <td v-else :key="`td-${colIndex}`" :class="getCellClass(column)">
               <slot :name="`cell-${column.key}`" :row="row" :column="column" :rowIndex="rowIndex">
                 {{ getCellValue(row, column) }}
               </slot>
@@ -75,22 +57,18 @@
     </table>
 
     <!-- 分頁導航 -->
-    <nav
-      v-if="pagination"
-      class="flex-column flex flex-wrap items-center justify-between p-4 md:flex-row"
-      aria-label="Table navigation"
-    >
-      <span class="text-body mb-4 block w-full text-sm font-normal md:mb-0 md:inline md:w-auto">
+    <nav v-if="pagination" class="flex flex-wrap items-center justify-between p-4 md:flex-row" aria-label="Table navigation">
+      <span class="mb-4 block w-full text-sm font-normal text-gray-900 md:mb-0 md:inline md:w-auto">
         顯示
-        <span class="text-heading font-semibold">{{ paginationFrom }}-{{ paginationTo }}</span>
+        <span class="font-semibold text-gray-900">{{ paginationFrom }}-{{ paginationTo }}</span>
         of
-        <span class="text-heading font-semibold">{{ pagination.total }}</span>
+        <span class="font-semibold text-gray-900">{{ pagination.total }}</span>
       </span>
       <ul class="flex -space-x-px text-sm">
         <li>
           <a
             href="#"
-            class="rounded-s-base border-default-medium bg-neutral-secondary-medium text-body hover:bg-neutral-tertiary-medium hover:text-heading flex h-9 items-center justify-center border px-3 text-sm font-medium focus:outline-none"
+            class="flex h-9 items-center justify-center rounded-l-lg border border-gray-300 bg-gray-100 px-3 text-sm font-medium text-gray-900 hover:bg-gray-200 hover:text-gray-900 focus:outline-none"
             @click.prevent="handlePageChange(pagination.currentPage - 1)"
           >
             Previous
@@ -102,26 +80,23 @@
             href="#"
             :aria-current="page === pagination.currentPage ? 'page' : undefined"
             :class="[
-              'border-default-medium flex h-9 w-9 items-center justify-center border text-sm font-medium focus:outline-none',
+              'flex h-9 w-9 items-center justify-center border border-gray-300 text-sm font-medium focus:outline-none',
               page === pagination.currentPage
-                ? 'bg-brand-softer text-fg-brand hover:bg-brand-soft hover:text-fg-brand'
-                : 'bg-neutral-secondary-medium text-body hover:bg-neutral-tertiary-medium hover:text-heading',
+                ? 'bg-primary-100 text-primary-700 hover:bg-primary-200 hover:text-primary-800'
+                : 'bg-gray-100 text-gray-900 hover:bg-gray-200 hover:text-gray-900',
             ]"
             @click.prevent="handlePageClick(page)"
           >
             {{ page }}
           </a>
-          <span
-            v-else
-            class="border-default-medium bg-neutral-secondary-medium text-body flex h-9 w-9 items-center justify-center border text-sm font-medium"
-          >
+          <span v-else class="flex h-9 w-9 items-center justify-center border border-gray-300 bg-gray-100 text-sm font-medium text-gray-900">
             ...
           </span>
         </li>
         <li>
           <a
             href="#"
-            class="rounded-e-base border-default-medium bg-neutral-secondary-medium text-body hover:bg-neutral-tertiary-medium hover:text-heading flex h-9 items-center justify-center border px-3 text-sm font-medium focus:outline-none"
+            class="flex h-9 items-center justify-center rounded-r-lg border border-gray-300 bg-gray-100 px-3 text-sm font-medium text-gray-900 hover:bg-gray-200 hover:text-gray-900 focus:outline-none"
             @click.prevent="handlePageChange(pagination.currentPage + 1)"
           >
             Next
@@ -262,5 +237,72 @@ const handlePageChange = (page: number) => {
   if (page >= 1 && page <= totalPages && page !== props.pagination.currentPage) {
     emit("page-change", page);
   }
+};
+
+// 統一的 header class 處理
+const getHeaderClass = (column: TableColumn, index: number): string => {
+  const baseClasses = "bg-gray-50 px-4 py-4";
+  const customClasses = column.headerClass || "";
+
+  // 檢查是否已經包含基礎樣式，避免重複
+  const hasBgGray = customClasses.includes("bg-gray-50");
+  const hasPadding = customClasses.includes("px-") || customClasses.includes("py-");
+
+  // 處理圓角
+  const roundedClasses: string[] = [];
+  if (index === 0 && !props.showCheckbox) {
+    if (!customClasses.includes("rounded-tl")) {
+      roundedClasses.push("rounded-tl-lg");
+    }
+  }
+  if (index === props.columns.length - 1 && !props.showCheckbox) {
+    if (!customClasses.includes("rounded-tr")) {
+      roundedClasses.push("rounded-tr-lg");
+    }
+  }
+
+  // 將固定寬度（w-[xxx]）轉換為最小寬度（min-w-[xxx]），讓表格可以彈性調整
+  let processedClasses = customClasses;
+  if (processedClasses) {
+    // 將 w-[xxx] 轉換為 min-w-[xxx]
+    processedClasses = processedClasses.replace(/\bw-\[([^\]]+)\]/g, "min-w-[$1]");
+  }
+
+  // 組合 class
+  const classes: string[] = [];
+  if (!hasBgGray) classes.push(baseClasses.split(" ")[0]); // bg-gray-50
+  if (!hasPadding) classes.push(...baseClasses.split(" ").slice(1)); // px-4 py-4
+  if (processedClasses) classes.push(processedClasses);
+  classes.push(...roundedClasses);
+
+  return classes.join(" ");
+};
+
+// 統一的 cell class 處理
+const getCellClass = (column: TableColumn, isRowHeader = false): string => {
+  const customClasses = column.cellClass || "";
+  
+  // 將固定寬度（w-[xxx]）轉換為最小寬度（min-w-[xxx]），讓表格可以彈性調整
+  let processedClasses = customClasses;
+  if (processedClasses) {
+    // 將 w-[xxx] 轉換為 min-w-[xxx]
+    processedClasses = processedClasses.replace(/\bw-\[([^\]]+)\]/g, "min-w-[$1]");
+  }
+
+  if (isRowHeader) {
+    const baseClasses = "whitespace-nowrap px-4 py-4 font-medium text-gray-900";
+    return processedClasses || baseClasses;
+  }
+
+  const baseClasses = "px-4 py-4";
+
+  // 檢查是否已經包含 padding，避免重複
+  const hasPadding = processedClasses.includes("px-") || processedClasses.includes("py-");
+
+  if (hasPadding) {
+    return processedClasses;
+  }
+
+  return `${baseClasses} ${processedClasses}`.trim();
 };
 </script>
