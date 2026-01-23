@@ -77,7 +77,6 @@ const isOpen = (index: number) => {
 
 const toggle = (index: number) => {
   const wasOpen = isOpen(index);
-
   if (props.allowMultiple) {
     // 允許多個同時展開
     const currentIndex = openIndexes.value.indexOf(index);
@@ -94,7 +93,6 @@ const toggle = (index: number) => {
       openIndexes.value = [index];
     }
   }
-
   const isNowOpen = isOpen(index);
   emit("toggle", index, isNowOpen);
   emit("update:openIndex", props.allowMultiple ? openIndexes.value : openIndexes.value[0]);

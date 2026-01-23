@@ -10,6 +10,11 @@ import MeetingView from "../views/frontend/MeetingView.vue";
 import ForgotPasswordView from "../views/frontend/ForgotPasswordView.vue";
 import CaseManagementView from "../views/backend/CaseManagementView.vue";
 import CaseManagementDangerousView from "../views/backend/CaseManagementDangerousView.vue";
+import CaseDetailView from "../views/backend/CaseDetailView.vue";
+import CaseStatisticsView from "../views/backend/CaseStatisticsView.vue";
+import CaseStatisticsAddView from "../views/backend/CaseStatisticsAddView.vue";
+import CaseStatisticsEditView from "../views/backend/CaseStatisticsEditView.vue";
+import FAQManagementView from "../views/backend/FAQManagementView.vue";
 import ProfileView from "../views/backend/ProfileView.vue";
 import ChangePasswordView from "../views/backend/ChangePasswordView.vue";
 
@@ -66,6 +71,10 @@ export const routes: RouteRecordRaw[] = [
     path: "/meetings",
     name: "meetings",
     component: MeetingView,
+    meta: {
+      showInNav: true,
+      navLabel: "審查會議",
+    },
   },
   {
     path: "/forgot-password",
@@ -86,6 +95,19 @@ export const routes: RouteRecordRaw[] = [
     },
   },
   {
+    path: "/case-management-admin",
+    name: "case-management-admin",
+    component: CaseManagementView, // 使用同一個組件
+    meta: {
+      breadcrumb: {
+        label: "都市更新案件管理",
+        parent: {
+          label: "案件管理",
+        },
+      },
+    },
+  },
+  {
     path: "/case-management-dangerous",
     name: "case-management-dangerous",
     component: CaseManagementDangerousView,
@@ -94,6 +116,36 @@ export const routes: RouteRecordRaw[] = [
         label: "危老重建案件",
         parent: {
           label: "我的案件",
+        },
+      },
+    },
+  },
+  {
+    path: "/case-management-dangerous-admin",
+    name: "case-management-dangerous-admin",
+    component: CaseManagementDangerousView, // 使用同一個組件
+    meta: {
+      breadcrumb: {
+        label: "危老重建案件管理",
+        parent: {
+          label: "案件管理",
+        },
+      },
+    },
+  },
+  {
+    path: "/case-detail",
+    name: "case-detail",
+    component: CaseDetailView,
+    meta: {
+      breadcrumb: {
+        label: "案件詳情",
+        parent: {
+          label: "都市更新案件",
+          to: "/case-management",
+          parent: {
+            label: "我的案件",
+          },
         },
       },
     },
@@ -124,6 +176,58 @@ export const routes: RouteRecordRaw[] = [
           parent: {
             label: "我的帳號",
           },
+        },
+      },
+    },
+  },
+  {
+    path: "/case-statistics",
+    name: "case-statistics",
+    component: CaseStatisticsView,
+    meta: {
+      breadcrumb: {
+        label: "案件統計維護",
+        parent: {
+          label: "首頁維護",
+        },
+      },
+    },
+  },
+  {
+    path: "/case-statistics/add",
+    name: "case-statistics-add",
+    component: CaseStatisticsAddView,
+    meta: {
+      breadcrumb: {
+        label: "案件統計維護", // 顯示父路由的標籤，不顯示「新增年度」
+        parent: {
+          label: "首頁維護",
+        },
+      },
+    },
+  },
+  {
+    path: "/case-statistics/edit",
+    name: "case-statistics-edit",
+    component: CaseStatisticsEditView,
+    meta: {
+      breadcrumb: {
+        label: "案件統計維護", // 顯示父路由的標籤，不顯示「編輯案件件數」
+        parent: {
+          label: "首頁維護",
+        },
+      },
+    },
+  },
+  {
+    path: "/faq-management",
+    name: "faq-management",
+    component: FAQManagementView,
+    meta: {
+      breadcrumb: {
+        label: "常見問題維護",
+        parent: {
+          label: "首頁維護",
         },
       },
     },

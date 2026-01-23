@@ -9,7 +9,9 @@
         <!-- Breadcrumb and Title -->
         <div class="flex flex-col gap-6">
           <Breadcrumb />
-          <h1 class="text-3xl font-bold leading-[30px] text-gray-900">危老重建案件</h1>
+          <h1 class="text-3xl font-bold leading-[30px] text-gray-900">
+            {{ isAdmin ? "危老重建案件管理" : "危老重建案件" }}
+          </h1>
         </div>
 
         <!-- Case List Card -->
@@ -21,7 +23,9 @@
               <div class="flex flex-col gap-2">
                 <div class="flex items-center gap-3">
                   <div class="h-7 w-1 rounded bg-primary-600"></div>
-                  <h2 class="text-2xl font-medium leading-6 text-gray-900">危老重建案件</h2>
+                  <h2 class="text-2xl font-medium leading-6 text-gray-900">
+                    {{ isAdmin ? "案件列表" : "危老重建案件" }}
+                  </h2>
                 </div>
               </div>
               <ButtonDropdown
@@ -82,6 +86,7 @@
 
 <script setup lang="ts">
 import { ref, computed } from "vue";
+import { useRoute } from "vue-router";
 import SidebarSection from "@/components/sections/backend/SidebarSection.vue";
 import Breadcrumb from "@/components/atoms/Breadcrumb.vue";
 import ButtonDropdown, { type ButtonDropdownItem } from "@/components/atoms/ButtonDropdown.vue";
@@ -89,6 +94,11 @@ import Dropdown, { type DropdownItem } from "@/components/atoms/Dropdown.vue";
 import Table, { type TableColumn, type TablePagination } from "@/components/atoms/Table.vue";
 import Badge from "@/components/atoms/Badge.vue";
 import Empty from "@/components/atoms/Empty.vue";
+
+const route = useRoute();
+
+// 判斷是否為管理員模式（根據路由名稱）
+const isAdmin = computed(() => route.name === "case-management-dangerous-admin" || route.path.includes("-admin"));
 
 interface CaseItem {
   caseNumber: string;
@@ -117,6 +127,7 @@ const selectedStatus = ref<string>("");
 const selectedAddCaseIndex = ref<number | undefined>(undefined);
 const currentPage = ref<number>(1);
 const pageSize = ref<number>(10);
+const totalCases = ref<number>(1000); // 管理員顯示的總案件數
 
 // Mock Data - 危老重建案件
 const allCases: CaseItem[] = [
@@ -249,7 +260,7 @@ const paginatedCases = computed(() => {
 // Pagination
 const pagination = computed<TablePagination>(() => ({
   currentPage: currentPage.value,
-  total: filteredCases.value.length,
+  total: isAdmin.value ? totalCases.value : filteredCases.value.length, // 管理員使用總數，用戶使用過濾後的數量
   pageSize: pageSize.value,
 }));
 

@@ -11,7 +11,6 @@
         <div v-if="index > 0" class="mx-1.5 flex items-center">
           <Icon name="chevronRight" :size="14" class="text-gray-500" aria-hidden="true" />
         </div>
-
         <!-- 第一個項目（首頁，有圖標） -->
         <template v-if="index === 0">
           <router-link
@@ -35,7 +34,6 @@
             {{ item.label }}
           </span>
         </template>
-
         <!-- 中間項目（可點擊連結） -->
         <template v-else-if="index < breadcrumbItems.length - 1">
           <router-link
@@ -56,7 +54,6 @@
             {{ item.label }}
           </span>
         </template>
-
         <!-- 最後一個項目（當前頁面，不可點擊） -->
         <template v-else>
           <span class="inline-flex items-center text-sm font-medium text-gray-500">
@@ -67,7 +64,6 @@
     </ol>
   </nav>
 </template>
-
 <script setup lang="ts">
 import { computed } from "vue";
 import { useRoute } from "vue-router";

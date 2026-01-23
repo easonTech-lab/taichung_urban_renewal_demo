@@ -1,7 +1,7 @@
 <template>
   <div class="relative overflow-x-auto rounded-lg border border-gray-300 bg-white shadow-sm">
     <table class="w-full table-auto text-left text-sm text-gray-900 rtl:text-right">
-      <thead class="border-b border-gray-300 bg-gray-50 text-sm text-gray-900">
+      <thead class="border-b border-gray-300 bg-gray-50 text-sm text-gray-500">
         <tr>
           <!-- Checkbox 欄位 -->
           <th v-if="showCheckbox" scope="col" class="p-4">
@@ -19,12 +19,19 @@
 
           <!-- 欄位標題 -->
           <th v-for="(column, index) in columns" :key="index" scope="col" :class="getHeaderClass(column, index)">
+            <slot :name="`header-${column.key}`" :column="column" :index="index">
             {{ column.label }}
+            </slot>
           </th>
         </tr>
       </thead>
       <tbody>
-        <tr v-for="(row, rowIndex) in rows" :key="rowIndex" class="border-b border-gray-300 bg-white hover:bg-gray-50">
+        <tr
+          v-for="(row, rowIndex) in rows"
+          :key="rowIndex"
+          :class="['border-b border-gray-300 bg-white hover:bg-gray-50', rowClickable ? 'cursor-pointer' : '']"
+          @click="rowClickable && handleRowClick(row, rowIndex, $event)"
+        >
           <!-- Checkbox 欄位 -->
           <td v-if="showCheckbox" class="w-4 p-4">
             <div class="flex items-center">
@@ -130,9 +137,11 @@ const props = withDefaults(
     rows: Record<string, any>[];
     showCheckbox?: boolean;
     pagination?: TablePagination;
+    rowClickable?: boolean; // 是否啟用整行點擊功能
   }>(),
   {
     showCheckbox: false,
+    rowClickable: false,
   }
 );
 
@@ -140,6 +149,7 @@ const emit = defineEmits<{
   "select-all": [checked: boolean];
   "row-select": [rowIndex: number, checked: boolean];
   "page-change": [page: number];
+  "row-click": [row: Record<string, any>, rowIndex: number, event: MouseEvent];
 }>();
 
 const tableId = computed(() => Math.random().toString(36).substring(2, 11));
@@ -239,14 +249,24 @@ const handlePageChange = (page: number) => {
   }
 };
 
+const handleRowClick = (row: Record<string, any>, rowIndex: number, event: MouseEvent) => {
+  // 如果點擊的是 checkbox 或 checkbox 內的元素，不觸發行點擊
+  const target = event.target as HTMLElement;
+  if (target.closest('input[type="checkbox"]') || target.closest("label")) {
+    return;
+  }
+  emit("row-click", row, rowIndex, event);
+};
+
 // 統一的 header class 處理
 const getHeaderClass = (column: TableColumn, index: number): string => {
-  const baseClasses = "bg-gray-50 px-4 py-4";
+  const baseClasses = "bg-gray-50 px-4 py-4 text-gray-500";
   const customClasses = column.headerClass || "";
 
   // 檢查是否已經包含基礎樣式，避免重複
   const hasBgGray = customClasses.includes("bg-gray-50");
   const hasPadding = customClasses.includes("px-") || customClasses.includes("py-");
+  const hasTextColor = customClasses.includes("text-gray-") || customClasses.includes("text-");
 
   // 處理圓角
   const roundedClasses: string[] = [];
@@ -271,7 +291,8 @@ const getHeaderClass = (column: TableColumn, index: number): string => {
   // 組合 class
   const classes: string[] = [];
   if (!hasBgGray) classes.push(baseClasses.split(" ")[0]); // bg-gray-50
-  if (!hasPadding) classes.push(...baseClasses.split(" ").slice(1)); // px-4 py-4
+  if (!hasPadding) classes.push(...baseClasses.split(" ").slice(1, 3)); // px-4 py-4
+  if (!hasTextColor) classes.push(baseClasses.split(" ")[3]); // text-gray-500
   if (processedClasses) classes.push(processedClasses);
   classes.push(...roundedClasses);
 
@@ -281,7 +302,7 @@ const getHeaderClass = (column: TableColumn, index: number): string => {
 // 統一的 cell class 處理
 const getCellClass = (column: TableColumn, isRowHeader = false): string => {
   const customClasses = column.cellClass || "";
-  
+
   // 將固定寬度（w-[xxx]）轉換為最小寬度（min-w-[xxx]），讓表格可以彈性調整
   let processedClasses = customClasses;
   if (processedClasses) {

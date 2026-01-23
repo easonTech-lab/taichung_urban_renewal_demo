@@ -176,7 +176,6 @@ const handleClickOutside = (event: Event) => {
   const target = event.target as HTMLElement;
   const dropdownElement = document.getElementById(dropdownId.value);
   const buttonElement = document.getElementById(buttonId.value);
-
   if (isOpen.value && dropdownElement && buttonElement && !dropdownElement.contains(target) && !buttonElement.contains(target)) {
     close();
   }

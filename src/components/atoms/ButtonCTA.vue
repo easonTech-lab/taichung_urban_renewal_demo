@@ -54,13 +54,11 @@
     <Icon v-if="rightIcon && !iconOnly" :name="rightIcon" :size="iconSize" fill="currentColor" class="shrink-0" aria-hidden="true" />
   </button>
 </template>
-
 <script setup lang="ts">
 import { computed } from "vue";
 import Icon from "@/components/atoms/Icon.vue";
 
 type ColorVariant = "primary" | "dark" | "green" | "red" | "gray" | "white" | "alternative" | "alternativeDark";
-
 type SizeVariant = "xs" | "sm" | "base" | "l" | "xl";
 
 const props = withDefaults(
@@ -154,16 +152,19 @@ const buttonClasses = computed(() => {
   if (props.variant === "none") {
     return getNoneClasses();
   }
-
   if (props.disabled) {
     return getDisabledClasses();
   }
-
   if (props.variant === "outline" || props.outline) {
     return getOutlineClasses();
   }
-
   return getSolidClasses();
+});
+
+const justifyClasses = computed(() => {
+  if (props.align === "left") return "justify-start";
+  if (props.align === "right") return "justify-end";
+  return "justify-center"; // center is default
 });
 
 const getSolidClasses = () => {
@@ -213,10 +214,4 @@ const getDisabledClasses = () => {
   }
   return "bg-gray-300 text-gray-500";
 };
-
-const justifyClasses = computed(() => {
-  if (props.align === "left") return "justify-start";
-  if (props.align === "right") return "justify-end";
-  return "justify-center"; // center is default
-});
 </script>

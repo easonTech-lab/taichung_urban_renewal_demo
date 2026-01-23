@@ -10,7 +10,7 @@
       @click="toggle"
     >
       <div class="flex flex-1 items-start gap-3">
-        <Icon v-if="icon" :name="icon" :size="24" :class="iconClass" aria-hidden="true" />
+        <Icon v-if="icon" :name="icon" :size="24" :color="computedIconColor" :fill="computedIconColor" aria-hidden="true" />
         <p class="text-base font-medium leading-normal text-gray-900">{{ title }}</p>
       </div>
       <Icon :name="isExpanded ? 'chevronUp' : 'chevronDown'" :size="24" class="shrink-0 text-gray-800" aria-hidden="true" />
@@ -53,20 +53,20 @@ const props = withDefaults(
   defineProps<{
     title: string;
     icon?: string;
-    iconClass?: string;
     buttonClass?: string;
     subItemClass?: string;
     subItems?: SidebarSubItem[];
     defaultExpanded?: boolean;
+    expanded?: boolean; // 外部控制的展開狀態
     selectedItem?: string;
   }>(),
   {
     icon: undefined,
-    iconClass: "shrink-0 text-gray-800",
     buttonClass: "",
     subItemClass: "",
     subItems: () => [],
     defaultExpanded: false,
+    expanded: undefined,
     selectedItem: undefined,
   }
 );
@@ -77,11 +77,30 @@ const emit = defineEmits<{
 }>();
 
 const accordionId = computed(() => Math.random().toString(36).substring(2, 11));
-const isExpanded = ref(props.defaultExpanded);
+
+// 如果提供了 expanded prop，使用它；否則使用內部狀態
+const internalExpanded = ref(props.defaultExpanded);
+const isExpanded = computed(() => {
+  if (props.expanded !== undefined) {
+    return props.expanded;
+  }
+  return internalExpanded.value;
+});
+
+// 根據是否有選中的子項目來決定 icon 顏色
+const computedIconColor = computed(() => {
+  const hasSelectedSubItem = props.subItems?.some((subItem) => subItem.value === props.selectedItem) || false;
+  // text-gray-800: #1F2937, text-gray-500: #6B7280
+  return hasSelectedSubItem ? "#1F2937" : "#6B7280";
+});
 
 const toggle = () => {
-  isExpanded.value = !isExpanded.value;
-  emit("toggle", isExpanded.value);
+  const newValue = !isExpanded.value;
+  if (props.expanded === undefined) {
+    // 如果沒有外部控制，更新內部狀態
+    internalExpanded.value = newValue;
+  }
+  emit("toggle", newValue);
 };
 
 const handleSubItemClick = (value: string) => {
@@ -91,10 +110,16 @@ const handleSubItemClick = (value: string) => {
 // 暴露方法供父組件調用
 defineExpose({
   expand: () => {
-    isExpanded.value = true;
+    if (props.expanded === undefined) {
+      internalExpanded.value = true;
+    }
+    emit("toggle", true);
   },
   collapse: () => {
-    isExpanded.value = false;
+    if (props.expanded === undefined) {
+      internalExpanded.value = false;
+    }
+    emit("toggle", false);
   },
   toggle,
   isExpanded: computed(() => isExpanded.value),

@@ -130,11 +130,11 @@ const handleLogin = () => {
             localStorage.setItem("userInfo", JSON.stringify({ username: user.username }));
             // 觸發自定義事件，通知 Navbar 更新
             window.dispatchEvent(new Event("login-status-changed"));
-            // user 帳號跳轉到案件管理頁面，adm 帳號跳轉到 dashboard
+            // user 帳號跳轉到案件管理頁面，adm 帳號跳轉到都市更新案件管理
             if (user.username === "user") {
               router.push("/case-management");
             } else {
-              router.push("/dashboard");
+              router.push("/case-management-admin");
             }
           } else {
     // 登入失敗 - 顯示錯誤訊息

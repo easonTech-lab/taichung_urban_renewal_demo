@@ -54,7 +54,7 @@
           <!-- 動作欄位 -->
           <template #cell-action="{ row }">
             <button
-              class="text-brand hover:text-brand-strong flex items-center gap-2 text-sm font-medium underline focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
+              class="flex items-center justify-center text-primary-600 transition-colors hover:text-primary-700"
               :aria-label="`下載檔案：${row.fileName}`"
               @click="handleDownload(row)"
             >
@@ -149,9 +149,6 @@ const mockData: DownloadItem[] = [
 
 // 重複資料以達到 1000 筆
 const allData = Array.from({ length: 100 }, () => mockData).flat();
-
-// 根據當前路由自動生成麵包屑
-const breadcrumbItems = computed(() => getFrontendBreadcrumbItems(route.path));
 
 // Category Dropdown
 const categoryItems: DropdownItem[] = [
