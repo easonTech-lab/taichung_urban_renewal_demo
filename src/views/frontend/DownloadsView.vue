@@ -53,6 +53,7 @@
         </Table>
       </div>
     </div>
+    <FooterSection />
   </div>
 </template>
 
@@ -63,6 +64,7 @@ import Dropdown, { type DropdownItem } from "@/components/atoms/Dropdown.vue";
 import SearchInput from "@/components/atoms/SearchInput.vue";
 import Table, { type TableColumn } from "@/components/atoms/Table.vue";
 import Icon from "@/components/atoms/Icon.vue";
+import FooterSection from "@/components/sections/global/FooterSection.vue";
 
 // Props
 const props = withDefaults(

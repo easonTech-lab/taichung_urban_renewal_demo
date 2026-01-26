@@ -9,7 +9,7 @@
       >
         <!-- 分隔符（除了第一個項目） -->
         <div v-if="index > 0" class="mx-1.5 flex items-center">
-          <Icon name="chevronRight" :size="14" class="text-gray-500" aria-hidden="true" />
+          <Icon name="arrowRight" :size="14" class="text-gray-500" aria-hidden="true" />
         </div>
         <!-- 第一個項目（首頁，有圖標） -->
         <template v-if="index === 0">

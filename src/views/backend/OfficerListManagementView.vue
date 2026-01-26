@@ -82,7 +82,7 @@
             <template #cell-action="{ row }">
               <div class="flex h-20 items-center gap-4 px-4 py-4">
                 <Icon name="profileCard" :size="24" class="shrink-0" />
-                <ButtonCTA variant="textPlain" size="base" class="p-0"
+                <ButtonCTA variant="textPlain" size="base" class="p-0 text-nowrap"
                   :class="row.name && row.name !== '未選擇' ? 'text-primary-600' : 'text-primary-300'"
                   @click.stop="handleRemoveOfficerFromTable(row)">
                   移除

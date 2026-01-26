@@ -1,6 +1,6 @@
 <template>
-  <div class="min-h-screen bg-[#f3f5fa] pb-12">
-    <div class="mx-auto max-w-[1440px] px-4 pt-[88px] sm:px-6 lg:px-[60px]">
+  <div class="min-h-screen bg-[#f3f5fa]">
+    <div class="mx-auto max-w-[1440px] px-4 pt-[88px] pb-[40px] sm:px-6 lg:px-[60px]">
       <!-- Breadcrumb and Title -->
       <div class="mb-10">
         <div class="flex flex-col gap-6">
@@ -68,6 +68,7 @@
         </div>
       </div>
     </div>
+    <FooterSection />
   </div>
 </template>
 
@@ -81,6 +82,7 @@ import DateRangePicker, { type DateRange } from "@/components/atoms/DateRangePic
 import ButtonCTA from "@/components/atoms/ButtonCTA.vue";
 import Table, { type TableColumn, type TablePagination } from "@/components/atoms/Table.vue";
 import Icon from "@/components/atoms/Icon.vue";
+import FooterSection from "@/components/sections/global/FooterSection.vue";
 
 // Types
 interface MeetingItem {
