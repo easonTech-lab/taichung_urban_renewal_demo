@@ -1,346 +1,348 @@
 <template>
-  <div class="flex min-h-screen flex-col bg-indigo-50">
-    <div class="flex flex-1">
-      <!-- Sidebar -->
-      <SidebarSection @item-select="handleSidebarItemSelect" />
+  <div class="min-h-screen bg-indigo-50">
+    <!-- Sidebar -->
+    <SidebarSection @item-select="handleSidebarItemSelect" />
 
-      <!-- Main Content -->
-      <div class="flex flex-1 flex-col gap-10 p-10">
-        <!-- Breadcrumb and Title -->
-        <div class="flex flex-col gap-6">
-          <Breadcrumb />
-          <h1 class="text-3xl font-bold leading-[30px] text-gray-900">都市更新案件</h1>
-        </div>
+    <!-- Main Content -->
+    <div class="flex flex-1 flex-col gap-10 p-4 sm:ml-[328px] sm:p-10">
+      <!-- Breadcrumb and Title -->
+      <div class="flex flex-col gap-6">
+        <Breadcrumb :items="breadcrumbItems" />
+        <h1 class="text-3xl font-bold leading-[30px] text-gray-900">都市更新案件</h1>
+      </div>
 
-        <!-- Tabs Navigation -->
-        <div class="flex items-center overflow-hidden rounded-t-lg">
-          <button v-for="(tab, index) in tabs" :key="index" :class="getTabClass(index)" @click="handleTabClick(index)">
-            <span :class="getTabTextClass(index)">{{ tab.label }}</span>
-          </button>
-        </div>
+      <!-- Tabs Navigation -->
+      <div class="flex items-center overflow-hidden rounded-t-lg">
+        <button v-for="(tab, index) in tabs" :key="index" :class="getTabClass(index)" @click="handleTabClick(index)">
+          <span :class="getTabTextClass(index)">{{ tab.label }}</span>
+        </button>
+      </div>
 
-        <!-- Tab Content -->
-        <div class="rounded-lg bg-white p-6 shadow-sm">
-          <!-- Case Information Tab -->
-          <div v-if="activeTab === 0" class="flex flex-col gap-10">
-            <!-- Case Basic Information Section -->
-            <div class="flex flex-col gap-10">
-              <!-- Section Title -->
-              <div class="flex items-center gap-3">
-                <div class="h-7 w-1 rounded bg-primary-600"></div>
-                <h2 class="text-2xl font-medium leading-6 text-gray-900">案件基本資訊</h2>
-              </div>
-
-              <!-- Information Grid -->
-              <div class="flex flex-wrap gap-10">
-                <!-- Case Name -->
-                <div class="flex min-w-[840px] flex-col gap-2 pl-5">
-                  <p class="text-base font-medium text-gray-500">案件名稱</p>
-                  <p class="text-lg text-gray-900">臺中市東區行政段645地號等21筆土地 都市更新事業計畫及權利變換計畫案</p>
-                </div>
-
-                <!-- Case Number -->
-                <div class="flex min-w-[280px] flex-col gap-2 pl-5">
-                  <p class="text-base font-medium text-gray-500">案件編號</p>
-                  <p class="text-lg text-gray-900">abc13456788999</p>
-                </div>
-
-                <!-- Application Date -->
-                <div class="flex min-w-[280px] flex-col gap-2 pl-5">
-                  <p class="text-base font-medium text-gray-500">申請日期</p>
-                  <p class="text-lg text-gray-900">114/10/20</p>
-                </div>
-
-                <!-- Applicant Name -->
-                <div class="flex min-w-[280px] flex-col gap-2 pl-5">
-                  <p class="text-base font-medium text-gray-500">申請者姓名</p>
-                  <p class="text-lg text-gray-900">陳傑瑞</p>
-                </div>
-
-                <!-- Contact Phone -->
-                <div class="flex min-w-[280px] flex-col gap-2 pl-5">
-                  <p class="text-base font-medium text-gray-500">聯絡電話</p>
-                  <p class="text-lg text-gray-900">0933123123</p>
-                </div>
-
-                <!-- Email -->
-                <div class="flex min-w-[280px] flex-col gap-2 pl-5">
-                  <p class="text-base font-medium text-gray-500">E-mail</p>
-                  <p class="text-lg text-gray-900">abc@gmail.com</p>
-                </div>
-
-                <!-- Contact Address -->
-                <div class="flex min-w-[840px] flex-col gap-2 pl-5">
-                  <p class="text-base font-medium text-gray-500">聯絡地址</p>
-                  <p class="text-lg text-gray-900">台中市文心路二段588號</p>
-                </div>
-              </div>
-
-              <!-- Action Cards -->
-              <div class="flex gap-5">
-                <!-- Application Basic Information Card -->
-                <button
-                  class="flex flex-1 items-center gap-5 rounded-lg border border-gray-400 bg-white p-5 transition-colors hover:bg-gray-50"
-                  @click="handleCardClick('application-basic')"
-                >
-                  <div class="flex flex-1 flex-col">
-                    <p class="text-lg font-bold text-gray-500">申請基本資料</p>
-                  </div>
-                  <div class="relative flex h-12 w-12 shrink-0 items-center justify-center">
-                    <div class="absolute inset-0 rounded-full bg-blue-100"></div>
-                    <Icon name="arrowright" :size="24" color="#1C64F2" class="relative z-10" />
-                  </div>
-                </button>
-
-                <!-- Urban Renewal Review Data Form Card -->
-                <button
-                  class="flex flex-1 items-center gap-5 rounded-lg border border-gray-400 bg-white p-5 transition-colors hover:bg-gray-50"
-                  @click="handleCardClick('review-data')"
-                >
-                  <div class="flex flex-1 flex-col">
-                    <p class="text-lg font-bold text-gray-500">都市更新審議資料表</p>
-                  </div>
-                  <div class="relative flex h-12 w-12 shrink-0 items-center justify-center">
-                    <div class="absolute inset-0 rounded-full bg-blue-100"></div>
-                    <Icon name="arrowright" :size="24" color="#1C64F2" class="relative z-10" />
-                  </div>
-                </button>
-
-                <!-- Floor Area Ratio Incentive Card -->
-                <button
-                  class="flex flex-1 items-center gap-5 rounded-lg border border-gray-400 bg-white p-5 transition-colors hover:bg-gray-50"
-                  @click="handleCardClick('floor-area-ratio')"
-                >
-                  <div class="flex flex-1 flex-col">
-                    <p class="text-lg font-bold text-gray-500">容積獎勵項目及額度</p>
-                  </div>
-                  <div class="relative flex h-12 w-12 shrink-0 items-center justify-center">
-                    <div class="absolute inset-0 rounded-full bg-blue-100"></div>
-                    <Icon name="arrowright" :size="24" color="#1C64F2" class="relative z-10" />
-                  </div>
-                </button>
-              </div>
-            </div>
-          </div>
-
-          <!-- Case Progress Tab -->
-          <div v-if="activeTab === 1" class="flex flex-col gap-10">
+      <!-- Tab Content -->
+      <div class="rounded-lg bg-white p-6 shadow-sm">
+        <!-- Case Information Tab -->
+        <div v-if="activeTab === 0" class="flex flex-col gap-10">
+          <!-- Case Basic Information Section -->
+          <div class="flex flex-col gap-10">
             <!-- Section Title -->
             <div class="flex items-center gap-3">
               <div class="h-7 w-1 rounded bg-primary-600"></div>
-              <h2 class="text-2xl font-medium leading-6 text-gray-900">案件各階段進度</h2>
+              <h2 class="text-2xl font-medium leading-6 text-gray-900">案件基本資訊</h2>
             </div>
 
-            <!-- Progress Table -->
-            <div class="overflow-hidden rounded-lg border border-gray-300 bg-white">
-              <table class="w-full">
-                <thead>
-                  <tr class="border-b border-gray-300 bg-gray-50">
-                    <th class="px-4 py-4 text-left text-sm font-medium uppercase text-gray-500">案件階段</th>
-                    <th class="px-4 py-4 text-left text-sm font-medium uppercase text-gray-500">階段狀態</th>
-                    <th class="px-4 py-4 text-left text-sm font-medium uppercase text-gray-500">審議日期</th>
-                    <th class="px-4 py-4 text-left text-sm font-medium uppercase text-gray-500">審議時間</th>
-                    <th class="px-4 py-4 text-left text-sm font-medium uppercase text-gray-500">操作</th>
+            <!-- Information Grid -->
+            <div class="flex flex-wrap gap-10">
+              <!-- Case Name -->
+              <div class="flex min-w-[840px] flex-col gap-2 pl-5">
+                <p class="text-base font-medium text-gray-500">案件名稱</p>
+                <p class="text-lg text-gray-900">臺中市東區行政段645地號等21筆土地 都市更新事業計畫及權利變換計畫案</p>
+              </div>
+
+              <!-- Case Number -->
+              <div class="flex min-w-[280px] flex-col gap-2 pl-5">
+                <p class="text-base font-medium text-gray-500">案件編號</p>
+                <p class="text-lg text-gray-900">abc13456788999</p>
+              </div>
+
+              <!-- Application Date -->
+              <div class="flex min-w-[280px] flex-col gap-2 pl-5">
+                <p class="text-base font-medium text-gray-500">申請日期</p>
+                <p class="text-lg text-gray-900">114/10/20</p>
+              </div>
+
+              <!-- Applicant Name -->
+              <div class="flex min-w-[280px] flex-col gap-2 pl-5">
+                <p class="text-base font-medium text-gray-500">申請者姓名</p>
+                <p class="text-lg text-gray-900">陳傑瑞</p>
+              </div>
+
+              <!-- Contact Phone -->
+              <div class="flex min-w-[280px] flex-col gap-2 pl-5">
+                <p class="text-base font-medium text-gray-500">聯絡電話</p>
+                <p class="text-lg text-gray-900">0933123123</p>
+              </div>
+
+              <!-- Email -->
+              <div class="flex min-w-[280px] flex-col gap-2 pl-5">
+                <p class="text-base font-medium text-gray-500">E-mail</p>
+                <p class="text-lg text-gray-900">abc@gmail.com</p>
+              </div>
+
+              <!-- Contact Address -->
+              <div class="flex min-w-[840px] flex-col gap-2 pl-5">
+                <p class="text-base font-medium text-gray-500">聯絡地址</p>
+                <p class="text-lg text-gray-900">台中市文心路二段588號</p>
+              </div>
+            </div>
+
+            <!-- Action Cards -->
+            <div class="flex gap-5">
+              <!-- Application Basic Information Card -->
+              <button type="button"
+                class="flex flex-1 items-center justify-between gap-5 rounded-lg border border-gray-400 bg-white h-[66px] p-5 transition-colors hover:bg-gray-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
+                @click="handleCardClick('application-basic')">
+                <span class="text-lg font-bold text-gray-500 leading-[1.3]">申請基本資料</span>
+                <div class="relative flex h-12 w-12 shrink-0 items-center justify-center">
+                  <div class="absolute inset-0 rounded-full bg-blue-100"></div>
+                  <Icon name="arrowRightOutline" :size="24" color="#6B7280" class="relative z-10" />
+                </div>
+              </button>
+
+              <!-- Urban Renewal Review Data Form Card -->
+              <button type="button"
+                class="flex flex-1 items-center justify-between gap-5 rounded-lg border border-gray-400 bg-white h-[66px] p-5 transition-colors hover:bg-gray-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
+                @click="handleCardClick('review-data')">
+                <span class="text-lg font-bold text-gray-500 leading-[1.3]">都市更新審議資料表</span>
+                <div class="relative flex h-12 w-12 shrink-0 items-center justify-center">
+                  <div class="absolute inset-0 rounded-full bg-blue-100"></div>
+                  <Icon name="arrowRightOutline" :size="24" color="#6B7280" class="relative z-10" />
+                </div>
+              </button>
+
+              <!-- Floor Area Ratio Incentive Card -->
+              <button type="button"
+                class="flex flex-1 items-center justify-between gap-5 rounded-lg border border-gray-400 bg-white h-[66px] p-5 transition-colors hover:bg-gray-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
+                @click="handleCardClick('floor-area-ratio')">
+                <span class="text-lg font-bold text-gray-500 leading-[1.3]">容積獎勵項目及額度</span>
+                <div class="relative flex h-12 w-12 shrink-0 items-center justify-center">
+                  <div class="absolute inset-0 rounded-full bg-blue-100"></div>
+                  <Icon name="arrowRightOutline" :size="24" color="#6B7280" class="relative z-10" />
+                </div>
+              </button>
+            </div>
+          </div>
+
+          <!-- Review Officer List Section -->
+          <div class="flex flex-col gap-10">
+            <!-- Section Title -->
+            <div class="flex items-center gap-3">
+              <div class="h-7 w-1 rounded bg-primary-600"></div>
+              <h2 class="text-2xl font-medium leading-6 text-gray-900">審查幹事列表</h2>
+            </div>
+
+            <!-- Empty State -->
+            <div class="rounded-lg bg-white p-6 shadow-sm">
+              <Empty type="case" message="尚未導入審查幹事名單" button-text="導入幹事名單" :show-button="true"
+                @button-click="handleImportOfficerList" />
+            </div>
+          </div>
+        </div>
+
+        <!-- Case Progress Tab -->
+        <div v-if="activeTab === 1" class="flex flex-col gap-10">
+          <!-- Section Title -->
+          <div class="flex items-center gap-3">
+            <div class="h-7 w-1 rounded bg-primary-600"></div>
+            <h2 class="text-2xl font-medium leading-6 text-gray-900">案件各階段進度</h2>
+          </div>
+
+          <!-- Progress Table -->
+          <div class="overflow-hidden rounded-lg border border-gray-300 bg-white">
+            <table class="w-full">
+              <thead>
+                <tr class="border-b border-gray-300 bg-gray-50">
+                  <th class="px-4 py-4 text-left text-sm font-medium uppercase text-gray-500">案件階段</th>
+                  <th class="px-4 py-4 text-left text-sm font-medium uppercase text-gray-500">階段狀態</th>
+                  <th class="px-4 py-4 text-left text-sm font-medium uppercase text-gray-500">審議日期</th>
+                  <th class="px-4 py-4 text-left text-sm font-medium uppercase text-gray-500">審議時間</th>
+                  <th class="px-4 py-4 text-left text-sm font-medium uppercase text-gray-500">操作</th>
+                </tr>
+              </thead>
+              <tbody>
+                <template v-for="(stage, index) in progressStages" :key="index">
+                  <tr :class="['border-b border-gray-300', stage.isExpanded ? 'bg-blue-50' : 'bg-white']">
+                    <!-- Stage Name Column -->
+                    <td class="px-4 py-4">
+                      <div class="flex items-center gap-4">
+                        <!-- Stepper Icon -->
+                        <div class="flex h-20 w-[120px] items-center justify-center">
+                          <div
+                            :class="['flex h-8 w-8 items-center justify-center rounded-full ring-4 ring-white', getStageIconClass(stage.status)]">
+                            <Icon v-if="stage.status === 'completed'" name="check" :size="20" color="#ffffff" />
+                            <div v-else-if="stage.status === 'current'" class="h-4 w-4 rounded-full bg-primary-500">
+                            </div>
+                            <div v-else class="h-4 w-4 rounded-full border-2 border-primary-500 bg-white"></div>
+                          </div>
+                        </div>
+                        <div>
+                          <p class="text-base font-medium text-gray-800">{{ stage.name }}</p>
+                        </div>
+                      </div>
+                    </td>
+
+                    <!-- Stage Status Column -->
+                    <td class="px-4 py-4">
+                      <Badge :variant="getStatusBadgeVariant(stage.status)" :text="stage.statusText" />
+                    </td>
+
+                    <!-- Review Date Column -->
+                    <td class="px-4 py-4">
+                      <p class="text-base text-gray-500">{{ stage.reviewDate }}</p>
+                    </td>
+
+                    <!-- Review Time Column -->
+                    <td class="px-4 py-4">
+                      <p class="text-base text-gray-500">{{ stage.reviewTime }}</p>
+                    </td>
+
+                    <!-- Action Column -->
+                    <td class="px-4 py-4">
+                      <div class="flex items-center gap-4">
+                        <button v-if="stage.hasDetails" class="text-base text-primary-600 hover:text-primary-700"
+                          @click="handleViewDetails(index)">
+                          查看詳細資料
+                        </button>
+                        <button v-if="stage.hasSubStages" class="flex items-center justify-center"
+                          @click="toggleStageExpand(index)">
+                          <Icon :name="stage.isExpanded ? 'chevronUp' : 'chevronDown'" :size="24" color="#1A56DB" />
+                        </button>
+                      </div>
+                    </td>
                   </tr>
-                </thead>
-                <tbody>
-                  <template v-for="(stage, index) in progressStages" :key="index">
-                    <tr :class="['border-b border-gray-300', stage.isExpanded ? 'bg-blue-50' : 'bg-white']">
-                      <!-- Stage Name Column -->
-                      <td class="px-4 py-4">
-                        <div class="flex items-center gap-4">
-                          <!-- Stepper Icon -->
-                          <div class="flex h-20 w-[120px] items-center justify-center">
-                            <div
-                              :class="['flex h-8 w-8 items-center justify-center rounded-full ring-4 ring-white', getStageIconClass(stage.status)]"
-                            >
-                              <Icon v-if="stage.status === 'completed'" name="check" :size="20" color="#ffffff" />
-                              <div v-else-if="stage.status === 'current'" class="h-4 w-4 rounded-full bg-primary-500"></div>
-                              <div v-else class="h-4 w-4 rounded-full border-2 border-primary-500 bg-white"></div>
-                            </div>
-                          </div>
-                          <div>
-                            <p class="text-base font-medium text-gray-800">{{ stage.name }}</p>
-                          </div>
-                        </div>
-                      </td>
 
-                      <!-- Stage Status Column -->
-                      <td class="px-4 py-4">
-                        <Badge :variant="getStatusBadgeVariant(stage.status)" :text="stage.statusText" />
-                      </td>
-
-                      <!-- Review Date Column -->
-                      <td class="px-4 py-4">
-                        <p class="text-base text-gray-500">{{ stage.reviewDate }}</p>
-                      </td>
-
-                      <!-- Review Time Column -->
-                      <td class="px-4 py-4">
-                        <p class="text-base text-gray-500">{{ stage.reviewTime }}</p>
-                      </td>
-
-                      <!-- Action Column -->
-                      <td class="px-4 py-4">
-                        <div class="flex items-center gap-4">
-                          <button v-if="stage.hasDetails" class="text-base text-primary-600 hover:text-primary-700" @click="handleViewDetails(index)">
-                            查看詳細資料
-                          </button>
-                          <button v-if="stage.hasSubStages" class="flex items-center justify-center" @click="toggleStageExpand(index)">
-                            <Icon :name="stage.isExpanded ? 'chevronUp' : 'chevronDown'" :size="24" color="#1A56DB" />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-
-                    <!-- Expanded Sub-stages Row -->
-                    <tr v-if="stage.isExpanded && stage.subStages && stage.subStages.length > 0" class="bg-blue-50">
-                      <td colspan="5" class="px-4 py-6">
-                        <div class="flex gap-4">
-                          <!-- Sub-stages Stepper (Vertical Line with Icons) -->
-                          <div class="flex w-[120px] flex-col items-center">
-                            <div class="relative flex flex-col items-center">
-                              <!-- Sub-stage Icons -->
+                  <!-- Expanded Sub-stages Row -->
+                  <tr v-if="stage.isExpanded && stage.subStages && stage.subStages.length > 0" class="bg-blue-50">
+                    <td colspan="5" class="px-4 py-6">
+                      <div class="flex gap-4">
+                        <!-- Sub-stages Stepper (Vertical Line with Icons) -->
+                        <div class="flex w-[120px] flex-col items-center">
+                          <div class="relative flex flex-col items-center">
+                            <!-- Sub-stage Icons -->
+                            <div v-for="(subStage, subIndex) in stage.subStages" :key="subIndex"
+                              class="flex flex-col items-center"
+                              :class="subIndex < stage.subStages.length - 1 ? 'mb-[52px]' : ''">
+                              <!-- Sub-stage Icon -->
                               <div
-                                v-for="(subStage, subIndex) in stage.subStages"
-                                :key="subIndex"
-                                class="flex flex-col items-center"
-                                :class="subIndex < stage.subStages.length - 1 ? 'mb-[52px]' : ''"
-                              >
-                                <!-- Sub-stage Icon -->
-                                <div
-                                  :class="['flex h-[18px] w-[18px] items-center justify-center rounded-full', getSubStageIconClass(subStage.status)]"
-                                >
-                                  <Icon v-if="subStage.status === 'completed'" name="check" :size="14" color="#ffffff" />
-                                  <div v-else-if="subStage.status === 'current'" class="h-2 w-2 rounded-full bg-primary-500"></div>
-                                  <div v-else class="h-[18px] w-[18px] rounded-full border-2 border-primary-500 bg-white"></div>
+                                :class="['flex h-[18px] w-[18px] items-center justify-center rounded-full', getSubStageIconClass(subStage.status)]">
+                                <Icon v-if="subStage.status === 'completed'" name="check" :size="14" color="#ffffff" />
+                                <div v-else-if="subStage.status === 'current'"
+                                  class="h-2 w-2 rounded-full bg-primary-500"></div>
+                                <div v-else class="h-[18px] w-[18px] rounded-full border-2 border-primary-500 bg-white">
                                 </div>
-                                <!-- Connecting Line -->
-                                <div v-if="subIndex < stage.subStages.length - 1" class="h-[52px] w-0.5 bg-primary-500"></div>
                               </div>
-                            </div>
-                          </div>
-
-                          <!-- Sub-stages Content -->
-                          <div class="flex-1 space-y-8">
-                            <div v-for="(subStage, subIndex) in stage.subStages" :key="subIndex" class="flex items-center">
-                              <div class="flex-1">
-                                <p :class="['text-base font-medium', subStage.status === 'current' ? 'text-gray-900' : 'text-gray-500']">
-                                  {{ subStage.title }}
-                                </p>
+                              <!-- Connecting Line -->
+                              <div v-if="subIndex < stage.subStages.length - 1" class="h-[52px] w-0.5 bg-primary-500">
                               </div>
                             </div>
                           </div>
                         </div>
-                      </td>
-                    </tr>
-                  </template>
-                </tbody>
-              </table>
-            </div>
+
+                        <!-- Sub-stages Content -->
+                        <div class="flex-1 space-y-8">
+                          <div v-for="(subStage, subIndex) in stage.subStages" :key="subIndex"
+                            class="flex items-center">
+                            <div class="flex-1">
+                              <p
+                                :class="['text-base font-medium', subStage.status === 'current' ? 'text-gray-900' : 'text-gray-500']">
+                                {{ subStage.title }}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </td>
+                  </tr>
+                </template>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Project Files Tab -->
+        <div v-if="activeTab === 2" class="flex flex-col gap-10">
+          <!-- Section Title -->
+          <div class="flex items-center gap-3">
+            <div class="h-7 w-1 rounded bg-primary-600"></div>
+            <h2 class="text-2xl font-medium leading-6 text-gray-900">專案檔案</h2>
           </div>
 
-          <!-- Project Files Tab -->
-          <div v-if="activeTab === 2" class="flex flex-col gap-10">
-            <!-- Section Title -->
-            <div class="flex items-center gap-3">
-              <div class="h-7 w-1 rounded bg-primary-600"></div>
-              <h2 class="text-2xl font-medium leading-6 text-gray-900">專案檔案</h2>
+          <!-- Filter and Table -->
+          <div class="flex flex-col gap-6">
+            <!-- Filter Dropdown -->
+            <div class="flex items-center gap-4">
+              <Dropdown :button-text="selectedFileStage || '案件階段'" :items="fileStageOptions" variant="outline"
+                @item-click="handleFileStageChange" />
             </div>
 
-            <!-- Filter and Table -->
-            <div class="flex flex-col gap-6">
-              <!-- Filter Dropdown -->
-              <div class="flex items-center gap-4">
-                <Dropdown
-                  :button-text="selectedFileStage || '案件階段'"
-                  :items="fileStageOptions"
-                  variant="outline"
-                  @item-click="handleFileStageChange"
-                />
-              </div>
-
-              <!-- File Table -->
-              <div class="rounded-lg border border-gray-300 bg-white shadow-sm">
-                <Table :columns="fileTableColumns" :rows="paginatedFiles" :pagination="filePagination" @page-change="handleFilePageChange">
-                  <!-- Table Headers with Sort Icons -->
-                  <template #header-fileName="{ column }">
-                    <div class="flex items-center gap-1">
-                      <span class="text-sm font-medium text-gray-500">{{ column.label }}</span>
-                      <div class="flex h-3 w-1.5 flex-col items-center justify-center">
-                        <svg class="h-1.5 w-1.5" viewBox="0 0 6 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-                          <path d="M3 0L5.59808 4.5H0.401924L3 0Z" fill="#9CA3AF" />
-                          <path d="M3 12L0.401924 7.5H5.59808L3 12Z" fill="#9CA3AF" />
-                        </svg>
-                      </div>
+            <!-- File Table -->
+            <div class="rounded-lg border border-gray-300 bg-white shadow-sm">
+              <Table :columns="fileTableColumns" :rows="paginatedFiles" :pagination="filePagination"
+                @page-change="handleFilePageChange">
+                <!-- Table Headers with Sort Icons -->
+                <template #header-fileName="{ column }">
+                  <div class="flex items-center gap-1">
+                    <span class="text-sm font-medium text-gray-500">{{ column.label }}</span>
+                    <div class="flex h-3 w-1.5 flex-col items-center justify-center">
+                      <svg class="h-1.5 w-1.5" viewBox="0 0 6 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M3 0L5.59808 4.5H0.401924L3 0Z" fill="#9CA3AF" />
+                        <path d="M3 12L0.401924 7.5H5.59808L3 12Z" fill="#9CA3AF" />
+                      </svg>
                     </div>
-                  </template>
-                  <template #header-uploadTime="{ column }">
-                    <div class="flex items-center gap-1">
-                      <span class="text-sm font-medium text-gray-500">{{ column.label }}</span>
-                      <div class="flex h-3 w-1.5 flex-col items-center justify-center">
-                        <svg class="h-1.5 w-1.5" viewBox="0 0 6 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-                          <path d="M3 0L5.59808 4.5H0.401924L3 0Z" fill="#9CA3AF" />
-                          <path d="M3 12L0.401924 7.5H5.59808L3 12Z" fill="#9CA3AF" />
-                        </svg>
-                      </div>
+                  </div>
+                </template>
+                <template #header-uploadTime="{ column }">
+                  <div class="flex items-center gap-1">
+                    <span class="text-sm font-medium text-gray-500">{{ column.label }}</span>
+                    <div class="flex h-3 w-1.5 flex-col items-center justify-center">
+                      <svg class="h-1.5 w-1.5" viewBox="0 0 6 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M3 0L5.59808 4.5H0.401924L3 0Z" fill="#9CA3AF" />
+                        <path d="M3 12L0.401924 7.5H5.59808L3 12Z" fill="#9CA3AF" />
+                      </svg>
                     </div>
-                  </template>
-                  <template #header-caseStage="{ column }">
-                    <div class="flex items-center gap-1">
-                      <span class="text-sm font-medium text-gray-500">{{ column.label }}</span>
-                      <div class="flex h-3 w-1.5 flex-col items-center justify-center">
-                        <svg class="h-1.5 w-1.5" viewBox="0 0 6 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-                          <path d="M3 0L5.59808 4.5H0.401924L3 0Z" fill="#9CA3AF" />
-                          <path d="M3 12L0.401924 7.5H5.59808L3 12Z" fill="#9CA3AF" />
-                        </svg>
-                      </div>
+                  </div>
+                </template>
+                <template #header-caseStage="{ column }">
+                  <div class="flex items-center gap-1">
+                    <span class="text-sm font-medium text-gray-500">{{ column.label }}</span>
+                    <div class="flex h-3 w-1.5 flex-col items-center justify-center">
+                      <svg class="h-1.5 w-1.5" viewBox="0 0 6 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M3 0L5.59808 4.5H0.401924L3 0Z" fill="#9CA3AF" />
+                        <path d="M3 12L0.401924 7.5H5.59808L3 12Z" fill="#9CA3AF" />
+                      </svg>
                     </div>
-                  </template>
-                  <template #header-fileSize="{ column }">
-                    <div class="flex items-center gap-1">
-                      <span class="text-sm font-medium text-gray-500">{{ column.label }}</span>
-                      <div class="flex h-3 w-1.5 flex-col items-center justify-center">
-                        <svg class="h-1.5 w-1.5" viewBox="0 0 6 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-                          <path d="M3 0L5.59808 4.5H0.401924L3 0Z" fill="#9CA3AF" />
-                          <path d="M3 12L0.401924 7.5H5.59808L3 12Z" fill="#9CA3AF" />
-                        </svg>
-                      </div>
+                  </div>
+                </template>
+                <template #header-fileSize="{ column }">
+                  <div class="flex items-center gap-1">
+                    <span class="text-sm font-medium text-gray-500">{{ column.label }}</span>
+                    <div class="flex h-3 w-1.5 flex-col items-center justify-center">
+                      <svg class="h-1.5 w-1.5" viewBox="0 0 6 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M3 0L5.59808 4.5H0.401924L3 0Z" fill="#9CA3AF" />
+                        <path d="M3 12L0.401924 7.5H5.59808L3 12Z" fill="#9CA3AF" />
+                      </svg>
                     </div>
-                  </template>
+                  </div>
+                </template>
 
-                  <!-- File Name -->
-                  <template #cell-fileName="{ row }">
-                    <p class="text-base text-gray-800">{{ row.fileName }}</p>
-                  </template>
+                <!-- File Name -->
+                <template #cell-fileName="{ row }">
+                  <p class="text-base text-gray-800">{{ row.fileName }}</p>
+                </template>
 
-                  <!-- Upload Time -->
-                  <template #cell-uploadTime="{ row }">
-                    <p class="text-base text-gray-500">{{ row.uploadTime }}</p>
-                  </template>
+                <!-- Upload Time -->
+                <template #cell-uploadTime="{ row }">
+                  <p class="text-base text-gray-500">{{ row.uploadTime }}</p>
+                </template>
 
-                  <!-- Case Stage -->
-                  <template #cell-caseStage="{ row }">
-                    <p class="text-base text-gray-500">{{ row.caseStage }}</p>
-                  </template>
+                <!-- Case Stage -->
+                <template #cell-caseStage="{ row }">
+                  <p class="text-base text-gray-500">{{ row.caseStage }}</p>
+                </template>
 
-                  <!-- File Size -->
-                  <template #cell-fileSize="{ row }">
-                    <p class="text-base text-gray-500">{{ row.fileSize }}</p>
-                  </template>
+                <!-- File Size -->
+                <template #cell-fileSize="{ row }">
+                  <p class="text-base text-gray-500">{{ row.fileSize }}</p>
+                </template>
 
-                  <!-- Action -->
-                  <template #cell-action="{ row }">
-                    <button
-                      class="flex items-center justify-center text-primary-600 transition-colors hover:text-primary-700"
-                      @click.stop="handleFileDownload(row)"
-                      aria-label="下載檔案"
-                    >
-                      <Icon name="download" :size="24" color="#1C64F2" />
-                    </button>
-                  </template>
-                </Table>
-              </div>
+                <!-- Action -->
+                <template #cell-action="{ row }">
+                  <button
+                    class="flex items-center justify-center text-primary-600 transition-colors hover:text-primary-700"
+                    @click.stop="handleFileDownload(row)" aria-label="下載檔案">
+                    <Icon name="download" :size="24" color="#1C64F2" />
+                  </button>
+                </template>
+              </Table>
             </div>
           </div>
         </div>
@@ -351,13 +353,44 @@
 
 <script setup lang="ts">
 import { ref, computed } from "vue";
+import { useRoute } from "vue-router";
 import SidebarSection from "@/components/sections/backend/SidebarSection.vue";
-import Breadcrumb from "@/components/atoms/Breadcrumb.vue";
+import Breadcrumb, { type BreadcrumbItem } from "@/components/atoms/Breadcrumb.vue";
 import Icon from "@/components/atoms/Icon.vue";
 import Badge from "@/components/atoms/Badge.vue";
 import Stepper, { type StepperStep } from "@/components/atoms/Stepper.vue";
 import Dropdown, { type DropdownItem } from "@/components/atoms/Dropdown.vue";
 import Table, { type TableColumn, type TablePagination } from "@/components/atoms/Table.vue";
+import ButtonCTA from "@/components/atoms/ButtonCTA.vue";
+import Empty from "@/components/atoms/Empty.vue";
+
+const route = useRoute();
+
+// 動態麵包屑：根據來源路由或用戶角色判斷
+const breadcrumbItems = computed<BreadcrumbItem[]>(() => {
+  const items: BreadcrumbItem[] = [{ label: "首頁", to: "/" }];
+
+  // 檢查是否為管理員（從 localStorage 或查詢參數）
+  const userInfo = localStorage.getItem("userInfo");
+  const isAdmin = userInfo ? JSON.parse(userInfo).role === "admin" : false;
+
+  // 檢查查詢參數中的來源路由
+  const fromRoute = route.query.from as string | undefined;
+  const isFromAdmin = fromRoute?.includes("-admin") || route.query.admin === "true" || isAdmin;
+
+  if (isFromAdmin) {
+    // 管理員版本：案件管理 > 都市更新案件管理 > 案件詳情
+    items.push({ label: "案件管理" });
+    items.push({ label: "都市更新案件管理", to: "/case-management-admin" });
+  } else {
+    // 用戶版本：我的案件 > 都市更新案件 > 案件詳情
+    items.push({ label: "我的案件" });
+    items.push({ label: "都市更新案件", to: "/case-management" });
+  }
+
+  items.push({ label: "案件詳情" });
+  return items;
+});
 
 interface ProgressStage {
   name: string;
@@ -662,5 +695,10 @@ const handleFilePageChange = (page: number) => {
 const handleFileDownload = (file: Record<string, any>) => {
   console.log("Download file:", file);
   // TODO: Implement file download logic
+};
+
+const handleImportOfficerList = () => {
+  console.log("Import officer list");
+  // TODO: Implement import officer list logic
 };
 </script>

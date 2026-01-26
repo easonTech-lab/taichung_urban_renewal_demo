@@ -1,5 +1,5 @@
 <template>
-  <nav class="border-b border-gray-300 bg-white">
+  <nav class="sticky top-0 z-50 border-b border-gray-300 bg-white">
     <div class="flex w-full items-center justify-between px-4 py-6 sm:px-6 lg:px-8">
       <div class="flex w-full items-center gap-8">
         <router-link to="/" aria-label="回首頁 - 臺中市都市更新" class="flex items-center">

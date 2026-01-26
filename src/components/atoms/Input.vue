@@ -1,20 +1,47 @@
 <template>
-  <div class="inline-flex w-full flex-col items-start justify-start gap-2">
-    <label v-if="label" :for="inputId" class="mb-2 block text-base font-medium" :class="labelClasses">
-      {{ label }}
-    </label>
-    <input
-      :id="inputId"
-      :type="type"
-      :placeholder="placeholder"
-      :value="modelValue"
-      :disabled="disabled"
-      :required="required"
-      class="block w-full rounded-lg border text-gray-900 shadow-sm transition-colors disabled:bg-gray-200 disabled:text-gray-700"
-      :class="[inputClasses, sizeClasses]"
-      @input="handleInput"
-      v-bind="$attrs"
-    />
+  <div class="inline-flex flex-col items-start justify-start gap-2" :class="[containerClass || 'w-full']">
+    <!-- Vertical Layout (default) -->
+    <template v-if="labelPosition === 'vertical' || !labelPosition">
+      <label v-if="showLabel && label" :for="inputId" class="block text-base font-medium" :class="labelClasses">
+        {{ label }}
+        <span v-if="required" class="text-red-500 text-xs leading-none ml-1">*</span>
+      </label>
+      <input
+        :id="inputId"
+        :type="type"
+        :placeholder="placeholder"
+        :value="modelValue"
+        :disabled="disabled"
+        :required="required"
+        class="block w-full rounded-lg border text-gray-900 shadow-sm transition-colors disabled:bg-gray-200 disabled:text-gray-700"
+        :class="[inputClasses, sizeClasses]"
+        @input="handleInput"
+        v-bind="$attrs"
+      />
+    </template>
+
+    <!-- Horizontal Layout -->
+    <template v-else-if="labelPosition === 'horizontal'">
+      <div class="flex items-center gap-2 w-full">
+        <label v-if="showLabel && label" :for="inputId" class="text-base font-medium whitespace-nowrap" :class="labelClasses">
+          {{ label }}
+          <span v-if="required" class="text-red-500 text-xs leading-none ml-1">*</span>
+        </label>
+        <input
+          :id="inputId"
+          :type="type"
+          :placeholder="placeholder"
+          :value="modelValue"
+          :disabled="disabled"
+          :required="required"
+          class="block flex-1 rounded-lg border text-gray-900 shadow-sm transition-colors disabled:bg-gray-200 disabled:text-gray-700"
+          :class="[inputClasses, sizeClasses]"
+          @input="handleInput"
+          v-bind="$attrs"
+        />
+      </div>
+    </template>
+
     <p v-if="error || errorMessage" class="mt-2.5 text-sm text-red-600">
       <span v-if="errorTitle" class="font-medium">{{ errorTitle }}</span>
       <span v-if="errorTitle && errorMessage"> </span>
@@ -29,26 +56,32 @@ import { computed, watch } from "vue";
 const props = withDefaults(
   defineProps<{
     label?: string;
+    showLabel?: boolean; // 是否顯示 label
+    required?: boolean; // 是否必填（顯示 *）
+    labelPosition?: "horizontal" | "vertical"; // label 位置：水平或垂直
     type?: "text" | "password" | "email" | "number" | "tel" | "url";
     placeholder?: string;
     modelValue?: string;
     disabled?: boolean;
-    required?: boolean;
     variant?: "default" | "disabled";
     size?: "sm" | "base" | "lg"; // 輸入框尺寸
     error?: boolean;
     errorMessage?: string;
     errorTitle?: string;
     clearErrorOnInput?: boolean; // 是否在輸入時自動清除錯誤
+    containerClass?: string; // 容器自訂 class
   }>(),
   {
+    showLabel: true,
+    required: false,
+    labelPosition: "vertical",
     type: "text",
     disabled: false,
-    required: false,
     variant: "default",
     size: "base",
     error: false,
     clearErrorOnInput: true, // 預設為 true，輸入時自動清除錯誤
+    containerClass: "",
   }
 );
 

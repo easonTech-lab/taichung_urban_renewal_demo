@@ -1,89 +1,73 @@
 <template>
-  <div class="flex min-h-screen flex-col bg-indigo-50">
-    <div class="flex flex-1">
-      <!-- Sidebar -->
-      <SidebarSection @item-select="handleSidebarItemSelect" />
-      <!-- Main Content -->
-      <div class="flex flex-1 flex-col gap-10 p-10">
-        <!-- Breadcrumb and Title -->
-        <div class="flex flex-col gap-6">
-          <Breadcrumb />
-          <h1 class="text-3xl font-bold leading-[30px] text-gray-900">
-            {{ isAdmin ? "都市更新案件管理" : "都市更新案件" }}
-          </h1>
+  <div class="min-h-screen bg-indigo-50">
+    <!-- Sidebar -->
+    <SidebarSection @item-select="handleSidebarItemSelect" />
+    <!-- Main Content -->
+    <div class="flex flex-1 flex-col gap-10 p-4 sm:ml-[328px] sm:p-10">
+      <!-- Breadcrumb and Title -->
+      <div class="flex flex-col gap-6">
+        <Breadcrumb />
+        <h1 class="text-3xl font-bold leading-[30px] text-gray-900">
+          {{ isAdmin ? "都市更新案件管理" : "都市更新案件" }}
+        </h1>
+      </div>
+      <!-- Case List Card -->
+      <div class="rounded-lg bg-white px-6 py-6 shadow-sm">
+        <!-- Header Section -->
+        <div class="mb-6 flex flex-col gap-6">
+          <!-- Title and Add Button -->
+          <div class="flex items-center justify-between">
+            <div class="flex flex-col gap-2">
+              <div class="flex items-center gap-3">
+                <div class="h-7 w-1 rounded bg-primary-600"></div>
+                <h2 class="text-2xl font-medium leading-6 text-gray-900">
+                  {{ isAdmin ? "案件列表" : "都市更新案件列表" }}
+                </h2>
+              </div>
+              <p v-if="isAdmin" class="pl-4 text-xl font-normal leading-5 text-gray-400">都市更新案件列表</p>
+            </div>
+            <ButtonDropdown button-text="新增案件" :items="addCaseOptions" button-variant="outline" button-size="sm"
+              left-icon="plus" :selected-index="selectedAddCaseIndex" menu-width="w-[412px]" :showRightIcon="false"
+              align="right" @item-click="handleAddCaseOption" />
+          </div>
+          <!-- Filters -->
+          <div class="flex items-center gap-4">
+            <div class="w-40">
+              <Dropdown :button-text="selectedStage || '全部案件階段'" :items="stageOptions" variant="outline"
+                @item-click="handleStageChange" />
+            </div>
+            <div class="w-40">
+              <Dropdown :button-text="selectedStatus || '全部案件狀態'" :items="statusOptions" variant="outline"
+                @item-click="handleStatusChange" />
+            </div>
+          </div>
         </div>
-        <!-- Case List Card -->
-        <div class="rounded-lg bg-white px-6 py-6 shadow-sm">
-          <!-- Header Section -->
-          <div class="mb-6 flex flex-col gap-6">
-            <!-- Title and Add Button -->
-            <div class="flex items-center justify-between">
-              <div class="flex flex-col gap-2">
-                <div class="flex items-center gap-3">
-                  <div class="h-7 w-1 rounded bg-primary-600"></div>
-                  <h2 class="text-2xl font-medium leading-6 text-gray-900">
-                    {{ isAdmin ? "案件列表" : "都市更新案件列表" }}
-                  </h2>
-                </div>
-                <p v-if="isAdmin" class="pl-4 text-xl font-normal leading-5 text-gray-400">都市更新案件列表</p>
-              </div>
-              <ButtonDropdown
-                button-text="新增案件"
-                :items="addCaseOptions"
-                button-variant="outline"
-                button-size="sm"
-                left-icon="plus"
-                :selected-index="selectedAddCaseIndex"
-                menu-width="w-[412px]"
-                :showRightIcon="false"
-                align="right"
-                @item-click="handleAddCaseOption"
-              />
-            </div>
-            <!-- Filters -->
-            <div class="flex items-center gap-4">
-              <div class="w-40">
-                <Dropdown :button-text="selectedStage || '全部案件階段'" :items="stageOptions" variant="outline" @item-click="handleStageChange" />
-              </div>
-              <div class="w-40">
-                <Dropdown :button-text="selectedStatus || '全部案件狀態'" :items="statusOptions" variant="outline" @item-click="handleStatusChange" />
-              </div>
-            </div>
-          </div>
-          <!-- Table or Empty State -->
-          <div class="rounded-lg border border-gray-300 bg-white">
-            <Empty v-if="filteredCases.length === 0" type="case-management" @button-click="handleEmptyStateAddCase" />
-            <Table
-              v-else
-              :columns="tableColumns"
-              :rows="paginatedCases"
-              :pagination="pagination"
-              :row-clickable="true"
-              @page-change="handlePageChange"
-              @row-click="handleRowClick"
-            >
-              <!-- Case Number -->
-              <template #cell-caseNumber="{ row }">
-                <p class="text-base text-gray-900">{{ row.caseNumber }}</p>
-              </template>
-              <!-- Case Name -->
-              <template #cell-caseName="{ row }">
-                <p class="text-base text-gray-900">{{ row.caseName }}</p>
-              </template>
-              <!-- Case Category -->
-              <template #cell-caseCategory="{ row }">
-                <p class="text-base text-gray-500">{{ row.caseCategory }}</p>
-              </template>
-              <!-- Case Stage -->
-              <template #cell-caseStage="{ row }">
-                <p class="text-base text-gray-500">{{ row.caseStage }}</p>
-              </template>
-              <!-- Case Status -->
-              <template #cell-caseStatus="{ row }">
-                <Badge :variant="getStatusVariant(row.caseStatus)" :text="row.caseStatus" />
-              </template>
-            </Table>
-          </div>
+        <!-- Table or Empty State -->
+        <div class="rounded-lg border border-gray-300 bg-white">
+          <Empty v-if="filteredCases.length === 0" type="case-management" @button-click="handleEmptyStateAddCase" />
+          <Table v-else :columns="tableColumns" :rows="paginatedCases" :pagination="pagination" :row-clickable="true"
+            @page-change="handlePageChange" @row-click="handleRowClick">
+            <!-- Case Number -->
+            <template #cell-caseNumber="{ row }">
+              <p class="text-base text-gray-900">{{ row.caseNumber }}</p>
+            </template>
+            <!-- Case Name -->
+            <template #cell-caseName="{ row }">
+              <p class="text-base text-gray-900">{{ row.caseName }}</p>
+            </template>
+            <!-- Case Category -->
+            <template #cell-caseCategory="{ row }">
+              <p class="text-base text-gray-500">{{ row.caseCategory }}</p>
+            </template>
+            <!-- Case Stage -->
+            <template #cell-caseStage="{ row }">
+              <p class="text-base text-gray-500">{{ row.caseStage }}</p>
+            </template>
+            <!-- Case Status -->
+            <template #cell-caseStatus="{ row }">
+              <Badge :variant="getStatusVariant(row.caseStatus)" :text="row.caseStatus" />
+            </template>
+          </Table>
         </div>
       </div>
     </div>
@@ -292,7 +276,12 @@ const handleEmptyStateAddCase = () => {
 };
 
 const handleRowClick = (row: Record<string, any>) => {
-  // Navigate to case detail page
-  router.push("/case-detail");
+  // Navigate to case detail page with source route information
+  router.push({
+    path: "/case-detail",
+    query: {
+      from: route.path, // 傳遞來源路由路徑
+    },
+  });
 };
 </script>

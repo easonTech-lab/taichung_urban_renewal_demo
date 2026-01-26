@@ -1,67 +1,124 @@
 <template>
-  <div class="flex min-h-screen flex-col bg-indigo-50">
-    <div class="flex flex-1">
-      <!-- Sidebar -->
-      <SidebarSection @item-select="handleSidebarItemSelect" />
+  <div class="min-h-screen bg-indigo-50">
+    <!-- Sidebar -->
+    <SidebarSection @item-select="handleSidebarItemSelect" />
 
-      <!-- Main Content -->
-      <div class="flex flex-1 flex-col gap-10 p-10">
-        <!-- Breadcrumb and Title -->
-        <div class="flex flex-col gap-6">
-          <Breadcrumb />
-          <h1 class="text-3xl font-bold leading-[30px] text-gray-900">編輯個人資料</h1>
+    <!-- Main Content -->
+    <div class="flex flex-1 flex-col gap-10 p-4 sm:ml-[328px] sm:p-10">
+      <!-- Breadcrumb and Title -->
+      <div class="flex flex-col gap-6">
+        <Breadcrumb :items="breadcrumbItems" />
+        <h1 class="text-3xl font-bold leading-[30px] text-gray-900">{{ isAdmin ? "人員帳號管理" : "編輯個人資料" }}</h1>
+      </div>
+
+      <!-- Form Card -->
+      <div class="flex flex-col gap-10">
+        <!-- Form Section -->
+        <div class="rounded-lg bg-white p-8 shadow-sm">
+          <!-- Section Title -->
+          <div class="mb-10 flex items-center gap-3">
+            <div class="h-7 w-1 rounded bg-primary-600"></div>
+            <h2 class="text-2xl font-medium leading-6 text-gray-900">{{ isAdmin ? "標題" : "編輯個人資料" }}</h2>
+          </div>
+
+          <!-- Admin Form Fields -->
+          <div v-if="isAdmin" class="flex flex-col gap-4">
+            <!-- 人員類別 -->
+            <div class="w-full max-w-[364px]">
+              <InputDropdown label="人員類別" :button-text="adminFormData.personnelType" placeholder="請選擇人員類別"
+                :items="personnelTypeOptions" required @item-click="handlePersonnelTypeSelect" />
+            </div>
+
+            <!-- 人員姓名 -->
+            <div class="w-full max-w-[744px]">
+              <Input v-model="adminFormData.name" label="人員姓名" type="text" size="lg" placeholder="請輸入姓名" required />
+            </div>
+
+            <!-- 帳號和密碼 -->
+            <div class="flex gap-4">
+              <div class="w-full max-w-[364px]">
+                <Input v-model="adminFormData.account" label="帳號" type="text" size="lg" required />
+              </div>
+              <div class="flex flex-col gap-5 w-full max-w-[364px]">
+                <label class="text-base font-medium text-gray-900">密碼</label>
+                <ButtonCTA variant="textPlain" size="base" class="self-start p-0 underline"
+                  @click="handleChangePassword">
+                  變更密碼
+                </ButtonCTA>
+              </div>
+            </div>
+
+            <!-- 公務信箱和公務分機 -->
+            <div class="flex gap-4">
+              <div class="w-full max-w-[364px]">
+                <Input v-model="adminFormData.officialEmail" label="公務信箱" type="email" size="lg" placeholder="請輸入公務信箱"
+                  required />
+              </div>
+              <div class="w-full max-w-[364px]">
+                <Input v-model="adminFormData.officialExtension" label="公務分機" type="text" size="lg"
+                  placeholder="請輸入公務分機" required />
+              </div>
+            </div>
+
+            <!-- 局處和科別 -->
+            <div class="flex gap-4">
+              <div class="w-full max-w-[364px]">
+                <InputDropdown label="局處" :button-text="adminFormData.department" placeholder="請選擇局處"
+                  :items="departmentOptions" required @item-click="handleDepartmentSelect" />
+              </div>
+              <div class="w-full max-w-[364px]">
+                <InputDropdown label="科別" :button-text="adminFormData.division" placeholder="請選擇科別"
+                  :items="divisionOptions" required @item-click="handleDivisionSelect" />
+              </div>
+            </div>
+
+            <!-- 申請事由 -->
+            <div class="w-full max-w-[744px]">
+              <Textarea v-model="adminFormData.reason" label="申請事由" size="lg" placeholder="請輸入申請事由" required />
+            </div>
+          </div>
+
+          <!-- User Form Fields -->
+          <div v-else class="flex flex-col gap-4">
+            <!-- 申請人姓名 -->
+            <div class="w-full max-w-[364px]">
+              <Input v-model="userFormData.name" label="申請人姓名" type="text" size="lg" placeholder="請輸入姓名" />
+            </div>
+
+            <!-- 身分證字號和帳號 -->
+            <div class="flex gap-4">
+              <div class="w-full max-w-[364px]">
+                <Input v-model="userFormData.idNumber" label="身分證字號" type="text" size="lg" disabled />
+              </div>
+              <div class="w-full max-w-[364px]">
+                <Input v-model="userFormData.account" label="帳號" type="text" size="lg" disabled />
+              </div>
+            </div>
+
+            <!-- 手機號碼和電子信箱 -->
+            <div class="flex gap-4">
+              <div class="w-full max-w-[364px]">
+                <Input v-model="userFormData.phone" label="手機號碼" type="tel" size="lg" placeholder="請輸入手機號碼" />
+              </div>
+              <div class="w-full max-w-[364px]">
+                <Input v-model="userFormData.email" label="電子信箱" type="email" size="lg" placeholder="請輸入電子信箱" />
+              </div>
+            </div>
+
+            <!-- 密碼 -->
+            <div class="flex flex-col gap-2">
+              <label class="text-base font-medium text-gray-900">密碼</label>
+              <ButtonCTA variant="text" size="base" class="self-start p-0" @click="handleChangePassword"> 變更密碼
+              </ButtonCTA>
+            </div>
+          </div>
         </div>
 
-        <!-- Form Card -->
-        <div class="flex flex-col gap-10">
-          <!-- Form Section -->
-          <div class="rounded-lg bg-white p-8 shadow-sm">
-            <!-- Section Title -->
-            <div class="mb-10 flex items-center gap-3">
-              <div class="h-7 w-1 rounded bg-primary-600"></div>
-              <h2 class="text-2xl font-medium leading-6 text-gray-900">編輯個人資料</h2>
-            </div>
-
-            <!-- Form Fields -->
-            <div class="flex flex-col gap-4">
-              <!-- 申請人姓名 -->
-              <div class="w-full max-w-[364px]">
-                <Input v-model="formData.name" label="申請人姓名" type="text" size="lg" placeholder="請輸入姓名" />
-              </div>
-
-              <!-- 身分證字號和帳號 -->
-              <div class="flex gap-4">
-                <div class="w-full max-w-[364px]">
-                  <Input v-model="formData.idNumber" label="身分證字號" type="text" size="lg" disabled />
-                </div>
-                <div class="w-full max-w-[364px]">
-                  <Input v-model="formData.account" label="帳號" type="text" size="lg" disabled />
-                </div>
-              </div>
-
-              <!-- 手機號碼和電子信箱 -->
-              <div class="flex gap-4">
-                <div class="w-full max-w-[364px]">
-                  <Input v-model="formData.phone" label="手機號碼" type="tel" size="lg" placeholder="請輸入手機號碼" />
-                </div>
-                <div class="w-full max-w-[364px]">
-                  <Input v-model="formData.email" label="電子信箱" type="email" size="lg" placeholder="請輸入電子信箱" />
-                </div>
-              </div>
-
-              <!-- 密碼 -->
-              <div class="flex flex-col gap-2">
-                <label class="text-base font-medium text-gray-900">密碼</label>
-                <ButtonCTA variant="text" size="base" class="self-start p-0" @click="handleChangePassword"> 變更密碼 </ButtonCTA>
-              </div>
-            </div>
-          </div>
-
-          <!-- Action Buttons -->
-          <div class="flex gap-4">
-            <ButtonCTA variant="outline" size="xl" class="w-[124px]" @click="handleCancel"> 取消 </ButtonCTA>
-            <ButtonCTA variant="gray" size="xl" class="w-[124px]" @click="handleSave"> 儲存 </ButtonCTA>
-          </div>
+        <!-- Action Buttons -->
+        <div class="flex gap-4 justify-center">
+          <ButtonCTA variant="outline" size="xl" class="w-[124px]" @click="handleCancel"> 取消 </ButtonCTA>
+          <ButtonCTA variant="gray" size="xl" class="w-[124px]" @click="handleSave"> {{ isAdmin ? "儲存變更" : "儲存" }}
+          </ButtonCTA>
         </div>
       </div>
     </div>
@@ -69,17 +126,61 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, computed, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import SidebarSection from "@/components/sections/backend/SidebarSection.vue";
-import Breadcrumb from "@/components/atoms/Breadcrumb.vue";
+import Breadcrumb, { type BreadcrumbItem } from "@/components/atoms/Breadcrumb.vue";
 import Input from "@/components/atoms/Input.vue";
+import InputDropdown from "@/components/atoms/InputDropdown.vue";
+import Textarea from "@/components/atoms/Textarea.vue";
 import ButtonCTA from "@/components/atoms/ButtonCTA.vue";
 
 const router = useRouter();
 
-// Form Data
-const formData = ref({
+// Check if user is admin
+const isAdmin = computed(() => {
+  const userInfo = localStorage.getItem("userInfo");
+  if (userInfo) {
+    try {
+      const user = JSON.parse(userInfo);
+      return user.role === "admin";
+    } catch {
+      return false;
+    }
+  }
+  return false;
+});
+
+// Breadcrumb items based on role
+const breadcrumbItems = computed<BreadcrumbItem[]>(() => {
+  if (isAdmin.value) {
+    return [
+      { label: "首頁", to: "/" },
+      { label: "我的帳號" },
+      { label: "人員帳號管理" },
+    ];
+  }
+  return [
+    { label: "首頁", to: "/" },
+    { label: "我的帳號" },
+    { label: "編輯個人資料" },
+  ];
+});
+
+// Admin Form Data
+const adminFormData = ref({
+  personnelType: "業務承辦人員",
+  name: "陳傑瑞",
+  account: "tmcg01mb",
+  officialEmail: "tt05@taichung.gov.tw",
+  officialExtension: "(04) 2228-9111#58030",
+  department: "秘書處",
+  division: "都市修復工程科",
+  reason: "都市更新",
+});
+
+// User Form Data
+const userFormData = ref({
   name: "陳傑瑞",
   idNumber: "A123456789",
   account: "A123456789",
@@ -87,9 +188,47 @@ const formData = ref({
   email: "1111111@gmail.com",
 });
 
+// Options
+const personnelTypeOptions = [
+  { label: "業務承辦人員" },
+  { label: "審議委員" },
+  { label: "系統管理人員" },
+  { label: "府內人員" },
+  { label: "府外人員" },
+  { label: "局內人員" },
+  { label: "申請者" },
+];
+
+const departmentOptions = [
+  { label: "秘書處" },
+  { label: "都市修復工程科" },
+  { label: "住宅發展工程處" },
+  { label: "都市更新工程科" },
+  { label: "都計測量工程科" },
+];
+
+const divisionOptions = [
+  { label: "都市修復工程科" },
+  { label: "住宅發展工程處" },
+  { label: "都市更新工程科" },
+  { label: "都計測量工程科" },
+];
+
 // Event Handlers
 const handleSidebarItemSelect = (itemName: string) => {
   console.log("Selected sidebar item:", itemName);
+};
+
+const handlePersonnelTypeSelect = (item: any) => {
+  adminFormData.value.personnelType = item.label;
+};
+
+const handleDepartmentSelect = (item: any) => {
+  adminFormData.value.department = item.label;
+};
+
+const handleDivisionSelect = (item: any) => {
+  adminFormData.value.division = item.label;
 };
 
 const handleChangePassword = () => {
@@ -103,7 +242,11 @@ const handleCancel = () => {
 
 const handleSave = () => {
   // TODO: 實現儲存功能
-  console.log("Save profile", formData.value);
+  if (isAdmin.value) {
+    console.log("Save admin profile", adminFormData.value);
+  } else {
+    console.log("Save user profile", userFormData.value);
+  }
   // 這裡可以調用 API 儲存資料
 };
 </script>

@@ -1,84 +1,60 @@
 <template>
-  <div class="flex min-h-screen flex-col bg-indigo-50">
-    <div class="flex flex-1">
-      <!-- Sidebar -->
-      <SidebarSection @item-select="handleSidebarItemSelect" />
+  <div class="min-h-screen bg-indigo-50">
+    <!-- Sidebar -->
+    <SidebarSection @item-select="handleSidebarItemSelect" />
 
-      <!-- Main Content -->
-      <div class="flex flex-1 flex-col gap-10 p-10">
-        <!-- Breadcrumb and Back Button -->
-        <div class="flex flex-col gap-6">
-          <Breadcrumb />
-          <div class="flex items-center gap-4">
-            <button type="button" class="flex items-center justify-center" @click="handleGoBack">
-              <Icon name="arrowleft" :size="24" class="text-gray-900" aria-hidden="true" />
-            </button>
-            <h1 class="text-3xl font-bold leading-[30px] text-gray-900">前一頁</h1>
+    <!-- Main Content -->
+    <div class="flex flex-1 flex-col gap-10 p-4 sm:ml-[328px] sm:p-10">
+      <!-- Breadcrumb and Back Button -->
+      <div class="flex flex-col gap-6">
+        <Breadcrumb :items="breadcrumbItems" />
+        <div class="flex items-center gap-4">
+          <ButtonCTA variant="none" icon-only left-icon="arrowLeftOutline" @click="handleGoBack" aria-label="返回上一頁" />
+          <h1 class="text-3xl font-bold leading-[30px] text-gray-900">前一頁</h1>
+        </div>
+      </div>
+
+      <!-- Form Card -->
+      <div class="flex flex-col gap-10">
+        <!-- Form Section -->
+        <div class="rounded-lg bg-white p-8 shadow-sm">
+          <!-- Section Title -->
+          <div class="mb-10 flex items-center gap-3">
+            <div class="h-7 w-1 rounded bg-primary-600"></div>
+            <h2 class="text-2xl font-medium leading-6 text-gray-900">變更密碼</h2>
+          </div>
+
+          <!-- Form Fields -->
+          <div class="flex flex-col gap-4">
+            <!-- 舊密碼 -->
+            <div class="w-full max-w-[364px]">
+              <Input v-model="formData.oldPassword" label="舊密碼" type="password" size="lg" placeholder="請輸入舊密碼"
+                :error="errors.oldPassword" :error-message="errorMessages.oldPassword"
+                @clear-error="errors.oldPassword = false" />
+            </div>
+
+            <!-- 新密碼 -->
+            <div class="w-full max-w-[364px]">
+              <Input v-model="formData.newPassword" label="新密碼" type="password" size="lg" placeholder="請輸入新密碼"
+                :error="errors.newPassword" :error-message="errorMessages.newPassword"
+                @clear-error="errors.newPassword = false" />
+              <p class="mt-2 text-base leading-[1.25] text-gray-500">密碼至少需要9字元，包含大小寫字母、數字、特殊符號</p>
+            </div>
+
+            <!-- 再次確認密碼 -->
+            <div class="w-full max-w-[364px]">
+              <Input v-model="formData.confirmPassword" label="再次確認密碼" type="password" size="lg" placeholder="請再次輸入新密碼"
+                :error="errors.confirmPassword" :error-message="errorMessages.confirmPassword"
+                @clear-error="errors.confirmPassword = false" />
+            </div>
           </div>
         </div>
 
-        <!-- Form Card -->
-        <div class="flex flex-col gap-10">
-          <!-- Form Section -->
-          <div class="rounded-lg bg-white p-8 shadow-sm">
-            <!-- Section Title -->
-            <div class="mb-10 flex items-center gap-3">
-              <div class="h-7 w-1 rounded bg-primary-600"></div>
-              <h2 class="text-2xl font-medium leading-6 text-gray-900">變更密碼</h2>
-            </div>
-
-            <!-- Form Fields -->
-            <div class="flex flex-col gap-4">
-              <!-- 舊密碼 -->
-              <div class="w-full max-w-[364px]">
-                <Input
-                  v-model="formData.oldPassword"
-                  label="舊密碼"
-                  type="password"
-                  size="lg"
-                  placeholder="請輸入舊密碼"
-                  :error="errors.oldPassword"
-                  :error-message="errorMessages.oldPassword"
-                  @clear-error="errors.oldPassword = false"
-                />
-              </div>
-
-              <!-- 新密碼 -->
-              <div class="w-full max-w-[364px]">
-                <Input
-                  v-model="formData.newPassword"
-                  label="新密碼"
-                  type="password"
-                  size="lg"
-                  placeholder="請輸入新密碼"
-                  :error="errors.newPassword"
-                  :error-message="errorMessages.newPassword"
-                  @clear-error="errors.newPassword = false"
-                />
-                <p class="mt-2 text-base leading-[1.25] text-gray-500">密碼至少需要9字元，包含大小寫字母、數字、特殊符號</p>
-              </div>
-
-              <!-- 再次確認密碼 -->
-              <div class="w-full max-w-[364px]">
-                <Input
-                  v-model="formData.confirmPassword"
-                  label="再次確認密碼"
-                  type="password"
-                  size="lg"
-                  placeholder="請再次輸入新密碼"
-                  :error="errors.confirmPassword"
-                  :error-message="errorMessages.confirmPassword"
-                  @clear-error="errors.confirmPassword = false"
-                />
-              </div>
-            </div>
-          </div>
-
-          <!-- Action Buttons -->
-          <div class="flex gap-4">
-            <ButtonCTA variant="outline" size="xl" class="w-[124px]" @click="handleCancel"> 取消 </ButtonCTA>
-            <ButtonCTA variant="primary" size="xl" class="w-[124px]" :disabled="isSaveDisabled" @click="handleSave"> 儲存變更 </ButtonCTA>
-          </div>
+        <!-- Action Buttons -->
+        <div class="flex gap-4">
+          <ButtonCTA variant="outline" size="xl" class="w-[124px]" @click="handleCancel"> 取消 </ButtonCTA>
+          <ButtonCTA variant="primary" size="xl" class="w-[124px]" :disabled="isSaveDisabled" @click="handleSave"> 儲存變更
+          </ButtonCTA>
         </div>
       </div>
     </div>
@@ -87,15 +63,11 @@
     <Modal v-model="showSuccessModal" :static="true" size="md">
       <template #header>
         <div class="flex w-full items-center justify-end px-4 pb-0 pt-4">
-          <button
-            type="button"
-            class="inline-flex h-5 w-5 items-center justify-center rounded-lg bg-transparent text-sm text-gray-400 hover:bg-gray-100 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary-500"
-            aria-label="關閉"
-            @click="handleCloseSuccessModal"
-          >
-            <Icon name="close" :size="20" class="text-current" aria-hidden="true" />
+          <ButtonCTA variant="none" icon-only left-icon="close" size="xs"
+            class="h-5 w-5 rounded-lg bg-transparent text-gray-400 hover:bg-gray-100 hover:text-gray-900"
+            aria-label="關閉" @click="handleCloseSuccessModal">
             <span class="sr-only">關閉</span>
-          </button>
+          </ButtonCTA>
         </div>
       </template>
 
@@ -114,7 +86,8 @@
 
       <template #footer>
         <div class="flex items-center justify-center gap-4 px-6 pb-6 pt-0">
-          <ButtonCTA variant="primary" class="h-[34px] w-[120px] px-5 py-3 text-base" @click="handleGoToLogin"> 回登入頁 </ButtonCTA>
+          <ButtonCTA variant="primary" class="h-[34px] w-[120px] px-5 py-3 text-base" @click="handleGoToLogin"> 回登入頁
+          </ButtonCTA>
         </div>
       </template>
     </Modal>
@@ -125,13 +98,43 @@
 import { ref, computed } from "vue";
 import { useRouter } from "vue-router";
 import SidebarSection from "@/components/sections/backend/SidebarSection.vue";
-import Breadcrumb from "@/components/atoms/Breadcrumb.vue";
+import Breadcrumb, { type BreadcrumbItem } from "@/components/atoms/Breadcrumb.vue";
 import Input from "@/components/atoms/Input.vue";
 import ButtonCTA from "@/components/atoms/ButtonCTA.vue";
 import Icon from "@/components/atoms/Icon.vue";
 import Modal from "@/components/atoms/Modal.vue";
 
 const router = useRouter();
+
+// Check if user is admin
+const isAdmin = computed(() => {
+  const userInfo = localStorage.getItem("userInfo");
+  if (userInfo) {
+    try {
+      const user = JSON.parse(userInfo);
+      return user.role === "admin";
+    } catch {
+      return false;
+    }
+  }
+  return false;
+});
+
+// Breadcrumb items based on role
+const breadcrumbItems = computed<BreadcrumbItem[]>(() => {
+  if (isAdmin.value) {
+    return [
+      { label: "首頁", to: "/" },
+      { label: "我的帳號" },
+      { label: "人員帳號管理", to: "/profile" },
+    ];
+  }
+  return [
+    { label: "首頁", to: "/" },
+    { label: "我的帳號" },
+    { label: "編輯個人資料", to: "/profile" },
+  ];
+});
 
 // Form Data
 const formData = ref({

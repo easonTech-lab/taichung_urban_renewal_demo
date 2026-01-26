@@ -35,7 +35,7 @@
           class="inline-flex items-center justify-center rounded-full bg-[#C3DDFD] p-2 text-white shadow-sm hover:bg-primary-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
           aria-label="前往電子領標專區"
         >
-          <Icon name="arrowRight" :size="24" color="#1C64F2" class="h-6 w-6" :aria-label="`前往電子領標專區圖標`" />
+          <Icon name="arrowRightOutline" :size="24" color="#1C64F2" class="h-6 w-6" :aria-label="`前往電子領標專區圖標`" />
         </a>
       </div>
     </section>

@@ -1,57 +1,40 @@
 <template>
-  <div class="border-b border-gray-300 text-center text-sm font-medium text-gray-700">
-    <ul class="-mb-px flex flex-wrap">
-      <li v-for="(item, index) in items" :key="index" :class="index < items.length - 1 ? 'me-2' : ''">
+  <div class="inline-flex  text-center text-sm font-medium text-gray-700">
+    <ul class="-mb-px flex flex-wrap border-b border-gray-300">
+      <li v-for="(item, index) in items" :key="index" class="w-[95px]">
         <!-- Router Link -->
-        <router-link
-          v-if="item.to && !item.disabled"
-          :to="item.to"
-          class="inline-block rounded-t-lg border-b p-4 transition-colors"
-          :class="
-            index === activeIndex
-              ? 'active border-primary-700 text-primary-700'
-              : 'border-transparent hover:border-primary-700 hover:text-primary-700'
-          "
-          :aria-current="index === activeIndex ? 'page' : undefined"
-          @click="handleClick(index, $event)"
-        >
+        <router-link v-if="item.to && !item.disabled" :to="item.to"
+          class="flex h-full w-full items-center justify-center rounded-t-lg border-b p-4 text-center transition-colors"
+          :class="index === activeIndex
+            ? 'active border-primary-700 text-primary-700'
+            : 'border-transparent hover:border-primary-700 hover:text-primary-700'
+            " :aria-current="index === activeIndex ? 'page' : undefined" @click="handleClick(index, $event)">
           {{ item.label }}
         </router-link>
 
         <!-- External Link -->
-        <a
-          v-else-if="item.href && !item.disabled"
-          :href="item.href"
-          class="inline-block rounded-t-lg border-b p-4 transition-colors"
-          :class="
-            index === activeIndex
-              ? 'active border-primary-700 text-primary-700'
-              : 'border-transparent hover:border-primary-700 hover:text-primary-700'
-          "
-          :aria-current="index === activeIndex ? 'page' : undefined"
-          @click="handleClick(index, $event)"
-        >
+        <a v-else-if="item.href && !item.disabled" :href="item.href"
+          class="flex h-full w-full items-center justify-center rounded-t-lg border-b p-4 text-center transition-colors"
+          :class="index === activeIndex
+            ? 'active border-primary-700 text-primary-700'
+            : 'border-transparent hover:border-primary-700 hover:text-primary-700'
+            " :aria-current="index === activeIndex ? 'page' : undefined" @click="handleClick(index, $event)">
           {{ item.label }}
         </a>
 
         <!-- Button -->
-        <a
-          v-else-if="!item.disabled"
-          href="#"
-          class="inline-block rounded-t-lg border-b p-4 transition-colors"
-          :class="
-            index === activeIndex
-              ? 'active border-primary-700 text-primary-700'
-              : 'border-transparent hover:border-primary-700 hover:text-primary-700'
-          "
-          :aria-current="index === activeIndex ? 'page' : undefined"
-          @click.prevent="handleClick(index, $event)"
-        >
+        <a v-else-if="!item.disabled" href="#"
+          class="flex h-full w-full items-center justify-center rounded-t-lg border-b p-4 text-center transition-colors"
+          :class="index === activeIndex
+            ? 'active border-primary-700 text-primary-700'
+            : 'border-transparent hover:border-primary-700 hover:text-primary-700'
+            " :aria-current="index === activeIndex ? 'page' : undefined" @click.prevent="handleClick(index, $event)">
           {{ item.label }}
         </a>
 
         <!-- Disabled -->
-        <a v-else class="inline-block cursor-not-allowed rounded-t-lg p-4 text-gray-400 dark:text-gray-600">
+        <a v-else
+          class="flex h-full w-full cursor-not-allowed items-center justify-center rounded-t-lg p-4 text-center text-gray-400 dark:text-gray-600">
           {{ item.label }}
         </a>
       </li>

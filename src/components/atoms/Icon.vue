@@ -61,8 +61,8 @@ const iconClass = computed(() => {
   return baseClass;
 });
 
-// 使用 import.meta.glob 預先載入所有 SVG 文件
-const svgModules = import.meta.glob("../../assets/svg/*.svg", {
+// 使用 import.meta.glob 預先載入所有 SVG 文件（包括子目錄）
+const svgModules = import.meta.glob("../../assets/svg/**/*.svg", {
   eager: true,
   query: "?raw",
   import: "default",
@@ -73,11 +73,30 @@ const svgMap = new Map<string, string>();
 if (svgModules && typeof svgModules === "object") {
   Object.keys(svgModules).forEach((path) => {
     const fileName = path.split("/").pop()?.replace(".svg", "") || "";
-    if (fileName && svgModules[path]) {
-      // 支持多種命名格式
+    // 提取子目錄路徑（例如：richtext/bold）
+    const pathParts = path.split("/");
+    const svgIndex = pathParts.findIndex((part) => part === "svg");
+    if (svgIndex !== -1 && svgIndex < pathParts.length - 1) {
+      const subPath = pathParts.slice(svgIndex + 1, -1).join("/");
+      const fullPath = subPath ? `${subPath}/${fileName}` : fileName;
+      
+      if (fileName && svgModules[path]) {
+        // 支持完整路徑（例如：richtext/bold）
+        svgMap.set(fullPath, svgModules[path]);
+        svgMap.set(fullPath.toLowerCase(), svgModules[path]);
+        // 支持多種命名格式
+        svgMap.set(fileName.toLowerCase(), svgModules[path]);
+        svgMap.set(fileName, svgModules[path]);
+        // 支持 camelCase 轉 kebab-case
+        const kebabCase = fileName.replace(/([A-Z])/g, "-$1").toLowerCase();
+        if (kebabCase !== fileName.toLowerCase()) {
+          svgMap.set(kebabCase, svgModules[path]);
+        }
+      }
+    } else if (fileName && svgModules[path]) {
+      // 根目錄的 SVG 文件
       svgMap.set(fileName.toLowerCase(), svgModules[path]);
       svgMap.set(fileName, svgModules[path]);
-      // 支持 camelCase 轉 kebab-case
       const kebabCase = fileName.replace(/([A-Z])/g, "-$1").toLowerCase();
       if (kebabCase !== fileName.toLowerCase()) {
         svgMap.set(kebabCase, svgModules[path]);

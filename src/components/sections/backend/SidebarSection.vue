@@ -1,28 +1,45 @@
 <template>
-  <aside class="h-[940px] w-[328px] bg-white opacity-80">
-    <div class="flex h-full w-full flex-col gap-4 overflow-clip px-3 py-4">
+  <!-- Mobile Toggle Button -->
+  <button type="button"
+    class="fixed top-[73px] left-3 z-[70] inline-flex items-center justify-center rounded-lg p-2 text-gray-900 bg-white border border-gray-300 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary-500 sm:hidden"
+    @click="toggleSidebar" aria-label="開啟側邊欄">
+    <Icon name="menu" :size="24" />
+  </button>
+
+  <!-- Backdrop (Mobile Only) -->
+  <div v-if="isSidebarOpen" class="fixed inset-0 z-[60] bg-gray-600/80 sm:hidden" @click="closeSidebar"></div>
+
+  <!-- Sidebar -->
+  <aside :id="sidebarId" :class="[
+    'fixed left-0 z-[60] w-[328px] bg-white opacity-80 transition-transform duration-300 ease-in-out',
+    isSidebarOpen ? 'translate-x-0' : '-translate-x-full',
+    'sm:translate-x-0',
+    'top-0 h-screen sm:top-[73px] sm:h-[calc(100vh-73px)]'
+  ]" aria-label="側邊欄">
+    <div class="flex h-full w-full flex-col gap-4 overflow-y-auto px-3 py-4">
+      <!-- Close Button (Mobile Only) -->
+      <button type="button"
+        class="self-end rounded-lg p-2 text-gray-500 hover:bg-gray-100 hover:text-gray-900 sm:hidden"
+        @click="closeSidebar" aria-label="關閉側邊欄">
+        <Icon name="close" :size="20" />
+      </button>
+
       <!-- Menu Items -->
       <div class="flex flex-1 flex-col gap-4">
-        <SidebarAccordion
-          v-for="(menuItem, index) in menuItems"
-          :key="index"
-          :title="menuItem.title"
-          :icon="menuItem.icon"
-          :sub-items="menuItem.subItems"
-          :expanded="expandedIndex === index"
-          :selected-item="selectedItem"
-          @toggle="handleAccordionToggle(index, $event)"
-          @sub-item-click="selectItem"
-        />
+        <SidebarAccordion v-for="(menuItem, index) in menuItems" :key="index" :title="menuItem.title"
+          :icon="menuItem.icon" :sub-items="menuItem.subItems" :expanded="expandedIndex === index"
+          :selected-item="selectedItem" @toggle="handleAccordionToggle(index, $event)"
+          @sub-item-click="handleSubItemClick" />
       </div>
     </div>
   </aside>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, watch } from "vue";
+import { ref, computed, onMounted, onUnmounted, watch } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import SidebarAccordion, { type SidebarSubItem } from "@/components/atoms/SidebarAccordion.vue";
+import Icon from "@/components/atoms/Icon.vue";
 
 // 用戶側邊欄選單配置
 const userSidebarMenuConfig = [
@@ -77,7 +94,7 @@ const adminSidebarMenuConfig = [
   },
   {
     title: "首頁維護",
-    icon: "home",
+    icon: "page",
     subItems: [
       {
         label: "案件統計維護",
@@ -92,31 +109,53 @@ const adminSidebarMenuConfig = [
       {
         label: "下載專區維護",
         value: "下載專區維護",
-        route: "#",
+        route: "/downloads-management",
       },
       {
         label: "公開消息維護",
         value: "公開消息維護",
-        route: "#",
+        route: "/public-message-management",
       },
     ],
     defaultExpanded: true,
   },
   {
     title: "系統管理",
-    icon: "case", // 暫時使用 case 圖標，後續可添加 briefcase 圖標
-    subItems: [],
+    icon: "briefcase",
+    subItems: [
+      {
+        label: "內部人員帳號管理",
+        value: "內部人員帳號管理",
+        route: "/internal-staff-account-management",
+      },
+      {
+        label: "申請人帳號管理",
+        value: "申請人帳號管理",
+        route: "#",
+      },
+      {
+        label: "幹事名單管理",
+        value: "幹事名單管理",
+        route: "/officer-list-management",
+      },
+      {
+        label: "數據分析",
+        value: "數據分析",
+        route: "#",
+      },
+    ],
   },
   {
     title: "我的帳號",
     icon: "userSettings",
     subItems: [
       {
-        label: "編輯個人資料",
-        value: "編輯個人資料",
+        label: "人員帳號管理",
+        value: "人員帳號管理",
         route: "/profile",
       },
     ],
+    defaultExpanded: false,
   },
 ];
 
@@ -126,22 +165,18 @@ const sidebarMenuConfig = computed(() => (isAdmin.value ? adminSidebarMenuConfig
 const router = useRouter();
 const route = useRoute();
 
-// 判斷是否為管理員模式（根據路由名稱或路徑）
+// 從 localStorage 讀取用戶角色來判斷是否為管理員
 const isAdmin = computed(() => {
-  const adminRoutes = [
-    "case-management-admin",
-    "case-management-dangerous-admin",
-    "case-statistics", // 案件統計維護是管理員專用
-    "case-statistics-add", // 新增年度是管理員專用
-    "case-statistics-edit", // 編輯案件件數是管理員專用
-    "faq-management", // 常見問題維護是管理員專用
-  ];
-  return (
-    adminRoutes.includes(route.name as string) ||
-    route.path.includes("-admin") ||
-    route.path.startsWith("/case-statistics") ||
-    route.path.startsWith("/faq-management")
-  );
+  try {
+    const userInfo = localStorage.getItem("userInfo");
+    if (userInfo) {
+      const user = JSON.parse(userInfo);
+      return user.role === "admin";
+    }
+  } catch (error) {
+    console.error("Failed to parse userInfo from localStorage:", error);
+  }
+  return false;
 });
 
 // 根據當前路由確定選中的項目
@@ -149,6 +184,22 @@ const selectedItem = ref<string>("");
 
 // 當前展開的手風琴索引
 const expandedIndex = ref<number | null>(null);
+
+// 側邊欄顯示/隱藏狀態（移動端）
+const isSidebarOpen = ref(false);
+
+// 側邊欄 ID（用於 aria-controls）
+const sidebarId = computed(() => `sidebar-${Math.random().toString(36).substring(2, 11)}`);
+
+// 切換側邊欄
+const toggleSidebar = () => {
+  isSidebarOpen.value = !isSidebarOpen.value;
+};
+
+// 關閉側邊欄
+const closeSidebar = () => {
+  isSidebarOpen.value = false;
+};
 
 // 處理手風琴展開/收合
 const handleAccordionToggle = (index: number, isExpanded: boolean) => {
@@ -208,9 +259,25 @@ const updateSelectedItem = () => {
   }
 };
 
+// 監聽登入/登出狀態變化，觸發 isAdmin 重新計算
+const checkUserRole = () => {
+  // 由於 isAdmin 是 computed，當 localStorage 變化時會自動重新計算
+  // 這裡只需要觸發 updateSelectedItem 來更新選中項目
+  updateSelectedItem();
+};
+
 // 初始化選中項目
 onMounted(() => {
   updateSelectedItem();
+  // 監聽 storage 事件（當其他標籤頁或窗口改變 localStorage 時）
+  window.addEventListener("storage", checkUserRole);
+  // 監聽自定義事件（當同一個標籤頁內登入/登出時）
+  window.addEventListener("login-status-changed", checkUserRole);
+});
+
+onUnmounted(() => {
+  window.removeEventListener("storage", checkUserRole);
+  window.removeEventListener("login-status-changed", checkUserRole);
 });
 
 // 監聽路由變化和身份變化
@@ -230,10 +297,17 @@ const selectItem = (itemName: string) => {
     const subItem = menuItem.subItems.find((item) => item.value === itemName);
     if (subItem) {
       router.push(subItem.route);
-  emit("item-select", itemName);
+      emit("item-select", itemName);
+      // 移動端：點擊後關閉側邊欄
+      closeSidebar();
       return;
     }
   }
+};
+
+// 處理子項目點擊（包裝 selectItem 以支持關閉側邊欄）
+const handleSubItemClick = (itemName: string) => {
+  selectItem(itemName);
 };
 
 const emit = defineEmits<{

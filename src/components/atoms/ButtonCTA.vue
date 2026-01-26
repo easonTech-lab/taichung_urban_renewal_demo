@@ -1,5 +1,5 @@
 <template>
-  <!-- Text Button Variant -->
+  <!-- Text Button Variant (with underline) -->
   <router-link
     v-if="variant === 'text' && href && !disabled"
     :to="href"
@@ -23,11 +23,35 @@
     <Icon v-if="rightIcon" :name="rightIcon" :size="iconSize" fill="currentColor" class="shrink-0" aria-hidden="true" />
     <Icon v-else-if="leftIcon" :name="leftIcon" :size="iconSize" fill="currentColor" class="shrink-0" aria-hidden="true" />
   </button>
+  <!-- Text Plain Button Variant (no underline) -->
+  <router-link
+    v-else-if="variant === 'textPlain' && href && !disabled"
+    :to="href"
+    class="inline-flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium leading-normal text-primary-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-600 focus-visible:ring-offset-2"
+    :class="textButtonClasses"
+    v-bind="$attrs"
+  >
+    <slot />
+    <Icon v-if="rightIcon" :name="rightIcon" :size="iconSize" fill="currentColor" class="shrink-0" aria-hidden="true" />
+    <Icon v-else-if="leftIcon" :name="leftIcon" :size="iconSize" fill="currentColor" class="shrink-0" aria-hidden="true" />
+  </router-link>
+  <button
+    v-else-if="variant === 'textPlain' && (!href || disabled)"
+    :type="type"
+    :disabled="disabled"
+    class="inline-flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium leading-normal text-primary-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-600 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+    :class="textButtonClasses"
+    v-bind="$attrs"
+  >
+    <slot />
+    <Icon v-if="rightIcon" :name="rightIcon" :size="iconSize" fill="currentColor" class="shrink-0" aria-hidden="true" />
+    <Icon v-else-if="leftIcon" :name="leftIcon" :size="iconSize" fill="currentColor" class="shrink-0" aria-hidden="true" />
+  </button>
   <!-- Regular Button Variant -->
   <router-link
     v-else-if="href && !disabled"
     :to="href"
-    class="inline-flex items-center justify-center gap-2 rounded-lg font-medium leading-normal transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
+    class="flex items-center justify-center gap-2 rounded-lg font-medium leading-normal transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
     :class="[buttonClasses, sizeClasses, justifyClasses]"
     v-bind="$attrs"
   >
@@ -42,7 +66,7 @@
     v-else
     :type="type"
     :disabled="disabled"
-    class="inline-flex items-center justify-center gap-2 rounded-lg font-medium leading-normal transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+    class="flex items-center justify-center gap-2 rounded-lg font-medium leading-normal transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
     :class="[buttonClasses, sizeClasses, justifyClasses]"
     v-bind="$attrs"
   >
@@ -64,7 +88,7 @@ type SizeVariant = "xs" | "sm" | "base" | "l" | "xl";
 const props = withDefaults(
   defineProps<{
     href?: string;
-    variant?: ColorVariant | "text" | "ghost" | "outline" | "none";
+    variant?: ColorVariant | "text" | "textPlain" | "ghost" | "outline" | "none";
     size?: SizeVariant;
     outline?: boolean;
     iconOnly?: boolean;
@@ -138,7 +162,9 @@ const sizeClasses = computed(() => {
   if (props.iconOnly) {
     return `${config.iconOnlySize} ${config.text}`;
   }
-  return `${config.height} ${config.paddingX} ${config.paddingY} ${config.text}`;
+  // 移除固定高度，讓高度由內容和 padding 決定
+  // 這樣當用戶添加自訂 padding（如 p-5）時，按鈕高度會自動調整
+  return `${config.paddingX} ${config.paddingY} ${config.text}`;
 });
 
 const textButtonClasses = computed(() => {

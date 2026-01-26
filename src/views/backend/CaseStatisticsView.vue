@@ -1,10 +1,9 @@
 <template>
-  <div class="flex min-h-screen flex-col bg-indigo-50">
-    <div class="flex flex-1">
-      <!-- Sidebar -->
-      <SidebarSection @item-select="handleSidebarItemSelect" />
-      <!-- Main Content -->
-      <div class="flex flex-1 flex-col gap-10 p-10">
+  <div class="min-h-screen bg-indigo-50">
+    <!-- Sidebar -->
+    <SidebarSection @item-select="handleSidebarItemSelect" />
+    <!-- Main Content -->
+    <div class="flex flex-1 flex-col gap-10 p-4 sm:ml-[328px] sm:p-10">
         <!-- Breadcrumb and Title -->
         <div class="flex flex-col gap-6">
           <Breadcrumb />
@@ -19,13 +18,9 @@
               <div class="h-7 w-1 rounded bg-primary-600"></div>
               <h2 class="text-2xl font-medium leading-6 text-gray-900">歷年案件統計</h2>
             </div>
-            <button
-              class="flex items-center gap-2 rounded-lg border border-primary-700 bg-white px-3 py-2 text-sm font-medium text-primary-700 transition-colors hover:bg-primary-50"
-              @click="handleAddYear"
-            >
-              <Icon name="plus" :size="16" color="#1A56DB" />
+            <ButtonCTA variant="outline" size="sm" left-icon="plus" @click="handleAddYear">
               新增年度
-            </button>
+            </ButtonCTA>
           </div>
 
           <!-- Tabs and Filters -->
@@ -96,20 +91,13 @@
 
               <!-- Action -->
               <template #cell-action="{ row }">
-                <button
-                  class="flex items-center justify-center text-primary-600 transition-colors hover:text-primary-700"
-                  @click.stop="handleEdit(row)"
-                  aria-label="編輯"
-                >
-                  <Icon name="editOutline" :size="24" color="#1C64F2" />
-                </button>
+                <ButtonCTA variant="text" size="sm" icon-only left-icon="editOutline" @click.stop="handleEdit(row)" aria-label="編輯" />
               </template>
             </Table>
           </div>
         </div>
       </div>
     </div>
-  </div>
 </template>
 
 <script setup lang="ts">
@@ -122,6 +110,7 @@ import Dropdown, { type DropdownItem } from "@/components/atoms/Dropdown.vue";
 import Table, { type TableColumn, type TablePagination } from "@/components/atoms/Table.vue";
 import Badge from "@/components/atoms/Badge.vue";
 import Icon from "@/components/atoms/Icon.vue";
+import ButtonCTA from "@/components/atoms/ButtonCTA.vue";
 
 const router = useRouter();
 

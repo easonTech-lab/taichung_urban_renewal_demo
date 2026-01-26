@@ -1,54 +1,124 @@
 <template>
-  <div class="relative w-full">
-    <!-- 觸發按鈕 -->
-    <button
-      :id="buttonId"
-      type="button"
-      class="inline-flex h-[52px] w-full items-center justify-between rounded-lg border px-4 py-3.5 text-lg font-medium leading-5 shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2"
-      :class="buttonClasses"
-      :aria-expanded="isOpen"
-      :aria-haspopup="true"
-      @click="toggle"
-      @keydown.enter="toggle"
-      @keydown.space.prevent="toggle"
-      @keydown.esc="close"
-    >
-      <span :class="buttonTextClasses">
-        {{ buttonText || placeholder }}
-      </span>
-      <Icon name="chevronDown" :size="20" class="ml-1.5 transition-transform" :class="isOpen ? 'rotate-180' : ''" aria-hidden="true" />
-    </button>
+  <div class="inline-flex flex-col items-start justify-start gap-2" :class="[containerClass || 'w-full']">
+    <!-- Vertical Layout (default) -->
+    <template v-if="labelPosition === 'vertical' || !labelPosition">
+      <label v-if="showLabel && label" :for="buttonId" class="block text-base font-medium" :class="labelClasses">
+        {{ label }}
+        <span v-if="required" class="text-red-500 text-xs leading-none ml-1">*</span>
+      </label>
+      <div class="relative w-full">
+        <!-- 觸發按鈕 -->
+        <button
+          :id="buttonId"
+          type="button"
+          class="inline-flex h-[52px] w-full items-center justify-between rounded-lg border px-4 py-3.5 text-lg font-medium leading-5 shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2"
+          :class="buttonClasses"
+          :aria-expanded="isOpen"
+          :aria-haspopup="true"
+          @click="toggle"
+          @keydown.enter="toggle"
+          @keydown.space.prevent="toggle"
+          @keydown.esc="close"
+        >
+          <span :class="buttonTextClasses">
+            {{ buttonText || placeholder }}
+          </span>
+          <Icon name="chevronDown" :size="20" class="ml-1.5 transition-transform" :class="isOpen ? 'rotate-180' : ''" aria-hidden="true" />
+        </button>
 
-    <!-- 下拉選單 -->
-    <div
-      v-show="isOpen"
-      :id="dropdownId"
-      :class="['absolute z-10 mt-1 w-full rounded-md border border-gray-200 bg-white shadow-lg', align === 'right' ? 'right-0' : 'left-0']"
-      role="menu"
-      :aria-labelledby="buttonId"
-    >
-      <ul class="max-h-60 overflow-y-auto py-1 text-sm text-gray-700">
-        <li v-for="(item, index) in items" :key="index" role="none">
-          <component
-            :is="item.to ? 'router-link' : item.href ? 'a' : 'button'"
-            :to="item.to"
-            :href="item.href || '#'"
-            :type="item.to || item.href ? undefined : 'button'"
-            class="inline-flex w-full items-center rounded px-4 py-2 text-sm text-gray-700 transition-colors hover:bg-gray-100 hover:text-gray-900 focus:bg-gray-100 focus:text-gray-900 focus:outline-none"
-            :class="item.class"
-            role="menuitem"
-            :aria-label="item.label"
-            @click="handleItemClick(item, index, $event)"
-            @keydown.enter="handleItemClick(item, index, $event)"
-            @keydown.space.prevent="handleItemClick(item, index, $event)"
+        <!-- 下拉選單 -->
+        <div
+          v-show="isOpen"
+          :id="dropdownId"
+          :class="['absolute z-10 mt-1 w-full rounded-md border border-gray-200 bg-white shadow-lg', align === 'right' ? 'right-0' : 'left-0']"
+          role="menu"
+          :aria-labelledby="buttonId"
+        >
+          <ul class="max-h-60 overflow-y-auto py-1 text-sm text-gray-700">
+            <li v-for="(item, index) in items" :key="index" role="none">
+              <component
+                :is="item.to ? 'router-link' : item.href ? 'a' : 'button'"
+                :to="item.to"
+                :href="item.href || '#'"
+                :type="item.to || item.href ? undefined : 'button'"
+                class="inline-flex w-full items-center rounded px-4 py-2 text-sm text-gray-700 transition-colors hover:bg-gray-100 hover:text-gray-900 focus:bg-gray-100 focus:text-gray-900 focus:outline-none"
+                :class="item.class"
+                role="menuitem"
+                :aria-label="item.label"
+                @click="handleItemClick(item, index, $event)"
+                @keydown.enter="handleItemClick(item, index, $event)"
+                @keydown.space.prevent="handleItemClick(item, index, $event)"
+              >
+                <slot :name="`item-${index}`" :item="item" :index="index">
+                  {{ item.label }}
+                </slot>
+              </component>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </template>
+
+    <!-- Horizontal Layout -->
+    <template v-else-if="labelPosition === 'horizontal'">
+      <div class="flex items-center gap-2 w-full">
+        <label v-if="showLabel && label" :for="buttonId" class="text-base font-medium whitespace-nowrap" :class="labelClasses">
+          {{ label }}
+          <span v-if="required" class="text-red-500 text-xs leading-none ml-1">*</span>
+        </label>
+        <div class="relative flex-1">
+          <!-- 觸發按鈕 -->
+          <button
+            :id="buttonId"
+            type="button"
+            class="inline-flex h-[52px] w-full items-center justify-between rounded-lg border px-4 py-3.5 text-lg font-medium leading-5 shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2"
+            :class="buttonClasses"
+            :aria-expanded="isOpen"
+            :aria-haspopup="true"
+            @click="toggle"
+            @keydown.enter="toggle"
+            @keydown.space.prevent="toggle"
+            @keydown.esc="close"
           >
-            <slot :name="`item-${index}`" :item="item" :index="index">
-              {{ item.label }}
-            </slot>
-          </component>
-        </li>
-      </ul>
-    </div>
+            <span :class="buttonTextClasses">
+              {{ buttonText || placeholder }}
+            </span>
+            <Icon name="chevronDown" :size="20" class="ml-1.5 transition-transform" :class="isOpen ? 'rotate-180' : ''" aria-hidden="true" />
+          </button>
+
+          <!-- 下拉選單 -->
+          <div
+            v-show="isOpen"
+            :id="dropdownId"
+            :class="['absolute z-10 mt-1 w-full rounded-md border border-gray-200 bg-white shadow-lg', align === 'right' ? 'right-0' : 'left-0']"
+            role="menu"
+            :aria-labelledby="buttonId"
+          >
+            <ul class="max-h-60 overflow-y-auto py-1 text-sm text-gray-700">
+              <li v-for="(item, index) in items" :key="index" role="none">
+                <component
+                  :is="item.to ? 'router-link' : item.href ? 'a' : 'button'"
+                  :to="item.to"
+                  :href="item.href || '#'"
+                  :type="item.to || item.href ? undefined : 'button'"
+                  class="inline-flex w-full items-center rounded px-4 py-2 text-sm text-gray-700 transition-colors hover:bg-gray-100 hover:text-gray-900 focus:bg-gray-100 focus:text-gray-900 focus:outline-none"
+                  :class="item.class"
+                  role="menuitem"
+                  :aria-label="item.label"
+                  @click="handleItemClick(item, index, $event)"
+                  @keydown.enter="handleItemClick(item, index, $event)"
+                  @keydown.space.prevent="handleItemClick(item, index, $event)"
+                >
+                  <slot :name="`item-${index}`" :item="item" :index="index">
+                    {{ item.label }}
+                  </slot>
+                </component>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </template>
   </div>
 </template>
 
@@ -66,17 +136,26 @@ export interface InputDropdownItem {
 
 const props = withDefaults(
   defineProps<{
+    label?: string;
+    showLabel?: boolean; // 是否顯示 label
+    required?: boolean; // 是否必填（顯示 *）
+    labelPosition?: "horizontal" | "vertical"; // label 位置：水平或垂直
     buttonText?: string;
     placeholder?: string;
     items: InputDropdownItem[];
     variant?: "primary" | "secondary" | "outline" | "ghost";
     align?: "left" | "right";
+    containerClass?: string; // 容器自訂 class
   }>(),
   {
+    showLabel: true,
+    required: false,
+    labelPosition: "vertical",
     buttonText: "",
     placeholder: "請選擇",
     variant: "outline",
     align: "left",
+    containerClass: "",
   }
 );
 
@@ -100,6 +179,10 @@ const buttonTextClasses = computed(() => {
   if (!props.buttonText) {
     return "text-gray-500";
   }
+  return "text-gray-900";
+});
+
+const labelClasses = computed(() => {
   return "text-gray-900";
 });
 

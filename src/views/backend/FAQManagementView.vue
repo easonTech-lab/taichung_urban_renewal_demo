@@ -1,103 +1,80 @@
 <template>
-  <div class="flex min-h-screen flex-col bg-indigo-50">
-    <div class="flex flex-1">
-      <!-- Sidebar -->
-      <SidebarSection @item-select="handleSidebarItemSelect" />
-      <!-- Main Content -->
-      <div class="flex flex-1 flex-col gap-10 p-10">
-        <!-- Breadcrumb and Title -->
-        <div class="flex flex-col gap-6">
-          <Breadcrumb />
-          <h1 class="text-3xl font-bold leading-[30px] text-gray-900">常見問題維護</h1>
+  <div class="min-h-screen bg-indigo-50">
+    <!-- Sidebar -->
+    <SidebarSection @item-select="handleSidebarItemSelect" />
+    <!-- Main Content -->
+    <div class="flex flex-1 flex-col gap-10 p-4 sm:ml-[328px] sm:p-10">
+      <!-- Breadcrumb and Title -->
+      <div class="flex flex-col gap-6">
+        <Breadcrumb />
+        <h1 class="text-3xl font-bold leading-[30px] text-gray-900">常見問題維護</h1>
+      </div>
+
+      <!-- FAQ List Card -->
+      <div class="flex flex-col gap-4 rounded-lg bg-white p-6 shadow-sm">
+        <!-- Header Section -->
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <div class="h-7 w-1 rounded bg-primary-600"></div>
+            <h2 class="text-2xl font-medium leading-6 text-gray-900">常見問題列表</h2>
+          </div>
+          <ButtonCTA variant="outline" size="sm" left-icon="plus" @click="handleAddQuestion"> 新增問題 </ButtonCTA>
         </div>
 
-        <!-- FAQ List Card -->
-        <div class="flex flex-col gap-4 rounded-lg bg-white p-6 shadow-sm">
-          <!-- Header Section -->
-          <div class="flex items-center justify-between">
-            <div class="flex items-center gap-3">
-              <div class="h-7 w-1 rounded bg-primary-600"></div>
-              <h2 class="text-2xl font-medium leading-6 text-gray-900">常見問題列表</h2>
-            </div>
-            <button
-              class="flex items-center gap-2 rounded-lg border border-primary-700 bg-white px-3 py-2 text-sm font-medium text-primary-700 transition-colors hover:bg-primary-50"
-              @click="handleAddQuestion"
-            >
-              <Icon name="plus" :size="16" color="#1A56DB" />
-              新增問題
-            </button>
-          </div>
+        <!-- Tabs -->
+        <div class="flex flex-col gap-4">
+          <Tabs :items="tabItems" :model-value="activeTab" @tab-click="handleTabClick" />
+        </div>
 
-          <!-- Tabs -->
-          <div class="flex flex-col gap-4">
-            <Tabs :items="tabItems" :model-value="activeTab" @tab-click="handleTabClick" />
-          </div>
+        <!-- Table -->
+        <div class="rounded-lg border border-gray-300 bg-white">
+          <Table :columns="tableColumns" :rows="paginatedFAQs" :pagination="pagination" @page-change="handlePageChange">
+            <!-- Index -->
+            <template #cell-index="{ row }">
+              <p class="text-base text-gray-500">{{ row.index }}</p>
+            </template>
 
-          <!-- Table -->
-          <div class="rounded-lg border border-gray-300 bg-white">
-            <Table :columns="tableColumns" :rows="paginatedFAQs" :pagination="pagination" @page-change="handlePageChange">
-              <!-- Index -->
-              <template #cell-index="{ row }">
-                <p class="text-base text-gray-500">{{ row.index }}</p>
-              </template>
+            <!-- Question -->
+            <template #cell-question="{ row }">
+              <p class="text-base text-gray-900">{{ row.question }}</p>
+            </template>
 
-              <!-- Question -->
-              <template #cell-question="{ row }">
-                <p class="text-base text-gray-900">{{ row.question }}</p>
-              </template>
+            <!-- Category -->
+            <template #cell-category="{ row }">
+              <p class="text-base text-gray-500">{{ row.category }}</p>
+            </template>
 
-              <!-- Category -->
-              <template #cell-category="{ row }">
-                <p class="text-base text-gray-500">{{ row.category }}</p>
-              </template>
-
-              <!-- Publish Date -->
-              <template #header-publishDate="{ column }">
-                <div class="flex items-center gap-1">
-                  <span class="text-sm font-medium uppercase text-gray-500">{{ column.label }}</span>
-                  <div class="flex h-3 w-1.5 flex-col items-center justify-center">
-                    <svg class="h-1.5 w-1.5" viewBox="0 0 6 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M3 0L5.59808 4.5H0.401924L3 0Z" fill="#9CA3AF" />
-                      <path d="M3 12L0.401924 7.5H5.59808L3 12Z" fill="#9CA3AF" />
-                    </svg>
-                  </div>
+            <!-- Publish Date -->
+            <template #header-publishDate="{ column }">
+              <div class="flex items-center gap-1">
+                <span class="text-sm font-medium uppercase text-gray-500">{{ column.label }}</span>
+                <div class="flex h-3 w-1.5 flex-col items-center justify-center">
+                  <svg class="h-1.5 w-1.5" viewBox="0 0 6 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M3 0L5.59808 4.5H0.401924L3 0Z" fill="#9CA3AF" />
+                    <path d="M3 12L0.401924 7.5H5.59808L3 12Z" fill="#9CA3AF" />
+                  </svg>
                 </div>
-              </template>
-              <template #cell-publishDate="{ row }">
-                <p class="text-base text-gray-500">{{ row.publishDate }}</p>
-              </template>
+              </div>
+            </template>
+            <template #cell-publishDate="{ row }">
+              <p class="text-base text-gray-500">{{ row.publishDate }}</p>
+            </template>
 
-              <!-- Status -->
-              <template #cell-status="{ row }">
-                <Switch
-                  :model-value="row.status"
-                  :show-text="true"
-                  on-text="上架"
-                  off-text="下架"
-                  @update:model-value="(value) => handleStatusChange(row, value)"
-                />
-              </template>
+            <!-- Status -->
+            <template #cell-status="{ row }">
+              <Switch :model-value="row.status" :show-text="true" on-text="上架" off-text="下架"
+                @update:model-value="(value) => handleStatusChange(row, value)" />
+            </template>
 
-              <!-- Action -->
-              <template #cell-action="{ row }">
-                <div class="flex items-center gap-4">
-                  <button
-                    class="text-sm font-medium text-primary-600 transition-colors hover:text-primary-700"
-                    @click.stop="handlePreview(row)"
-                  >
-                    預覽
-                  </button>
-                  <button
-                    class="flex items-center justify-center text-primary-600 transition-colors hover:text-primary-700"
-                    @click.stop="handleDelete(row)"
-                    aria-label="刪除"
-                  >
-                    <Icon name="link" :size="24" color="#1C64F2" />
-                  </button>
-                </div>
-              </template>
-            </Table>
-          </div>
+            <!-- Action -->
+            <template #cell-action="{ row }">
+              <div class="flex items-center">
+                <ButtonCTA variant="textPlain" size="sm" @click.stop="handlePreview(row)"> 預覽 </ButtonCTA>
+                <ButtonCTA variant="text" size="sm" icon-only left-icon="trashCan" @click.stop="handleDelete(row)"
+                  aria-label="刪除" />
+              </div>
+            </template>
+          </Table>
         </div>
       </div>
     </div>
@@ -106,12 +83,14 @@
 
 <script setup lang="ts">
 import { ref, computed } from "vue";
+import { useRouter } from "vue-router";
 import SidebarSection from "@/components/sections/backend/SidebarSection.vue";
 import Breadcrumb from "@/components/atoms/Breadcrumb.vue";
 import Tabs from "@/components/atoms/Tabs.vue";
 import Table, { type TableColumn, type TablePagination } from "@/components/atoms/Table.vue";
 import Switch from "@/components/atoms/Switch.vue";
 import Icon from "@/components/atoms/Icon.vue";
+import ButtonCTA from "@/components/atoms/ButtonCTA.vue";
 
 interface FAQItem {
   index: number;
@@ -123,12 +102,7 @@ interface FAQItem {
 }
 
 // Tabs
-const tabItems = [
-  { label: "全部" },
-  { label: "已上架" },
-  { label: "暫存中" },
-  { label: "已下架" },
-];
+const tabItems = [{ label: "全部" }, { label: "已上架" }, { label: "暫存中" }, { label: "已下架" }];
 
 const activeTab = ref<number>(0);
 
@@ -271,24 +245,28 @@ const handlePageChange = (page: number) => {
   currentPage.value = page;
 };
 
+const router = useRouter();
+
 const handleAddQuestion = () => {
-  console.log("Add question clicked");
-  // TODO: Implement add question logic
+  router.push("/faq-management/add");
 };
 
-const handleStatusChange = (row: FAQItem, value: boolean) => {
-  row.status = value;
-  console.log("Status changed for:", row, "New status:", value);
+const handleStatusChange = (row: Record<string, any>, value: boolean) => {
+  const item = row as FAQItem;
+  item.status = value;
+  console.log("Status changed for:", item, "New status:", value);
   // TODO: Implement status change logic
 };
 
-const handlePreview = (row: FAQItem) => {
-  console.log("Preview clicked for:", row);
+const handlePreview = (row: Record<string, any>) => {
+  const item = row as FAQItem;
+  console.log("Preview clicked for:", item);
   // TODO: Implement preview logic
 };
 
-const handleDelete = (row: FAQItem) => {
-  console.log("Delete clicked for:", row);
+const handleDelete = (row: Record<string, any>) => {
+  const item = row as FAQItem;
+  console.log("Delete clicked for:", item);
   // TODO: Implement delete logic
 };
 </script>

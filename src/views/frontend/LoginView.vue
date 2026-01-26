@@ -126,8 +126,12 @@ const handleLogin = () => {
   // 驗證帳密
   const user = mockUsers.find((u) => u.username === formData.value.username && u.password === formData.value.password);
           if (user) {
-            // 登入成功
-            localStorage.setItem("userInfo", JSON.stringify({ username: user.username }));
+            // 登入成功，存儲用戶信息和角色
+            const isAdmin = user.username === "adm";
+            localStorage.setItem("userInfo", JSON.stringify({ 
+              username: user.username,
+              role: isAdmin ? "admin" : "user"
+            }));
             // 觸發自定義事件，通知 Navbar 更新
             window.dispatchEvent(new Event("login-status-changed"));
             // user 帳號跳轉到案件管理頁面，adm 帳號跳轉到都市更新案件管理
