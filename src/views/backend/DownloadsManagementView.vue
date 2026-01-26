@@ -42,33 +42,6 @@
             <template #cell-index="{ rowIndex }">
               <p class="text-base text-gray-500">{{ (currentPage - 1) * pageSize + rowIndex + 1 }}</p>
             </template>
-
-            <!-- File Name -->
-            <template #cell-fileName="{ row }">
-              <p class="text-base text-gray-900">{{ row.fileName }}</p>
-            </template>
-
-            <!-- Category -->
-            <template #cell-category="{ row }">
-              <p class="text-base text-gray-500">{{ row.category }}</p>
-            </template>
-
-            <!-- Publish Date -->
-            <template #header-publishDate="{ column }">
-              <div class="flex items-center gap-1">
-                <span class="text-sm font-medium uppercase text-gray-500">{{ column.label }}</span>
-                <div class="flex h-3 w-1.5 flex-col items-center justify-center">
-                  <svg class="h-1.5 w-1.5" viewBox="0 0 6 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M3 0L5.59808 4.5H0.401924L3 0Z" fill="#9CA3AF" />
-                    <path d="M3 12L0.401924 7.5H5.59808L3 12Z" fill="#9CA3AF" />
-                  </svg>
-                </div>
-              </div>
-            </template>
-            <template #cell-publishDate="{ row }">
-              <p class="text-base text-gray-500">{{ row.publishDate }}</p>
-            </template>
-
             <!-- Status -->
             <template #cell-status="{ row }">
               <Switch :model-value="row.status" :show-text="true" on-text="上架" off-text="下架"
@@ -202,6 +175,7 @@ const tableColumns: TableColumn[] = [
     label: "發布日期",
     headerClass: "w-[140px]",
     cellClass: "w-[140px]",
+    sortable: true,
   },
   {
     key: "status",
@@ -239,11 +213,9 @@ const filteredDownloads = computed(() => {
   return downloads;
 });
 
-// Paginated Downloads
+// 注意：分頁現在由 Table 組件內部處理，所以這裡直接傳遞所有過濾後的數據
 const paginatedDownloads = computed(() => {
-  const start = (currentPage.value - 1) * pageSize.value;
-  const end = start + pageSize.value;
-  return filteredDownloads.value.slice(start, end);
+  return filteredDownloads.value;
 });
 
 // Pagination

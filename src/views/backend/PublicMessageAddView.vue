@@ -24,45 +24,24 @@
         <!-- Form Fields -->
         <div class="flex flex-col gap-6">
           <!-- Title Input -->
-          <div class="flex flex-col gap-2">
-            <div class="flex items-center gap-2">
-              <label class="text-base font-medium text-gray-900">標題(限50字)</label>
-              <span class="text-red-500">*</span>
-            </div>
-            <Input v-model="formData.title" placeholder="填寫標題" size="lg" :maxlength="50" />
-          </div>
+          <Input v-model="formData.title" label="標題(限50字)" placeholder="填寫標題" size="lg" :maxlength="50" required />
 
           <!-- Category Selection -->
-          <div class="flex flex-col gap-4">
-            <div class="flex items-center gap-2">
-              <label class="text-base font-medium text-gray-900">類別</label>
-              <span class="text-red-500">*</span>
-            </div>
-            <div class="flex flex-wrap items-center gap-5">
+          <RadioGroup label="類別" required>
+            <template #radios>
               <Radio v-for="category in categoryOptions" :key="category.value" :model-value="formData.category"
                 :value="category.value" :label="category.label" name="category"
                 container-class="flex items-center gap-2" label-class="text-sm font-medium text-gray-900"
                 @update:model-value="(value) => (formData.category = value as string)" />
-            </div>
-          </div>
+            </template>
+          </RadioGroup>
 
           <!-- Content Editor -->
-          <div class="flex flex-col gap-2">
-            <div class="flex items-center gap-2">
-              <label class="text-base font-medium text-gray-900">內容(限200字)</label>
-              <span class="text-red-500">*</span>
-            </div>
-            <RichTextEditor v-model="formData.content" placeholder="文字輸入" />
-          </div>
+          <RichTextEditor v-model="formData.content" label="內容(限200字)" placeholder="文字輸入" required :maxlength="200" />
 
           <!-- File Upload -->
-          <div class="flex flex-col gap-2">
-            <div class="flex items-center gap-2">
-              <label class="text-base font-medium text-gray-900">檔案上傳</label>
-              <span class="text-red-500">*</span>
-            </div>
-            <FileUpload :max-size="10" @file-selected="handleFileSelected" @file-error="handleFileError" />
-          </div>
+          <FileUpload v-model="formData.files" label="檔案上傳" :max-size="10" multiple required
+            @file-error="handleFileError" />
         </div>
       </div>
 
@@ -82,6 +61,7 @@ import SidebarSection from "@/components/sections/backend/SidebarSection.vue";
 import Breadcrumb from "@/components/atoms/Breadcrumb.vue";
 import Input from "@/components/atoms/Input.vue";
 import Radio from "@/components/atoms/Radio.vue";
+import RadioGroup from "@/components/atoms/RadioGroup.vue";
 import RichTextEditor from "@/components/atoms/RichTextEditor.vue";
 import FileUpload from "@/components/atoms/FileUpload.vue";
 import ButtonCTA from "@/components/atoms/ButtonCTA.vue";
@@ -92,14 +72,14 @@ interface FormData {
   title: string;
   category: string;
   content: string;
-  file: File | null;
+  files: File[];
 }
 
 const formData = ref<FormData>({
   title: "",
   category: "",
   content: "",
-  file: null,
+  files: [],
 });
 
 const categoryOptions = [
@@ -114,12 +94,6 @@ const handleSidebarItemSelect = (itemName: string) => {
 
 const handleGoBack = () => {
   router.back();
-};
-
-const handleFileSelected = (files: File[]) => {
-  if (files.length > 0) {
-    formData.value.file = files[0];
-  }
 };
 
 const handleFileError = (error: string) => {

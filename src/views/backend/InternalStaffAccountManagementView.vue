@@ -45,34 +45,13 @@
 
           <!-- Table -->
           <div class="rounded-lg border border-gray-300 bg-white">
-            <Table :columns="tableColumns" :rows="paginatedHandlers" :pagination="pagination"
-              @page-change="handlePageChange">
-              <!-- Index -->
-              <template #cell-index="{ rowIndex }">
-                <p class="text-base text-gray-500">{{ (currentPage - 1) * pageSize + rowIndex + 1 }}</p>
-              </template>
-
-              <!-- Name -->
-              <template #cell-name="{ row }">
-                <p class="text-base text-gray-900">{{ row.name }}</p>
-              </template>
-
-              <!-- Email -->
-              <template #cell-email="{ row }">
-                <p class="text-base text-gray-600">{{ row.email }}</p>
-              </template>
-
-              <!-- Department -->
-              <template #cell-department="{ row }">
-                <p class="text-base text-gray-600">{{ row.department }}</p>
-              </template>
-
-              <!-- Group -->
-              <template #cell-group="{ row }">
-                <p class="text-base text-gray-600">{{ row.group }}</p>
-              </template>
-
-              <!-- Permissions -->
+          <Table :columns="tableColumns" :rows="paginatedHandlers" :pagination="pagination"
+            @page-change="handlePageChange">
+            <!-- Index -->
+            <template #cell-index="{ rowIndex }">
+              <p class="text-base text-gray-500">{{ (currentPage - 1) * pageSize + rowIndex + 1 }}</p>
+            </template>
+            <!-- Permissions -->
               <template #cell-permissions="{ row }">
                 <div class="text-base text-gray-600">
                   <div v-for="(permission, index) in row.permissions" :key="index" class="mb-2 last:mb-0">
@@ -347,11 +326,9 @@ const tableColumns: TableColumn[] = [
   },
 ];
 
-// Paginated Handlers
+// 注意：分頁現在由 Table 組件內部處理，所以這裡直接傳遞所有數據
 const paginatedHandlers = computed(() => {
-  const start = (currentPage.value - 1) * pageSize.value;
-  const end = start + pageSize.value;
-  return handlerAccounts.value.slice(start, end);
+  return handlerAccounts.value;
 });
 
 // Pagination

@@ -1,5 +1,5 @@
 <template>
-  <div class="inline-flex flex-col items-start justify-start gap-2" :class="[containerClass || 'w-full']">
+  <div class="inline-flex flex-col items-start gap-2" :class="[containerClass || 'w-full']">
     <!-- Vertical Layout (default) -->
     <template v-if="labelPosition === 'vertical' || !labelPosition">
       <label v-if="showLabel && label" :for="buttonId" class="block text-base font-medium" :class="labelClasses">

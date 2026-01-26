@@ -14,7 +14,7 @@
       <div class="relative size-12 shrink-0">
         <div class="absolute left-0 top-0 size-12 rounded-full bg-blue-200"></div>
         <div class="absolute left-3 top-3 size-6 overflow-hidden">
-          <Icon name="link" :size="24" color="#1C64F2" class="h-full w-full" aria-hidden="true" />
+          <Icon name="webLink" :size="24" color="#1C64F2" class="h-full w-full" aria-hidden="true" />
         </div>
       </div>
     </div>

@@ -253,7 +253,7 @@ watch(
 );
 
 watch(
-  () => [props.size, props.color],
+  () => [props.size, props.color, props.fill],
   () => {
     if (svgContent.value) {
       loadSvg(); // 重新載入以應用新的樣式

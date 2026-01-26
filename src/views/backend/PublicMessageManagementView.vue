@@ -4,109 +4,63 @@
     <SidebarSection @item-select="handleSidebarItemSelect" />
     <!-- Main Content -->
     <div class="flex flex-1 flex-col gap-10 p-4 sm:ml-[328px] sm:p-10">
-        <!-- Breadcrumb and Title -->
-        <div class="flex flex-col gap-6">
-          <Breadcrumb />
-          <h1 class="text-3xl font-bold leading-[30px] text-gray-900">公開消息維護</h1>
+      <!-- Breadcrumb and Title -->
+      <div class="flex flex-col gap-6">
+        <Breadcrumb />
+        <h1 class="text-3xl font-bold leading-[30px] text-gray-900">公開消息維護</h1>
+      </div>
+
+      <!-- Public Messages List Card -->
+      <div class="flex flex-col gap-4 rounded-lg bg-white p-6 shadow-sm">
+        <!-- Header Section -->
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <div class="h-7 w-1 rounded bg-primary-600"></div>
+            <h2 class="text-2xl font-medium leading-6 text-gray-900">公開消息列表</h2>
+          </div>
+          <ButtonCTA variant="outline" size="sm" left-icon="plus" @click="handleAddMessage">
+            新增公開消息
+          </ButtonCTA>
         </div>
 
-        <!-- Public Messages List Card -->
-        <div class="flex flex-col gap-4 rounded-lg bg-white p-6 shadow-sm">
-          <!-- Header Section -->
-          <div class="flex items-center justify-between">
-            <div class="flex items-center gap-3">
-              <div class="h-7 w-1 rounded bg-primary-600"></div>
-              <h2 class="text-2xl font-medium leading-6 text-gray-900">公開消息列表</h2>
-            </div>
-            <ButtonCTA variant="outline" size="sm" left-icon="plus" @click="handleAddMessage">
-              新增公開消息
-            </ButtonCTA>
-          </div>
+        <!-- Tabs -->
+        <div class="flex flex-col gap-4">
+          <Tabs :items="tabItems" :model-value="activeTab" @tab-click="handleTabClick" />
+        </div>
 
-          <!-- Tabs -->
-          <div class="flex flex-col gap-4">
-            <Tabs :items="tabItems" :model-value="activeTab" @tab-click="handleTabClick" />
-          </div>
+        <!-- Category Filter -->
+        <div class="w-[160px]">
+          <Dropdown :button-text="selectedCategory || '全部類別'" :items="categoryOptions" variant="outline"
+            @item-click="handleCategoryChange" />
+        </div>
 
-          <!-- Category Filter -->
-          <div class="w-[160px]">
-            <Dropdown
-              :button-text="selectedCategory || '全部類別'"
-              :items="categoryOptions"
-              variant="outline"
-              @item-click="handleCategoryChange"
-            />
-          </div>
+        <!-- Table -->
+        <div class="rounded-lg border border-gray-300 bg-white">
+          <Table :columns="tableColumns" :rows="paginatedMessages" :pagination="pagination"
+            @page-change="handlePageChange">
+            <!-- Index -->
+            <template #cell-index="{ rowIndex }">
+              <p class="text-base text-gray-500">{{ (currentPage - 1) * pageSize + rowIndex + 1 }}</p>
+            </template>
+            <!-- Status -->
+            <template #cell-status="{ row }">
+              <Switch :model-value="row.status" :show-text="true" on-text="上架" off-text="下架"
+                @update:model-value="(value) => handleStatusChange(row, value)" />
+            </template>
 
-          <!-- Table -->
-          <div class="rounded-lg border border-gray-300 bg-white">
-            <Table
-              :columns="tableColumns"
-              :rows="paginatedMessages"
-              :pagination="pagination"
-              @page-change="handlePageChange"
-            >
-              <!-- Index -->
-              <template #cell-index="{ rowIndex }">
-                <p class="text-base text-gray-500">{{ (currentPage - 1) * pageSize + rowIndex + 1 }}</p>
-              </template>
-
-              <!-- Message Title -->
-              <template #cell-title="{ row }">
-                <p class="text-base text-gray-900">{{ row.title }}</p>
-              </template>
-
-              <!-- Category -->
-              <template #cell-category="{ row }">
-                <p class="text-base text-gray-500">{{ row.category }}</p>
-              </template>
-
-              <!-- Publish Date -->
-              <template #header-publishDate="{ column }">
-                <div class="flex items-center gap-1">
-                  <span class="text-sm font-medium uppercase text-gray-500">{{ column.label }}</span>
-                  <div class="flex h-3 w-1.5 flex-col items-center justify-center">
-                    <svg class="h-1.5 w-1.5" viewBox="0 0 6 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M3 0L5.59808 4.5H0.401924L3 0Z" fill="#9CA3AF" />
-                      <path d="M3 12L0.401924 7.5H5.59808L3 12Z" fill="#9CA3AF" />
-                    </svg>
-                  </div>
-                </div>
-              </template>
-              <template #cell-publishDate="{ row }">
-                <p class="text-base text-gray-500">{{ row.publishDate }}</p>
-              </template>
-
-              <!-- Status -->
-              <template #cell-status="{ row }">
-                <Switch
-                  :model-value="row.status"
-                  :show-text="true"
-                  on-text="上架"
-                  off-text="下架"
-                  @update:model-value="(value) => handleStatusChange(row, value)"
-                />
-              </template>
-
-              <!-- Action -->
-              <template #cell-action="{ row }">
-                <div class="flex items-center">
-                  <ButtonCTA variant="textPlain" size="sm" @click.stop="handlePreview(row)">預覽</ButtonCTA>
-                  <ButtonCTA
-                    variant="text"
-                    size="sm"
-                    icon-only
-                    left-icon="trashCan"
-                    @click.stop="handleDelete(row)"
-                    aria-label="刪除"
-                  />
-                </div>
-              </template>
-            </Table>
-          </div>
+            <!-- Action -->
+            <template #cell-action="{ row }">
+              <div class="flex items-center">
+                <ButtonCTA variant="textPlain" size="sm" @click.stop="handlePreview(row)">預覽</ButtonCTA>
+                <ButtonCTA variant="text" size="sm" icon-only left-icon="trashCan" @click.stop="handleDelete(row)"
+                  aria-label="刪除" />
+              </div>
+            </template>
+          </Table>
         </div>
       </div>
     </div>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -220,6 +174,7 @@ const tableColumns: TableColumn[] = [
     label: "發布日期",
     headerClass: "w-[140px]",
     cellClass: "w-[140px]",
+    sortable: true,
   },
   {
     key: "status",
@@ -257,11 +212,9 @@ const filteredMessages = computed(() => {
   return messages;
 });
 
-// Paginated Messages
+// 注意：分頁現在由 Table 組件內部處理，所以這裡直接傳遞所有過濾後的數據
 const paginatedMessages = computed(() => {
-  const start = (currentPage.value - 1) * pageSize.value;
-  const end = start + pageSize.value;
-  return filteredMessages.value.slice(start, end);
+  return filteredMessages.value;
 });
 
 // Pagination

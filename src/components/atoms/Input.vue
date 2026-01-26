@@ -1,10 +1,10 @@
 <template>
-  <div class="inline-flex flex-col items-start justify-start gap-2" :class="[containerClass || 'w-full']">
+  <div class="inline-flex flex-col items-start gap-2" :class="[containerClass || 'w-full']">
     <!-- Vertical Layout (default) -->
     <template v-if="labelPosition === 'vertical' || !labelPosition">
-      <label v-if="showLabel && label" :for="inputId" class="block text-base font-medium" :class="labelClasses">
+      <label v-if="showLabel && label" :for="inputId" class="block text-base font-medium relative inline-block" :class="labelClasses">
         {{ label }}
-        <span v-if="required" class="text-red-500 text-xs leading-none ml-1">*</span>
+        <span v-if="required" class="text-red-500 text-xs leading-none absolute -top-1 -right-2">*</span>
       </label>
       <input
         :id="inputId"
@@ -23,9 +23,9 @@
     <!-- Horizontal Layout -->
     <template v-else-if="labelPosition === 'horizontal'">
       <div class="flex items-center gap-2 w-full">
-        <label v-if="showLabel && label" :for="inputId" class="text-base font-medium whitespace-nowrap" :class="labelClasses">
+        <label v-if="showLabel && label" :for="inputId" class="text-base font-medium whitespace-nowrap relative inline-block" :class="labelClasses">
           {{ label }}
-          <span v-if="required" class="text-red-500 text-xs leading-none ml-1">*</span>
+          <span v-if="required" class="text-red-500 text-xs leading-none absolute -top-1 -right-2">*</span>
         </label>
         <input
           :id="inputId"

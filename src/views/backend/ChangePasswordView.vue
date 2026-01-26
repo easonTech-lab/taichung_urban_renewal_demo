@@ -78,7 +78,7 @@
             <Icon name="check" :size="42" class="text-gray-400" aria-hidden="true" />
           </div>
           <!-- Success Message -->
-          <div class="flex w-full flex-col items-center gap-0">
+          <div class="flex w-full flex-col items-center">
             <p class="text-center text-base font-normal leading-normal text-gray-600">密碼重設成功，請使用新密碼登入</p>
           </div>
         </div>

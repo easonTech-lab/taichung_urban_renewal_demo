@@ -27,41 +27,27 @@
         <!-- Form Fields -->
         <div class="flex flex-col gap-6">
           <!-- Title Input -->
-          <div class="flex flex-col gap-2">
-            <div class="flex items-center gap-2">
-              <label class="text-base font-medium text-gray-900">標題(限50字)</label>
-              <span class="text-red-500">*</span>
-            </div>
-            <Input v-model="formData.title" placeholder="我家的建築是幾年的？該走危老還都更？" size="lg" :maxlength="50" />
-          </div>
+          <Input v-model="formData.title" label="標題(限50字)" placeholder="我家的建築是幾年的？該走危老還都更？" size="lg" :maxlength="50"
+            required />
 
           <!-- Category Selection -->
-          <div class="flex flex-col gap-4">
-            <div class="flex items-center gap-2">
-              <label class="text-base font-medium text-gray-900">類別</label>
-              <span class="text-red-500">*</span>
-            </div>
-            <div class="flex flex-wrap items-center gap-5">
+          <RadioGroup label="類別" required>
+            <template #radios>
               <Radio v-for="category in categoryOptions" :key="category.value" :model-value="formData.category"
                 :value="category.value" :label="category.label" name="category"
                 container-class="flex items-center gap-2" label-class="text-sm font-medium text-gray-900"
                 @update:model-value="(value) => (formData.category = value as string)" />
-            </div>
+            </template>
             <div class="flex items-start">
               <ButtonCTA variant="outline" size="sm" left-icon="plus" @click="handleAddCategory">
                 新增類別
               </ButtonCTA>
             </div>
-          </div>
+          </RadioGroup>
 
           <!-- Answer Editor -->
-          <div class="flex flex-col gap-2">
-            <div class="flex items-center gap-2">
-              <label class="text-base font-medium text-gray-900">回答(限200字)</label>
-              <span class="text-red-500">*</span>
-            </div>
-            <RichTextEditor v-model="formData.answer" placeholder="請輸入回答內容..." />
-          </div>
+          <RichTextEditor v-model="formData.answer" label="回答(限200字)" placeholder="請輸入回答內容..." required
+            :maxlength="200" />
         </div>
       </div>
 
@@ -81,6 +67,7 @@ import SidebarSection from "@/components/sections/backend/SidebarSection.vue";
 import Breadcrumb from "@/components/atoms/Breadcrumb.vue";
 import Input from "@/components/atoms/Input.vue";
 import Radio from "@/components/atoms/Radio.vue";
+import RadioGroup from "@/components/atoms/RadioGroup.vue";
 import RichTextEditor from "@/components/atoms/RichTextEditor.vue";
 import ButtonCTA from "@/components/atoms/ButtonCTA.vue";
 import Icon from "@/components/atoms/Icon.vue";

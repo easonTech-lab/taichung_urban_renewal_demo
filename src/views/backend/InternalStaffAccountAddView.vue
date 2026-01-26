@@ -33,24 +33,12 @@
             :disabled="isEditMode" container-class="w-[364px]" />
 
           <!-- 科室 -->
-          <div class="flex flex-col gap-2 w-[364px]">
-            <div class="flex items-start gap-2">
-              <label class="text-base font-medium text-gray-900">科室</label>
-              <span class="text-red-500 text-xs leading-none pt-1">*</span>
-            </div>
-            <InputDropdown :button-text="formData.department" placeholder="選擇科室別" :items="departmentOptions"
-              @item-click="handleDepartmentSelect" />
-          </div>
+          <InputDropdown label="科室" :button-text="formData.department" placeholder="選擇科室別" :items="departmentOptions"
+            required container-class="w-[364px]" @item-click="handleDepartmentSelect" />
 
           <!-- 組別 -->
-          <div class="flex flex-col gap-2 w-[364px]">
-            <div class="flex items-start gap-2">
-              <label class="text-base font-medium text-gray-900">組別</label>
-              <span class="text-red-500 text-xs leading-none pt-1">*</span>
-            </div>
-            <InputDropdown :button-text="formData.group" placeholder="請選擇組別" :items="groupOptions"
-              @item-click="handleGroupSelect" />
-          </div>
+          <InputDropdown label="組別" :button-text="formData.group" placeholder="請選擇組別" :items="groupOptions" required
+            container-class="w-[364px]" @item-click="handleGroupSelect" />
 
           <!-- 權限管理 -->
           <div class="flex flex-col gap-2">

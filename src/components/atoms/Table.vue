@@ -19,15 +19,21 @@
 
           <!-- 欄位標題 -->
           <th v-for="(column, index) in columns" :key="index" scope="col" :class="getHeaderClass(column, index)">
-            <slot :name="`header-${column.key}`" :column="column" :index="index">
-            {{ column.label }}
+            <slot :name="`header-${column.key}`" :column="column" :index="index" :sortOrder="getSortOrder(column.key)">
+              <div v-if="column.sortable" class="flex items-center">
+                {{ column.label }}
+                <a href="#" class="ml-1 flex items-center" @click.prevent="handleSort(column.key)">
+                  <Icon name="sort" :size="16" class="h-4 w-4" :class="getSortIconClass(column.key)" />
+                </a>
+              </div>
+              <span v-else>{{ column.label }}</span>
             </slot>
           </th>
         </tr>
       </thead>
       <tbody>
         <tr
-          v-for="(row, rowIndex) in rows"
+          v-for="(row, rowIndex) in sortedRows"
           :key="rowIndex"
           :class="['border-b border-gray-300 bg-white hover:bg-gray-50', rowClickable ? 'cursor-pointer' : '']"
           @click="rowClickable && handleRowClick(row, rowIndex, $event)"
@@ -116,6 +122,7 @@
 
 <script setup lang="ts">
 import { ref, computed } from "vue";
+import Icon from "@/components/atoms/Icon.vue";
 
 export interface TableColumn {
   key: string;
@@ -123,6 +130,7 @@ export interface TableColumn {
   isRowHeader?: boolean; // 是否作為行標題（使用 th）
   headerClass?: string; // 標題欄位的自訂 class
   cellClass?: string; // 資料欄位的自訂 class
+  sortable?: boolean; // 是否可排序
 }
 
 export interface TablePagination {
@@ -154,6 +162,10 @@ const emit = defineEmits<{
 
 const tableId = computed(() => Math.random().toString(36).substring(2, 11));
 const selectedRows = ref<Set<number>>(new Set());
+
+// 排序狀態（內部管理）
+const sortBy = ref<string>("");
+const sortOrder = ref<"asc" | "desc">("asc");
 
 const isAllSelected = computed(() => {
   if (props.rows.length === 0) return false;
@@ -257,6 +269,62 @@ const handleRowClick = (row: Record<string, any>, rowIndex: number, event: Mouse
   }
   emit("row-click", row, rowIndex, event);
 };
+
+// 排序相關邏輯
+const getSortOrder = (columnKey: string): "asc" | "desc" | null => {
+  if (sortBy.value === columnKey) {
+    return sortOrder.value;
+  }
+  return null;
+};
+
+const handleSort = (columnKey: string) => {
+  if (sortBy.value === columnKey) {
+    // 如果已經是當前排序欄位，切換排序方向
+    sortOrder.value = sortOrder.value === "asc" ? "desc" : "asc";
+  } else {
+    // 如果是新欄位，預設為升序
+    sortBy.value = columnKey;
+    sortOrder.value = "asc";
+  }
+};
+
+const getSortIconClass = (columnKey: string): string => {
+  if (sortBy.value === columnKey) {
+    // 當前排序欄位，使用主色調
+    return "text-primary-600";
+  }
+  // 未排序欄位，使用灰色
+  return "text-gray-500";
+};
+
+// 排序後的 rows
+const sortedRows = computed(() => {
+  let rows = [...props.rows];
+
+  // 排序
+  if (sortBy.value) {
+    rows = rows.sort((a, b) => {
+      const aValue = (a as Record<string, any>)[sortBy.value];
+      const bValue = (b as Record<string, any>)[sortBy.value];
+
+      if (aValue === bValue) return 0;
+
+      const comparison = aValue < bValue ? -1 : 1;
+      return sortOrder.value === "asc" ? comparison : -comparison;
+    });
+  }
+
+  // 分頁
+  if (props.pagination) {
+    const { currentPage, pageSize = 10 } = props.pagination;
+    const start = (currentPage - 1) * pageSize;
+    const end = start + pageSize;
+    rows = rows.slice(start, end);
+  }
+
+  return rows;
+});
 
 // 統一的 header class 處理
 const getHeaderClass = (column: TableColumn, index: number): string => {

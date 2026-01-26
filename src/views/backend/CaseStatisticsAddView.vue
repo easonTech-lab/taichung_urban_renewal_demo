@@ -26,37 +26,17 @@
           <!-- Case Category and Reporting Year Row -->
           <div class="flex gap-4">
             <!-- Case Category -->
-            <div class="flex w-[364px] flex-col gap-2">
-              <div class="flex items-center gap-2">
-                <label class="text-base font-medium text-gray-900">案件類別</label>
-                <span class="text-red-500">*</span>
-              </div>
-              <InputDropdown :button-text="selectedCategory" placeholder="請選擇案件類別" :items="categoryOptions"
-                variant="outline" @item-click="handleCategoryChange" />
-            </div>
+            <InputDropdown label="案件類別" :button-text="selectedCategory" placeholder="請選擇案件類別" :items="categoryOptions"
+              variant="outline" required container-class="w-[364px]" @item-click="handleCategoryChange" />
 
             <!-- Reporting Year -->
-            <div class="flex w-[364px] flex-col gap-2">
-              <div class="flex items-center gap-2">
-                <label class="text-base font-medium text-gray-900">填報年度</label>
-                <span class="text-red-500">*</span>
-              </div>
-              <div class="w-full">
-                <Input v-model="reportingYear" placeholder="請輸入填報年度" type="text" size="lg" />
-              </div>
-            </div>
+            <Input v-model="reportingYear" label="填報年度" placeholder="請輸入填報年度" type="text" size="lg" required
+              container-class="w-[364px]" />
           </div>
 
           <!-- Annual Count -->
-          <div class="flex w-[364px] flex-col gap-2">
-            <div class="flex items-center gap-2">
-              <label class="text-base font-medium text-gray-900">年件數</label>
-              <span class="text-red-500">*</span>
-            </div>
-            <div class="w-full">
-              <Input v-model="annualCount" placeholder="請輸入年度件數" type="text" size="lg" />
-            </div>
-          </div>
+          <Input v-model="annualCount" label="年件數" placeholder="請輸入年度件數" type="text" size="lg" required
+            container-class="w-[364px]" />
         </div>
       </div>
 

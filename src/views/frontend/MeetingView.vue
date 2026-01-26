@@ -53,20 +53,6 @@
               </p>
             </template>
 
-            <!-- Stage Column -->
-            <template #cell-stage="{ row }">
-              <p class="font-['Noto_Sans_TC:Regular',sans-serif] text-base font-normal text-[#6b7280]">
-                {{ row.stage }}
-              </p>
-            </template>
-
-            <!-- Date Column -->
-            <template #cell-date="{ row }">
-              <p class="font-['Noto_Sans_TC:Regular',sans-serif] text-base font-normal text-[#6b7280]">
-                {{ row.date }}
-              </p>
-            </template>
-
             <!-- Action Column -->
             <template #cell-action="{ row }">
               <button

@@ -4,15 +4,11 @@
       <!-- Section Header -->
       <div class="mb-6 flex items-center justify-between">
         <h2 class="text-2xl font-bold text-primary-900">公開消息</h2>
-        <a
-          href="/news"
+        <a href="/news"
           class="flex items-center gap-1 text-sm font-normal text-gray-800 hover:text-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
-          aria-label="查看更多公開消息"
-        >
+          aria-label="查看更多公開消息">
           <span>更多消息</span>
-          <svg class="h-4 w-4" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-            <path d="M13.172 12 8.222 7.05l1.414-1.414L16 12l-6.364 6.364-1.414-1.414L13.172 12Z" />
-          </svg>
+          <Icon name="arrowRightOutline" :size="20" color="#374151" class="h-5 w-5" aria-hidden="true" />
         </a>
       </div>
 
@@ -25,15 +21,8 @@
 
         <!-- Right Items -->
         <div class="grid w-full flex-1 grid-cols-1 gap-6 md:grid-cols-3">
-          <NewsItem
-            v-for="(news, index) in newsData"
-            :key="index"
-            :category="news.category"
-            :title="news.title"
-            :excerpt="news.excerpt"
-            :date="news.date"
-            :has-border="news.hasBorder"
-          />
+          <NewsItem v-for="(news, index) in newsData" :key="index" :category="news.category" :title="news.title"
+            :excerpt="news.excerpt" :date="news.date" :has-border="news.hasBorder" />
         </div>
       </div>
     </div>
@@ -42,7 +31,7 @@
 
 <script setup lang="ts">
 import NewsItem from "@/components/molecules/NewsItem.vue";
-
+import Icon from "@/components/atoms/Icon.vue";
 interface NewsItemData {
   category: string;
   title: string;

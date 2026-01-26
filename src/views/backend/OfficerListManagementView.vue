@@ -80,7 +80,7 @@
 
             <!-- Action Column -->
             <template #cell-action="{ row }">
-              <div class="flex h-20 items-center gap-4 border-b border-gray-300 px-4 py-4">
+              <div class="flex h-20 items-center gap-4 px-4 py-4">
                 <Icon name="profileCard" :size="24" class="shrink-0" />
                 <ButtonCTA variant="textPlain" size="base" class="p-0"
                   :class="row.name && row.name !== '未選擇' ? 'text-primary-600' : 'text-primary-300'"
@@ -109,15 +109,9 @@
               </div>
 
               <!-- Dropdown -->
-              <div class="flex flex-1 flex-col gap-2">
-                <!-- Required Indicator (*) -->
-                <div class="flex items-center pt-1">
-                  <span class="text-xs leading-none text-red-500">*</span>
-                </div>
-                <InputDropdown :button-text="officer.selectedOfficer || ''" placeholder="選擇"
-                  :items="getAvailableOfficersForIndex(index)" required :show-label="false"
-                  @item-click="(item) => handleOfficerSelect(index, item)" />
-              </div>
+              <InputDropdown :button-text="officer.selectedOfficer || ''" placeholder="選擇"
+                :items="getAvailableOfficersForIndex(index)" required :show-label="false"
+                @item-click="(item) => handleOfficerSelect(index, item)" />
             </div>
 
             <!-- Right Section: Remove Button -->

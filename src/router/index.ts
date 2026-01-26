@@ -1,52 +1,26 @@
 import { createRouter, createWebHistory, type RouteRecordRaw } from "vue-router";
-import HomeView from "@/views/frontend/HomeView.vue";
-import LoginView from "@/views/frontend/LoginView.vue";
-import RegisterView from "@/views/frontend/RegisterView.vue";
-import NewsView from "@/views/frontend/NewsView.vue";
-import DownloadsView from "@/views/frontend/DownloadsView.vue";
-import EServicesView from "@/views/frontend/EServicesView.vue";
-import FAQView from "@/views/frontend/FAQView.vue";
-import MeetingView from "@/views/frontend/MeetingView.vue";
-import ForgotPasswordView from "@/views/frontend/ForgotPasswordView.vue";
-import CaseManagementView from "@/views/backend/CaseManagementView.vue";
-import CaseManagementDangerousView from "@/views/backend/CaseManagementDangerousView.vue";
-import CaseDetailView from "@/views/backend/CaseDetailView.vue";
-import CaseStatisticsView from "@/views/backend/CaseStatisticsView.vue";
-import CaseStatisticsAddView from "@/views/backend/CaseStatisticsAddView.vue";
-import CaseStatisticsEditView from "@/views/backend/CaseStatisticsEditView.vue";
-import FAQManagementView from "@/views/backend/FAQManagementView.vue";
-import FAQAddView from "@/views/backend/FAQAddView.vue";
-import DownloadsManagementView from "@/views/backend/DownloadsManagementView.vue";
-import DownloadsAddView from "@/views/backend/DownloadsAddView.vue";
-import PublicMessageManagementView from "@/views/backend/PublicMessageManagementView.vue";
-import PublicMessageAddView from "@/views/backend/PublicMessageAddView.vue";
-import InternalStaffAccountManagementView from "@/views/backend/InternalStaffAccountManagementView.vue";
-import InternalStaffAccountAddView from "@/views/backend/InternalStaffAccountAddView.vue";
-import ProfileView from "@/views/backend/ProfileView.vue";
-import ChangePasswordView from "@/views/backend/ChangePasswordView.vue";
-import OfficerListManagementView from "@/views/backend/OfficerListManagementView.vue";
 
 // 導出路由配置，供組件使用
 export const routes: RouteRecordRaw[] = [
   {
     path: "/",
     name: "home",
-    component: HomeView,
+    component: () => import("@/views/frontend/HomeView.vue"),
   },
   {
     path: "/login",
     name: "login",
-    component: LoginView,
+    component: () => import("@/views/frontend/LoginView.vue"),
   },
   {
     path: "/register",
     name: "register",
-    component: RegisterView,
+    component: () => import("@/views/frontend/RegisterView.vue"),
   },
   {
     path: "/news",
     name: "news",
-    component: NewsView,
+    component: () => import("@/views/frontend/NewsView.vue"),
     meta: {
       showInNav: true,
       navLabel: "公開消息",
@@ -55,7 +29,7 @@ export const routes: RouteRecordRaw[] = [
   {
     path: "/downloads",
     name: "downloads",
-    component: DownloadsView,
+    component: () => import("@/views/frontend/DownloadsView.vue"),
     meta: {
       showInNav: true,
       navLabel: "下載專區",
@@ -64,12 +38,12 @@ export const routes: RouteRecordRaw[] = [
   {
     path: "/e-services",
     name: "e-services",
-    component: EServicesView,
+    component: () => import("@/views/frontend/EServicesView.vue"),
   },
   {
     path: "/faq",
     name: "faq",
-    component: FAQView,
+    component: () => import("@/views/frontend/FAQView.vue"),
     meta: {
       showInNav: true,
       navLabel: "常見問題",
@@ -78,7 +52,7 @@ export const routes: RouteRecordRaw[] = [
   {
     path: "/meetings",
     name: "meetings",
-    component: MeetingView,
+    component: () => import("@/views/frontend/MeetingView.vue"),
     meta: {
       showInNav: true,
       navLabel: "審查會議",
@@ -87,12 +61,12 @@ export const routes: RouteRecordRaw[] = [
   {
     path: "/forgot-password",
     name: "forgot-password",
-    component: ForgotPasswordView,
+    component: () => import("@/views/frontend/ForgotPasswordView.vue"),
   },
   {
     path: "/case-management",
     name: "case-management",
-    component: CaseManagementView,
+    component: () => import("@/views/backend/CaseManagementView.vue"),
     meta: {
       breadcrumb: {
         label: "都市更新案件",
@@ -105,7 +79,7 @@ export const routes: RouteRecordRaw[] = [
   {
     path: "/case-management-admin",
     name: "case-management-admin",
-    component: CaseManagementView, // 使用同一個組件
+    component: () => import("@/views/backend/CaseManagementView.vue"), // 使用同一個組件
     meta: {
       breadcrumb: {
         label: "都市更新案件管理",
@@ -118,7 +92,7 @@ export const routes: RouteRecordRaw[] = [
   {
     path: "/case-management-dangerous",
     name: "case-management-dangerous",
-    component: CaseManagementDangerousView,
+    component: () => import("@/views/backend/CaseManagementDangerousView.vue"),
     meta: {
       breadcrumb: {
         label: "危老重建案件",
@@ -131,7 +105,7 @@ export const routes: RouteRecordRaw[] = [
   {
     path: "/case-management-dangerous-admin",
     name: "case-management-dangerous-admin",
-    component: CaseManagementDangerousView, // 使用同一個組件
+    component: () => import("@/views/backend/CaseManagementDangerousView.vue"), // 使用同一個組件
     meta: {
       breadcrumb: {
         label: "危老重建案件管理",
@@ -144,7 +118,7 @@ export const routes: RouteRecordRaw[] = [
   {
     path: "/case-detail",
     name: "case-detail",
-    component: CaseDetailView,
+    component: () => import("@/views/backend/CaseDetailView.vue"),
     meta: {
       breadcrumb: {
         label: "案件詳情",
@@ -161,7 +135,7 @@ export const routes: RouteRecordRaw[] = [
   {
     path: "/profile",
     name: "profile",
-    component: ProfileView,
+    component: () => import("@/views/backend/ProfileView.vue"),
     meta: {
       breadcrumb: {
         label: "編輯個人資料",
@@ -174,7 +148,7 @@ export const routes: RouteRecordRaw[] = [
   {
     path: "/change-password",
     name: "change-password",
-    component: ChangePasswordView,
+    component: () => import("@/views/backend/ChangePasswordView.vue"),
     meta: {
       breadcrumb: {
         label: "編輯個人資料",
@@ -187,7 +161,7 @@ export const routes: RouteRecordRaw[] = [
   {
     path: "/case-statistics",
     name: "case-statistics",
-    component: CaseStatisticsView,
+    component: () => import("@/views/backend/CaseStatisticsView.vue"),
     meta: {
       breadcrumb: {
         label: "案件統計維護",
@@ -200,7 +174,7 @@ export const routes: RouteRecordRaw[] = [
   {
     path: "/case-statistics/add",
     name: "case-statistics-add",
-    component: CaseStatisticsAddView,
+    component: () => import("@/views/backend/CaseStatisticsAddView.vue"),
     meta: {
       breadcrumb: {
         label: "案件統計維護", // 顯示父路由的標籤，不顯示「新增年度」
@@ -213,7 +187,7 @@ export const routes: RouteRecordRaw[] = [
   {
     path: "/case-statistics/edit",
     name: "case-statistics-edit",
-    component: CaseStatisticsEditView,
+    component: () => import("@/views/backend/CaseStatisticsEditView.vue"),
     meta: {
       breadcrumb: {
         label: "案件統計維護", // 顯示父路由的標籤，不顯示「編輯案件件數」
@@ -226,7 +200,7 @@ export const routes: RouteRecordRaw[] = [
   {
     path: "/faq-management",
     name: "faq-management",
-    component: FAQManagementView,
+    component: () => import("@/views/backend/FAQManagementView.vue"),
     meta: {
       breadcrumb: {
         label: "常見問題維護",
@@ -239,7 +213,7 @@ export const routes: RouteRecordRaw[] = [
   {
     path: "/faq-management/add",
     name: "faq-management-add",
-    component: FAQAddView,
+    component: () => import("@/views/backend/FAQAddView.vue"),
     meta: {
       breadcrumb: {
         label: "常見問題維護",
@@ -252,7 +226,7 @@ export const routes: RouteRecordRaw[] = [
   {
     path: "/downloads-management",
     name: "downloads-management",
-    component: DownloadsManagementView,
+    component: () => import("@/views/backend/DownloadsManagementView.vue"),
     meta: {
       breadcrumb: {
         label: "下載專區維護",
@@ -265,7 +239,7 @@ export const routes: RouteRecordRaw[] = [
   {
     path: "/downloads-management/add",
     name: "downloads-management-add",
-    component: DownloadsAddView,
+    component: () => import("@/views/backend/DownloadsAddView.vue"),
     meta: {
       breadcrumb: {
         label: "下載專區維護",
@@ -278,7 +252,7 @@ export const routes: RouteRecordRaw[] = [
   {
     path: "/public-message-management",
     name: "public-message-management",
-    component: PublicMessageManagementView,
+    component: () => import("@/views/backend/PublicMessageManagementView.vue"),
     meta: {
       breadcrumb: {
         label: "公開消息維護",
@@ -291,7 +265,7 @@ export const routes: RouteRecordRaw[] = [
   {
     path: "/public-message-management/add",
     name: "public-message-management-add",
-    component: PublicMessageAddView,
+    component: () => import("@/views/backend/PublicMessageAddView.vue"),
     meta: {
       breadcrumb: {
         label: "公開消息維護",
@@ -304,7 +278,7 @@ export const routes: RouteRecordRaw[] = [
   {
     path: "/internal-staff-account-management",
     name: "internal-staff-account-management",
-    component: InternalStaffAccountManagementView,
+    component: () => import("@/views/backend/InternalStaffAccountManagementView.vue"),
     meta: {
       breadcrumb: {
         label: "內部人員帳號管理",
@@ -317,7 +291,7 @@ export const routes: RouteRecordRaw[] = [
   {
     path: "/internal-staff-account-management/add",
     name: "internal-staff-account-management-add",
-    component: InternalStaffAccountAddView,
+    component: () => import("@/views/backend/InternalStaffAccountAddView.vue"),
     meta: {
       breadcrumb: {
         label: "新增承辦帳號",
@@ -331,7 +305,7 @@ export const routes: RouteRecordRaw[] = [
   {
     path: "/officer-list-management",
     name: "officer-list-management",
-    component: OfficerListManagementView,
+    component: () => import("@/views/backend/OfficerListManagementView.vue"),
     meta: {
       breadcrumb: {
         label: "幹事名單管理",

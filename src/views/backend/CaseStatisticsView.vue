@@ -4,100 +4,63 @@
     <SidebarSection @item-select="handleSidebarItemSelect" />
     <!-- Main Content -->
     <div class="flex flex-1 flex-col gap-10 p-4 sm:ml-[328px] sm:p-10">
-        <!-- Breadcrumb and Title -->
-        <div class="flex flex-col gap-6">
-          <Breadcrumb />
-          <h1 class="text-3xl font-bold leading-[30px] text-gray-900">案件統計維護</h1>
+      <!-- Breadcrumb and Title -->
+      <div class="flex flex-col gap-6">
+        <Breadcrumb />
+        <h1 class="text-3xl font-bold leading-[30px] text-gray-900">案件統計維護</h1>
+      </div>
+
+      <!-- Statistics Table Card -->
+      <div class="flex flex-col gap-4 rounded-lg bg-white p-6 shadow-sm">
+        <!-- Header Section -->
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <div class="h-7 w-1 rounded bg-primary-600"></div>
+            <h2 class="text-2xl font-medium leading-6 text-gray-900">歷年案件統計</h2>
+          </div>
+          <ButtonCTA variant="outline" size="sm" left-icon="plus" @click="handleAddYear">
+            新增年度
+          </ButtonCTA>
         </div>
 
-        <!-- Statistics Table Card -->
-        <div class="flex flex-col gap-4 rounded-lg bg-white p-6 shadow-sm">
-          <!-- Header Section -->
-          <div class="flex items-center justify-between">
-            <div class="flex items-center gap-3">
-              <div class="h-7 w-1 rounded bg-primary-600"></div>
-              <h2 class="text-2xl font-medium leading-6 text-gray-900">歷年案件統計</h2>
+        <!-- Tabs and Filters -->
+        <div class="flex flex-col gap-6">
+          <!-- Tabs -->
+          <Tabs :items="tabItems" :model-value="activeTab" @tab-click="handleTabClick" />
+
+          <!-- Year Range Filter -->
+          <div class="flex items-center gap-2">
+            <div class="w-40">
+              <Dropdown :button-text="selectedStartYear || '選擇年度區間'" :items="yearOptions" variant="outline"
+                @item-click="handleStartYearChange" />
             </div>
-            <ButtonCTA variant="outline" size="sm" left-icon="plus" @click="handleAddYear">
-              新增年度
-            </ButtonCTA>
-          </div>
-
-          <!-- Tabs and Filters -->
-          <div class="flex flex-col gap-6">
-            <!-- Tabs -->
-            <Tabs :items="tabItems" :model-value="activeTab" @tab-click="handleTabClick" />
-
-            <!-- Year Range Filter -->
-            <div class="flex items-center gap-2">
-              <div class="w-40">
-                <Dropdown
-                  :button-text="selectedStartYear || '選擇年度區間'"
-                  :items="yearOptions"
-                  variant="outline"
-                  @item-click="handleStartYearChange"
-                />
-              </div>
-              <span class="text-xl font-normal leading-5 text-gray-500">-</span>
-              <div class="w-40">
-                <Dropdown :button-text="selectedEndYear || '選擇年度區間'" :items="yearOptions" variant="outline" @item-click="handleEndYearChange" />
-              </div>
+            <span class="text-xl font-normal leading-5 text-gray-500">-</span>
+            <div class="w-40">
+              <Dropdown :button-text="selectedEndYear || '選擇年度區間'" :items="yearOptions" variant="outline"
+                @item-click="handleEndYearChange" />
             </div>
           </div>
+        </div>
 
-          <!-- Table -->
-          <div class="rounded-lg border border-gray-300 bg-white">
-            <Table :columns="tableColumns" :rows="paginatedStatistics" :pagination="pagination" @page-change="handlePageChange">
-              <!-- Index -->
-              <template #cell-index="{ row }">
-                <p class="text-base text-gray-500">{{ row.index }}</p>
-              </template>
+        <!-- Table -->
+        <div class="rounded-lg border border-gray-300 bg-white">
+          <Table :columns="tableColumns" :rows="paginatedStatistics" :pagination="pagination"
+            @page-change="handlePageChange">
+            <!-- Growth Rate -->
+            <template #cell-growthRate="{ row }">
+              <Badge :variant="getGrowthRateVariant(row.growthRate)" :text="row.growthRate" />
+            </template>
 
-              <!-- Year -->
-              <template #header-year="{ column }">
-                <div class="flex items-center gap-1">
-                  <span class="text-sm font-medium text-gray-500">{{ column.label }}</span>
-                  <div class="flex h-3 w-1.5 flex-col items-center justify-center">
-                    <svg class="h-1.5 w-1.5" viewBox="0 0 6 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M3 0L5.59808 4.5H0.401924L3 0Z" fill="#9CA3AF" />
-                      <path d="M3 12L0.401924 7.5H5.59808L3 12Z" fill="#9CA3AF" />
-                    </svg>
-                  </div>
-                </div>
-              </template>
-              <template #cell-year="{ row }">
-                <p class="text-base text-gray-500">{{ row.year }}</p>
-              </template>
-
-              <!-- Case Category -->
-              <template #cell-caseCategory="{ row }">
-                <p class="text-base text-gray-500">{{ row.caseCategory }}</p>
-              </template>
-
-              <!-- Annual Count -->
-              <template #cell-annualCount="{ row }">
-                <p class="text-base text-gray-900">{{ row.annualCount }}</p>
-              </template>
-
-              <!-- Cumulative Count -->
-              <template #cell-cumulativeCount="{ row }">
-                <p class="text-base text-gray-900">{{ row.cumulativeCount }}</p>
-              </template>
-
-              <!-- Growth Rate -->
-              <template #cell-growthRate="{ row }">
-                <Badge :variant="getGrowthRateVariant(row.growthRate)" :text="row.growthRate" />
-              </template>
-
-              <!-- Action -->
-              <template #cell-action="{ row }">
-                <ButtonCTA variant="text" size="sm" icon-only left-icon="editOutline" @click.stop="handleEdit(row)" aria-label="編輯" />
-              </template>
-            </Table>
-          </div>
+            <!-- Action -->
+            <template #cell-action="{ row }">
+              <ButtonCTA variant="text" size="sm" icon-only left-icon="editOutline" @click.stop="handleEdit(row)"
+                aria-label="編輯" />
+            </template>
+          </Table>
         </div>
       </div>
     </div>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -171,6 +134,7 @@ const tableColumns: TableColumn[] = [
     label: "年度",
     headerClass: "w-[100px]",
     cellClass: "w-[100px]",
+    sortable: true,
   },
   {
     key: "caseCategory",

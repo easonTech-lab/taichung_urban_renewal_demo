@@ -47,22 +47,6 @@
           <Empty v-if="filteredCases.length === 0" type="case-management" @button-click="handleEmptyStateAddCase" />
           <Table v-else :columns="tableColumns" :rows="paginatedCases" :pagination="pagination" :row-clickable="true"
             @page-change="handlePageChange" @row-click="handleRowClick">
-            <!-- Case Number -->
-            <template #cell-caseNumber="{ row }">
-              <p class="text-base text-gray-900">{{ row.caseNumber }}</p>
-            </template>
-            <!-- Case Name -->
-            <template #cell-caseName="{ row }">
-              <p class="text-base text-gray-900">{{ row.caseName }}</p>
-            </template>
-            <!-- Case Category -->
-            <template #cell-caseCategory="{ row }">
-              <p class="text-base text-gray-500">{{ row.caseCategory }}</p>
-            </template>
-            <!-- Case Stage -->
-            <template #cell-caseStage="{ row }">
-              <p class="text-base text-gray-500">{{ row.caseStage }}</p>
-            </template>
             <!-- Case Status -->
             <template #cell-caseStatus="{ row }">
               <Badge :variant="getStatusVariant(row.caseStatus)" :text="row.caseStatus" />
@@ -220,17 +204,16 @@ const filteredCases = computed(() => {
   return cases;
 });
 
-// Paginated Cases
+// 注意：排序和分頁現在由 Table 組件內部處理，所以這裡直接傳遞所有過濾後的數據
 const paginatedCases = computed(() => {
-  const start = (currentPage.value - 1) * pageSize.value;
-  const end = start + pageSize.value;
-  return filteredCases.value.slice(start, end);
+  return filteredCases.value;
 });
 
 // Pagination
+// 注意：由於排序和分頁現在由 Table 組件內部處理，total 應該反映傳入的 rows 的總數
 const pagination = computed<TablePagination>(() => ({
   currentPage: currentPage.value,
-  total: isAdmin.value ? totalCases.value : filteredCases.value.length, // 管理員使用總數，用戶使用過濾後的數量
+  total: filteredCases.value.length, // 使用過濾後的數據總數
   pageSize: pageSize.value,
 }));
 

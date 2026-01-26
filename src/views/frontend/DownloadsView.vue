@@ -39,18 +39,6 @@
               {{ row.fileName }}
             </p>
           </template>
-          <!-- 案件類別欄位 -->
-          <template #cell-category="{ row }">
-            <p class="text-base text-gray-700">
-              {{ row.category }}
-            </p>
-          </template>
-          <!-- 發布日期欄位 -->
-          <template #cell-publishDate="{ row }">
-            <p class="text-base text-gray-700">
-              {{ row.publishDate }}
-            </p>
-          </template>
           <!-- 動作欄位 -->
           <template #cell-action="{ row }">
             <button

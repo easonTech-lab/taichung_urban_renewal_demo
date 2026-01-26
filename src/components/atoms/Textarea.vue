@@ -1,44 +1,29 @@
 <template>
-  <div class="inline-flex flex-col items-start justify-start gap-2.5" :class="[containerClass || 'w-full']">
+  <div class="inline-flex flex-col items-start gap-2.5" :class="[containerClass || 'w-full']">
     <!-- Vertical Layout (default) -->
     <template v-if="labelPosition === 'vertical' || !labelPosition">
       <label v-if="showLabel && label" :for="textareaId" class="block text-sm font-medium" :class="labelClasses">
         {{ label }}
         <span v-if="required" class="text-red-500 text-xs leading-none ml-1">*</span>
       </label>
-      <textarea
-        :id="textareaId"
-        :rows="rows"
-        :placeholder="placeholder"
-        :value="modelValue"
-        :disabled="disabled"
+      <textarea :id="textareaId" :rows="rows" :placeholder="placeholder" :value="modelValue" :disabled="disabled"
         :required="required"
         class="block w-full resize-none rounded-lg border bg-gray-50 text-gray-900 text-sm shadow-sm transition-colors disabled:bg-gray-200 disabled:text-gray-700 placeholder:text-gray-500 focus:border-primary-500 focus:ring-2 focus:ring-primary-500"
-        :class="[textareaClasses, sizeClasses]"
-        @input="handleInput"
-        v-bind="$attrs"
-      />
+        :class="[textareaClasses, sizeClasses]" @input="handleInput" v-bind="$attrs" />
     </template>
 
     <!-- Horizontal Layout -->
     <template v-else-if="labelPosition === 'horizontal'">
       <div class="flex items-center gap-2 w-full">
-        <label v-if="showLabel && label" :for="textareaId" class="text-sm font-medium whitespace-nowrap" :class="labelClasses">
+        <label v-if="showLabel && label" :for="textareaId" class="text-sm font-medium whitespace-nowrap"
+          :class="labelClasses">
           {{ label }}
           <span v-if="required" class="text-red-500 text-xs leading-none ml-1">*</span>
         </label>
-        <textarea
-          :id="textareaId"
-          :rows="rows"
-          :placeholder="placeholder"
-          :value="modelValue"
-          :disabled="disabled"
+        <textarea :id="textareaId" :rows="rows" :placeholder="placeholder" :value="modelValue" :disabled="disabled"
           :required="required"
           class="block flex-1 resize-none rounded-lg border bg-gray-50 text-gray-900 text-sm shadow-sm transition-colors disabled:bg-gray-200 disabled:text-gray-700 placeholder:text-gray-500 focus:border-primary-500 focus:ring-2 focus:ring-primary-500"
-          :class="[textareaClasses, sizeClasses]"
-          @input="handleInput"
-          v-bind="$attrs"
-        />
+          :class="[textareaClasses, sizeClasses]" @input="handleInput" v-bind="$attrs" />
       </div>
     </template>
 

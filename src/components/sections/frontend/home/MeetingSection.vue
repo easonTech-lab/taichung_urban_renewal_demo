@@ -9,7 +9,7 @@
           class="flex items-center gap-1 text-sm font-normal text-gray-800 hover:text-primary-700"
         >
           <span>更多會議內容</span>
-          <Icon name="arrowRightOutline" :size="16" fill="currentColor" class="shrink-0" aria-hidden="true" />
+          <Icon name="arrowRightOutline" :size="20" color="#374151" class="h-5 w-5" aria-hidden="true" />
         </router-link>
       </div>
 

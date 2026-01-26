@@ -10,9 +10,7 @@
           aria-label="查看更多常見問題"
         >
           <span>更多內容</span>
-          <svg class="h-4 w-4" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-            <path d="M13.172 12 8.222 7.05l1.414-1.414L16 12l-6.364 6.364-1.414-1.414L13.172 12Z" />
-          </svg>
+          <Icon name="arrowRightOutline" :size="20" color="#374151" class="h-5 w-5" aria-hidden="true" />
         </router-link>
       </div>
 
@@ -26,7 +24,7 @@
 
 <script setup lang="ts">
 import FAQColumn from "@/components/molecules/FAQColumn.vue";
-
+import Icon from "@/components/atoms/Icon.vue";
 interface FAQItem {
   title: string;
   questions: string[];
