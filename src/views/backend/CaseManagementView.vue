@@ -7,9 +7,7 @@
       <!-- Breadcrumb and Title -->
       <div class="flex flex-col gap-6">
         <Breadcrumb />
-        <h1 class="text-3xl font-bold leading-[30px] text-gray-900">
-          {{ isAdmin ? "都市更新案件管理" : "都市更新案件" }}
-        </h1>
+        <h1 class="text-3xl font-bold leading-[30px] text-gray-900">{{ isAdmin ? "都市更新案件管理" : "都市更新案件" }}</h1>
       </div>
       <!-- Case List Card -->
       <div class="rounded-lg bg-white px-6 py-6 shadow-sm">
@@ -20,33 +18,52 @@
             <div class="flex flex-col gap-2">
               <div class="flex items-center gap-3">
                 <div class="h-7 w-1 rounded bg-primary-600"></div>
-                <h2 class="text-2xl font-medium leading-6 text-gray-900">
-                  {{ isAdmin ? "案件列表" : "都市更新案件列表" }}
-                </h2>
+                <h2 class="text-2xl font-medium leading-6 text-gray-900">{{ isAdmin ? "案件列表" : "都市更新案件列表" }}</h2>
               </div>
               <p v-if="isAdmin" class="pl-4 text-xl font-normal leading-5 text-gray-400">都市更新案件列表</p>
             </div>
-            <ButtonDropdown button-text="新增案件" :items="addCaseOptions" button-variant="outline" button-size="sm"
-              left-icon="plus" :selected-index="selectedAddCaseIndex" menu-width="w-[412px]" :showRightIcon="false"
-              align="right" @item-click="handleAddCaseOption" />
+            <ButtonDropdown
+              button-text="新增案件"
+              :items="addCaseOptions"
+              button-variant="outline"
+              button-size="sm"
+              left-icon="plus"
+              :selected-index="selectedAddCaseIndex"
+              menu-width="w-[412px]"
+              :showRightIcon="false"
+              align="right"
+              @item-click="handleAddCaseOption"
+            />
           </div>
           <!-- Filters -->
           <div class="flex items-center gap-4">
-            <div class="w-40">
-              <Dropdown :button-text="selectedStage || '全部案件階段'" :items="stageOptions" variant="outline"
-                @item-click="handleStageChange" />
+            <div class="w-[160px]">
+              <CheckboxDropdown
+                v-model="selectedStages"
+                :button-text="selectedStageText"
+                :items="stageOptions"
+                variant="filter"
+                :show-select-all="true"
+                @change="handleStageChange"
+              />
             </div>
-            <div class="w-40">
-              <Dropdown :button-text="selectedStatus || '全部案件狀態'" :items="statusOptions" variant="outline"
-                @item-click="handleStatusChange" />
+            <div class="w-[160px]">
+              <Dropdown :button-text="selectedStatus || '全部案件狀態'" :items="statusOptions" variant="filter" @item-click="handleStatusChange" />
             </div>
           </div>
         </div>
         <!-- Table or Empty State -->
         <div class="rounded-lg border border-gray-300 bg-white">
           <Empty v-if="filteredCases.length === 0" type="case-management" @button-click="handleEmptyStateAddCase" />
-          <Table v-else :columns="tableColumns" :rows="paginatedCases" :pagination="pagination" :row-clickable="true"
-            @page-change="handlePageChange" @row-click="handleRowClick">
+          <Table
+            v-else
+            :columns="tableColumns"
+            :rows="paginatedCases"
+            :pagination="pagination"
+            :row-clickable="true"
+            @page-change="handlePageChange"
+            @row-click="handleRowClick"
+          >
             <!-- Case Status -->
             <template #cell-caseStatus="{ row }">
               <Badge :variant="getStatusVariant(row.caseStatus)" :text="row.caseStatus" />
@@ -65,6 +82,7 @@ import SidebarSection from "@/components/sections/backend/SidebarSection.vue";
 import Breadcrumb from "@/components/atoms/Breadcrumb.vue";
 import ButtonDropdown, { type ButtonDropdownItem } from "@/components/atoms/ButtonDropdown.vue";
 import Dropdown, { type DropdownItem } from "@/components/atoms/Dropdown.vue";
+import CheckboxDropdown, { type CheckboxDropdownItem } from "@/components/atoms/CheckboxDropdown.vue";
 import Table, { type TableColumn, type TablePagination } from "@/components/atoms/Table.vue";
 import Badge from "@/components/atoms/Badge.vue";
 import Empty from "@/components/atoms/Empty.vue";
@@ -84,12 +102,13 @@ interface CaseItem {
 }
 
 // Filter Options
-const stageOptions: DropdownItem[] = [
-  { label: "全部案件階段" },
-  { label: "案件申請" },
-  { label: "公辦公聽會" },
-  { label: "專案小組" },
-  { label: "都更大會" },
+const stageOptions: CheckboxDropdownItem[] = [
+  { label: "案件申請", value: "案件申請" },
+  { label: "公辦公聽會", value: "公辦公聽會" },
+  { label: "都更幹事會", value: "都更幹事會" },
+  { label: "專案小組", value: "專案小組" },
+  { label: "都更大會", value: "都更大會" },
+  { label: "最終核定", value: "最終核定" },
 ];
 
 const statusOptions: DropdownItem[] = [{ label: "全部案件狀態" }, { label: "進行中" }, { label: "已中斷" }, { label: "已完成" }];
@@ -104,7 +123,8 @@ const addCaseOptions: ButtonDropdownItem[] = [
 ];
 
 // State
-const selectedStage = ref<string>("");
+// 預設全選：初始化時選擇所有案件階段
+const selectedStages = ref<(string | number)[]>(stageOptions.map((opt) => opt.value));
 const selectedStatus = ref<string>("");
 const selectedAddCaseIndex = ref<number | undefined>(undefined);
 const currentPage = ref<number>(1);
@@ -191,18 +211,15 @@ const tableColumns: TableColumn[] = [
 
 // Filtered Cases
 const filteredCases = computed(() => {
-  let cases = [...allCases];
-
-  if (selectedStage.value && selectedStage.value !== "全部案件階段") {
-    cases = cases.filter((item) => item.caseStage === selectedStage.value);
+  // ✅ 全不選 → 空結果
+  if (selectedStages.value.length === 0) {
+    return [];
   }
-
-  if (selectedStatus.value && selectedStatus.value !== "全部案件狀態") {
-    cases = cases.filter((item) => item.caseStatus === selectedStatus.value);
-  }
-
-  return cases;
+  return allCases.filter((item) =>
+    selectedStages.value.includes(item.caseStage)
+  );
 });
+
 
 // 注意：排序和分頁現在由 Table 組件內部處理，所以這裡直接傳遞所有過濾後的數據
 const paginatedCases = computed(() => {
@@ -232,8 +249,39 @@ const handleSidebarItemSelect = (itemName: string) => {
   console.log("Selected sidebar item:", itemName);
 };
 
-const handleStageChange = (item: DropdownItem) => {
-  selectedStage.value = item.label;
+// 計算按鈕顯示文字
+const selectedStageText = computed(() => {
+  // 全不選
+  if (selectedStages.value.length === 0) {
+    return "未選案件階段";
+  }
+
+  // 全選
+  if (selectedStages.value.length === stageOptions.length) {
+    return "全部案件階段";
+  }
+
+  // 單選
+  if (selectedStages.value.length === 1) {
+    const selected = stageOptions.find((opt) => opt.value === selectedStages.value[0]);
+    return selected?.label || "未選案件階段";
+  }
+
+  // 多選
+  return `已選 ${selectedStages.value.length} 項`;
+});
+
+const handleStageChange = (values: (string | number)[]) => {
+  // 檢查傳入的值是否都在 stageOptions 中
+  // 注意：CheckboxDropdown 組件在處理 "select-all" 時，會直接發送所有項目的值或空陣列，
+  // 永遠不會發送 "select-all" 這個值，所以不需要過濾
+  const validValues = values.filter((value) => {
+    const isValid = stageOptions.some((opt) => opt.value === value);
+    return isValid;
+  });
+
+  // 如果使用者清除所有勾選，設為空陣列（全不選）
+  selectedStages.value = validValues;
   currentPage.value = 1;
 };
 

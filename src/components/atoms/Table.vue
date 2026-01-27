@@ -28,33 +28,42 @@
         </tr>
       </thead>
       <tbody>
-        <tr v-for="(row, rowIndex) in sortedRows" :key="rowIndex"
-          :class="['border-b border-gray-300 bg-white hover:bg-gray-50', rowClickable ? 'cursor-pointer' : '']"
-          @click="rowClickable && handleRowClick(row, rowIndex, $event)">
-          <!-- Checkbox 欄位 -->
-          <td v-if="showCheckbox" class="w-4 p-4">
-            <div class="flex items-center">
-              <input :id="`table-checkbox-${tableId}-${rowIndex}`" type="checkbox" :checked="isRowSelected(rowIndex)"
-                class="h-4 w-4 rounded border border-gray-300 bg-gray-100 focus:ring-2 focus:ring-primary-500"
-                @change="handleRowSelect(rowIndex, $event)" />
-              <label :for="`table-checkbox-${tableId}-${rowIndex}`" class="sr-only"> Table checkbox </label>
-            </div>
-          </td>
-
-          <!-- 資料欄位 -->
-          <template v-for="(column, colIndex) in columns" :key="colIndex">
-            <th v-if="column.isRowHeader" :key="`th-${colIndex}`" scope="row" :class="getCellClass(column, true)">
-              <slot :name="`cell-${column.key}`" :row="row" :column="column" :rowIndex="rowIndex">
-                {{ getCellValue(row, column) }}
-              </slot>
-            </th>
-            <td v-else :key="`td-${colIndex}`" :class="getCellClass(column)">
-              <slot :name="`cell-${column.key}`" :row="row" :column="column" :rowIndex="rowIndex">
-                {{ getCellValue(row, column) }}
-              </slot>
+        <template v-for="(row, rowIndex) in sortedRows" :key="rowIndex">
+          <tr
+            :class="[
+              'border-b border-gray-300 hover:bg-gray-50',
+              rowClickable ? 'cursor-pointer' : '',
+              (row as any).isExpanded ? 'bg-blue-50' : 'bg-white',
+            ]"
+            @click="rowClickable && handleRowClick(row, rowIndex, $event)"
+          >
+            <!-- Checkbox 欄位 -->
+            <td v-if="showCheckbox" class="w-4 p-4">
+              <div class="flex items-center">
+                <input :id="`table-checkbox-${tableId}-${rowIndex}`" type="checkbox" :checked="isRowSelected(rowIndex)"
+                  class="h-4 w-4 rounded border border-gray-300 bg-gray-100 focus:ring-2 focus:ring-primary-500"
+                  @change="handleRowSelect(rowIndex, $event)" />
+                <label :for="`table-checkbox-${tableId}-${rowIndex}`" class="sr-only"> Table checkbox </label>
+              </div>
             </td>
-          </template>
-        </tr>
+
+            <!-- 資料欄位 -->
+            <template v-for="(column, colIndex) in columns" :key="colIndex">
+              <th v-if="column.isRowHeader" :key="`th-${colIndex}`" scope="row" :class="getCellClass(column, true)">
+                <slot :name="`cell-${column.key}`" :row="row" :column="column" :rowIndex="rowIndex">
+                  {{ getCellValue(row, column) }}
+                </slot>
+              </th>
+              <td v-else :key="`td-${colIndex}`" :class="getCellClass(column)">
+                <slot :name="`cell-${column.key}`" :row="row" :column="column" :rowIndex="rowIndex">
+                  {{ getCellValue(row, column) }}
+                </slot>
+              </td>
+            </template>
+          </tr>
+          <!-- Row after slot for additional content (e.g., expanded rows) -->
+          <slot name="row-after" :row="row" :rowIndex="rowIndex"></slot>
+        </template>
       </tbody>
     </table>
 

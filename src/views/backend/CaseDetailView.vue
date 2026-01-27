@@ -137,114 +137,95 @@
           </div>
 
           <!-- Progress Table -->
-          <div class="overflow-hidden rounded-lg border border-gray-300 bg-white">
-            <table class="w-full">
-              <thead>
-                <tr class="border-b border-gray-300 bg-gray-50">
-                  <th class="px-4 py-4 text-left text-sm font-medium uppercase text-gray-500">案件階段</th>
-                  <th class="px-4 py-4 text-left text-sm font-medium uppercase text-gray-500">階段狀態</th>
-                  <th class="px-4 py-4 text-left text-sm font-medium uppercase text-gray-500">審議日期</th>
-                  <th class="px-4 py-4 text-left text-sm font-medium uppercase text-gray-500">審議時間</th>
-                  <th class="px-4 py-4 text-left text-sm font-medium uppercase text-gray-500">操作</th>
+          <div class="rounded-lg border border-gray-300 bg-white shadow-sm">
+            <Table :columns="progressTableColumns" :rows="progressTableRows" :show-checkbox="false">
+              <!-- Stage Name with Stepper Icon -->
+              <template #cell-stageName="{ row }">
+                <div class="flex items-center gap-4">
+                  <div class="flex h-20 w-[120px] items-center justify-center">
+                    <div
+                      :class="['flex h-8 w-8 items-center justify-center rounded-full ring-4 ring-white', getStageIconClass(row.status)]">
+                      <Icon v-if="row.status === 'completed'" name="check" :size="20" color="#ffffff" />
+                      <div v-else-if="row.status === 'current'" class="h-4 w-4 rounded-full bg-primary-500"></div>
+                      <div v-else class="h-4 w-4 rounded-full border-2 border-primary-500 bg-white"></div>
+                    </div>
+                  </div>
+                  <div>
+                    <p class="text-base font-medium text-gray-800">{{ row.name }}</p>
+                  </div>
+                </div>
+              </template>
+
+              <!-- Stage Status Badge -->
+              <template #cell-status="{ row }">
+                <Badge :variant="getStatusBadgeVariant(row.status)" :text="row.statusText" />
+              </template>
+
+              <!-- Review Date -->
+              <template #cell-reviewDate="{ row }">
+                <p class="text-base text-gray-500">{{ row.reviewDate }}</p>
+              </template>
+
+              <!-- Review Time -->
+              <template #cell-reviewTime="{ row }">
+                <p class="text-base text-gray-500">{{ row.reviewTime }}</p>
+              </template>
+
+              <!-- Action Buttons -->
+              <template #cell-action="{ row, rowIndex }">
+                <div class="flex items-center gap-4">
+                  <button v-if="row.hasDetails" class="text-base text-primary-600 hover:text-primary-700"
+                    @click.stop="handleViewDetails(rowIndex)">
+                    查看詳細資料
+                  </button>
+                  <button v-if="row.hasSubStages" class="flex items-center justify-center"
+                    @click.stop="toggleStageExpand(rowIndex)">
+                    <Icon :name="row.isExpanded ? 'chevronUp' : 'chevronDown'" :size="24" color="#1A56DB" />
+                  </button>
+                </div>
+              </template>
+
+              <!-- Expanded Sub-stages Row -->
+              <template #row-after="{ row, rowIndex }">
+                <tr v-if="row.isExpanded && row.subStages && row.subStages.length > 0" class="bg-blue-50">
+                  <td colspan="5" class="px-4 py-6">
+                    <div class="flex gap-4">
+                      <!-- Sub-stages Stepper -->
+                      <div class="flex w-[120px] flex-col items-center">
+                        <div class="relative flex flex-col items-center">
+                          <div v-for="(subStage, subIndex) in row.subStages" :key="subIndex"
+                            class="flex flex-col items-center"
+                            :class="Number(subIndex) < (row.subStages?.length || 0) - 1 ? 'mb-[52px]' : ''">
+                            <div
+                              :class="['flex h-[18px] w-[18px] items-center justify-center rounded-full', getSubStageIconClass(subStage.status)]">
+                              <Icon v-if="subStage.status === 'completed'" name="check" :size="14" color="#ffffff" />
+                              <div v-else-if="subStage.status === 'current'"
+                                class="h-2 w-2 rounded-full bg-primary-500"></div>
+                              <div v-else class="h-[18px] w-[18px] rounded-full border-2 border-primary-500 bg-white">
+                              </div>
+                            </div>
+                            <div v-if="Number(subIndex) < (row.subStages?.length || 0) - 1"
+                              class="h-[52px] w-0.5 bg-primary-500"></div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <!-- Sub-stages Content -->
+                      <div class="flex-1 space-y-8">
+                        <div v-for="(subStage, subIndex) in row.subStages" :key="subIndex" class="flex items-center">
+                          <div class="flex-1">
+                            <p
+                              :class="['text-base font-medium', subStage.status === 'current' ? 'text-gray-900' : 'text-gray-500']">
+                              {{ subStage.title }}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </td>
                 </tr>
-              </thead>
-              <tbody>
-                <template v-for="(stage, index) in progressStages" :key="index">
-                  <tr :class="['border-b border-gray-300', stage.isExpanded ? 'bg-blue-50' : 'bg-white']">
-                    <!-- Stage Name Column -->
-                    <td class="px-4 py-4">
-                      <div class="flex items-center gap-4">
-                        <!-- Stepper Icon -->
-                        <div class="flex h-20 w-[120px] items-center justify-center">
-                          <div
-                            :class="['flex h-8 w-8 items-center justify-center rounded-full ring-4 ring-white', getStageIconClass(stage.status)]">
-                            <Icon v-if="stage.status === 'completed'" name="check" :size="20" color="#ffffff" />
-                            <div v-else-if="stage.status === 'current'" class="h-4 w-4 rounded-full bg-primary-500">
-                            </div>
-                            <div v-else class="h-4 w-4 rounded-full border-2 border-primary-500 bg-white"></div>
-                          </div>
-                        </div>
-                        <div>
-                          <p class="text-base font-medium text-gray-800">{{ stage.name }}</p>
-                        </div>
-                      </div>
-                    </td>
-
-                    <!-- Stage Status Column -->
-                    <td class="px-4 py-4">
-                      <Badge :variant="getStatusBadgeVariant(stage.status)" :text="stage.statusText" />
-                    </td>
-
-                    <!-- Review Date Column -->
-                    <td class="px-4 py-4">
-                      <p class="text-base text-gray-500">{{ stage.reviewDate }}</p>
-                    </td>
-
-                    <!-- Review Time Column -->
-                    <td class="px-4 py-4">
-                      <p class="text-base text-gray-500">{{ stage.reviewTime }}</p>
-                    </td>
-
-                    <!-- Action Column -->
-                    <td class="px-4 py-4">
-                      <div class="flex items-center gap-4">
-                        <button v-if="stage.hasDetails" class="text-base text-primary-600 hover:text-primary-700"
-                          @click="handleViewDetails(index)">
-                          查看詳細資料
-                        </button>
-                        <button v-if="stage.hasSubStages" class="flex items-center justify-center"
-                          @click="toggleStageExpand(index)">
-                          <Icon :name="stage.isExpanded ? 'chevronUp' : 'chevronDown'" :size="24" color="#1A56DB" />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-
-                  <!-- Expanded Sub-stages Row -->
-                  <tr v-if="stage.isExpanded && stage.subStages && stage.subStages.length > 0" class="bg-blue-50">
-                    <td colspan="5" class="px-4 py-6">
-                      <div class="flex gap-4">
-                        <!-- Sub-stages Stepper (Vertical Line with Icons) -->
-                        <div class="flex w-[120px] flex-col items-center">
-                          <div class="relative flex flex-col items-center">
-                            <!-- Sub-stage Icons -->
-                            <div v-for="(subStage, subIndex) in stage.subStages" :key="subIndex"
-                              class="flex flex-col items-center"
-                              :class="subIndex < stage.subStages.length - 1 ? 'mb-[52px]' : ''">
-                              <!-- Sub-stage Icon -->
-                              <div
-                                :class="['flex h-[18px] w-[18px] items-center justify-center rounded-full', getSubStageIconClass(subStage.status)]">
-                                <Icon v-if="subStage.status === 'completed'" name="check" :size="14" color="#ffffff" />
-                                <div v-else-if="subStage.status === 'current'"
-                                  class="h-2 w-2 rounded-full bg-primary-500"></div>
-                                <div v-else class="h-[18px] w-[18px] rounded-full border-2 border-primary-500 bg-white">
-                                </div>
-                              </div>
-                              <!-- Connecting Line -->
-                              <div v-if="subIndex < stage.subStages.length - 1" class="h-[52px] w-0.5 bg-primary-500">
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-
-                        <!-- Sub-stages Content -->
-                        <div class="flex-1 space-y-8">
-                          <div v-for="(subStage, subIndex) in stage.subStages" :key="subIndex"
-                            class="flex items-center">
-                            <div class="flex-1">
-                              <p
-                                :class="['text-base font-medium', subStage.status === 'current' ? 'text-gray-900' : 'text-gray-500']">
-                                {{ subStage.title }}
-                              </p>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </td>
-                  </tr>
-                </template>
-              </tbody>
-            </table>
+              </template>
+            </Table>
           </div>
         </div>
 
@@ -260,7 +241,7 @@
           <div class="flex flex-col gap-6">
             <!-- Filter Dropdown -->
             <div class="flex items-center gap-4">
-              <Dropdown :button-text="selectedFileStage || '案件階段'" :items="fileStageOptions" variant="outline"
+              <Dropdown :button-text="selectedFileStage" :items="fileStageOptions" variant="outline"
                 @item-click="handleFileStageChange" />
             </div>
 
@@ -295,7 +276,6 @@ import Badge from "@/components/atoms/Badge.vue";
 import Stepper, { type StepperStep } from "@/components/atoms/Stepper.vue";
 import Dropdown, { type DropdownItem } from "@/components/atoms/Dropdown.vue";
 import Table, { type TableColumn, type TablePagination } from "@/components/atoms/Table.vue";
-import ButtonCTA from "@/components/atoms/ButtonCTA.vue";
 import Empty from "@/components/atoms/Empty.vue";
 
 const route = useRoute();
@@ -508,6 +488,23 @@ const handleViewDetails = (index: number) => {
   // TODO: Navigate to details page or show modal
 };
 
+// Progress Table Columns
+const progressTableColumns: TableColumn[] = [
+  { key: "stageName", label: "案件階段" },
+  { key: "status", label: "階段狀態" },
+  { key: "reviewDate", label: "審議日期" },
+  { key: "reviewTime", label: "審議時間" },
+  { key: "action", label: "操作" },
+];
+
+// Convert progressStages to table rows format
+const progressTableRows = computed(() => {
+  return progressStages.value.map((stage) => ({
+    ...stage,
+    stageName: stage.name, // Map name to stageName for the column key
+  }));
+});
+
 // Project Files Tab Data
 interface ProjectFile {
   fileName: string;
@@ -516,9 +513,9 @@ interface ProjectFile {
   fileSize: string;
 }
 
-const selectedFileStage = ref<string>("");
+const selectedFileStage = ref<string>("全部案件階段");
 const fileStageOptions: DropdownItem[] = [
-  { label: "全部案件階段", value: "" },
+  { label: "全部案件階段", value: "全部案件階段" },
   { label: "案件申請", value: "案件申請" },
   { label: "公辦公聽會", value: "公辦公聽會" },
   { label: "都更幹事會", value: "都更幹事會" },
@@ -603,7 +600,7 @@ const filePageSize = ref(10);
 
 const filteredFiles = computed(() => {
   let files = [...allFiles.value];
-  if (selectedFileStage.value) {
+  if (selectedFileStage.value && selectedFileStage.value !== "全部案件階段") {
     files = files.filter((file) => file.caseStage === selectedFileStage.value);
   }
   return files;
@@ -622,7 +619,7 @@ const filePagination = computed<TablePagination>(() => ({
 }));
 
 const handleFileStageChange = (item: DropdownItem) => {
-  selectedFileStage.value = item.value || "";
+  selectedFileStage.value = item.value || "全部案件階段";
   fileCurrentPage.value = 1; // Reset to first page when filter changes
 };
 

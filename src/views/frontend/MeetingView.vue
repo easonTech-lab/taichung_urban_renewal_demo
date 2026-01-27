@@ -1,71 +1,58 @@
 <template>
   <div class="min-h-screen bg-[#f3f5fa]">
-    <div class="mx-auto max-w-[1440px] px-4 pt-[88px] pb-[40px] sm:px-6 lg:px-[60px]">
-      <!-- Breadcrumb and Title -->
-      <div class="mb-10">
-        <div class="flex flex-col gap-6">
-          <Breadcrumb />
-          <h1 class="font-['Noto_Sans_TC:Bold',sans-serif] text-[30px] font-bold leading-[30px] text-[#111928]">審查會議</h1>
+    <!-- Breadcrumb -->
+    <div class="px-[60px] pb-0 pt-[40px]">
+      <Breadcrumb />
+    </div>
+    <!-- Main Content -->
+    <div class="px-[60px] py-[40px]">
+      <!-- Title -->
+      <h1 class="mb-6 text-[30px] font-bold leading-[30px] text-gray-900">審查會議</h1>
+      <!-- Tabs and Filters Section -->
+      <div class="mb-6 flex flex-col gap-6">
+        <!-- Tabs -->
+        <Tabs :items="tabItems" v-model="activeTab" @tab-change="handleTabChange" />
+        <!-- Filters -->
+        <div class="flex flex-wrap items-center gap-4">
+          <!-- Stage Dropdown -->
+          <Dropdown :items="stageOptions" :button-text="selectedStageText" variant="outline"
+            @item-click="handleStageChange" />
+          <!-- Date Range Picker -->
+          <DateRangePicker v-model="dateRange" start-placeholder="選擇起始日期" end-placeholder="選擇結束日期" separator-text="-"
+            :container-class="'flex gap-2 items-center'" @range-change="handleDateRangeChange" />
+          <!-- Search Button -->
+          <ButtonCTA variant="primary" @click="handleSearch" class="h-[40px] px-5 py-2.5"> 搜尋 </ButtonCTA>
         </div>
       </div>
-
-      <!-- Filters and Table -->
-      <div class="flex flex-col gap-6">
-        <!-- Tabs and Filters -->
-        <div class="flex flex-col gap-6">
-          <!-- Tabs -->
-          <Tabs :items="tabItems" v-model="activeTab" @tab-change="handleTabChange" />
-
-          <!-- Filters -->
-          <div class="flex flex-wrap items-center gap-4">
-            <!-- Stage Dropdown -->
-            <Dropdown :items="stageOptions" :button-text="selectedStageText" variant="outline" @item-click="handleStageChange" />
-
-            <!-- Date Range Picker -->
-            <DateRangePicker
-              v-model="dateRange"
-              start-placeholder="選擇起始日期"
-              end-placeholder="選擇結束日期"
-              separator-text="-"
-              :container-class="'flex gap-2 items-center'"
-              @range-change="handleDateRangeChange"
-            />
-
-            <!-- Search Button -->
-            <ButtonCTA variant="primary" @click="handleSearch" class="h-[40px] px-5 py-2.5"> 搜尋 </ButtonCTA>
-          </div>
-        </div>
-
-        <!-- Table -->
-        <div class="rounded-lg border border-gray-300 bg-white p-6 shadow-sm">
-          <Table :columns="tableColumns" :rows="filteredData" :pagination="pagination" @page-change="handlePageChange">
-            <!-- Index Column -->
-            <template #cell-index="{ rowIndex }">
-              <p class="font-['Noto_Sans_TC:Regular',sans-serif] text-base font-normal text-[#6b7280]">
-                {{ rowIndex + 1 + (pagination.currentPage - 1) * pagination.pageSize }}
-              </p>
-            </template>
-
-            <!-- Agenda Column -->
-            <template #cell-agenda="{ row }">
-              <p class="line-clamp-2 font-['Noto_Sans_TC:Regular',sans-serif] text-base font-normal text-[#1f2a37]">
-                {{ row.agenda }}
-              </p>
-            </template>
-
-            <!-- Action Column -->
-            <template #cell-action="{ row }">
-              <button
-                @click="handleDownload(row)"
-                class="flex h-10 items-center gap-2 rounded-lg px-0 py-2 transition-opacity hover:opacity-80 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
-                :aria-label="`下載檔案：${row.agenda}`"
-              >
-                <span class="font-['Noto_Sans_TC:Medium',sans-serif] text-sm font-medium text-[#1a56db] underline"> 下載檔案 </span>
-                <Icon name="download" class="h-6 w-6" color="#1a56db" aria-hidden="true" />
-              </button>
-            </template>
-          </Table>
-        </div>
+      <!-- Table -->
+      <div v-if="filteredDataAll.length === 0" class="flex items-center justify-center py-16">
+        <Empty type="search" message="查無符合條件的會議資料" />
+      </div>
+      <div v-else class="rounded-lg bg-white p-6 shadow-sm">
+        <Table :columns="tableColumns" :rows="filteredData" :pagination="pagination" @page-change="handlePageChange">
+          <!-- Index Column -->
+          <template #cell-index="{ rowIndex }">
+            <p class="font-['Noto_Sans_TC:Regular',sans-serif] text-base font-normal text-[#6b7280]">
+              {{ rowIndex + 1 + (pagination.currentPage - 1) * pagination.pageSize }}
+            </p>
+          </template>
+          <!-- Agenda Column -->
+          <template #cell-agenda="{ row }">
+            <p class="line-clamp-2 font-['Noto_Sans_TC:Regular',sans-serif] text-base font-normal text-[#1f2a37]">
+              {{ row.agenda }}
+            </p>
+          </template>
+          <!-- Action Column -->
+          <template #cell-action="{ row }">
+            <button @click="handleDownload(row)"
+              class="flex h-10 items-center gap-2 rounded-lg px-0 py-2 transition-opacity hover:opacity-80 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
+              :aria-label="`下載檔案：${row.agenda}`">
+              <span class="font-['Noto_Sans_TC:Medium',sans-serif] text-sm font-medium text-[#1a56db] underline"> 下載檔案
+              </span>
+              <Icon name="download" class="h-6 w-6" color="#1a56db" aria-hidden="true" />
+            </button>
+          </template>
+        </Table>
       </div>
     </div>
     <FooterSection />
@@ -82,6 +69,7 @@ import DateRangePicker, { type DateRange } from "@/components/atoms/DateRangePic
 import ButtonCTA from "@/components/atoms/ButtonCTA.vue";
 import Table, { type TableColumn, type TablePagination } from "@/components/atoms/Table.vue";
 import Icon from "@/components/atoms/Icon.vue";
+import Empty from "@/components/atoms/Empty.vue";
 import FooterSection from "@/components/sections/global/FooterSection.vue";
 
 // Types
@@ -126,6 +114,7 @@ const selectedStageText = computed(() => {
 
 // Date Range
 const dateRange = ref<DateRange | null>(null);
+const appliedDateRange = ref<DateRange | null>(null); // 應用於過濾的日期範圍（點擊搜尋後才應用）
 
 // Table Data
 const allData: MeetingItem[] = [
@@ -273,8 +262,29 @@ const filteredDataAll = computed(() => {
     }
   }
 
-  // Filter by date range (if implemented)
-  // TODO: Implement date range filtering
+  // Filter by date range (only apply when search button is clicked)
+  if (appliedDateRange.value && appliedDateRange.value.start && appliedDateRange.value.end) {
+    const startDate = new Date(appliedDateRange.value.start);
+    const endDate = new Date(appliedDateRange.value.end);
+    // 設置結束日期為當天結束時間（23:59:59）
+    endDate.setHours(23, 59, 59, 999);
+
+    data = data.filter((item) => {
+      // 將日期字串轉換為 Date 對象（格式：114/10/30 -> 2025/10/30）
+      const itemDateStr = item.date;
+      if (!itemDateStr) return false;
+
+      // 解析民國年格式（114/MM/DD）
+      const [year, month, day] = itemDateStr.split("/").map(Number);
+      if (!year || !month || !day) return false;
+
+      // 轉換為西元年（民國年 + 1911）
+      const adYear = year + 1911;
+      const itemDate = new Date(adYear, month - 1, day);
+
+      return itemDate >= startDate && itemDate <= endDate;
+    });
+  }
 
   return data;
 });
@@ -310,8 +320,12 @@ const handleDateRangeChange = (range: DateRange | null) => {
 };
 
 const handleSearch = () => {
-  // Trigger search - filters are already applied in computed property
+  // 將當前選擇的日期範圍應用到過濾
+  appliedDateRange.value = dateRange.value ? { ...dateRange.value } : null;
+  // 重置到第一頁
   currentPage.value = 1;
+  // 滾動到表格頂部
+  window.scrollTo({ top: 0, behavior: "smooth" });
 };
 
 const handlePageChange = (page: number) => {

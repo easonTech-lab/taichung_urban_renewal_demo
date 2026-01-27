@@ -74,6 +74,7 @@ const props = withDefaults(
     buttonClass?: string;
     ariaLabel?: string;
     buttonAriaLabel?: string;
+    autoSearch?: boolean; // 是否在輸入時自動觸發搜尋
   }>(),
   {
     modelValue: "",
@@ -91,6 +92,7 @@ const props = withDefaults(
     buttonClass: "",
     ariaLabel: "Search",
     buttonAriaLabel: "",
+    autoSearch: false, // 預設不自動搜尋
   }
 );
 
@@ -125,7 +127,10 @@ const handleInput = (event: Event) => {
   const value = (event.target as HTMLInputElement).value;
   searchValue.value = value;
   emit("update:modelValue", value);
-  emit("input", value);
+  // 只有在 autoSearch 為 true 時才觸發 input 事件（自動搜尋）
+  if (props.autoSearch) {
+    emit("input", value);
+  }
 };
 
 const handleSubmit = () => {

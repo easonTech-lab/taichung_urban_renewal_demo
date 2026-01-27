@@ -22,9 +22,7 @@
             <div class="flex flex-col gap-2">
               <div class="flex items-center gap-3">
                 <div class="h-7 w-1 rounded bg-primary-600"></div>
-                <h2 class="text-2xl font-medium leading-6 text-gray-900">
-                  {{ isAdmin ? "案件列表" : "危老重建案件" }}
-                </h2>
+                <h2 class="text-2xl font-medium leading-6 text-gray-900">{{ isAdmin ? "案件列表" : "危老重建案件" }}</h2>
               </div>
             </div>
             <ButtonDropdown button-text="新增案件" :items="addCaseOptions" button-variant="outline" button-size="sm"

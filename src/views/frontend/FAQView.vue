@@ -14,7 +14,7 @@
           <div class="flex-1">
             <SearchInput v-model="searchQuery" placeholder="關鍵字搜尋" button-text="搜尋" input-variant="gray"
               icon-color="text-primary-600" button-variant="primary" button-class="h-10 px-5" aria-label="搜尋常見問題"
-              @submit="handleSearch" @input="handleSearch" />
+              @submit="handleSearch" />
           </div>
         </div>
       </div>
@@ -23,7 +23,7 @@
         <!-- 左側：搜索結果統計（搜索時顯示）或分類導航手風琴（無搜索時顯示） -->
         <div class="w-[360px] shrink-0">
           <!-- 搜索結果統計（搜索時顯示，即使0筆也顯示） -->
-          <div v-if="searchQuery.trim()" class="flex items-end gap-2">
+          <div v-if="appliedSearchQuery.trim()" class="flex items-end gap-2">
             <p class="text-2xl font-medium leading-normal text-black">搜尋結果共</p>
             <p class="text-3xl font-bold leading-normal text-primary-700">{{ allMatchingQuestions.length }}</p>
             <p class="text-2xl font-medium leading-normal text-black">筆</p>
@@ -73,7 +73,7 @@
         <div class="flex-1">
           <div class="flex flex-col gap-6">
             <!-- 搜索結果視圖 -->
-            <template v-if="searchQuery.trim()">
+            <template v-if="appliedSearchQuery.trim()">
               <!-- 無搜索結果提示 -->
               <Empty v-if="allMatchingQuestions.length === 0" />
               <!-- 搜索結果：按分類分組顯示 -->
@@ -310,6 +310,7 @@ const faqCategories: FAQCategory[] = [
 ];
 
 const searchQuery = ref("");
+const appliedSearchQuery = ref(""); // 應用於過濾的搜尋關鍵字（點擊搜尋後才應用）
 const activeCategoryIndexes = ref<number[]>([0]); // 改為數組，但一次只能展開一個
 const activeQuestionId = ref<string | null>(null);
 
@@ -333,9 +334,9 @@ const isCategoryOpen = (index: number) => {
 
 // 獲取所有匹配搜尋的問題（跨分類）
 const allMatchingQuestions = computed(() => {
-  if (!searchQuery.value.trim()) return [];
+  if (!appliedSearchQuery.value.trim()) return [];
 
-  const query = searchQuery.value.trim().toLowerCase();
+  const query = appliedSearchQuery.value.trim().toLowerCase();
   const matching: Array<{ categoryIndex: number; categoryTitle: string; question: FAQQuestion }> = [];
 
   faqCategories.forEach((category, categoryIndex) => {
@@ -359,7 +360,7 @@ const allMatchingQuestions = computed(() => {
 
 // 按分類分組的搜索結果
 const groupedSearchResults = computed(() => {
-  if (!searchQuery.value.trim() || allMatchingQuestions.value.length === 0) return [];
+  if (!appliedSearchQuery.value.trim() || allMatchingQuestions.value.length === 0) return [];
 
   const groups = new Map<string, FAQQuestion[]>();
 

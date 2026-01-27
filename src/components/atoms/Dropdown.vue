@@ -4,8 +4,8 @@
     <button
       :id="buttonId"
       type="button"
-      class="inline-flex items-center justify-center rounded-md border border-transparent px-4 py-2.5 text-sm font-medium leading-5 shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2"
-      :class="buttonClasses"
+      class="inline-flex items-center focus:outline-none focus:ring-2 focus:ring-offset-2"
+      :class="[buttonClasses, variant === 'filter' ? 'justify-between' : 'justify-center rounded-md border border-transparent px-4 py-2.5 text-sm font-medium leading-5 shadow-sm']"
       :aria-expanded="isOpen"
       :aria-haspopup="true"
       @click="toggle"
@@ -14,9 +14,15 @@
       @keydown.esc="close"
     >
       <slot name="button">
-        {{ buttonText }}
+        <span :class="variant === 'filter' ? 'flex-1 text-left' : ''">{{ buttonText }}</span>
       </slot>
-      <Icon name="chevronDown" :size="16" class="-mr-0.5 ml-1.5 transition-transform" :class="isOpen ? 'rotate-180' : ''" aria-hidden="true" />
+      <Icon 
+        name="chevronDown" 
+        :size="variant === 'filter' ? 24 : 16" 
+        class="transition-transform shrink-0" 
+        :class="[variant === 'filter' ? '' : '-mr-0.5 ml-1.5', isOpen ? 'rotate-180' : '']" 
+        aria-hidden="true" 
+      />
     </button>
 
     <!-- 下拉選單 -->
@@ -68,7 +74,7 @@ const props = withDefaults(
   defineProps<{
     buttonText?: string;
     items: DropdownItem[];
-    variant?: "primary" | "secondary" | "outline" | "ghost";
+    variant?: "primary" | "secondary" | "outline" | "ghost" | "filter";
     align?: "left" | "right";
   }>(),
   {
@@ -90,6 +96,7 @@ const buttonClasses = computed(() => {
     secondary: "bg-gray-600 hover:bg-gray-700 focus:ring-gray-500 text-white border-gray-600",
     outline: "bg-white border-gray-300 text-gray-700 hover:bg-gray-50 focus:ring-gray-500 border",
     ghost: "bg-transparent border-transparent text-gray-700 hover:bg-gray-100 focus:ring-gray-500",
+    filter: "bg-gray-50 border-gray-300 text-gray-500 hover:bg-gray-100 focus:ring-gray-500 border rounded-lg px-4 py-3 text-sm font-normal leading-[1.25] w-full justify-between",
   };
   return variantClasses[props.variant];
 });

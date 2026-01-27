@@ -15,7 +15,7 @@
           <Dropdown :button-text="selectedCategory || '全部案件類別'" :items="categoryItems" variant="outline" @item-click="handleCategoryChange" />
         </div>
         <!-- Search Input -->
-        <div class="flex-1">
+        <div class="w-[364px]">
           <SearchInput
             v-model="searchQuery"
             placeholder="搜尋"
@@ -27,7 +27,10 @@
         </div>
       </div>
       <!-- Table -->
-      <div class="rounded-lg bg-white p-6 shadow-sm">
+      <div v-if="filteredData.length === 0" class="flex items-center justify-center py-16">
+        <Empty type="search" message="查無符合條件的檔案資料" />
+      </div>
+      <div v-else class="rounded-lg bg-white p-6 shadow-sm">
         <Table :columns="tableColumns" :rows="displayedRows" :pagination="pagination" @page-change="handlePageChange">
           <!-- 項次欄位 -->
           <template #cell-index="{ rowIndex }">
@@ -64,6 +67,7 @@ import Dropdown, { type DropdownItem } from "@/components/atoms/Dropdown.vue";
 import SearchInput from "@/components/atoms/SearchInput.vue";
 import Table, { type TableColumn } from "@/components/atoms/Table.vue";
 import Icon from "@/components/atoms/Icon.vue";
+import Empty from "@/components/atoms/Empty.vue";
 import FooterSection from "@/components/sections/global/FooterSection.vue";
 
 // Props
@@ -152,6 +156,7 @@ const categoryItems: DropdownItem[] = [
 // State
 const selectedCategory = ref<string>("");
 const searchQuery = ref<string>("");
+const appliedSearchQuery = ref<string>(""); // 應用於過濾的搜尋關鍵字（點擊搜尋後才應用）
 const currentPage = ref<number>(1);
 const pageSize = computed(() => props.pageSize);
 
@@ -194,9 +199,9 @@ const filteredData = computed(() => {
     data = data.filter((item) => item.category === selectedCategory.value);
   }
 
-  // Filter by search query
-  if (searchQuery.value.trim()) {
-    const query = searchQuery.value.toLowerCase();
+  // Filter by search query (only apply when search button is clicked)
+  if (appliedSearchQuery.value.trim()) {
+    const query = appliedSearchQuery.value.toLowerCase();
     data = data.filter((item) => item.fileName.toLowerCase().includes(query) || item.category.toLowerCase().includes(query));
   }
 
@@ -222,6 +227,8 @@ const handleCategoryChange = (item: DropdownItem) => {
 };
 
 const handleSearch = () => {
+  // 將當前輸入的搜尋關鍵字應用到過濾
+  appliedSearchQuery.value = searchQuery.value;
   currentPage.value = 1; // Reset to first page when search
 };
 

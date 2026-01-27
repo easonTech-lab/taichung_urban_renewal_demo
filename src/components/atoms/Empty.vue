@@ -3,7 +3,7 @@
     <div class="relative h-[220px] w-[220px] shrink-0">
       <img :src="imageSrc" :alt="altText" class="h-full w-full object-contain" />
     </div>
-    <p class="whitespace-nowrap text-sm font-semibold leading-normal text-gray-500">{{ message }}</p>
+    <p class="text-sm font-semibold leading-[1.5] text-center text-gray-500">{{ message }}</p>
     <ButtonCTA
       v-if="shouldShowButton"
       variant="outline"
@@ -102,6 +102,9 @@ const buttonText = computed(() => {
 const containerClass = computed(() => {
   if (props.type === 'case-management') {
     return 'flex flex-col items-center justify-center gap-4 px-4 py-16'
+  }
+  if (props.type === 'search') {
+    return 'flex flex-col items-center justify-center gap-4'
   }
   return 'flex h-[694px] flex-col items-center justify-center gap-4'
 })
