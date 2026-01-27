@@ -7,17 +7,12 @@
       :checked="checked || (modelValue !== undefined && modelValue === true)"
       :disabled="disabled"
       :required="required"
-      class="h-4 w-4 appearance-none rounded-sm border-[0.5px] border-gray-300 bg-gray-50 text-primary-600 transition-colors checked:bg-primary-600 checked:border-primary-600 focus:outline-none focus:ring-2 focus:ring-primary-200 disabled:cursor-not-allowed disabled:opacity-50"
-      :class="[inputClass, indeterminate && 'bg-primary-700 border-primary-700']"
+      class="h-4 w-4 appearance-none rounded-sm border-[0.5px] border-gray-300 bg-gray-50 text-primary-600 transition-colors checked:border-primary-600 checked:bg-primary-600 focus:outline-none focus:ring-2 focus:ring-primary-200 disabled:cursor-not-allowed disabled:opacity-50"
+      :class="[inputClass, indeterminate && 'border-primary-700 bg-primary-700']"
       @change="handleChange"
       v-bind="$attrs"
     />
-    <label
-      v-if="label && !$slots.default"
-      :for="inputId"
-      class="select-none text-sm font-medium text-gray-900 ml-2"
-      :class="labelClass"
-    >
+    <label v-if="label && !$slots.default" :for="inputId" class="ml-2 select-none text-sm font-medium text-gray-900" :class="labelClass">
       {{ label }}
     </label>
     <div v-if="$slots.default" class="ml-2" :class="labelClass">

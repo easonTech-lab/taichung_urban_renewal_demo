@@ -4,10 +4,7 @@
       <!-- Section Header -->
       <div class="mb-6 flex items-center justify-between">
         <h2 class="text-2xl font-bold text-primary-900">即將到來的審查會議</h2>
-        <router-link
-          to="/meetings"
-          class="flex items-center gap-1 text-sm font-normal text-gray-800 hover:text-primary-700"
-        >
+        <router-link to="/meetings" class="flex items-center gap-1 text-sm font-normal text-gray-800 hover:text-primary-700">
           <span>更多會議內容</span>
           <Icon name="arrowRightOutline" :size="20" color="#374151" class="h-5 w-5" aria-hidden="true" />
         </router-link>
@@ -26,18 +23,11 @@
           <!-- Date and Title -->
           <div class="relative flex min-w-0 flex-1 shrink items-center gap-4 leading-normal sm:gap-8 md:gap-16">
             <!-- Date -->
-            <div
-              class="relative flex w-[72px] shrink-0 flex-col justify-center text-sm font-normal not-italic text-gray-500 sm:text-base"
-            >
+            <div class="relative flex w-[72px] shrink-0 flex-col justify-center text-sm font-normal not-italic text-gray-500 sm:text-base">
               {{ meeting.date }}
             </div>
             <!-- Meeting Title -->
-            <div
-              :class="[
-                'relative flex min-w-0 flex-1 shrink flex-col justify-center text-base text-black sm:text-lg',
-                meeting.isMedium ? 'font-medium' : 'font-normal',
-              ]"
-            >
+            <div :class="['relative flex min-w-0 flex-1 shrink flex-col justify-center text-base text-black sm:text-lg', meeting.isMedium ? 'font-medium' : 'font-normal']">
               {{ meeting.name }}
             </div>
           </div>

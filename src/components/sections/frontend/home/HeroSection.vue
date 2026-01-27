@@ -9,9 +9,7 @@
       <div class="grid items-center gap-10 sm:px-20 md:grid-cols-[2fr_1fr]">
         <div>
           <h1 class="text-3xl font-bold text-white sm:text-3xl">什麼是都更？</h1>
-          <p class="mt-4 max-w-2xl text-2xl text-white">
-            對老舊建築的重建，提升生活品質、環境與安全，幫助城市變得更美好、更適合居住。
-          </p>
+          <p class="mt-4 max-w-2xl text-2xl text-white">對老舊建築的重建，提升生活品質、環境與安全，幫助城市變得更美好、更適合居住。</p>
         </div>
         <div class="flex min-h-[216px] min-w-[216px] justify-center md:justify-end">
           <div class="rounded-full p-3">

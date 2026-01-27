@@ -2,9 +2,9 @@
   <div class="inline-flex flex-col items-start gap-2" :class="[containerClass || 'w-full']">
     <!-- Vertical Layout (default) -->
     <template v-if="labelPosition === 'vertical' || !labelPosition">
-      <label v-if="showLabel && label" :for="buttonId" class="block text-base font-medium relative inline-block" :class="labelClasses">
+      <label v-if="showLabel && label" :for="buttonId" class="relative block inline-block text-base font-medium" :class="labelClasses">
         {{ label }}
-        <span v-if="required" class="text-red-500 text-xs leading-none absolute -top-1 -right-2">*</span>
+        <span v-if="required" class="absolute -right-2 -top-1 text-xs leading-none text-red-500">*</span>
       </label>
       <div class="relative w-full">
         <!-- 觸發按鈕 -->
@@ -61,10 +61,10 @@
 
     <!-- Horizontal Layout -->
     <template v-else-if="labelPosition === 'horizontal'">
-      <div class="flex items-center gap-2 w-full">
-        <label v-if="showLabel && label" :for="buttonId" class="text-base font-medium whitespace-nowrap relative inline-block" :class="labelClasses">
+      <div class="flex w-full items-center gap-2">
+        <label v-if="showLabel && label" :for="buttonId" class="relative inline-block whitespace-nowrap text-base font-medium" :class="labelClasses">
           {{ label }}
-          <span v-if="required" class="text-red-500 text-xs leading-none absolute -top-1 -right-2">*</span>
+          <span v-if="required" class="absolute -right-2 -top-1 text-xs leading-none text-red-500">*</span>
         </label>
         <div class="relative flex-1">
           <!-- 觸發按鈕 -->

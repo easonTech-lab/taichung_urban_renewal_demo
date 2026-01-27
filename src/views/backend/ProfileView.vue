@@ -25,8 +25,14 @@
           <div v-if="isAdmin" class="flex flex-col gap-4">
             <!-- 人員類別 -->
             <div class="w-full max-w-[364px]">
-              <InputDropdown label="人員類別" :button-text="adminFormData.personnelType" placeholder="請選擇人員類別"
-                :items="personnelTypeOptions" required @item-click="handlePersonnelTypeSelect" />
+              <InputDropdown
+                label="人員類別"
+                :button-text="adminFormData.personnelType"
+                placeholder="請選擇人員類別"
+                :items="personnelTypeOptions"
+                required
+                @item-click="handlePersonnelTypeSelect"
+              />
             </div>
 
             <!-- 人員姓名 -->
@@ -39,36 +45,36 @@
               <div class="w-full max-w-[364px]">
                 <Input v-model="adminFormData.account" label="帳號" type="text" size="lg" required />
               </div>
-              <div class="flex flex-col gap-5 w-full max-w-[364px]">
+              <div class="flex w-full max-w-[364px] flex-col gap-5">
                 <label class="text-base font-medium text-gray-900">密碼</label>
-                <ButtonCTA variant="textPlain" size="base" class="self-start p-0 underline"
-                  @click="handleChangePassword">
-                  變更密碼
-                </ButtonCTA>
+                <ButtonCTA variant="textPlain" size="base" class="self-start p-0 underline" @click="handleChangePassword"> 變更密碼 </ButtonCTA>
               </div>
             </div>
 
             <!-- 公務信箱和公務分機 -->
             <div class="flex gap-4">
               <div class="w-full max-w-[364px]">
-                <Input v-model="adminFormData.officialEmail" label="公務信箱" type="email" size="lg" placeholder="請輸入公務信箱"
-                  required />
+                <Input v-model="adminFormData.officialEmail" label="公務信箱" type="email" size="lg" placeholder="請輸入公務信箱" required />
               </div>
               <div class="w-full max-w-[364px]">
-                <Input v-model="adminFormData.officialExtension" label="公務分機" type="text" size="lg"
-                  placeholder="請輸入公務分機" required />
+                <Input v-model="adminFormData.officialExtension" label="公務分機" type="text" size="lg" placeholder="請輸入公務分機" required />
               </div>
             </div>
 
             <!-- 局處和科別 -->
             <div class="flex gap-4">
               <div class="w-full max-w-[364px]">
-                <InputDropdown label="局處" :button-text="adminFormData.department" placeholder="請選擇局處"
-                  :items="departmentOptions" required @item-click="handleDepartmentSelect" />
+                <InputDropdown
+                  label="局處"
+                  :button-text="adminFormData.department"
+                  placeholder="請選擇局處"
+                  :items="departmentOptions"
+                  required
+                  @item-click="handleDepartmentSelect"
+                />
               </div>
               <div class="w-full max-w-[364px]">
-                <InputDropdown label="科別" :button-text="adminFormData.division" placeholder="請選擇科別"
-                  :items="divisionOptions" required @item-click="handleDivisionSelect" />
+                <InputDropdown label="科別" :button-text="adminFormData.division" placeholder="請選擇科別" :items="divisionOptions" required @item-click="handleDivisionSelect" />
               </div>
             </div>
 
@@ -108,17 +114,15 @@
             <!-- 密碼 -->
             <div class="flex flex-col gap-2">
               <label class="text-base font-medium text-gray-900">密碼</label>
-              <ButtonCTA variant="text" size="base" class="self-start p-0" @click="handleChangePassword"> 變更密碼
-              </ButtonCTA>
+              <ButtonCTA variant="text" size="base" class="self-start p-0" @click="handleChangePassword"> 變更密碼 </ButtonCTA>
             </div>
           </div>
         </div>
 
         <!-- Action Buttons -->
-        <div class="flex gap-4 justify-center">
+        <div class="flex justify-center gap-4">
           <ButtonCTA variant="outline" size="xl" class="w-[124px]" @click="handleCancel"> 取消 </ButtonCTA>
-          <ButtonCTA variant="gray" size="xl" class="w-[124px]" @click="handleSave"> {{ isAdmin ? "儲存變更" : "儲存" }}
-          </ButtonCTA>
+          <ButtonCTA variant="gray" size="xl" class="w-[124px]" @click="handleSave"> {{ isAdmin ? "儲存變更" : "儲存" }} </ButtonCTA>
         </div>
       </div>
     </div>
@@ -154,17 +158,9 @@ const isAdmin = computed(() => {
 // Breadcrumb items based on role
 const breadcrumbItems = computed<BreadcrumbItem[]>(() => {
   if (isAdmin.value) {
-    return [
-      { label: "首頁", to: "/" },
-      { label: "我的帳號" },
-      { label: "人員帳號管理" },
-    ];
+    return [{ label: "首頁", to: "/" }, { label: "我的帳號" }, { label: "人員帳號管理" }];
   }
-  return [
-    { label: "首頁", to: "/" },
-    { label: "我的帳號" },
-    { label: "編輯個人資料" },
-  ];
+  return [{ label: "首頁", to: "/" }, { label: "我的帳號" }, { label: "編輯個人資料" }];
 });
 
 // Admin Form Data
@@ -199,20 +195,9 @@ const personnelTypeOptions = [
   { label: "申請者" },
 ];
 
-const departmentOptions = [
-  { label: "秘書處" },
-  { label: "都市修復工程科" },
-  { label: "住宅發展工程處" },
-  { label: "都市更新工程科" },
-  { label: "都計測量工程科" },
-];
+const departmentOptions = [{ label: "秘書處" }, { label: "都市修復工程科" }, { label: "住宅發展工程處" }, { label: "都市更新工程科" }, { label: "都計測量工程科" }];
 
-const divisionOptions = [
-  { label: "都市修復工程科" },
-  { label: "住宅發展工程處" },
-  { label: "都市更新工程科" },
-  { label: "都計測量工程科" },
-];
+const divisionOptions = [{ label: "都市修復工程科" }, { label: "住宅發展工程處" }, { label: "都市更新工程科" }, { label: "都計測量工程科" }];
 
 // Event Handlers
 const handleSidebarItemSelect = (itemName: string) => {

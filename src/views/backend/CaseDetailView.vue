@@ -78,10 +78,12 @@
             <!-- Action Cards -->
             <div class="flex gap-5">
               <!-- Application Basic Information Card -->
-              <button type="button"
-                class="flex flex-1 items-center justify-between gap-5 rounded-lg border border-gray-400 bg-white h-[66px] p-5 transition-colors hover:bg-gray-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
-                @click="handleCardClick('application-basic')">
-                <span class="text-lg font-bold text-gray-500 leading-[1.3]">申請基本資料</span>
+              <button
+                type="button"
+                class="flex h-[66px] flex-1 items-center justify-between gap-5 rounded-lg border border-gray-400 bg-white p-5 transition-colors hover:bg-gray-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
+                @click="handleCardClick('application-basic')"
+              >
+                <span class="text-lg font-bold leading-[1.3] text-gray-500">申請基本資料</span>
                 <div class="relative flex h-12 w-12 shrink-0 items-center justify-center">
                   <div class="absolute inset-0 rounded-full bg-blue-100"></div>
                   <Icon name="arrowRightOutline" :size="24" color="#6B7280" class="relative z-10" />
@@ -89,10 +91,12 @@
               </button>
 
               <!-- Urban Renewal Review Data Form Card -->
-              <button type="button"
-                class="flex flex-1 items-center justify-between gap-5 rounded-lg border border-gray-400 bg-white h-[66px] p-5 transition-colors hover:bg-gray-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
-                @click="handleCardClick('review-data')">
-                <span class="text-lg font-bold text-gray-500 leading-[1.3]">都市更新審議資料表</span>
+              <button
+                type="button"
+                class="flex h-[66px] flex-1 items-center justify-between gap-5 rounded-lg border border-gray-400 bg-white p-5 transition-colors hover:bg-gray-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
+                @click="handleCardClick('review-data')"
+              >
+                <span class="text-lg font-bold leading-[1.3] text-gray-500">都市更新審議資料表</span>
                 <div class="relative flex h-12 w-12 shrink-0 items-center justify-center">
                   <div class="absolute inset-0 rounded-full bg-blue-100"></div>
                   <Icon name="arrowRightOutline" :size="24" color="#6B7280" class="relative z-10" />
@@ -100,10 +104,12 @@
               </button>
 
               <!-- Floor Area Ratio Incentive Card -->
-              <button type="button"
-                class="flex flex-1 items-center justify-between gap-5 rounded-lg border border-gray-400 bg-white h-[66px] p-5 transition-colors hover:bg-gray-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
-                @click="handleCardClick('floor-area-ratio')">
-                <span class="text-lg font-bold text-gray-500 leading-[1.3]">容積獎勵項目及額度</span>
+              <button
+                type="button"
+                class="flex h-[66px] flex-1 items-center justify-between gap-5 rounded-lg border border-gray-400 bg-white p-5 transition-colors hover:bg-gray-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
+                @click="handleCardClick('floor-area-ratio')"
+              >
+                <span class="text-lg font-bold leading-[1.3] text-gray-500">容積獎勵項目及額度</span>
                 <div class="relative flex h-12 w-12 shrink-0 items-center justify-center">
                   <div class="absolute inset-0 rounded-full bg-blue-100"></div>
                   <Icon name="arrowRightOutline" :size="24" color="#6B7280" class="relative z-10" />
@@ -122,8 +128,7 @@
 
             <!-- Empty State -->
             <div class="rounded-lg bg-white p-6 shadow-sm">
-              <Empty type="case" message="尚未導入審查幹事名單" button-text="導入幹事名單" :show-button="true"
-                @button-click="handleImportOfficerList" />
+              <Empty type="case" message="尚未導入審查幹事名單" button-text="導入幹事名單" :show-button="true" @button-click="handleImportOfficerList" />
             </div>
           </div>
         </div>
@@ -143,8 +148,7 @@
               <template #cell-stageName="{ row }">
                 <div class="flex items-center gap-4">
                   <div class="flex h-20 w-[120px] items-center justify-center">
-                    <div
-                      :class="['flex h-8 w-8 items-center justify-center rounded-full ring-4 ring-white', getStageIconClass(row.status)]">
+                    <div :class="['flex h-8 w-8 items-center justify-center rounded-full ring-4 ring-white', getStageIconClass(row.status)]">
                       <Icon v-if="row.status === 'completed'" name="check" :size="20" color="#ffffff" />
                       <div v-else-if="row.status === 'current'" class="h-4 w-4 rounded-full bg-primary-500"></div>
                       <div v-else class="h-4 w-4 rounded-full border-2 border-primary-500 bg-white"></div>
@@ -161,25 +165,11 @@
                 <Badge :variant="getStatusBadgeVariant(row.status)" :text="row.statusText" />
               </template>
 
-              <!-- Review Date -->
-              <template #cell-reviewDate="{ row }">
-                <p class="text-base text-gray-500">{{ row.reviewDate }}</p>
-              </template>
-
-              <!-- Review Time -->
-              <template #cell-reviewTime="{ row }">
-                <p class="text-base text-gray-500">{{ row.reviewTime }}</p>
-              </template>
-
               <!-- Action Buttons -->
               <template #cell-action="{ row, rowIndex }">
                 <div class="flex items-center gap-4">
-                  <button v-if="row.hasDetails" class="text-base text-primary-600 hover:text-primary-700"
-                    @click.stop="handleViewDetails(rowIndex)">
-                    查看詳細資料
-                  </button>
-                  <button v-if="row.hasSubStages" class="flex items-center justify-center"
-                    @click.stop="toggleStageExpand(rowIndex)">
+                  <button v-if="row.hasDetails" class="text-base text-primary-600 hover:text-primary-700" @click.stop="handleViewDetails(rowIndex)">查看詳細資料</button>
+                  <button v-if="row.hasSubStages" class="flex items-center justify-center" @click.stop="toggleStageExpand(rowIndex)">
                     <Icon :name="row.isExpanded ? 'chevronUp' : 'chevronDown'" :size="24" color="#1A56DB" />
                   </button>
                 </div>
@@ -193,19 +183,18 @@
                       <!-- Sub-stages Stepper -->
                       <div class="flex w-[120px] flex-col items-center">
                         <div class="relative flex flex-col items-center">
-                          <div v-for="(subStage, subIndex) in row.subStages" :key="subIndex"
+                          <div
+                            v-for="(subStage, subIndex) in row.subStages"
+                            :key="subIndex"
                             class="flex flex-col items-center"
-                            :class="Number(subIndex) < (row.subStages?.length || 0) - 1 ? 'mb-[52px]' : ''">
-                            <div
-                              :class="['flex h-[18px] w-[18px] items-center justify-center rounded-full', getSubStageIconClass(subStage.status)]">
+                            :class="Number(subIndex) < (row.subStages?.length || 0) - 1 ? 'mb-[52px]' : ''"
+                          >
+                            <div :class="['flex h-[18px] w-[18px] items-center justify-center rounded-full', getSubStageIconClass(subStage.status)]">
                               <Icon v-if="subStage.status === 'completed'" name="check" :size="14" color="#ffffff" />
-                              <div v-else-if="subStage.status === 'current'"
-                                class="h-2 w-2 rounded-full bg-primary-500"></div>
-                              <div v-else class="h-[18px] w-[18px] rounded-full border-2 border-primary-500 bg-white">
-                              </div>
+                              <div v-else-if="subStage.status === 'current'" class="h-2 w-2 rounded-full bg-primary-500"></div>
+                              <div v-else class="h-[18px] w-[18px] rounded-full border-2 border-primary-500 bg-white"></div>
                             </div>
-                            <div v-if="Number(subIndex) < (row.subStages?.length || 0) - 1"
-                              class="h-[52px] w-0.5 bg-primary-500"></div>
+                            <div v-if="Number(subIndex) < (row.subStages?.length || 0) - 1" class="h-[52px] w-0.5 bg-primary-500"></div>
                           </div>
                         </div>
                       </div>
@@ -214,8 +203,7 @@
                       <div class="flex-1 space-y-8">
                         <div v-for="(subStage, subIndex) in row.subStages" :key="subIndex" class="flex items-center">
                           <div class="flex-1">
-                            <p
-                              :class="['text-base font-medium', subStage.status === 'current' ? 'text-gray-900' : 'text-gray-500']">
+                            <p :class="['text-base font-medium', subStage.status === 'current' ? 'text-gray-900' : 'text-gray-500']">
                               {{ subStage.title }}
                             </p>
                           </div>
@@ -241,19 +229,19 @@
           <div class="flex flex-col gap-6">
             <!-- Filter Dropdown -->
             <div class="flex items-center gap-4">
-              <Dropdown :button-text="selectedFileStage" :items="fileStageOptions" variant="outline"
-                @item-click="handleFileStageChange" />
+              <Dropdown :button-text="selectedFileStage" :items="fileStageOptions" variant="outline" @item-click="handleFileStageChange" />
             </div>
 
             <!-- File Table -->
             <div class="rounded-lg border border-gray-300 bg-white shadow-sm">
-              <Table :columns="fileTableColumns" :rows="paginatedFiles" :pagination="filePagination"
-                @page-change="handleFilePageChange">
+              <Table :columns="fileTableColumns" :rows="paginatedFiles" :pagination="filePagination" @page-change="handleFilePageChange">
                 <!-- Action -->
                 <template #cell-action="{ row }">
                   <button
                     class="flex items-center justify-center text-primary-600 transition-colors hover:text-primary-700"
-                    @click.stop="handleFileDownload(row)" aria-label="下載檔案">
+                    @click.stop="handleFileDownload(row)"
+                    aria-label="下載檔案"
+                  >
                     <Icon name="download" :size="24" color="#1C64F2" />
                   </button>
                 </template>

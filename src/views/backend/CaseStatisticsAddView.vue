@@ -26,28 +26,30 @@
           <!-- Case Category and Reporting Year Row -->
           <div class="flex gap-4">
             <!-- Case Category -->
-            <InputDropdown label="案件類別" :button-text="selectedCategory" placeholder="請選擇案件類別" :items="categoryOptions"
-              variant="outline" required container-class="w-[364px]" @item-click="handleCategoryChange" />
+            <InputDropdown
+              label="案件類別"
+              :button-text="selectedCategory"
+              placeholder="請選擇案件類別"
+              :items="categoryOptions"
+              variant="outline"
+              required
+              container-class="w-[364px]"
+              @item-click="handleCategoryChange"
+            />
 
             <!-- Reporting Year -->
-            <Input v-model="reportingYear" label="填報年度" placeholder="請輸入填報年度" type="text" size="lg" required
-              container-class="w-[364px]" />
+            <Input v-model="reportingYear" label="填報年度" placeholder="請輸入填報年度" type="text" size="lg" required container-class="w-[364px]" />
           </div>
 
           <!-- Annual Count -->
-          <Input v-model="annualCount" label="年件數" placeholder="請輸入年度件數" type="text" size="lg" required
-            container-class="w-[364px]" />
+          <Input v-model="annualCount" label="年件數" placeholder="請輸入年度件數" type="text" size="lg" required container-class="w-[364px]" />
         </div>
       </div>
 
       <!-- Action Buttons -->
       <div class="flex items-center justify-center gap-4">
-        <ButtonCTA variant="outline" size="xl" @click="handleCancel">
-          取消
-        </ButtonCTA>
-        <ButtonCTA variant="primary" size="xl" @click="handleSave">
-          儲存
-        </ButtonCTA>
+        <ButtonCTA variant="outline" size="xl" @click="handleCancel"> 取消 </ButtonCTA>
+        <ButtonCTA variant="primary" size="xl" @click="handleSave"> 儲存 </ButtonCTA>
       </div>
     </div>
   </div>
@@ -71,10 +73,7 @@ const reportingYear = ref<string>("");
 const annualCount = ref<string>("");
 
 // Category Options
-const categoryOptions: InputDropdownItem[] = [
-  { label: "都更案件" },
-  { label: "危老案件" },
-];
+const categoryOptions: InputDropdownItem[] = [{ label: "都更案件" }, { label: "危老案件" }];
 
 // Event Handlers
 const handleSidebarItemSelect = (itemName: string) => {

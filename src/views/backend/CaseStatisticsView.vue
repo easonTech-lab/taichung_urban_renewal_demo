@@ -18,9 +18,7 @@
             <div class="h-7 w-1 rounded bg-primary-600"></div>
             <h2 class="text-2xl font-medium leading-6 text-gray-900">歷年案件統計</h2>
           </div>
-          <ButtonCTA variant="outline" size="sm" left-icon="plus" @click="handleAddYear">
-            新增年度
-          </ButtonCTA>
+          <ButtonCTA variant="outline" size="sm" left-icon="plus" @click="handleAddYear"> 新增年度 </ButtonCTA>
         </div>
 
         <!-- Tabs and Filters -->
@@ -31,21 +29,18 @@
           <!-- Year Range Filter -->
           <div class="flex items-center gap-2">
             <div class="w-40">
-              <Dropdown :button-text="selectedStartYear || '選擇年度區間'" :items="yearOptions" variant="outline"
-                @item-click="handleStartYearChange" />
+              <Dropdown :button-text="selectedStartYear || '選擇年度區間'" :items="yearOptions" variant="outline" @item-click="handleStartYearChange" />
             </div>
             <span class="text-xl font-normal leading-5 text-gray-500">-</span>
             <div class="w-40">
-              <Dropdown :button-text="selectedEndYear || '選擇年度區間'" :items="yearOptions" variant="outline"
-                @item-click="handleEndYearChange" />
+              <Dropdown :button-text="selectedEndYear || '選擇年度區間'" :items="yearOptions" variant="outline" @item-click="handleEndYearChange" />
             </div>
           </div>
         </div>
 
         <!-- Table -->
         <div class="rounded-lg border border-gray-300 bg-white">
-          <Table :columns="tableColumns" :rows="paginatedStatistics" :pagination="pagination"
-            @page-change="handlePageChange">
+          <Table :columns="tableColumns" :rows="paginatedStatistics" :pagination="pagination" @page-change="handlePageChange">
             <!-- Growth Rate -->
             <template #cell-growthRate="{ row }">
               <Badge :variant="getGrowthRateVariant(row.growthRate)" :text="row.growthRate" />
@@ -53,8 +48,7 @@
 
             <!-- Action -->
             <template #cell-action="{ row }">
-              <ButtonCTA variant="text" size="sm" icon-only left-icon="editOutline" @click.stop="handleEdit(row)"
-                aria-label="編輯" />
+              <ButtonCTA variant="text" size="sm" icon-only left-icon="editOutline" @click.stop="handleEdit(row)" aria-label="編輯" />
             </template>
           </Table>
         </div>

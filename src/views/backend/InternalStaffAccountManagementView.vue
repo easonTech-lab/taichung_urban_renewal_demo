@@ -45,18 +45,17 @@
 
           <!-- Table -->
           <div class="rounded-lg border border-gray-300 bg-white">
-          <Table :columns="tableColumns" :rows="paginatedHandlers" :pagination="pagination"
-            @page-change="handlePageChange">
-            <!-- Index -->
-            <template #cell-index="{ rowIndex }">
-              <p class="text-base text-gray-500">{{ (currentPage - 1) * pageSize + rowIndex + 1 }}</p>
-            </template>
-            <!-- Permissions -->
+            <Table :columns="tableColumns" :rows="paginatedHandlers" :pagination="pagination" @page-change="handlePageChange">
+              <!-- Index -->
+              <template #cell-index="{ rowIndex }">
+                <p class="text-base text-gray-500">{{ (currentPage - 1) * pageSize + rowIndex + 1 }}</p>
+              </template>
+              <!-- Permissions -->
               <template #cell-permissions="{ row }">
                 <div class="text-base text-gray-600">
                   <div v-for="(permission, index) in row.permissions" :key="index" class="mb-2 last:mb-0">
                     <p class="mb-1 font-medium">{{ permission.category }}</p>
-                    <ul class="list-disc ms-6">
+                    <ul class="ms-6 list-disc">
                       <li v-for="(func, funcIndex) in permission.functions" :key="funcIndex" class="text-sm">
                         {{ func }}
                       </li>
@@ -67,18 +66,14 @@
 
               <!-- Status -->
               <template #cell-status="{ row }">
-                <Switch :model-value="row.status" :show-text="true" on-text="啟用" off-text="停權"
-                  @update:model-value="(value) => handleStatusChange(row, value)" />
+                <Switch :model-value="row.status" :show-text="true" on-text="啟用" off-text="停權" @update:model-value="(value) => handleStatusChange(row, value)" />
               </template>
 
               <!-- Action -->
               <template #cell-action="{ row }">
                 <div class="flex items-center">
-                  <ButtonCTA variant="text" size="sm" icon-only left-icon="pencil" @click.stop="handleEdit(row)"
-                    aria-label="編輯承辦帳號" />
-                  <ButtonCTA variant="textPlain" size="sm" @click.stop="handleRemove(row)" aria-label="移除承辦帳號">
-                    移除
-                  </ButtonCTA>
+                  <ButtonCTA variant="text" size="sm" icon-only left-icon="pencil" @click.stop="handleEdit(row)" aria-label="編輯承辦帳號" />
+                  <ButtonCTA variant="textPlain" size="sm" @click.stop="handleRemove(row)" aria-label="移除承辦帳號"> 移除 </ButtonCTA>
                 </div>
               </template>
             </Table>
@@ -106,9 +101,16 @@
         <div class="flex flex-col gap-4 pt-6">
           <p class="text-base font-medium text-gray-900">更換最高權限帳號</p>
           <div class="flex flex-col gap-6">
-            <Radio v-for="account in availableAccounts" :key="account.email" :value="account.email"
-              :name="'admin-account'" :model-value="selectedAccountEmail" container-class="flex gap-2 items-start"
-              input-class="mt-0.5" @update:model-value="selectedAccountEmail = String($event)">
+            <Radio
+              v-for="account in availableAccounts"
+              :key="account.email"
+              :value="account.email"
+              :name="'admin-account'"
+              :model-value="selectedAccountEmail"
+              container-class="flex gap-2 items-start"
+              input-class="mt-0.5"
+              @update:model-value="selectedAccountEmail = String($event)"
+            >
               <div class="flex flex-col gap-2">
                 <p class="text-base font-medium text-gray-900">{{ account.name }}</p>
                 <p class="text-sm text-gray-500">{{ account.email }}</p>
@@ -119,7 +121,7 @@
       </div>
 
       <template #footer>
-        <div class="flex gap-4 justify-end w-full">
+        <div class="flex w-full justify-end gap-4">
           <ButtonCTA variant="outline" size="xl" class="w-[124px]" @click="handleCancelChangeAccount">取消</ButtonCTA>
           <ButtonCTA variant="gray" size="xl" class="w-[124px]" @click="handleSaveChangeAccount">儲存</ButtonCTA>
         </div>
@@ -358,9 +360,7 @@ const handleCancelChangeAccount = () => {
 };
 
 const handleSaveChangeAccount = () => {
-  const selectedAccount = availableAccounts.value.find(
-    (account) => account.email === selectedAccountEmail.value
-  );
+  const selectedAccount = availableAccounts.value.find((account) => account.email === selectedAccountEmail.value);
   if (selectedAccount) {
     currentAdminAccount.value = {
       name: selectedAccount.name,
@@ -400,9 +400,7 @@ const handleSaveEdit = () => {
   if (!editingHandler.value) return;
 
   // 更新資料
-  const index = handlerAccounts.value.findIndex(
-    (account) => account.email === editingHandler.value?.email
-  );
+  const index = handlerAccounts.value.findIndex((account) => account.email === editingHandler.value?.email);
   if (index !== -1) {
     handlerAccounts.value[index] = {
       ...handlerAccounts.value[index],

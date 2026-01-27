@@ -12,9 +12,17 @@
       <div class="mt-6 px-[60px]">
         <div class="flex items-start gap-4">
           <div class="flex-1">
-            <SearchInput v-model="searchQuery" placeholder="關鍵字搜尋" button-text="搜尋" input-variant="gray"
-              icon-color="text-primary-600" button-variant="primary" button-class="h-10 px-5" aria-label="搜尋常見問題"
-              @submit="handleSearch" />
+            <SearchInput
+              v-model="searchQuery"
+              placeholder="關鍵字搜尋"
+              button-text="搜尋"
+              input-variant="gray"
+              icon-color="text-primary-600"
+              button-variant="primary"
+              button-class="h-10 px-5"
+              aria-label="搜尋常見問題"
+              @submit="handleSearch"
+            />
           </div>
         </div>
       </div>
@@ -32,36 +40,54 @@
           <div v-else class="flex flex-col gap-6">
             <div v-for="(category, categoryIndex) in faqCategories" :key="categoryIndex" class="flex flex-col gap-6">
               <!-- 分類標題（可展開/收起） -->
-              <button type="button"
+              <button
+                type="button"
                 class="flex w-full cursor-pointer items-center gap-4 rounded-lg p-6 text-left transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
                 :class="isCategoryOpen(categoryIndex) ? 'bg-blue-500' : 'bg-transparent hover:bg-gray-50'"
-                :aria-expanded="isCategoryOpen(categoryIndex)" :aria-controls="`category-${categoryIndex}-questions`"
+                :aria-expanded="isCategoryOpen(categoryIndex)"
+                :aria-controls="`category-${categoryIndex}-questions`"
                 :aria-label="`${category.title}，點擊${isCategoryOpen(categoryIndex) ? '收起' : '展開'}子問題列表`"
-                @click="selectCategory(categoryIndex)" @keydown.enter="selectCategory(categoryIndex)"
-                @keydown.space.prevent="selectCategory(categoryIndex)">
-                <p class="flex-1 text-xl font-medium"
-                  :class="isCategoryOpen(categoryIndex) ? 'text-blue-50' : 'text-gray-900'">
+                @click="selectCategory(categoryIndex)"
+                @keydown.enter="selectCategory(categoryIndex)"
+                @keydown.space.prevent="selectCategory(categoryIndex)"
+              >
+                <p class="flex-1 text-xl font-medium" :class="isCategoryOpen(categoryIndex) ? 'text-blue-50' : 'text-gray-900'">
                   {{ category.title }}
                 </p>
-                <svg class="h-6 w-6 shrink-0 transition-transform"
+                <svg
+                  class="h-6 w-6 shrink-0 transition-transform"
                   :class="[isCategoryOpen(categoryIndex) ? 'rotate-180' : '', isCategoryOpen(categoryIndex) ? 'text-blue-50' : 'text-gray-900']"
-                  aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none"
-                  viewBox="0 0 24 24">
-                  <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="m5 15 7-7 7 7" />
+                  aria-hidden="true"
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m5 15 7-7 7 7" />
                 </svg>
               </button>
 
               <!-- 子問題列表（展開時顯示） -->
-              <div v-show="isCategoryOpen(categoryIndex)" :id="`category-${categoryIndex}-questions`"
-                class="flex flex-col gap-4 pl-10" role="region" :aria-label="`${category.title}的子問題列表`">
-                <button v-for="(question, questionIndex) in category.questions" :key="questionIndex" type="button"
+              <div
+                v-show="isCategoryOpen(categoryIndex)"
+                :id="`category-${categoryIndex}-questions`"
+                class="flex flex-col gap-4 pl-10"
+                role="region"
+                :aria-label="`${category.title}的子問題列表`"
+              >
+                <button
+                  v-for="(question, questionIndex) in category.questions"
+                  :key="questionIndex"
+                  type="button"
                   class="cursor-pointer rounded py-0 text-left text-lg font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
                   :class="activeQuestionId === question.id ? 'text-blue-500' : 'text-gray-600 hover:text-gray-900'"
                   :aria-label="`${question.title}，點擊查看詳細答案`"
                   :aria-current="activeQuestionId === question.id ? 'true' : undefined"
-                  @click.stop="selectQuestion(question.id)" @keydown.enter.stop="selectQuestion(question.id)"
-                  @keydown.space.stop.prevent="selectQuestion(question.id)">
+                  @click.stop="selectQuestion(question.id)"
+                  @keydown.enter.stop="selectQuestion(question.id)"
+                  @keydown.space.stop.prevent="selectQuestion(question.id)"
+                >
                   {{ question.title }}
                 </button>
               </div>
@@ -78,8 +104,7 @@
               <Empty v-if="allMatchingQuestions.length === 0" />
               <!-- 搜索結果：按分類分組顯示 -->
               <template v-else>
-                <div v-for="(categoryGroup, categoryIndex) in groupedSearchResults" :key="categoryIndex"
-                  class="flex flex-col gap-6">
+                <div v-for="(categoryGroup, categoryIndex) in groupedSearchResults" :key="categoryIndex" class="flex flex-col gap-6">
                   <!-- 分類標題 -->
                   <h2 class="text-2xl font-bold leading-normal tracking-[-0.24px] text-gray-900">
                     {{ categoryGroup.categoryTitle }}
@@ -89,15 +114,23 @@
                   <div class="flex flex-col gap-6">
                     <template v-for="(question, questionIndex) in categoryGroup.questions" :key="question.id">
                       <!-- 展開的問題（顯示詳細內容） -->
-                      <div v-if="activeQuestionId === question.id" :id="`question-${question.id}-content`"
-                        class="flex flex-col items-start gap-6 rounded-lg bg-white p-5" role="region"
-                        :aria-label="`${question.title}的詳細答案`">
-                        <button type="button"
+                      <div
+                        v-if="activeQuestionId === question.id"
+                        :id="`question-${question.id}-content`"
+                        class="flex flex-col items-start gap-6 rounded-lg bg-white p-5"
+                        role="region"
+                        :aria-label="`${question.title}的詳細答案`"
+                      >
+                        <button
+                          type="button"
                           class="flex w-full cursor-pointer items-center gap-2 rounded text-left focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-                          :aria-expanded="true" :aria-controls="`question-${question.id}-content`"
-                          :aria-label="`${question.title}，點擊收起`" @click="selectQuestion(question.id)"
+                          :aria-expanded="true"
+                          :aria-controls="`question-${question.id}-content`"
+                          :aria-label="`${question.title}，點擊收起`"
+                          @click="selectQuestion(question.id)"
                           @keydown.enter="selectQuestion(question.id)"
-                          @keydown.space.prevent="selectQuestion(question.id)">
+                          @keydown.space.prevent="selectQuestion(question.id)"
+                        >
                           <div class="relative size-6 shrink-0">
                             <div class="absolute inset-0 rounded-full bg-blue-200"></div>
                             <div class="absolute inset-1 flex items-center justify-center rounded-full bg-blue-500">
@@ -114,18 +147,22 @@
                       </div>
 
                       <!-- 收起的問題（只顯示標題） -->
-                      <button v-else type="button"
+                      <button
+                        v-else
+                        type="button"
                         class="flex w-full cursor-pointer items-center gap-2 rounded-lg p-5 text-left transition-colors hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-                        :aria-expanded="false" :aria-controls="`question-${question.id}-content`"
-                        :aria-label="`${question.title}，點擊展開查看詳細答案`" @click="selectQuestion(question.id)"
+                        :aria-expanded="false"
+                        :aria-controls="`question-${question.id}-content`"
+                        :aria-label="`${question.title}，點擊展開查看詳細答案`"
+                        @click="selectQuestion(question.id)"
                         @keydown.enter="selectQuestion(question.id)"
-                        @keydown.space.prevent="selectQuestion(question.id)">
+                        @keydown.space.prevent="selectQuestion(question.id)"
+                      >
                         <div class="relative size-6 shrink-0">
                           <div class="absolute inset-0 rounded-full border-2 border-blue-500"></div>
                           <div class="absolute inset-1 flex items-center justify-center rounded-full bg-white">
                             <svg class="h-4 w-4 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M12 4v16m8-8H4" />
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
                             </svg>
                           </div>
                         </div>
@@ -150,14 +187,23 @@
               <div v-if="currentQuestions.length > 0" class="flex flex-col gap-6">
                 <template v-for="(question, index) in currentQuestions" :key="question.id">
                   <!-- 展開的問題（顯示詳細內容） -->
-                  <div v-if="activeQuestionId === question.id" :id="`question-${question.id}-content`"
-                    class="flex flex-col items-start gap-6 rounded-lg bg-white p-5" role="region"
-                    :aria-label="`${question.title}的詳細答案`">
-                    <button type="button"
+                  <div
+                    v-if="activeQuestionId === question.id"
+                    :id="`question-${question.id}-content`"
+                    class="flex flex-col items-start gap-6 rounded-lg bg-white p-5"
+                    role="region"
+                    :aria-label="`${question.title}的詳細答案`"
+                  >
+                    <button
+                      type="button"
                       class="flex w-full cursor-pointer items-center gap-2 rounded text-left focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-                      :aria-expanded="true" :aria-controls="`question-${question.id}-content`"
-                      :aria-label="`${question.title}，點擊收起`" @click="selectQuestion(question.id)"
-                      @keydown.enter="selectQuestion(question.id)" @keydown.space.prevent="selectQuestion(question.id)">
+                      :aria-expanded="true"
+                      :aria-controls="`question-${question.id}-content`"
+                      :aria-label="`${question.title}，點擊收起`"
+                      @click="selectQuestion(question.id)"
+                      @keydown.enter="selectQuestion(question.id)"
+                      @keydown.space.prevent="selectQuestion(question.id)"
+                    >
                       <div class="relative size-6 shrink-0">
                         <div class="absolute inset-0 rounded-full bg-blue-200"></div>
                         <div class="absolute inset-1 flex items-center justify-center rounded-full bg-blue-500">
@@ -174,11 +220,17 @@
                   </div>
 
                   <!-- 收起的問題（只顯示標題） -->
-                  <button v-else type="button"
+                  <button
+                    v-else
+                    type="button"
                     class="flex w-full cursor-pointer items-center gap-2 rounded-lg p-5 text-left transition-colors hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-                    :aria-expanded="false" :aria-controls="`question-${question.id}-content`"
-                    :aria-label="`${question.title}，點擊展開查看詳細答案`" @click="selectQuestion(question.id)"
-                    @keydown.enter="selectQuestion(question.id)" @keydown.space.prevent="selectQuestion(question.id)">
+                    :aria-expanded="false"
+                    :aria-controls="`question-${question.id}-content`"
+                    :aria-label="`${question.title}，點擊展開查看詳細答案`"
+                    @click="selectQuestion(question.id)"
+                    @keydown.enter="selectQuestion(question.id)"
+                    @keydown.space.prevent="selectQuestion(question.id)"
+                  >
                     <div class="relative size-6 shrink-0">
                       <div class="absolute inset-0 rounded-full border-2 border-blue-500"></div>
                       <div class="absolute inset-1 flex items-center justify-center rounded-full bg-white">

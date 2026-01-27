@@ -1,23 +1,18 @@
 <template>
   <Teleport to="body">
     <!-- Backdrop -->
-    <div
-      v-if="modelValue"
-      class="fixed inset-0 z-[80] bg-gray-600 transition-opacity"
-      :class="modelValue ? 'opacity-80' : 'opacity-0'"
-      @click="handleBackdropClick"
-    ></div>
+    <div v-if="modelValue" class="fixed inset-0 z-[80] bg-gray-600 transition-opacity" :class="modelValue ? 'opacity-80' : 'opacity-0'" @click="handleBackdropClick"></div>
 
     <!-- Drawer -->
     <div
       :id="drawerId"
-      class="fixed top-0 right-0 z-[81] h-screen flex flex-col bg-white transition-transform duration-300 ease-in-out"
+      class="fixed right-0 top-0 z-[81] flex h-screen flex-col bg-white transition-transform duration-300 ease-in-out"
       :class="[widthClasses, modelValue ? 'translate-x-0' : 'translate-x-full']"
       tabindex="-1"
       :aria-labelledby="drawerId + '-label'"
     >
       <!-- Header -->
-      <div v-if="$slots.header || title || showCloseButton" class="border-b border-gray-300 flex items-center justify-between px-6 py-4">
+      <div v-if="$slots.header || title || showCloseButton" class="flex items-center justify-between border-b border-gray-300 px-6 py-4">
         <template v-if="$slots.header">
           <slot name="header" />
         </template>
@@ -28,7 +23,7 @@
           <button
             v-if="showCloseButton"
             type="button"
-            class="text-gray-500 bg-transparent hover:text-gray-700 rounded-lg w-4 h-4 flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-primary-500"
+            class="flex h-4 w-4 items-center justify-center rounded-lg bg-transparent text-gray-500 hover:text-gray-700 focus:outline-none focus:ring-2 focus:ring-primary-500"
             :aria-label="closeButtonAriaLabel"
             @click="handleClose"
           >
@@ -44,7 +39,7 @@
       </div>
 
       <!-- Footer -->
-      <div v-if="$slots.footer" class="border-t border-[#d9d9d9] bg-white flex items-end justify-end px-6 py-3">
+      <div v-if="$slots.footer" class="flex items-end justify-end border-t border-[#d9d9d9] bg-white px-6 py-3">
         <slot name="footer" />
       </div>
     </div>

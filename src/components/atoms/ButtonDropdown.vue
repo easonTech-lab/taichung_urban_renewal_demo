@@ -22,13 +22,7 @@
           {{ buttonText }}
         </slot>
         <!-- 可旋轉的圖標 -->
-        <Icon
-          :name="rightIcon || 'chevronDown'"
-          :size="iconSize"
-          class="shrink-0 transition-transform"
-          :class="isOpen ? 'rotate-180' : ''"
-          aria-hidden="true"
-        />
+        <Icon :name="rightIcon || 'chevronDown'" :size="iconSize" class="shrink-0 transition-transform" :class="isOpen ? 'rotate-180' : ''" aria-hidden="true" />
       </template>
       <template v-else>
         <slot name="button">
@@ -92,19 +86,7 @@ const props = withDefaults(
   defineProps<{
     buttonText?: string;
     items: ButtonDropdownItem[];
-    buttonVariant?:
-      | "primary"
-      | "dark"
-      | "green"
-      | "red"
-      | "gray"
-      | "white"
-      | "alternative"
-      | "alternativeDark"
-      | "text"
-      | "ghost"
-      | "outline"
-      | "none";
+    buttonVariant?: "primary" | "dark" | "green" | "red" | "gray" | "white" | "alternative" | "alternativeDark" | "text" | "ghost" | "outline" | "none";
     buttonSize?: "xs" | "sm" | "base" | "l" | "xl";
     leftIcon?: string;
     rightIcon?: string;

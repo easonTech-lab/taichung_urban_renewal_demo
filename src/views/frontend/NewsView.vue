@@ -37,9 +37,7 @@
           />
         </div>
         <!-- Search Button -->
-        <ButtonCTA variant="primary" @click="handleSearch" class="h-[40px] px-5 py-2.5">
-          搜尋
-        </ButtonCTA>
+        <ButtonCTA variant="primary" @click="handleSearch" class="h-[40px] px-5 py-2.5"> 搜尋 </ButtonCTA>
       </div>
       <!-- Table -->
       <div v-if="filteredData.length === 0" class="flex items-center justify-center py-16">
@@ -158,12 +156,7 @@ const mockData: NewsItem[] = [
 const allData = Array.from({ length: 100 }, () => mockData).flat();
 
 // Category Dropdown
-const categoryItems: InputDropdownItem[] = [
-  { label: "全部類別" },
-  { label: "最新消息" },
-  { label: "新聞快訊" },
-  { label: "活動訊息" },
-];
+const categoryItems: InputDropdownItem[] = [{ label: "全部類別" }, { label: "最新消息" }, { label: "新聞快訊" }, { label: "活動訊息" }];
 
 // State
 const selectedCategory = ref<string>("");

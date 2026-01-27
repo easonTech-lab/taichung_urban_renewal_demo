@@ -3,8 +3,7 @@
     <div class="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
       <h2 class="mb-6 text-2xl font-semibold">快捷服務</h2>
       <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        <ServiceCard v-for="service in services" :key="service.href" :title="service.title"
-          :icon-name="service.iconName" :href="service.href" />
+        <ServiceCard v-for="service in services" :key="service.href" :title="service.title" :icon-name="service.iconName" :href="service.href" />
       </div>
     </div>
   </section>

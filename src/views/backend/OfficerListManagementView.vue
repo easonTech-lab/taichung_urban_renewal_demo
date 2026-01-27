@@ -26,12 +26,8 @@
 
           <!-- Action Buttons -->
           <div class="flex gap-3">
-            <ButtonCTA variant="outline" size="sm" left-icon="userSettings" @click="handleManageList">
-              管理名單
-            </ButtonCTA>
-            <ButtonCTA variant="outline" size="sm" right-icon="download" @click="handleExportList">
-              匯出名單
-            </ButtonCTA>
+            <ButtonCTA variant="outline" size="sm" left-icon="userSettings" @click="handleManageList"> 管理名單 </ButtonCTA>
+            <ButtonCTA variant="outline" size="sm" right-icon="download" @click="handleExportList"> 匯出名單 </ButtonCTA>
           </div>
         </div>
 
@@ -40,14 +36,12 @@
 
         <!-- Empty State or Table -->
         <div v-if="allOfficers.length === 0" class="flex flex-col items-center justify-center py-20">
-          <Empty type="case" message="尚未導入審查幹事名單" button-text="添加幹事" :show-button="true"
-            @button-click="handleAddOfficer" />
+          <Empty type="case" message="尚未導入審查幹事名單" button-text="添加幹事" :show-button="true" @button-click="handleAddOfficer" />
         </div>
 
         <!-- Officer List Table -->
         <div v-else class="flex flex-col gap-0">
-          <Table :columns="tableColumns" :rows="paginatedOfficers" :pagination="pagination"
-            @page-change="handlePageChange">
+          <Table :columns="tableColumns" :rows="paginatedOfficers" :pagination="pagination" @page-change="handlePageChange">
             <!-- Index Column -->
             <template #cell-index="{ row }">
               <div class="flex h-20 items-center justify-center p-4">
@@ -58,7 +52,7 @@
             <!-- Name and Gender Column -->
             <template #cell-nameGender="{ row }">
               <div class="flex h-20 flex-col items-start justify-center gap-1 px-4 py-4">
-                <p class="text-base font-normal leading-[1.5] text-gray-800 text-nowrap">{{ row.name || "未選擇" }}</p>
+                <p class="text-nowrap text-base font-normal leading-[1.5] text-gray-800">{{ row.name || "未選擇" }}</p>
                 <p v-if="row.gender" class="text-base font-normal leading-[1.5] text-gray-500">{{ row.gender }}</p>
               </div>
             </template>
@@ -73,8 +67,7 @@
             <!-- Education/Experience Column -->
             <template #cell-education="{ row }">
               <div class="flex h-20 items-center p-4">
-                <p class="text-base font-normal leading-[1.5] text-gray-500 whitespace-pre-wrap">{{ row.education || "-"
-                }}</p>
+                <p class="whitespace-pre-wrap text-base font-normal leading-[1.5] text-gray-500">{{ row.education || "-" }}</p>
               </div>
             </template>
 
@@ -82,9 +75,13 @@
             <template #cell-action="{ row }">
               <div class="flex h-20 items-center gap-4 px-4 py-4">
                 <Icon name="profileCard" :size="24" class="shrink-0" />
-                <ButtonCTA variant="textPlain" size="base" class="p-0 text-nowrap"
+                <ButtonCTA
+                  variant="textPlain"
+                  size="base"
+                  class="text-nowrap p-0"
                   :class="row.name && row.name !== '未選擇' ? 'text-primary-600' : 'text-primary-300'"
-                  @click.stop="handleRemoveOfficerFromTable(row)">
+                  @click.stop="handleRemoveOfficerFromTable(row)"
+                >
                   移除
                 </ButtonCTA>
               </div>
@@ -99,8 +96,7 @@
       <template #default>
         <div class="flex flex-col gap-0">
           <!-- Officer List Items (20 items) -->
-          <div v-for="(officer, index) in officerList" :key="index"
-            class="flex items-center justify-between border-b border-gray-300 py-5">
+          <div v-for="(officer, index) in officerList" :key="index" class="flex items-center justify-between border-b border-gray-300 py-5">
             <!-- Left Section: Index and Dropdown -->
             <div class="flex flex-1 items-center gap-2">
               <!-- Index -->
@@ -109,23 +105,24 @@
               </div>
 
               <!-- Dropdown -->
-              <InputDropdown :button-text="officer.selectedOfficer || ''" placeholder="選擇"
-                :items="getAvailableOfficersForIndex(index)" required :show-label="false"
-                @item-click="(item) => handleOfficerSelect(index, item)" />
+              <InputDropdown
+                :button-text="officer.selectedOfficer || ''"
+                placeholder="選擇"
+                :items="getAvailableOfficersForIndex(index)"
+                required
+                :show-label="false"
+                @item-click="(item) => handleOfficerSelect(index, item)"
+              />
             </div>
 
             <!-- Right Section: Remove Button -->
             <div class="flex items-center px-3 py-4">
-              <ButtonCTA variant="textPlain" size="base" class="p-0" @click="handleRemoveOfficer(index)">
-                移除
-              </ButtonCTA>
+              <ButtonCTA variant="textPlain" size="base" class="p-0" @click="handleRemoveOfficer(index)"> 移除 </ButtonCTA>
             </div>
           </div>
           <!-- Add Officer Button -->
-          <div class="flex items-center justify-start border-b border-gray-300 py-5 ">
-            <ButtonCTA variant="outline" size="xl" class="w-full" left-icon="plus" @click="handleAddNewOfficer">
-              新增幹事
-            </ButtonCTA>
+          <div class="flex items-center justify-start border-b border-gray-300 py-5">
+            <ButtonCTA variant="outline" size="xl" class="w-full" left-icon="plus" @click="handleAddNewOfficer"> 新增幹事 </ButtonCTA>
           </div>
         </div>
       </template>
@@ -153,12 +150,7 @@ import Table, { type TableColumn, type TablePagination } from "@/components/atom
 import Icon from "@/components/atoms/Icon.vue";
 
 // Tabs
-const tabItems: TabItem[] = [
-  { label: "115" },
-  { label: "114" },
-  { label: "113" },
-  { label: "添加年度" },
-];
+const tabItems: TabItem[] = [{ label: "115" }, { label: "114" }, { label: "113" }, { label: "添加年度" }];
 
 const activeTab = ref(0);
 
@@ -186,9 +178,27 @@ interface OfficerData {
 // Mock Officer Data
 const allOfficers = ref<OfficerData[]>([
   { index: 1, name: "張源明", gender: "男", title: "內政部地政司代理司長", education: "日本東京大學地震研究所 博士\n銘傳大學都市規劃與防災學 碩士" },
-  { index: 2, name: "林珮君", gender: "男", title: "專家委員", education: "元智大學化學工程學系\n美國奧克拉荷馬州州立大學環境工程碩士、總統府副秘書長、行政院秘書長、臺中縣副縣長、臺北市政府環境保護局局長" },
-  { index: 3, name: "郭依佳", gender: "男", title: "專家委員", education: "元智大學化學工程學系\n美國奧克拉荷馬州州立大學環境工程碩士、總統府副秘書長、行政院秘書長、臺中縣副縣長、臺北市政府環境保護局局長" },
-  { index: 4, name: "朱秀秋", gender: "男", title: "專家委員", education: "元智大學化學工程學系\n美國奧克拉荷馬州州立大學環境工程碩士、總統府副秘書長、行政院秘書長、臺中縣副縣長、臺北市政府環境保護局局長" },
+  {
+    index: 2,
+    name: "林珮君",
+    gender: "男",
+    title: "專家委員",
+    education: "元智大學化學工程學系\n美國奧克拉荷馬州州立大學環境工程碩士、總統府副秘書長、行政院秘書長、臺中縣副縣長、臺北市政府環境保護局局長",
+  },
+  {
+    index: 3,
+    name: "郭依佳",
+    gender: "男",
+    title: "專家委員",
+    education: "元智大學化學工程學系\n美國奧克拉荷馬州州立大學環境工程碩士、總統府副秘書長、行政院秘書長、臺中縣副縣長、臺北市政府環境保護局局長",
+  },
+  {
+    index: 4,
+    name: "朱秀秋",
+    gender: "男",
+    title: "專家委員",
+    education: "元智大學化學工程學系\n美國奧克拉荷馬州州立大學環境工程碩士、總統府副秘書長、行政院秘書長、臺中縣副縣長、臺北市政府環境保護局局長",
+  },
   { index: 5, name: "朱秀秋", gender: "男", title: "中山大學公共事務管理研究所教授兼管理學院副院長", education: "美國北卡羅萊納州立大學景觀規劃博士" },
   { index: 6, name: "朱秀秋", gender: "男", title: "中山大學公共事務管理研究所教授兼管理學院副院長", education: "美國北卡羅萊納州立大學景觀規劃博士" },
   { index: 7, name: "朱秀秋", gender: "男", title: "中山大學公共事務管理研究所教授兼管理學院副院長", education: "美國北卡羅萊納州立大學景觀規劃博士" },
@@ -233,28 +243,17 @@ const officerList = ref<OfficerItem[]>(
 );
 
 // Available officers (mock data - should come from internal staff accounts)
-const allAvailableOfficers: InputDropdownItem[] = [
-  { label: "陳傑瑞" },
-  { label: "張森" },
-  { label: "吳偉翔" },
-  { label: "林美華" },
-  { label: "王小明" },
-  { label: "李大同" },
-];
+const allAvailableOfficers: InputDropdownItem[] = [{ label: "陳傑瑞" }, { label: "張森" }, { label: "吳偉翔" }, { label: "林美華" }, { label: "王小明" }, { label: "李大同" }];
 
 // Computed: Filter out already selected officers
 const availableOfficers = computed(() => {
-  const selectedOfficers = officerList.value
-    .map((o) => o.selectedOfficer)
-    .filter((o) => o !== "");
+  const selectedOfficers = officerList.value.map((o) => o.selectedOfficer).filter((o) => o !== "");
   return allAvailableOfficers.filter((officer) => !selectedOfficers.includes(officer.label));
 });
 
 // Get available officers for a specific index (excluding the current selection)
 const getAvailableOfficersForIndex = (index: number) => {
-  const selectedOfficers = officerList.value
-    .map((o, i) => (i !== index ? o.selectedOfficer : ""))
-    .filter((o) => o !== "");
+  const selectedOfficers = officerList.value.map((o, i) => (i !== index ? o.selectedOfficer : "")).filter((o) => o !== "");
   return allAvailableOfficers.filter((officer) => !selectedOfficers.includes(officer.label));
 };
 

@@ -2,41 +2,28 @@
   <div class="flex flex-col gap-6" :class="containerClass">
     <!-- Vertical Layout (default) -->
     <template v-if="labelPosition === 'vertical' || !labelPosition">
-      <label v-if="showLabel && label" :for="switchId" class="text-base font-medium relative inline-block" :class="labelTextClass">
+      <label v-if="showLabel && label" :for="switchId" class="relative inline-block text-base font-medium" :class="labelTextClass">
         {{ label }}
-        <span v-if="required" class="text-red-500 text-xs leading-none absolute -top-1 -right-2">*</span>
+        <span v-if="required" class="absolute -right-2 -top-1 text-xs leading-none text-red-500">*</span>
       </label>
-      <label :class="['inline-flex items-center cursor-pointer', disabled && 'cursor-not-allowed opacity-50']">
-        <input
-          :id="switchId"
-          type="checkbox"
-          :checked="modelValue"
-          :disabled="disabled"
-          class="sr-only peer"
-          @change="handleChange"
-          v-bind="$attrs"
-        />
+      <label :class="['inline-flex cursor-pointer items-center', disabled && 'cursor-not-allowed opacity-50']">
+        <input :id="switchId" type="checkbox" :checked="modelValue" :disabled="disabled" class="peer sr-only" @change="handleChange" v-bind="$attrs" />
         <!-- Switch with Text -->
         <div
           :class="[
             'relative h-6 w-[60px] rounded-full transition-colors duration-200',
             'peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-200',
             modelValue ? 'bg-green-400' : 'bg-gray-400',
-            disabled && 'opacity-50 cursor-not-allowed',
+            disabled && 'cursor-not-allowed opacity-50',
           ]"
         >
           <!-- Toggle Circle -->
-          <div
-            :class="[
-              'absolute top-[4px] size-4 bg-white rounded-full transition-all duration-200',
-              modelValue ? 'left-[40px]' : 'left-[4px]',
-            ]"
-          ></div>
+          <div :class="['absolute top-[4px] size-4 rounded-full bg-white transition-all duration-200', modelValue ? 'left-[40px]' : 'left-[4px]']"></div>
           <!-- Text Label -->
           <span
             v-if="showText"
             :class="[
-              'absolute top-[3px] text-xs font-normal text-white text-center whitespace-nowrap transition-all duration-200',
+              'absolute top-[3px] whitespace-nowrap text-center text-xs font-normal text-white transition-all duration-200',
               modelValue ? 'left-[21px] -translate-x-1/2' : 'left-[39px] -translate-x-1/2',
             ]"
           >
@@ -49,41 +36,28 @@
     <!-- Horizontal Layout -->
     <template v-else-if="labelPosition === 'horizontal'">
       <div class="flex items-center gap-6">
-        <label v-if="showLabel && label" :for="switchId" class="text-base font-medium whitespace-nowrap relative inline-block" :class="labelTextClass">
+        <label v-if="showLabel && label" :for="switchId" class="relative inline-block whitespace-nowrap text-base font-medium" :class="labelTextClass">
           {{ label }}
-          <span v-if="required" class="text-red-500 text-xs leading-none absolute -top-1 -right-2">*</span>
+          <span v-if="required" class="absolute -right-2 -top-1 text-xs leading-none text-red-500">*</span>
         </label>
-        <label :class="['inline-flex items-center cursor-pointer', disabled && 'cursor-not-allowed opacity-50']">
-          <input
-            :id="switchId"
-            type="checkbox"
-            :checked="modelValue"
-            :disabled="disabled"
-            class="sr-only peer"
-            @change="handleChange"
-            v-bind="$attrs"
-          />
+        <label :class="['inline-flex cursor-pointer items-center', disabled && 'cursor-not-allowed opacity-50']">
+          <input :id="switchId" type="checkbox" :checked="modelValue" :disabled="disabled" class="peer sr-only" @change="handleChange" v-bind="$attrs" />
           <!-- Switch with Text -->
           <div
             :class="[
               'relative h-6 w-[60px] rounded-full transition-colors duration-200',
               'peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-200',
               modelValue ? 'bg-green-400' : 'bg-gray-400',
-              disabled && 'opacity-50 cursor-not-allowed',
+              disabled && 'cursor-not-allowed opacity-50',
             ]"
           >
             <!-- Toggle Circle -->
-            <div
-              :class="[
-                'absolute top-[4px] size-4 bg-white rounded-full transition-all duration-200',
-                modelValue ? 'left-[40px]' : 'left-[4px]',
-              ]"
-            ></div>
+            <div :class="['absolute top-[4px] size-4 rounded-full bg-white transition-all duration-200', modelValue ? 'left-[40px]' : 'left-[4px]']"></div>
             <!-- Text Label -->
             <span
               v-if="showText"
               :class="[
-                'absolute top-[3px] text-xs font-normal text-white text-center whitespace-nowrap transition-all duration-200',
+                'absolute top-[3px] whitespace-nowrap text-center text-xs font-normal text-white transition-all duration-200',
                 modelValue ? 'left-[21px] -translate-x-1/2' : 'left-[39px] -translate-x-1/2',
               ]"
             >

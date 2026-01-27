@@ -2,52 +2,64 @@
   <nav :aria-label="ariaLabel">
     <div class="flex items-center overflow-hidden rounded border border-gray-300">
       <!-- 上一頁按鈕 -->
-      <component :is="previousTo ? 'router-link' : 'a'" :to="previousTo" :href="previousTo ? undefined : '#'"
+      <component
+        :is="previousTo ? 'router-link' : 'a'"
+        :to="previousTo"
+        :href="previousTo ? undefined : '#'"
         class="flex cursor-pointer items-center justify-center border-r border-gray-300 bg-white px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
         :class="[currentPage === 1 ? 'pointer-events-none cursor-not-allowed opacity-50' : 'hover:bg-gray-50']"
-        :aria-label="previousLabel" :aria-disabled="currentPage === 1" :tabindex="currentPage === 1 ? -1 : 0"
-        @click.prevent="handlePrevious">
+        :aria-label="previousLabel"
+        :aria-disabled="currentPage === 1"
+        :tabindex="currentPage === 1 ? -1 : 0"
+        @click.prevent="handlePrevious"
+      >
         <span class="sr-only">{{ previousLabel }}</span>
-        <svg class="h-5 w-5 text-gray-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-          fill="none" viewBox="0 0 24 24">
-          <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-            d="m15 19-7-7 7-7" />
+        <svg class="h-5 w-5 text-gray-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+          <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m15 19-7-7 7-7" />
         </svg>
       </component>
 
       <!-- 頁碼和省略號 -->
       <template v-for="(item, index) in paginationItems" :key="index">
         <!-- 頁碼按鈕 -->
-        <component v-if="item.type === 'page'" :is="getPageLinkSafe(item.page) ? 'router-link' : 'a'"
-          :to="getPageLinkSafe(item.page)" :href="getPageLinkSafe(item.page) ? undefined : '#'"
+        <component
+          v-if="item.type === 'page'"
+          :is="getPageLinkSafe(item.page) ? 'router-link' : 'a'"
+          :to="getPageLinkSafe(item.page)"
+          :href="getPageLinkSafe(item.page) ? undefined : '#'"
           class="flex cursor-pointer items-center justify-center whitespace-nowrap border-r border-gray-300 bg-white px-3 py-1.5 text-center text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-          :class="[
-            item.page === currentPage
-              ? 'bg-blue-100 text-blue-600 hover:text-blue-600'
-              : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900',
-          ]" :aria-label="`第 ${item.page} 頁`" :aria-current="item.page === currentPage ? 'page' : undefined"
-          @click.prevent="handlePageClick(item.page)">
+          :class="[item.page === currentPage ? 'bg-blue-100 text-blue-600 hover:text-blue-600' : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900']"
+          :aria-label="`第 ${item.page} 頁`"
+          :aria-current="item.page === currentPage ? 'page' : undefined"
+          @click.prevent="handlePageClick(item.page)"
+        >
           {{ item.page }}
         </component>
 
         <!-- 省略號 -->
-        <span v-else-if="item.type === 'ellipsis'"
-          class="flex items-center justify-center whitespace-nowrap border-r border-gray-300 bg-white px-3 py-1.5 text-center text-sm font-medium text-gray-500">
+        <span
+          v-else-if="item.type === 'ellipsis'"
+          class="flex items-center justify-center whitespace-nowrap border-r border-gray-300 bg-white px-3 py-1.5 text-center text-sm font-medium text-gray-500"
+        >
           ...
         </span>
       </template>
 
       <!-- 下一頁按鈕 -->
-      <component :is="nextTo ? 'router-link' : 'a'" :to="nextTo" :href="nextTo ? undefined : '#'"
+      <component
+        :is="nextTo ? 'router-link' : 'a'"
+        :to="nextTo"
+        :href="nextTo ? undefined : '#'"
         class="flex cursor-pointer items-center justify-center bg-white px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
         :class="[currentPage === totalPages ? 'pointer-events-none cursor-not-allowed opacity-50' : 'hover:bg-gray-50']"
-        :aria-label="nextLabel" :aria-disabled="currentPage === totalPages"
-        :tabindex="currentPage === totalPages ? -1 : 0" @click.prevent="handleNext">
+        :aria-label="nextLabel"
+        :aria-disabled="currentPage === totalPages"
+        :tabindex="currentPage === totalPages ? -1 : 0"
+        @click.prevent="handleNext"
+      >
         <span class="sr-only">{{ nextLabel }}</span>
-        <svg class="h-5 w-5 text-gray-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-          fill="none" viewBox="0 0 24 24">
-          <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-            d="m9 5 7 7-7 7" />
+        <svg class="h-5 w-5 text-gray-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+          <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m9 5 7 7-7 7" />
         </svg>
       </component>
     </div>
@@ -84,9 +96,7 @@ const emit = defineEmits<{
   next: [];
 }>();
 
-type PaginationItem =
-  | { type: "page"; page: number }
-  | { type: "ellipsis"; page?: never };
+type PaginationItem = { type: "page"; page: number } | { type: "ellipsis"; page?: never };
 
 // 類型守衛函數
 const isPageItem = (item: PaginationItem): item is { type: "page"; page: number } => {

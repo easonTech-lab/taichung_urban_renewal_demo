@@ -18,9 +18,7 @@
             <div class="h-7 w-1 rounded bg-primary-600"></div>
             <h2 class="text-2xl font-medium leading-6 text-gray-900">下載專區列表</h2>
           </div>
-          <ButtonCTA variant="outline" size="sm" left-icon="plus" @click="handleAddDownload">
-            新增資料下載
-          </ButtonCTA>
+          <ButtonCTA variant="outline" size="sm" left-icon="plus" @click="handleAddDownload"> 新增資料下載 </ButtonCTA>
         </div>
 
         <!-- Tabs -->
@@ -30,30 +28,26 @@
 
         <!-- Category Filter -->
         <div class="w-[160px]">
-          <Dropdown :button-text="selectedCategory || '全部案件類別'" :items="categoryOptions" variant="outline"
-            @item-click="handleCategoryChange" />
+          <Dropdown :button-text="selectedCategory || '全部案件類別'" :items="categoryOptions" variant="outline" @item-click="handleCategoryChange" />
         </div>
 
         <!-- Table -->
         <div class="rounded-lg border border-gray-300 bg-white">
-          <Table :columns="tableColumns" :rows="paginatedDownloads" :pagination="pagination"
-            @page-change="handlePageChange">
+          <Table :columns="tableColumns" :rows="paginatedDownloads" :pagination="pagination" @page-change="handlePageChange">
             <!-- Index -->
             <template #cell-index="{ rowIndex }">
               <p class="text-base text-gray-500">{{ (currentPage - 1) * pageSize + rowIndex + 1 }}</p>
             </template>
             <!-- Status -->
             <template #cell-status="{ row }">
-              <Switch :model-value="row.status" :show-text="true" on-text="上架" off-text="下架"
-                @update:model-value="(value) => handleStatusChange(row, value)" />
+              <Switch :model-value="row.status" :show-text="true" on-text="上架" off-text="下架" @update:model-value="(value) => handleStatusChange(row, value)" />
             </template>
 
             <!-- Action -->
             <template #cell-action="{ row }">
               <div class="flex items-center">
                 <ButtonCTA variant="textPlain" size="sm" @click.stop="handlePreview(row)">預覽</ButtonCTA>
-                <ButtonCTA variant="text" size="sm" icon-only left-icon="trashCan" @click.stop="handleDelete(row)"
-                  aria-label="刪除" />
+                <ButtonCTA variant="text" size="sm" icon-only left-icon="trashCan" @click.stop="handleDelete(row)" aria-label="刪除" />
               </div>
             </template>
           </Table>

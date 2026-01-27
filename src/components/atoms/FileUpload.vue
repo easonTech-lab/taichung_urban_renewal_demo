@@ -3,38 +3,35 @@
     <!-- Label -->
     <label v-if="showLabel && label" class="block text-base font-medium text-gray-900">
       {{ label }}
-      <span v-if="required" class="text-red-500 text-xs leading-none ml-1">*</span>
+      <span v-if="required" class="ml-1 text-xs leading-none text-red-500">*</span>
     </label>
     <div class="flex w-full flex-col gap-2">
       <!-- Upload Area -->
       <div
         class="flex h-[228px] w-full flex-col items-center justify-center rounded-lg border-2 border-dashed bg-gray-50"
-        :class="[
-          isDragging ? 'border-primary-500 bg-primary-50' : 'border-gray-200',
-        ]" @drop.prevent="handleDrop" @dragover.prevent="isDragging = true" @dragleave.prevent="isDragging = false">
+        :class="[isDragging ? 'border-primary-500 bg-primary-50' : 'border-gray-200']"
+        @drop.prevent="handleDrop"
+        @dragover.prevent="isDragging = true"
+        @dragleave.prevent="isDragging = false"
+      >
         <div class="flex flex-col items-center justify-center gap-4">
           <Icon name="uploadOutline" :size="24" class="h-6 w-6 text-gray-500" />
           <div class="flex flex-col items-center">
-            <p class="text-sm font-semibold text-gray-500">
-              點擊新增或拖曳檔案到此區塊
-            </p>
+            <p class="text-sm font-semibold text-gray-500">點擊新增或拖曳檔案到此區塊</p>
             <p class="text-xs font-medium text-gray-500">檔案大小勿超過{{ maxSize }}MB</p>
           </div>
           <!-- Upload Button -->
-          <ButtonCTA variant="primary" size="sm" left-icon="searchFile" @click="triggerFileInput">
-            從電腦新增
-          </ButtonCTA>
+          <ButtonCTA variant="primary" size="sm" left-icon="searchFile" @click="triggerFileInput"> 從電腦新增 </ButtonCTA>
         </div>
       </div>
       <!-- Hidden File Input -->
-      <input :id="inputId" ref="fileInputRef" type="file" :accept="accept" :multiple="multiple" class="hidden"
-        @change="handleFileChange" />
+      <input :id="inputId" ref="fileInputRef" type="file" :accept="accept" :multiple="multiple" class="hidden" @change="handleFileChange" />
 
       <!-- File List -->
       <div v-if="files.length > 0" class="flex flex-col gap-4">
         <div v-for="(file, index) in files" :key="index" class="flex items-center gap-2 rounded-lg">
           <Icon name="clip" :size="24" class="h-6 w-6 shrink-0 text-gray-900" />
-          <p class="flex-1 text-sm font-normal leading-[1.5] text-primary-900 whitespace-pre-wrap break-words">
+          <p class="flex-1 whitespace-pre-wrap break-words text-sm font-normal leading-[1.5] text-primary-900">
             {{ file.name }}
           </p>
           <button type="button" @click="handleRemoveFile(index)" class="shrink-0 leading-none" aria-label="刪除檔案">

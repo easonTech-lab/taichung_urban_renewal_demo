@@ -1,10 +1,5 @@
 <template>
-  <div
-    id="accordion-flush"
-    data-accordion="collapse"
-    data-active-classes="bg-gray-100 text-gray-900"
-    data-inactive-classes="text-gray-700"
-  >
+  <div id="accordion-flush" data-accordion="collapse" data-active-classes="bg-gray-100 text-gray-900" data-inactive-classes="text-gray-700">
     <template v-for="(item, index) in items" :key="index">
       <h2 :id="`accordion-flush-heading-${index}`">
         <button
@@ -17,21 +12,10 @@
           @click="toggle(index)"
         >
           <span>{{ item.title }}</span>
-          <Icon
-            name="arrowDown"
-            :size="20"
-            class="shrink-0 transition-transform"
-            :class="isOpen(index) ? 'rotate-180' : ''"
-            data-accordion-icon
-            aria-hidden="true"
-          />
+          <Icon name="arrowDown" :size="20" class="shrink-0 transition-transform" :class="isOpen(index) ? 'rotate-180' : ''" data-accordion-icon aria-hidden="true" />
         </button>
       </h2>
-      <div
-        :id="`accordion-flush-body-${index}`"
-        :class="isOpen(index) ? '' : 'hidden'"
-        :aria-labelledby="`accordion-flush-heading-${index}`"
-      >
+      <div :id="`accordion-flush-body-${index}`" :class="isOpen(index) ? '' : 'hidden'" :aria-labelledby="`accordion-flush-heading-${index}`">
         <div class="py-5 text-gray-700" :class="index < items.length - 1 ? 'border-b border-gray-300' : ''">
           <slot :name="`content-${index}`" :item="item">
             <div v-html="item.content"></div>

@@ -1,15 +1,17 @@
 <template>
-  <div class="p-8 space-y-4">
+  <div class="space-y-4 p-8">
     <!-- Modal toggle button -->
     <ButtonCTA variant="primary" @click="showModal = true">Toggle modal</ButtonCTA>
 
     <!-- 範例 1: 使用默認結構（title + body + footer） -->
     <Modal v-model="showModal" title="Static modal" :static="isStatic">
       <p class="leading-relaxed text-gray-700">
-        With less than a month to go before the European Union enacts new consumer privacy laws for its citizens, companies around the world are updating their terms of service agreements to comply.
+        With less than a month to go before the European Union enacts new consumer privacy laws for its citizens, companies around the world are updating their terms of service
+        agreements to comply.
       </p>
       <p class="leading-relaxed text-gray-700">
-        The European Union's General Data Protection Regulation (G.D.P.R.) goes into effect on May 25 and is meant to ensure a common set of data rights in the European Union. It requires organizations to notify users as soon as possible of high-risk data breaches that could personally affect them.
+        The European Union's General Data Protection Regulation (G.D.P.R.) goes into effect on May 25 and is meant to ensure a common set of data rights in the European Union. It
+        requires organizations to notify users as soon as possible of high-risk data breaches that could personally affect them.
       </p>
 
       <template #footer>

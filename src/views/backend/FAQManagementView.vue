@@ -31,16 +31,14 @@
           <Table :columns="tableColumns" :rows="paginatedFAQs" :pagination="pagination" @page-change="handlePageChange">
             <!-- Status -->
             <template #cell-status="{ row }">
-              <Switch :model-value="row.status" :show-text="true" on-text="上架" off-text="下架"
-                @update:model-value="(value) => handleStatusChange(row, value)" />
+              <Switch :model-value="row.status" :show-text="true" on-text="上架" off-text="下架" @update:model-value="(value) => handleStatusChange(row, value)" />
             </template>
 
             <!-- Action -->
             <template #cell-action="{ row }">
               <div class="flex items-center">
                 <ButtonCTA variant="textPlain" size="sm" @click.stop="handlePreview(row)"> 預覽 </ButtonCTA>
-                <ButtonCTA variant="text" size="sm" icon-only left-icon="trashCan" @click.stop="handleDelete(row)"
-                  aria-label="刪除" />
+                <ButtonCTA variant="text" size="sm" icon-only left-icon="trashCan" @click.stop="handleDelete(row)" aria-label="刪除" />
               </div>
             </template>
           </Table>

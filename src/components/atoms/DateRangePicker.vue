@@ -75,18 +75,7 @@ const props = withDefaults(
   }
 );
 
-const emit = defineEmits([
-  "update:modelValue",
-  "start-change",
-  "end-change",
-  "range-change",
-  "start-input",
-  "end-input",
-  "start-focus",
-  "end-focus",
-  "start-blur",
-  "end-blur",
-]);
+const emit = defineEmits(["update:modelValue", "start-change", "end-change", "range-change", "start-input", "end-input", "start-focus", "end-focus", "start-blur", "end-blur"]);
 
 const startDateRef = ref<HTMLInputElement | null>(null);
 const endDateRef = ref<HTMLInputElement | null>(null);

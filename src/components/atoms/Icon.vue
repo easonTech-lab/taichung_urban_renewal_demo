@@ -79,7 +79,7 @@ if (svgModules && typeof svgModules === "object") {
     if (svgIndex !== -1 && svgIndex < pathParts.length - 1) {
       const subPath = pathParts.slice(svgIndex + 1, -1).join("/");
       const fullPath = subPath ? `${subPath}/${fileName}` : fileName;
-      
+
       if (fileName && svgModules[path]) {
         // 支持完整路徑（例如：richtext/bold）
         svgMap.set(fullPath, svgModules[path]);
@@ -133,10 +133,7 @@ const loadSvg = () => {
   const rawSvg = loadSvgModule(props.name);
 
   if (!rawSvg) {
-    console.error(
-      `Failed to load icon: ${props.name}.svg`,
-      `Make sure the file exists in src/assets/svg/${props.name}.svg`
-    );
+    console.error(`Failed to load icon: ${props.name}.svg`, `Make sure the file exists in src/assets/svg/${props.name}.svg`);
     svgContent.value = "";
     return;
   }
@@ -179,14 +176,11 @@ const loadSvg = () => {
     if (props.fill === "none") {
       // 匹配所有沒有 fill 屬性的 SVG 元素（path, rect, circle 等）
       // 只處理沒有 fill 屬性的元素，避免覆蓋已有的 fill 值
-      processedHTML = processedHTML.replace(
-        /<(path|rect|circle|ellipse|polygon|polyline|line|g)(\s+)(?!.*\bfill=)([^>]*?)(\/?>)/g,
-        (match, tag, space1, attrs, closing) => {
-          // 添加 fill="none"，注意空格處理
-          const cleanAttrs = attrs.trim();
-          return `<${tag}${space1}fill="none"${cleanAttrs ? " " + cleanAttrs : ""}${closing}`;
-        }
-      );
+      processedHTML = processedHTML.replace(/<(path|rect|circle|ellipse|polygon|polyline|line|g)(\s+)(?!.*\bfill=)([^>]*?)(\/?>)/g, (match, tag, space1, attrs, closing) => {
+        // 添加 fill="none"，注意空格處理
+        const cleanAttrs = attrs.trim();
+        return `<${tag}${space1}fill="none"${cleanAttrs ? " " + cleanAttrs : ""}${closing}`;
+      });
     }
 
     // 調試信息（暫時保留，用於排查問題）

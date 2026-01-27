@@ -48,12 +48,8 @@
 
       <!-- Action Buttons -->
       <div class="flex items-center justify-center gap-4">
-        <ButtonCTA variant="outline" size="xl" @click="handleCancel">
-          取消
-        </ButtonCTA>
-        <ButtonCTA variant="primary" size="xl" @click="handleSave">
-          儲存
-        </ButtonCTA>
+        <ButtonCTA variant="outline" size="xl" @click="handleCancel"> 取消 </ButtonCTA>
+        <ButtonCTA variant="primary" size="xl" @click="handleSave"> 儲存 </ButtonCTA>
       </div>
     </div>
   </div>

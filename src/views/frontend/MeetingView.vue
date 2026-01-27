@@ -15,11 +15,16 @@
         <!-- Filters -->
         <div class="flex flex-wrap items-center gap-4">
           <!-- Stage Dropdown -->
-          <Dropdown :items="stageOptions" :button-text="selectedStageText" variant="outline"
-            @item-click="handleStageChange" />
+          <Dropdown :items="stageOptions" :button-text="selectedStageText" variant="outline" @item-click="handleStageChange" />
           <!-- Date Range Picker -->
-          <DateRangePicker v-model="dateRange" start-placeholder="選擇起始日期" end-placeholder="選擇結束日期" separator-text="-"
-            :container-class="'flex gap-2 items-center'" @range-change="handleDateRangeChange" />
+          <DateRangePicker
+            v-model="dateRange"
+            start-placeholder="選擇起始日期"
+            end-placeholder="選擇結束日期"
+            separator-text="-"
+            :container-class="'flex gap-2 items-center'"
+            @range-change="handleDateRangeChange"
+          />
           <!-- Search Button -->
           <ButtonCTA variant="primary" @click="handleSearch" class="h-[40px] px-5 py-2.5"> 搜尋 </ButtonCTA>
         </div>
@@ -44,11 +49,12 @@
           </template>
           <!-- Action Column -->
           <template #cell-action="{ row }">
-            <button @click="handleDownload(row)"
+            <button
+              @click="handleDownload(row)"
               class="flex h-10 items-center gap-2 rounded-lg px-0 py-2 transition-opacity hover:opacity-80 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
-              :aria-label="`下載檔案：${row.agenda}`">
-              <span class="font-['Noto_Sans_TC:Medium',sans-serif] text-sm font-medium text-[#1a56db] underline"> 下載檔案
-              </span>
+              :aria-label="`下載檔案：${row.agenda}`"
+            >
+              <span class="font-['Noto_Sans_TC:Medium',sans-serif] text-sm font-medium text-[#1a56db] underline"> 下載檔案 </span>
               <Icon name="download" class="h-6 w-6" color="#1a56db" aria-hidden="true" />
             </button>
           </template>
@@ -91,7 +97,6 @@ const props = withDefaults(
     pageSize: 10,
   }
 );
-
 
 // Tabs
 const activeTab = ref(0);

@@ -6,10 +6,10 @@
       :id="modalId"
       tabindex="-1"
       aria-hidden="true"
-      class="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto overflow-x-hidden bg-black/50 p-4 md:inset-0 h-[calc(100%-1rem)] max-h-full"
+      class="fixed inset-0 z-50 flex h-[calc(100%-1rem)] max-h-full items-center justify-center overflow-y-auto overflow-x-hidden bg-black/50 p-4 md:inset-0"
       @click.self="handleBackdropClick"
     >
-      <div class="relative w-full max-h-full" :class="sizeClasses">
+      <div class="relative max-h-full w-full" :class="sizeClasses">
         <!-- Modal content -->
         <div class="relative rounded-lg border border-gray-200 bg-white shadow-sm">
           <!-- Modal header -->

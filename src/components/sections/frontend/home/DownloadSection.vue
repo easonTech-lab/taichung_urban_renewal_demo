@@ -23,11 +23,7 @@
 
         <!-- Right Items -->
         <div class="grid w-full flex-1 grid-cols-1 gap-6 md:grid-cols-3">
-          <DownloadItem
-            category="都市更新類"
-            title="本處辦理「114年度老屋新用計畫2.0」潭子區老屋第2次進駐者徵選，入選結果公告"
-            date="2025/07/03"
-          />
+          <DownloadItem category="都市更新類" title="本處辦理「114年度老屋新用計畫2.0」潭子區老屋第2次進駐者徵選，入選結果公告" date="2025/07/03" />
           <DownloadItem category="危老類" title="114年度臺北市補助老屋增設電梯申請專區" date="2025/07/03" />
           <DownloadItem
             category="老舊街區"

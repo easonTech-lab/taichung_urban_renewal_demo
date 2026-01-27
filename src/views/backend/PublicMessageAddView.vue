@@ -29,10 +29,17 @@
           <!-- Category Selection -->
           <RadioGroup label="類別" required>
             <template #radios>
-              <Radio v-for="category in categoryOptions" :key="category.value" :model-value="formData.category"
-                :value="category.value" :label="category.label" name="category"
-                container-class="flex items-center gap-2" label-class="text-sm font-medium text-gray-900"
-                @update:model-value="(value) => (formData.category = value as string)" />
+              <Radio
+                v-for="category in categoryOptions"
+                :key="category.value"
+                :model-value="formData.category"
+                :value="category.value"
+                :label="category.label"
+                name="category"
+                container-class="flex items-center gap-2"
+                label-class="text-sm font-medium text-gray-900"
+                @update:model-value="(value) => (formData.category = value as string)"
+              />
             </template>
           </RadioGroup>
 
@@ -40,13 +47,12 @@
           <RichTextEditor v-model="formData.content" label="內容(限200字)" placeholder="文字輸入" required :maxlength="200" />
 
           <!-- File Upload -->
-          <FileUpload v-model="formData.files" label="檔案上傳" :max-size="10" multiple required
-            @file-error="handleFileError" />
+          <FileUpload v-model="formData.files" label="檔案上傳" :max-size="10" multiple required @file-error="handleFileError" />
         </div>
       </div>
 
       <!-- Action Buttons -->
-      <div class="flex items-center gap-4 justify-center">
+      <div class="flex items-center justify-center gap-4">
         <ButtonCTA variant="outline" size="l" @click="handleSaveDraft">暫存</ButtonCTA>
         <ButtonCTA variant="gray" size="l" @click="handlePublish">發布</ButtonCTA>
       </div>

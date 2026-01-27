@@ -13,12 +13,7 @@
       @change="handleChange"
       v-bind="$attrs"
     />
-    <label
-      v-if="label && !$slots.default"
-      :for="inputId"
-      class="select-none text-sm font-medium text-gray-900"
-      :class="labelClass"
-    >
+    <label v-if="label && !$slots.default" :for="inputId" class="select-none text-sm font-medium text-gray-900" :class="labelClass">
       {{ label }}
     </label>
     <div v-if="$slots.default" :class="labelClass">

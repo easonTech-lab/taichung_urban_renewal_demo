@@ -38,14 +38,7 @@
         </button>
       </div>
       <!-- 搜尋按鈕 -->
-      <ButtonCTA
-        type="submit"
-        :variant="buttonVariant"
-        :class="buttonClass"
-        :disabled="disabled"
-        :aria-label="buttonAriaLabel || ariaLabel"
-        @click="handleSubmit"
-      >
+      <ButtonCTA type="submit" :variant="buttonVariant" :class="buttonClass" :disabled="disabled" :aria-label="buttonAriaLabel || ariaLabel" @click="handleSubmit">
         {{ buttonText }}
       </ButtonCTA>
     </form>

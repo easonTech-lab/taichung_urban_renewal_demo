@@ -25,28 +25,34 @@
                 <h2 class="text-2xl font-medium leading-6 text-gray-900">{{ isAdmin ? "案件列表" : "危老重建案件" }}</h2>
               </div>
             </div>
-            <ButtonDropdown button-text="新增案件" :items="addCaseOptions" button-variant="outline" button-size="sm"
-              left-icon="plus" :selected-index="selectedAddCaseIndex" menu-width="w-[412px]" :showRightIcon="false"
-              align="right" @item-click="handleAddCaseOption" />
+            <ButtonDropdown
+              button-text="新增案件"
+              :items="addCaseOptions"
+              button-variant="outline"
+              button-size="sm"
+              left-icon="plus"
+              :selected-index="selectedAddCaseIndex"
+              menu-width="w-[412px]"
+              :showRightIcon="false"
+              align="right"
+              @item-click="handleAddCaseOption"
+            />
           </div>
 
           <!-- Filters -->
           <div class="flex items-center gap-4">
             <div class="w-40">
-              <Dropdown :button-text="selectedStage || '全部案件階段'" :items="stageOptions" variant="outline"
-                @item-click="handleStageChange" />
+              <Dropdown :button-text="selectedStage || '全部案件階段'" :items="stageOptions" variant="outline" @item-click="handleStageChange" />
             </div>
             <div class="w-40">
-              <Dropdown :button-text="selectedStatus || '全部案件狀態'" :items="statusOptions" variant="outline"
-                @item-click="handleStatusChange" />
+              <Dropdown :button-text="selectedStatus || '全部案件狀態'" :items="statusOptions" variant="outline" @item-click="handleStatusChange" />
             </div>
           </div>
         </div>
         <!-- Table or Empty State -->
         <div class="rounded-lg border border-gray-300 bg-white">
           <Empty v-if="filteredCases.length === 0" type="case-management" @button-click="handleEmptyStateAddCase" />
-          <Table v-else :columns="tableColumns" :rows="paginatedCases" :pagination="pagination"
-            @page-change="handlePageChange">
+          <Table v-else :columns="tableColumns" :rows="paginatedCases" :pagination="pagination" @page-change="handlePageChange">
             <!-- 動態生成簡單欄位的 slots -->
             <template v-for="column in simpleColumns" :key="column.key" #[`cell-${column.key}`]="{ row }">
               <p :class="column.textClass">{{ row[column.key] }}</p>

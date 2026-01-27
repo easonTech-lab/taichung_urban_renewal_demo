@@ -4,26 +4,24 @@
       <div class="flex w-full items-center gap-8">
         <router-link to="/" aria-label="回首頁 - 臺中市都市更新" class="flex items-center">
           <img src="/logo.png" alt="臺中市都市更新" class="h-auto w-auto" aria-hidden="true" />
-              <span class="sr-only">回首頁</span>
-            </router-link>
+          <span class="sr-only">回首頁</span>
+        </router-link>
         <div class="hidden items-center gap-8 md:flex">
           <router-link v-for="navRoute in navRoutes" :key="navRoute.path" :to="navRoute.path" :class="navLinkClass">
             {{ navRoute.label }}
           </router-link>
         </div>
-          </div>
+      </div>
       <div v-if="isLoggedIn" class="flex items-center gap-4">
         <div class="flex items-center gap-2">
           <div class="flex h-8 w-8 items-center justify-center rounded-full bg-gray-100">
             <span class="text-xs font-medium text-gray-900">{{ userInitial }}</span>
           </div>
-          <span class="text-base font-normal leading-normal text-gray-900 text-nowrap">{{ userName }}</span>
+          <span class="text-nowrap text-base font-normal leading-normal text-gray-900">{{ userName }}</span>
         </div>
         <div class="h-8 w-px bg-gray-200"></div>
-        <button type="button" class="text-nowrap text-base font-normal leading-normal text-primary-600 hover:text-primary-700" @click="handleLogout">
-          登出
-        </button>
-        </div>
+        <button type="button" class="text-nowrap text-base font-normal leading-normal text-primary-600 hover:text-primary-700" @click="handleLogout">登出</button>
+      </div>
       <div v-else class="flex items-center gap-3 text-nowrap">
         <ButtonCTA href="/login" variant="none" aria-label="登入系統">登入</ButtonCTA>
         <ButtonCTA href="/register" variant="primary" aria-label="申請案件">案件申請</ButtonCTA>

@@ -37,24 +37,13 @@
             />
           </div>
           <div class="flex h-[49px] w-[125px] items-center justify-center rounded bg-gray-200">
-            <img
-              :src="captchaImageUrl"
-              alt="驗證碼圖片，請輸入圖片中顯示的文字或數字"
-              class="h-full w-full rounded object-cover"
-              aria-label="驗證碼圖片"
-            />
+            <img :src="captchaImageUrl" alt="驗證碼圖片，請輸入圖片中顯示的文字或數字" class="h-full w-full rounded object-cover" aria-label="驗證碼圖片" />
           </div>
         </div>
       </form>
       <div class="flex w-[240px] flex-col items-center gap-6">
         <ButtonCTA :disabled="!isFormValid" variant="primary" type="button" class="w-full" @click="handleLogin">登入</ButtonCTA>
-        <a
-          href="#"
-          class="w-full text-center text-base font-medium leading-normal text-primary-700 hover:underline"
-          @click.prevent="handleForgotPassword"
-        >
-          忘記密碼
-        </a>
+        <a href="#" class="w-full text-center text-base font-medium leading-normal text-primary-700 hover:underline" @click.prevent="handleForgotPassword"> 忘記密碼 </a>
       </div>
     </div>
   </div>
@@ -125,22 +114,25 @@ const handleLogin = () => {
 
   // 驗證帳密
   const user = mockUsers.find((u) => u.username === formData.value.username && u.password === formData.value.password);
-          if (user) {
-            // 登入成功，存儲用戶信息和角色
-            const isAdmin = user.username === "adm";
-            localStorage.setItem("userInfo", JSON.stringify({ 
-              username: user.username,
-              role: isAdmin ? "admin" : "user"
-            }));
-            // 觸發自定義事件，通知 Navbar 更新
-            window.dispatchEvent(new Event("login-status-changed"));
-            // user 帳號跳轉到案件管理頁面，adm 帳號跳轉到都市更新案件管理
-            if (user.username === "user") {
-              router.push("/case-management");
-            } else {
-              router.push("/case-management-admin");
-            }
-          } else {
+  if (user) {
+    // 登入成功，存儲用戶信息和角色
+    const isAdmin = user.username === "adm";
+    localStorage.setItem(
+      "userInfo",
+      JSON.stringify({
+        username: user.username,
+        role: isAdmin ? "admin" : "user",
+      })
+    );
+    // 觸發自定義事件，通知 Navbar 更新
+    window.dispatchEvent(new Event("login-status-changed"));
+    // user 帳號跳轉到案件管理頁面，adm 帳號跳轉到都市更新案件管理
+    if (user.username === "user") {
+      router.push("/case-management");
+    } else {
+      router.push("/case-management-admin");
+    }
+  } else {
     // 登入失敗 - 顯示錯誤訊息
     console.error("登入失敗：帳號或密碼錯誤");
     setError("username", "帳號或密碼錯誤");

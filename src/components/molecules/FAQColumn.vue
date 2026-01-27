@@ -1,9 +1,7 @@
 <template>
   <div class="flex w-full flex-col overflow-hidden rounded-bl-lg rounded-br-lg shadow-sm">
     <!-- Header -->
-    <div
-      class="flex h-[54px] w-full items-center justify-center rounded-tl-card rounded-tr-card bg-[#3f83f8] px-0 py-3"
-    >
+    <div class="flex h-[54px] w-full items-center justify-center rounded-tl-card rounded-tr-card bg-[#3f83f8] px-0 py-3">
       <h3 class="text-center text-xl font-bold leading-normal text-white">
         {{ title }}
       </h3>

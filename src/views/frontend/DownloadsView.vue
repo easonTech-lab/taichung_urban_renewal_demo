@@ -16,14 +16,7 @@
         </div>
         <!-- Search Input -->
         <div class="w-[364px]">
-          <SearchInput
-            v-model="searchQuery"
-            placeholder="搜尋"
-            button-text="搜尋"
-            input-variant="gray"
-            container-class="mb-0"
-            @submit="handleSearch"
-          />
+          <SearchInput v-model="searchQuery" placeholder="搜尋" button-text="搜尋" input-variant="gray" container-class="mb-0" @submit="handleSearch" />
         </div>
       </div>
       <!-- Table -->
@@ -145,13 +138,7 @@ const mockData: DownloadItem[] = [
 const allData = Array.from({ length: 100 }, () => mockData).flat();
 
 // Category Dropdown
-const categoryItems: DropdownItem[] = [
-  { label: "全部案件類別" },
-  { label: "都市更新類" },
-  { label: "危老類" },
-  { label: "老舊街區" },
-  { label: "整建維護" },
-];
+const categoryItems: DropdownItem[] = [{ label: "全部案件類別" }, { label: "都市更新類" }, { label: "危老類" }, { label: "老舊街區" }, { label: "整建維護" }];
 
 // State
 const selectedCategory = ref<string>("");

@@ -1,31 +1,18 @@
 <template>
   <nav class="flex" aria-label="Breadcrumb">
     <ol class="inline-flex items-center space-x-1 md:space-x-2">
-      <li
-        v-for="(item, index) in breadcrumbItems"
-        :key="index"
-        class="inline-flex items-center"
-        :aria-current="index === breadcrumbItems.length - 1 ? 'page' : undefined"
-      >
+      <li v-for="(item, index) in breadcrumbItems" :key="index" class="inline-flex items-center" :aria-current="index === breadcrumbItems.length - 1 ? 'page' : undefined">
         <!-- 分隔符（除了第一個項目） -->
         <div v-if="index > 0" class="mx-1.5 flex items-center">
           <Icon name="arrowRight" :size="14" class="text-gray-500" aria-hidden="true" />
         </div>
         <!-- 第一個項目（首頁，有圖標） -->
         <template v-if="index === 0">
-          <router-link
-            v-if="item.to"
-            :to="item.to"
-            class="inline-flex items-center text-sm font-medium text-gray-700 transition-colors hover:text-primary-600"
-          >
+          <router-link v-if="item.to" :to="item.to" class="inline-flex items-center text-sm font-medium text-gray-700 transition-colors hover:text-primary-600">
             <Icon name="home" :size="16" class="mr-1.5 text-gray-500" aria-hidden="true" />
             {{ item.label }}
           </router-link>
-          <a
-            v-else-if="item.href"
-            :href="item.href"
-            class="inline-flex items-center text-sm font-medium text-gray-700 transition-colors hover:text-primary-600"
-          >
+          <a v-else-if="item.href" :href="item.href" class="inline-flex items-center text-sm font-medium text-gray-700 transition-colors hover:text-primary-600">
             <Icon name="home" :size="16" class="mr-1.5 text-gray-500" aria-hidden="true" />
             {{ item.label }}
           </a>
@@ -36,18 +23,10 @@
         </template>
         <!-- 中間項目（可點擊連結） -->
         <template v-else-if="index < breadcrumbItems.length - 1">
-          <router-link
-            v-if="item.to"
-            :to="item.to"
-            class="inline-flex items-center text-sm font-medium text-gray-700 transition-colors hover:text-primary-600"
-          >
+          <router-link v-if="item.to" :to="item.to" class="inline-flex items-center text-sm font-medium text-gray-700 transition-colors hover:text-primary-600">
             {{ item.label }}
           </router-link>
-          <a
-            v-else-if="item.href"
-            :href="item.href"
-            class="inline-flex items-center text-sm font-medium text-gray-700 transition-colors hover:text-primary-600"
-          >
+          <a v-else-if="item.href" :href="item.href" class="inline-flex items-center text-sm font-medium text-gray-700 transition-colors hover:text-primary-600">
             {{ item.label }}
           </a>
           <span v-else class="inline-flex items-center text-sm font-medium text-gray-700">

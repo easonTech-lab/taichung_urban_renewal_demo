@@ -55,15 +55,7 @@
         <!-- Table or Empty State -->
         <div class="rounded-lg border border-gray-300 bg-white">
           <Empty v-if="filteredCases.length === 0" type="case-management" @button-click="handleEmptyStateAddCase" />
-          <Table
-            v-else
-            :columns="tableColumns"
-            :rows="paginatedCases"
-            :pagination="pagination"
-            :row-clickable="true"
-            @page-change="handlePageChange"
-            @row-click="handleRowClick"
-          >
+          <Table v-else :columns="tableColumns" :rows="paginatedCases" :pagination="pagination" :row-clickable="true" @page-change="handlePageChange" @row-click="handleRowClick">
             <!-- Case Status -->
             <template #cell-caseStatus="{ row }">
               <Badge :variant="getStatusVariant(row.caseStatus)" :text="row.caseStatus" />
@@ -211,15 +203,11 @@ const tableColumns: TableColumn[] = [
 
 // Filtered Cases
 const filteredCases = computed(() => {
-  // ✅ 全不選 → 空結果
   if (selectedStages.value.length === 0) {
     return [];
   }
-  return allCases.filter((item) =>
-    selectedStages.value.includes(item.caseStage)
-  );
+  return allCases.filter((item) => selectedStages.value.includes(item.caseStage));
 });
-
 
 // 注意：排序和分頁現在由 Table 組件內部處理，所以這裡直接傳遞所有過濾後的數據
 const paginatedCases = computed(() => {

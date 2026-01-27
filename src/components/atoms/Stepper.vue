@@ -1,20 +1,8 @@
 <template>
   <ol class="relative border-l border-gray-300">
-    <li
-      v-for="(step, index) in steps"
-      :key="index"
-      :class="[
-        'mb-10 ms-7',
-        index === steps.length - 1 ? '' : '',
-      ]"
-    >
+    <li v-for="(step, index) in steps" :key="index" :class="['mb-10 ms-7', index === steps.length - 1 ? '' : '']">
       <!-- Step Icon -->
-      <span
-        :class="[
-          'absolute flex items-center justify-center w-8 h-8 rounded-full -start-4 ring-4 ring-white',
-          getStepIconClass(step.status),
-        ]"
-      >
+      <span :class="['absolute -start-4 flex h-8 w-8 items-center justify-center rounded-full ring-4 ring-white', getStepIconClass(step.status)]">
         <slot :name="`icon-${index}`" :step="step" :index="index">
           <Icon v-if="step.icon" :name="step.icon" :size="20" :color="getIconColor(step.status)" />
         </slot>
@@ -23,12 +11,7 @@
       <!-- Step Content -->
       <div>
         <!-- Step Header (Clickable if accordion mode) -->
-        <button
-          v-if="accordionMode"
-          type="button"
-          class="w-full text-left"
-          @click="toggleStep(index)"
-        >
+        <button v-if="accordionMode" type="button" class="w-full text-left" @click="toggleStep(index)">
           <h3 :class="['font-medium leading-tight', getStepTitleClass(step.status)]">
             {{ step.title }}
           </h3>
@@ -46,23 +29,11 @@
         </div>
 
         <!-- Accordion Content (Expandable) -->
-        <div
-          v-if="accordionMode && isStepExpanded(index) && step.children"
-          class="mt-4 ml-4 border-l-2 border-gray-300 pl-4"
-        >
+        <div v-if="accordionMode && isStepExpanded(index) && step.children" class="ml-4 mt-4 border-l-2 border-gray-300 pl-4">
           <slot :name="`content-${index}`" :step="step" :index="index">
             <div v-if="step.children && step.children.length > 0" class="space-y-4">
-              <div
-                v-for="(child, childIndex) in step.children"
-                :key="childIndex"
-                class="flex items-center gap-3"
-              >
-                <div
-                  :class="[
-                    'flex h-4 w-4 items-center justify-center rounded-full',
-                    getChildStepIconClass(child.status),
-                  ]"
-                >
+              <div v-for="(child, childIndex) in step.children" :key="childIndex" class="flex items-center gap-3">
+                <div :class="['flex h-4 w-4 items-center justify-center rounded-full', getChildStepIconClass(child.status)]">
                   <slot :name="`child-icon-${index}-${childIndex}`" :child="child" :parent-index="index" :child-index="childIndex">
                     <Icon v-if="child.icon" :name="child.icon" :size="12" :color="getIconColor(child.status)" />
                   </slot>
@@ -122,18 +93,18 @@ const expandedSteps = ref<Set<number>>(new Set());
 const toggleStep = (index: number) => {
   const step = props.steps[index];
   const isExpanded = expandedSteps.value.has(index);
-  
+
   if (isExpanded) {
     expandedSteps.value.delete(index);
   } else {
     expandedSteps.value.add(index);
   }
-  
+
   // 更新 step 的 expanded 狀態（如果 step 是響應式的）
   if (step) {
     step.expanded = !isExpanded;
   }
-  
+
   emit("step-toggle", index, !isExpanded);
 };
 

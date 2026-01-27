@@ -1,8 +1,11 @@
 <template>
   <!-- Mobile Toggle Button -->
-  <button type="button"
-    class="fixed top-[73px] left-3 z-[70] inline-flex items-center justify-center rounded-lg p-2 text-gray-900 bg-white border border-gray-300 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary-500 sm:hidden"
-    @click="toggleSidebar" aria-label="開啟側邊欄">
+  <button
+    type="button"
+    class="fixed left-3 top-[73px] z-[70] inline-flex items-center justify-center rounded-lg border border-gray-300 bg-white p-2 text-gray-900 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary-500 sm:hidden"
+    @click="toggleSidebar"
+    aria-label="開啟側邊欄"
+  >
     <Icon name="menu" :size="24" />
   </button>
 
@@ -10,26 +13,35 @@
   <div v-if="isSidebarOpen" class="fixed inset-0 z-[60] bg-gray-600/80 sm:hidden" @click="closeSidebar"></div>
 
   <!-- Sidebar -->
-  <aside :id="sidebarId" :class="[
-    'fixed left-0 z-[60] w-[328px] bg-white opacity-80 transition-transform duration-300 ease-in-out',
-    isSidebarOpen ? 'translate-x-0' : '-translate-x-full',
-    'sm:translate-x-0',
-    'top-0 h-screen sm:top-[73px] sm:h-[calc(100vh-73px)]'
-  ]" aria-label="側邊欄">
+  <aside
+    :id="sidebarId"
+    :class="[
+      'fixed left-0 z-[60] w-[328px] bg-white opacity-80 transition-transform duration-300 ease-in-out',
+      isSidebarOpen ? 'translate-x-0' : '-translate-x-full',
+      'sm:translate-x-0',
+      'top-0 h-screen sm:top-[73px] sm:h-[calc(100vh-73px)]',
+    ]"
+    aria-label="側邊欄"
+  >
     <div class="flex h-full w-full flex-col gap-4 overflow-y-auto px-3 py-4">
       <!-- Close Button (Mobile Only) -->
-      <button type="button"
-        class="self-end rounded-lg p-2 text-gray-500 hover:bg-gray-100 hover:text-gray-900 sm:hidden"
-        @click="closeSidebar" aria-label="關閉側邊欄">
+      <button type="button" class="self-end rounded-lg p-2 text-gray-500 hover:bg-gray-100 hover:text-gray-900 sm:hidden" @click="closeSidebar" aria-label="關閉側邊欄">
         <Icon name="close" :size="20" />
       </button>
 
       <!-- Menu Items -->
       <div class="flex flex-1 flex-col gap-4">
-        <SidebarAccordion v-for="(menuItem, index) in menuItems" :key="index" :title="menuItem.title"
-          :icon="menuItem.icon" :sub-items="menuItem.subItems" :expanded="expandedIndex === index"
-          :selected-item="selectedItem" @toggle="handleAccordionToggle(index, $event)"
-          @sub-item-click="handleSubItemClick" />
+        <SidebarAccordion
+          v-for="(menuItem, index) in menuItems"
+          :key="index"
+          :title="menuItem.title"
+          :icon="menuItem.icon"
+          :sub-items="menuItem.subItems"
+          :expanded="expandedIndex === index"
+          :selected-item="selectedItem"
+          @toggle="handleAccordionToggle(index, $event)"
+          @sub-item-click="handleSubItemClick"
+        />
       </div>
     </div>
   </aside>

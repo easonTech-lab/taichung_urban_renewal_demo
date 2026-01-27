@@ -11,9 +11,7 @@
             </div>
           </div>
           <!-- 分隔線 -->
-          <div
-            class="absolute bottom-0 left-1/2 top-0 hidden w-px -translate-x-1/2 transform bg-gray-300 md:block"
-          ></div>
+          <div class="absolute bottom-0 left-1/2 top-0 hidden w-px -translate-x-1/2 transform bg-gray-300 md:block"></div>
           <!-- 危老案件 -->
           <div class="flex items-center justify-between gap-4">
             <StatCard title="危老案件" :count="103" />

@@ -1,9 +1,9 @@
 <template>
   <div class="inline-flex flex-col items-start gap-2" :class="[containerClass || 'w-full']">
     <!-- Label -->
-    <label v-if="showLabel && label" class="text-base font-medium text-gray-900 relative inline-block">
+    <label v-if="showLabel && label" class="relative inline-block text-base font-medium text-gray-900">
       {{ label }}
-      <span v-if="required" class="text-red-500 text-xs leading-none absolute -top-1 -right-2">*</span>
+      <span v-if="required" class="absolute -right-2 -top-1 text-xs leading-none text-red-500">*</span>
     </label>
     <div class="w-full rounded-lg border border-gray-300 bg-gray-50">
       <!-- Toolbar -->
@@ -12,140 +12,150 @@
         <div class="flex flex-wrap items-center">
           <div class="flex flex-wrap items-center space-x-1 rtl:space-x-reverse">
             <!-- Bold -->
-            <button type="button" :class="[
-              'p-1.5 rounded-sm cursor-pointer transition-colors',
-              editor?.isActive('bold')
-                ? 'text-gray-900 bg-gray-100'
-                : 'text-gray-500 hover:text-gray-900 hover:bg-gray-100',
-            ]" @click="editor?.chain().focus().toggleBold().run()">
+            <button
+              type="button"
+              :class="[
+                'cursor-pointer rounded-sm p-1.5 transition-colors',
+                editor?.isActive('bold') ? 'bg-gray-100 text-gray-900' : 'text-gray-500 hover:bg-gray-100 hover:text-gray-900',
+              ]"
+              @click="editor?.chain().focus().toggleBold().run()"
+            >
               <Icon name="richtext/bold" :size="20" class="h-5 w-5" />
               <span class="sr-only">Bold</span>
             </button>
 
             <!-- Italic -->
-            <button type="button" :class="[
-              'p-1.5 rounded-sm cursor-pointer transition-colors',
-              editor?.isActive('italic')
-                ? 'text-gray-900 bg-gray-100'
-                : 'text-gray-500 hover:text-gray-900 hover:bg-gray-100',
-            ]" @click="editor?.chain().focus().toggleItalic().run()">
+            <button
+              type="button"
+              :class="[
+                'cursor-pointer rounded-sm p-1.5 transition-colors',
+                editor?.isActive('italic') ? 'bg-gray-100 text-gray-900' : 'text-gray-500 hover:bg-gray-100 hover:text-gray-900',
+              ]"
+              @click="editor?.chain().focus().toggleItalic().run()"
+            >
               <Icon name="richtext/italic" :size="20" class="h-5 w-5" />
               <span class="sr-only">Italic</span>
             </button>
 
             <!-- Underline -->
-            <button type="button" :class="[
-              'p-1.5 rounded-sm cursor-pointer transition-colors',
-              editor?.isActive('underline')
-                ? 'text-gray-900 bg-gray-100'
-                : 'text-gray-500 hover:text-gray-900 hover:bg-gray-100',
-            ]" @click="editor?.chain().focus().toggleUnderline().run()">
+            <button
+              type="button"
+              :class="[
+                'cursor-pointer rounded-sm p-1.5 transition-colors',
+                editor?.isActive('underline') ? 'bg-gray-100 text-gray-900' : 'text-gray-500 hover:bg-gray-100 hover:text-gray-900',
+              ]"
+              @click="editor?.chain().focus().toggleUnderline().run()"
+            >
               <Icon name="richtext/underline" :size="20" class="h-5 w-5" />
               <span class="sr-only">Underline</span>
             </button>
 
             <!-- Strike -->
-            <button type="button" :class="[
-              'p-1.5 rounded-sm cursor-pointer transition-colors',
-              editor?.isActive('strike')
-                ? 'text-gray-900 bg-gray-100'
-                : 'text-gray-500 hover:text-gray-900 hover:bg-gray-100',
-            ]" @click="editor?.chain().focus().toggleStrike().run()">
+            <button
+              type="button"
+              :class="[
+                'cursor-pointer rounded-sm p-1.5 transition-colors',
+                editor?.isActive('strike') ? 'bg-gray-100 text-gray-900' : 'text-gray-500 hover:bg-gray-100 hover:text-gray-900',
+              ]"
+              @click="editor?.chain().focus().toggleStrike().run()"
+            >
               <Icon name="richtext/strike" :size="20" class="h-5 w-5" />
               <span class="sr-only">Strike</span>
             </button>
 
             <!-- Highlight -->
-            <button type="button" :class="[
-              'p-1.5 rounded-sm cursor-pointer transition-colors',
-              editor?.isActive('highlight')
-                ? 'text-gray-900 bg-gray-100'
-                : 'text-gray-500 hover:text-gray-900 hover:bg-gray-100',
-            ]" @click="editor?.chain().focus().toggleHighlight().run()">
+            <button
+              type="button"
+              :class="[
+                'cursor-pointer rounded-sm p-1.5 transition-colors',
+                editor?.isActive('highlight') ? 'bg-gray-100 text-gray-900' : 'text-gray-500 hover:bg-gray-100 hover:text-gray-900',
+              ]"
+              @click="editor?.chain().focus().toggleHighlight().run()"
+            >
               <Icon name="richtext/highlight" :size="20" class="h-5 w-5" />
               <span class="sr-only">Highlight</span>
             </button>
 
             <!-- Code -->
-            <button type="button" :class="[
-              'p-1.5 rounded-sm cursor-pointer transition-colors',
-              editor?.isActive('code')
-                ? 'text-gray-900 bg-gray-100'
-                : 'text-gray-500 hover:text-gray-900 hover:bg-gray-100',
-            ]" @click="editor?.chain().focus().toggleCode().run()">
+            <button
+              type="button"
+              :class="[
+                'cursor-pointer rounded-sm p-1.5 transition-colors',
+                editor?.isActive('code') ? 'bg-gray-100 text-gray-900' : 'text-gray-500 hover:bg-gray-100 hover:text-gray-900',
+              ]"
+              @click="editor?.chain().focus().toggleCode().run()"
+            >
               <Icon name="richtext/code" :size="20" class="h-5 w-5" />
               <span class="sr-only">Code</span>
             </button>
 
             <!-- Link -->
-            <button type="button" :class="[
-              'p-1.5 rounded-sm cursor-pointer transition-colors',
-              editor?.isActive('link')
-                ? 'text-gray-900 bg-gray-100'
-                : 'text-gray-500 hover:text-gray-900 hover:bg-gray-100',
-            ]" @click="setLink">
+            <button
+              type="button"
+              :class="[
+                'cursor-pointer rounded-sm p-1.5 transition-colors',
+                editor?.isActive('link') ? 'bg-gray-100 text-gray-900' : 'text-gray-500 hover:bg-gray-100 hover:text-gray-900',
+              ]"
+              @click="setLink"
+            >
               <Icon name="richtext/link" :size="20" class="h-5 w-5" />
               <span class="sr-only">Link</span>
             </button>
 
             <!-- Remove Link -->
-            <button v-if="editor?.isActive('link')" type="button"
-              class="p-1.5 rounded-sm cursor-pointer text-gray-500 transition-colors hover:text-gray-900 hover:bg-gray-100"
-              @click="editor?.chain().focus().unsetLink().run()">
+            <button
+              v-if="editor?.isActive('link')"
+              type="button"
+              class="cursor-pointer rounded-sm p-1.5 text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-900"
+              @click="editor?.chain().focus().unsetLink().run()"
+            >
               <Icon name="richtext/linkRemove" :size="20" class="h-5 w-5" />
               <span class="sr-only">Remove link</span>
             </button>
 
             <!-- Text Size Dropdown -->
             <div class="relative">
-              <button type="button"
-                class="p-1.5 rounded-sm cursor-pointer text-gray-500 transition-colors hover:text-gray-900 hover:bg-gray-100"
-                @click="showTextSizeDropdown = !showTextSizeDropdown">
+              <button
+                type="button"
+                class="cursor-pointer rounded-sm p-1.5 text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-900"
+                @click="showTextSizeDropdown = !showTextSizeDropdown"
+              >
                 <Icon name="richtext/textSize" :size="20" class="h-5 w-5" />
                 <span class="sr-only">Text size</span>
               </button>
-              <div v-if="showTextSizeDropdown" v-click-outside="() => (showTextSizeDropdown = false)"
-                class="absolute z-10 mt-1 w-72 rounded-lg border border-gray-300 bg-white shadow-lg">
+              <div
+                v-if="showTextSizeDropdown"
+                v-click-outside="() => (showTextSizeDropdown = false)"
+                class="absolute z-10 mt-1 w-72 rounded-lg border border-gray-300 bg-white shadow-lg"
+              >
                 <ul class="space-y-1 p-2 text-sm font-medium text-gray-500">
                   <li>
-                    <button type="button"
-                      class="inline-flex w-full items-center rounded p-2 hover:bg-gray-100 hover:text-gray-900"
-                      @click="setFontSize('16px')">
+                    <button type="button" class="inline-flex w-full items-center rounded p-2 hover:bg-gray-100 hover:text-gray-900" @click="setFontSize('16px')">
                       16px (Default)
                     </button>
                   </li>
                   <li>
-                    <button type="button"
-                      class="inline-flex w-full items-center rounded p-2 text-xs hover:bg-gray-100 hover:text-gray-900"
-                      @click="setFontSize('12px')">
+                    <button type="button" class="inline-flex w-full items-center rounded p-2 text-xs hover:bg-gray-100 hover:text-gray-900" @click="setFontSize('12px')">
                       12px (Tiny)
                     </button>
                   </li>
                   <li>
-                    <button type="button"
-                      class="inline-flex w-full items-center rounded p-2 text-sm hover:bg-gray-100 hover:text-gray-900"
-                      @click="setFontSize('14px')">
+                    <button type="button" class="inline-flex w-full items-center rounded p-2 text-sm hover:bg-gray-100 hover:text-gray-900" @click="setFontSize('14px')">
                       14px (Small)
                     </button>
                   </li>
                   <li>
-                    <button type="button"
-                      class="inline-flex w-full items-center rounded p-2 text-lg hover:bg-gray-100 hover:text-gray-900"
-                      @click="setFontSize('18px')">
+                    <button type="button" class="inline-flex w-full items-center rounded p-2 text-lg hover:bg-gray-100 hover:text-gray-900" @click="setFontSize('18px')">
                       18px (Lead)
                     </button>
                   </li>
                   <li>
-                    <button type="button"
-                      class="inline-flex w-full items-center rounded p-2 text-2xl hover:bg-gray-100 hover:text-gray-900"
-                      @click="setFontSize('24px')">
+                    <button type="button" class="inline-flex w-full items-center rounded p-2 text-2xl hover:bg-gray-100 hover:text-gray-900" @click="setFontSize('24px')">
                       24px (Large)
                     </button>
                   </li>
                   <li>
-                    <button type="button"
-                      class="inline-flex w-full items-center rounded p-2 text-4xl hover:bg-gray-100 hover:text-gray-900"
-                      @click="setFontSize('36px')">
+                    <button type="button" class="inline-flex w-full items-center rounded p-2 text-4xl hover:bg-gray-100 hover:text-gray-900" @click="setFontSize('36px')">
                       36px (Huge)
                     </button>
                   </li>
@@ -155,29 +165,34 @@
 
             <!-- Text Color Dropdown -->
             <div class="relative">
-              <button type="button"
-                class="p-1.5 rounded-sm cursor-pointer text-gray-500 transition-colors hover:text-gray-900 hover:bg-gray-100"
-                @click="showTextColorDropdown = !showTextColorDropdown">
+              <button
+                type="button"
+                class="cursor-pointer rounded-sm p-1.5 text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-900"
+                @click="showTextColorDropdown = !showTextColorDropdown"
+              >
                 <Icon name="richtext/textColor" :size="20" class="h-5 w-5" />
                 <span class="sr-only">Text color</span>
               </button>
-              <div v-if="showTextColorDropdown" v-click-outside="() => (showTextColorDropdown = false)"
-                class="absolute z-10 mt-1 w-48 rounded-sm bg-white p-2 shadow-sm">
+              <div v-if="showTextColorDropdown" v-click-outside="() => (showTextColorDropdown = false)" class="absolute z-10 mt-1 w-48 rounded-sm bg-white p-2 shadow-sm">
                 <div class="mb-3 grid grid-cols-6 items-center gap-2 rounded p-1.5 hover:bg-gray-100">
-                  <input v-model="customColor" type="color"
+                  <input
+                    v-model="customColor"
+                    type="color"
                     class="col-span-3 h-8 w-full rounded border border-gray-300 bg-gray-100 p-px px-1"
-                    @change="setTextColor(customColor)" />
+                    @change="setTextColor(customColor)"
+                  />
                   <label class="col-span-3 text-xs font-medium text-gray-500 hover:text-gray-900">Pick a color</label>
                 </div>
                 <div class="mb-3 grid grid-cols-6 gap-1">
-                  <button v-for="color in colorOptions" :key="color" type="button" :style="{ backgroundColor: color }"
-                    class="h-6 w-6 rounded-md" @click="setTextColor(color)">
+                  <button v-for="color in colorOptions" :key="color" type="button" :style="{ backgroundColor: color }" class="h-6 w-6 rounded-md" @click="setTextColor(color)">
                     <span class="sr-only">{{ color }}</span>
                   </button>
                 </div>
-                <button type="button"
+                <button
+                  type="button"
                   class="w-full rounded-lg border border-gray-300 bg-gray-50 px-3 py-1.5 text-xs font-medium leading-5 text-gray-500 shadow-sm transition-colors hover:bg-gray-100 hover:text-gray-900 focus:outline-none focus:ring-4 focus:ring-gray-200"
-                  @click="resetTextColor">
+                  @click="resetTextColor"
+                >
                   Reset color
                 </button>
               </div>
@@ -185,19 +200,27 @@
 
             <!-- Font Family Dropdown -->
             <div class="relative">
-              <button type="button"
-                class="p-1.5 rounded-sm cursor-pointer text-gray-500 transition-colors hover:text-gray-900 hover:bg-gray-100"
-                @click="showFontFamilyDropdown = !showFontFamilyDropdown">
+              <button
+                type="button"
+                class="cursor-pointer rounded-sm p-1.5 text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-900"
+                @click="showFontFamilyDropdown = !showFontFamilyDropdown"
+              >
                 <Icon name="richtext/fontFamily" :size="20" class="h-5 w-5" />
                 <span class="sr-only">Font family</span>
               </button>
-              <div v-if="showFontFamilyDropdown" v-click-outside="() => (showFontFamilyDropdown = false)"
-                class="absolute z-10 mt-1 w-48 rounded-lg border border-gray-300 bg-white shadow-lg">
+              <div
+                v-if="showFontFamilyDropdown"
+                v-click-outside="() => (showFontFamilyDropdown = false)"
+                class="absolute z-10 mt-1 w-48 rounded-lg border border-gray-300 bg-white shadow-lg"
+              >
                 <ul class="space-y-1 p-2 text-sm font-medium text-gray-500">
                   <li v-for="font in fontOptions" :key="font.value">
-                    <button type="button" :style="{ fontFamily: font.value }"
+                    <button
+                      type="button"
+                      :style="{ fontFamily: font.value }"
                       class="inline-flex w-full items-center rounded p-2 text-sm hover:bg-gray-100 hover:text-gray-900"
-                      @click="setFontFamily(font.value)">
+                      @click="setFontFamily(font.value)"
+                    >
                       {{ font.label }}
                     </button>
                   </li>
@@ -211,34 +234,40 @@
             </div>
 
             <!-- Align Left -->
-            <button type="button" :class="[
-              'p-1.5 rounded-sm cursor-pointer transition-colors',
-              editor?.isActive({ textAlign: 'left' })
-                ? 'text-gray-900 bg-gray-100'
-                : 'text-gray-500 hover:text-gray-900 hover:bg-gray-100',
-            ]" @click="editor?.chain().focus().setTextAlign('left').run()">
+            <button
+              type="button"
+              :class="[
+                'cursor-pointer rounded-sm p-1.5 transition-colors',
+                editor?.isActive({ textAlign: 'left' }) ? 'bg-gray-100 text-gray-900' : 'text-gray-500 hover:bg-gray-100 hover:text-gray-900',
+              ]"
+              @click="editor?.chain().focus().setTextAlign('left').run()"
+            >
               <Icon name="richtext/alignLeft" :size="20" class="h-5 w-5" />
               <span class="sr-only">Align left</span>
             </button>
 
             <!-- Align Center -->
-            <button type="button" :class="[
-              'p-1.5 rounded-sm cursor-pointer transition-colors',
-              editor?.isActive({ textAlign: 'center' })
-                ? 'text-gray-900 bg-gray-100'
-                : 'text-gray-500 hover:text-gray-900 hover:bg-gray-100',
-            ]" @click="editor?.chain().focus().setTextAlign('center').run()">
+            <button
+              type="button"
+              :class="[
+                'cursor-pointer rounded-sm p-1.5 transition-colors',
+                editor?.isActive({ textAlign: 'center' }) ? 'bg-gray-100 text-gray-900' : 'text-gray-500 hover:bg-gray-100 hover:text-gray-900',
+              ]"
+              @click="editor?.chain().focus().setTextAlign('center').run()"
+            >
               <Icon name="richtext/alignCenter" :size="20" class="h-5 w-5" />
               <span class="sr-only">Align center</span>
             </button>
 
             <!-- Align Right -->
-            <button type="button" :class="[
-              'p-1.5 rounded-sm cursor-pointer transition-colors',
-              editor?.isActive({ textAlign: 'right' })
-                ? 'text-gray-900 bg-gray-100'
-                : 'text-gray-500 hover:text-gray-900 hover:bg-gray-100',
-            ]" @click="editor?.chain().focus().setTextAlign('right').run()">
+            <button
+              type="button"
+              :class="[
+                'cursor-pointer rounded-sm p-1.5 transition-colors',
+                editor?.isActive({ textAlign: 'right' }) ? 'bg-gray-100 text-gray-900' : 'text-gray-500 hover:bg-gray-100 hover:text-gray-900',
+              ]"
+              @click="editor?.chain().focus().setTextAlign('right').run()"
+            >
               <Icon name="richtext/alignRight" :size="20" class="h-5 w-5" />
               <span class="sr-only">Align right</span>
             </button>
@@ -248,50 +277,57 @@
         <!-- Second Row: Media, Lists -->
         <div class="mt-2 flex flex-wrap items-center gap-2">
           <!-- Add Image -->
-          <label
-            class="p-1.5 rounded-sm cursor-pointer text-gray-500 transition-colors hover:text-gray-900 hover:bg-gray-100">
+          <label class="cursor-pointer rounded-sm p-1.5 text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-900">
             <input ref="imageInputRef" type="file" accept="image/*" class="hidden" @change="handleImageUpload" />
             <Icon name="richtext/image" :size="20" class="h-5 w-5" />
             <span class="sr-only">Add image</span>
           </label>
 
           <!-- Bullet List -->
-          <button type="button" :class="[
-            'p-1.5 rounded-sm cursor-pointer transition-colors',
-            editor?.isActive('bulletList')
-              ? 'text-gray-900 bg-gray-100'
-              : 'text-gray-500 hover:text-gray-900 hover:bg-gray-100',
-          ]" @click="editor?.chain().focus().toggleBulletList().run()">
+          <button
+            type="button"
+            :class="[
+              'cursor-pointer rounded-sm p-1.5 transition-colors',
+              editor?.isActive('bulletList') ? 'bg-gray-100 text-gray-900' : 'text-gray-500 hover:bg-gray-100 hover:text-gray-900',
+            ]"
+            @click="editor?.chain().focus().toggleBulletList().run()"
+          >
             <Icon name="richtext/bulletList" :size="20" class="h-5 w-5" />
             <span class="sr-only">Toggle list</span>
           </button>
 
           <!-- Ordered List -->
-          <button type="button" :class="[
-            'p-1.5 rounded-sm cursor-pointer transition-colors',
-            editor?.isActive('orderedList')
-              ? 'text-gray-900 bg-gray-100'
-              : 'text-gray-500 hover:text-gray-900 hover:bg-gray-100',
-          ]" @click="editor?.chain().focus().toggleOrderedList().run()">
+          <button
+            type="button"
+            :class="[
+              'cursor-pointer rounded-sm p-1.5 transition-colors',
+              editor?.isActive('orderedList') ? 'bg-gray-100 text-gray-900' : 'text-gray-500 hover:bg-gray-100 hover:text-gray-900',
+            ]"
+            @click="editor?.chain().focus().toggleOrderedList().run()"
+          >
             <Icon name="richtext/orderedList" :size="20" class="h-5 w-5" />
             <span class="sr-only">Toggle ordered list</span>
           </button>
 
           <!-- Blockquote -->
-          <button type="button" :class="[
-            'p-1.5 rounded-sm cursor-pointer transition-colors',
-            editor?.isActive('blockquote')
-              ? 'text-gray-900 bg-gray-100'
-              : 'text-gray-500 hover:text-gray-900 hover:bg-gray-100',
-          ]" @click="editor?.chain().focus().toggleBlockquote().run()">
+          <button
+            type="button"
+            :class="[
+              'cursor-pointer rounded-sm p-1.5 transition-colors',
+              editor?.isActive('blockquote') ? 'bg-gray-100 text-gray-900' : 'text-gray-500 hover:bg-gray-100 hover:text-gray-900',
+            ]"
+            @click="editor?.chain().focus().toggleBlockquote().run()"
+          >
             <Icon name="richtext/blockquote" :size="20" class="h-5 w-5" />
             <span class="sr-only">Toggle blockquote</span>
           </button>
 
           <!-- Horizontal Rule -->
-          <button type="button"
-            class="p-1.5 rounded-sm cursor-pointer text-gray-500 transition-colors hover:text-gray-900 hover:bg-gray-100"
-            @click="editor?.chain().focus().setHorizontalRule().run()">
+          <button
+            type="button"
+            class="cursor-pointer rounded-sm p-1.5 text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-900"
+            @click="editor?.chain().focus().setHorizontalRule().run()"
+          >
             <Icon name="richtext/horizontalRule" :size="20" class="h-5 w-5" />
             <span class="sr-only">Toggle Horizontal Rule</span>
           </button>
@@ -304,9 +340,7 @@
       </div>
       <!-- Character Count -->
       <div v-if="maxlength" class="flex justify-end px-4 pb-2">
-        <span class="text-xs text-gray-500" :class="{ 'text-red-500': characterCount > maxlength }">
-          {{ characterCount }}/{{ maxlength }}
-        </span>
+        <span class="text-xs text-gray-500" :class="{ 'text-red-500': characterCount > maxlength }"> {{ characterCount }}/{{ maxlength }} </span>
       </div>
     </div>
   </div>
@@ -364,14 +398,14 @@ const FontSize = Extension.create({
     return {
       setFontSize:
         (fontSize: string) =>
-          ({ chain }: { chain: () => any }) => {
-            return chain().setMark("textStyle", { fontSize }).run();
-          },
+        ({ chain }: { chain: () => any }) => {
+          return chain().setMark("textStyle", { fontSize }).run();
+        },
       unsetFontSize:
         () =>
-          ({ chain }: { chain: () => any }) => {
-            return chain().setMark("textStyle", { fontSize: null }).removeEmptyTextStyle().run();
-          },
+        ({ chain }: { chain: () => any }) => {
+          return chain().setMark("textStyle", { fontSize: null }).removeEmptyTextStyle().run();
+        },
     } as any;
   },
 });

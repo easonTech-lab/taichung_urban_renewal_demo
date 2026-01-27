@@ -28,24 +28,45 @@
           <div class="flex flex-col gap-4">
             <!-- 舊密碼 -->
             <div class="w-full max-w-[364px]">
-              <Input v-model="formData.oldPassword" label="舊密碼" type="password" size="lg" placeholder="請輸入舊密碼"
-                :error="errors.oldPassword" :error-message="errorMessages.oldPassword"
-                @clear-error="errors.oldPassword = false" />
+              <Input
+                v-model="formData.oldPassword"
+                label="舊密碼"
+                type="password"
+                size="lg"
+                placeholder="請輸入舊密碼"
+                :error="errors.oldPassword"
+                :error-message="errorMessages.oldPassword"
+                @clear-error="errors.oldPassword = false"
+              />
             </div>
 
             <!-- 新密碼 -->
             <div class="w-full max-w-[364px]">
-              <Input v-model="formData.newPassword" label="新密碼" type="password" size="lg" placeholder="請輸入新密碼"
-                :error="errors.newPassword" :error-message="errorMessages.newPassword"
-                @clear-error="errors.newPassword = false" />
+              <Input
+                v-model="formData.newPassword"
+                label="新密碼"
+                type="password"
+                size="lg"
+                placeholder="請輸入新密碼"
+                :error="errors.newPassword"
+                :error-message="errorMessages.newPassword"
+                @clear-error="errors.newPassword = false"
+              />
               <p class="mt-2 text-base leading-[1.25] text-gray-500">密碼至少需要9字元，包含大小寫字母、數字、特殊符號</p>
             </div>
 
             <!-- 再次確認密碼 -->
             <div class="w-full max-w-[364px]">
-              <Input v-model="formData.confirmPassword" label="再次確認密碼" type="password" size="lg" placeholder="請再次輸入新密碼"
-                :error="errors.confirmPassword" :error-message="errorMessages.confirmPassword"
-                @clear-error="errors.confirmPassword = false" />
+              <Input
+                v-model="formData.confirmPassword"
+                label="再次確認密碼"
+                type="password"
+                size="lg"
+                placeholder="請再次輸入新密碼"
+                :error="errors.confirmPassword"
+                :error-message="errorMessages.confirmPassword"
+                @clear-error="errors.confirmPassword = false"
+              />
             </div>
           </div>
         </div>
@@ -53,8 +74,7 @@
         <!-- Action Buttons -->
         <div class="flex gap-4">
           <ButtonCTA variant="outline" size="xl" class="w-[124px]" @click="handleCancel"> 取消 </ButtonCTA>
-          <ButtonCTA variant="primary" size="xl" class="w-[124px]" :disabled="isSaveDisabled" @click="handleSave"> 儲存變更
-          </ButtonCTA>
+          <ButtonCTA variant="primary" size="xl" class="w-[124px]" :disabled="isSaveDisabled" @click="handleSave"> 儲存變更 </ButtonCTA>
         </div>
       </div>
     </div>
@@ -63,9 +83,15 @@
     <Modal v-model="showSuccessModal" :static="true" size="md">
       <template #header>
         <div class="flex w-full items-center justify-end px-4 pb-0 pt-4">
-          <ButtonCTA variant="none" icon-only left-icon="close" size="xs"
+          <ButtonCTA
+            variant="none"
+            icon-only
+            left-icon="close"
+            size="xs"
             class="h-5 w-5 rounded-lg bg-transparent text-gray-400 hover:bg-gray-100 hover:text-gray-900"
-            aria-label="關閉" @click="handleCloseSuccessModal">
+            aria-label="關閉"
+            @click="handleCloseSuccessModal"
+          >
             <span class="sr-only">關閉</span>
           </ButtonCTA>
         </div>
@@ -86,8 +112,7 @@
 
       <template #footer>
         <div class="flex items-center justify-center gap-4 px-6 pb-6 pt-0">
-          <ButtonCTA variant="primary" class="h-[34px] w-[120px] px-5 py-3 text-base" @click="handleGoToLogin"> 回登入頁
-          </ButtonCTA>
+          <ButtonCTA variant="primary" class="h-[34px] w-[120px] px-5 py-3 text-base" @click="handleGoToLogin"> 回登入頁 </ButtonCTA>
         </div>
       </template>
     </Modal>
@@ -123,17 +148,9 @@ const isAdmin = computed(() => {
 // Breadcrumb items based on role
 const breadcrumbItems = computed<BreadcrumbItem[]>(() => {
   if (isAdmin.value) {
-    return [
-      { label: "首頁", to: "/" },
-      { label: "我的帳號" },
-      { label: "人員帳號管理", to: "/profile" },
-    ];
+    return [{ label: "首頁", to: "/" }, { label: "我的帳號" }, { label: "人員帳號管理", to: "/profile" }];
   }
-  return [
-    { label: "首頁", to: "/" },
-    { label: "我的帳號" },
-    { label: "編輯個人資料", to: "/profile" },
-  ];
+  return [{ label: "首頁", to: "/" }, { label: "我的帳號" }, { label: "編輯個人資料", to: "/profile" }];
 });
 
 // Form Data

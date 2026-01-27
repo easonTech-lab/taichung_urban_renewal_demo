@@ -4,8 +4,8 @@
     <button
       :id="buttonId"
       type="button"
-      class="inline-flex items-center focus:outline-none focus:ring-2 focus:ring-offset-2"
-      :class="[buttonClasses, variant === 'filter' ? 'justify-between' : 'justify-center rounded-md border border-transparent px-4 py-2.5 text-sm font-medium leading-5 shadow-sm']"
+      class="inline-flex items-center focus:outline-none focus:ring-4 focus:ring-gray-200"
+      :class="[buttonClasses, variant === 'filter' ? 'w-full justify-between' : 'justify-center']"
       :aria-expanded="isOpen"
       :aria-haspopup="true"
       @click="toggle"
@@ -16,13 +16,7 @@
       <slot name="button">
         <span :class="variant === 'filter' ? 'flex-1 text-left' : ''">{{ buttonText }}</span>
       </slot>
-      <Icon 
-        name="chevronDown" 
-        :size="variant === 'filter' ? 24 : 16" 
-        class="transition-transform shrink-0" 
-        :class="[variant === 'filter' ? '' : '-mr-0.5 ml-1.5', isOpen ? 'rotate-180' : '']" 
-        aria-hidden="true" 
-      />
+      <Icon name="chevronDown" :size="16" class="-me-0.5 ms-1.5 shrink-0 transition-transform" :class="isOpen ? 'rotate-180' : ''" aria-hidden="true" />
     </button>
 
     <!-- 下拉選單 -->
@@ -92,11 +86,11 @@ const dropdownId = computed(() => `dropdown-${Math.random().toString(36).substri
 
 const buttonClasses = computed(() => {
   const variantClasses = {
-    primary: "bg-primary-500 hover:bg-primary-600 focus:ring-primary-500 text-white border-primary-500",
-    secondary: "bg-gray-600 hover:bg-gray-700 focus:ring-gray-500 text-white border-gray-600",
-    outline: "bg-white border-gray-300 text-gray-700 hover:bg-gray-50 focus:ring-gray-500 border",
-    ghost: "bg-transparent border-transparent text-gray-700 hover:bg-gray-100 focus:ring-gray-500",
-    filter: "bg-gray-50 border-gray-300 text-gray-500 hover:bg-gray-100 focus:ring-gray-500 border rounded-lg px-4 py-3 text-sm font-normal leading-[1.25] w-full justify-between",
+    primary: "text-white bg-primary-600 hover:bg-primary-700 focus:ring-4 focus:ring-primary-300 rounded-lg px-4 py-2.5 text-sm font-medium shadow-sm",
+    secondary: "bg-gray-600 hover:bg-gray-700 focus:ring-4 focus:ring-gray-300 text-white rounded-lg px-4 py-2.5 text-sm font-medium shadow-sm",
+    outline: "bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 focus:ring-4 focus:ring-gray-200 rounded-lg px-4 py-2.5 text-sm font-medium shadow-sm",
+    ghost: "bg-transparent text-gray-700 hover:bg-gray-100 focus:ring-4 focus:ring-gray-200 rounded-lg px-4 py-2.5 text-sm font-medium",
+    filter: "bg-gray-50 border border-gray-300 text-gray-500 hover:bg-gray-100 focus:ring-4 focus:ring-gray-200 rounded-lg px-4 py-3 text-sm font-normal leading-[1.25]",
   };
   return variantClasses[props.variant];
 });

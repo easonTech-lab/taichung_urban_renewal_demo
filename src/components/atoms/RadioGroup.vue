@@ -1,9 +1,9 @@
 <template>
   <div class="inline-flex flex-col items-start gap-2" :class="[containerClass || 'w-full']">
     <!-- Label -->
-    <label v-if="showLabel && label" class="block text-base font-medium text-gray-900 relative inline-block">
+    <label v-if="showLabel && label" class="relative block inline-block text-base font-medium text-gray-900">
       {{ label }}
-      <span v-if="required" class="text-red-500 text-xs leading-none absolute -top-1 -right-2">*</span>
+      <span v-if="required" class="absolute -right-2 -top-1 text-xs leading-none text-red-500">*</span>
     </label>
     <div class="flex flex-col gap-4">
       <div class="flex flex-wrap items-center gap-5">

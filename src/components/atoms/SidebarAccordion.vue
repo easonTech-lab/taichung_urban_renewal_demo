@@ -1,26 +1,32 @@
 <template>
   <div class="flex flex-col gap-1.5">
     <!-- Primary Item (可展開/收起的按鈕) -->
-    <button type="button" class="flex h-9 w-full items-center gap-3 rounded-lg px-2 transition-colors"
-      :class="[isExpanded ? 'bg-gray-100 py-1.5' : 'py-0 hover:bg-gray-50', buttonClass]" :aria-expanded="isExpanded"
-      :aria-controls="`sidebar-accordion-${accordionId}`" @click="toggle">
+    <button
+      type="button"
+      class="flex h-9 w-full items-center gap-3 rounded-lg px-2 transition-colors"
+      :class="[isExpanded ? 'bg-gray-100 py-1.5' : 'py-0 hover:bg-gray-50', buttonClass]"
+      :aria-expanded="isExpanded"
+      :aria-controls="`sidebar-accordion-${accordionId}`"
+      @click="toggle"
+    >
       <div class="flex flex-1 items-start gap-3">
-        <Icon v-if="icon" :name="icon" :size="24" :color="computedIconColor" :fill="computedIconColor"
-          aria-hidden="true" />
+        <Icon v-if="icon" :name="icon" :size="24" :color="computedIconColor" :fill="computedIconColor" aria-hidden="true" />
         <p class="text-base font-medium leading-normal text-gray-900">{{ title }}</p>
       </div>
-      <Icon :name="isExpanded ? 'chevronUp' : 'chevronDown'" :size="24" class="shrink-0 text-gray-800"
-        aria-hidden="true" />
+      <Icon :name="isExpanded ? 'chevronUp' : 'chevronDown'" :size="24" class="shrink-0 text-gray-800" aria-hidden="true" />
     </button>
 
     <!-- Submenu (子選單項) -->
-    <div v-if="isExpanded" :id="`sidebar-accordion-${accordionId}`" class="flex flex-col gap-1.5 py-0 pl-12 pr-0"
-      role="region" :aria-label="`${title}的子選單`">
+    <div v-if="isExpanded" :id="`sidebar-accordion-${accordionId}`" class="flex flex-col gap-1.5 py-0 pl-12 pr-0" role="region" :aria-label="`${title}的子選單`">
       <slot name="submenu">
-        <button v-for="(subItem, index) in subItems" :key="index" type="button"
+        <button
+          v-for="(subItem, index) in subItems"
+          :key="index"
+          type="button"
           class="flex h-11 items-start px-0 py-2.5 transition-colors"
           :class="[selectedItem === subItem.value ? 'text-primary-600' : 'text-gray-900 hover:text-primary-600', subItemClass]"
-          @click="handleSubItemClick(subItem.value)">
+          @click="handleSubItemClick(subItem.value)"
+        >
           <p class="text-base font-medium leading-normal">{{ subItem.label }}</p>
         </button>
       </slot>

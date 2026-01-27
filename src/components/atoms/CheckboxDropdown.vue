@@ -127,14 +127,11 @@ const dropdownId = computed(() => `checkbox-dropdown-${Math.random().toString(36
 
 const buttonClasses = computed(() => {
   const variantClasses = {
-    primary:
-      "text-white bg-primary-600 hover:bg-primary-700 focus:ring-4 focus:ring-primary-300 rounded-lg px-4 py-2.5 text-sm font-medium shadow-sm",
+    primary: "text-white bg-primary-600 hover:bg-primary-700 focus:ring-4 focus:ring-primary-300 rounded-lg px-4 py-2.5 text-sm font-medium shadow-sm",
     secondary: "bg-gray-600 hover:bg-gray-700 focus:ring-4 focus:ring-gray-300 text-white rounded-lg px-4 py-2.5 text-sm font-medium shadow-sm",
-    outline:
-      "bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 focus:ring-4 focus:ring-gray-200 rounded-lg px-4 py-2.5 text-sm font-medium shadow-sm",
+    outline: "bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 focus:ring-4 focus:ring-gray-200 rounded-lg px-4 py-2.5 text-sm font-medium shadow-sm",
     ghost: "bg-transparent text-gray-700 hover:bg-gray-100 focus:ring-4 focus:ring-gray-200 rounded-lg px-4 py-2.5 text-sm font-medium",
-    filter:
-      "bg-gray-50 border border-gray-300 text-gray-500 hover:bg-gray-100 focus:ring-4 focus:ring-gray-200 rounded-lg px-4 py-3 text-sm font-normal leading-[1.25]",
+    filter: "bg-gray-50 border border-gray-300 text-gray-500 hover:bg-gray-100 focus:ring-4 focus:ring-gray-200 rounded-lg px-4 py-3 text-sm font-normal leading-[1.25]",
   };
   return variantClasses[props.variant];
 });
@@ -161,7 +158,6 @@ const isItemChecked = computed(() => {
     return selected.includes(value);
   };
 });
-
 
 // 檢查全選是否為半選狀態（部分選中）
 const isIndeterminate = computed(() => {
@@ -195,7 +191,7 @@ const handleItemClick = (item: CheckboxDropdownItem, index: number, event: Event
 
   if (item.value === "select-all") {
     // 處理「全選」
-   const allSelected = isAllSelected.value;
+    const allSelected = isAllSelected.value;
     if (allSelected) {
       // 如果已經全選，則取消全選（設為空陣列）
       newSelected = [];

@@ -25,33 +25,58 @@
         <!-- Form Fields -->
         <div class="flex flex-col gap-6">
           <!-- 承辦姓名 -->
-          <Input v-model="formData.name" label="承辦姓名" placeholder="請輸入承辦姓名" size="lg" required
-            container-class="w-[364px]" />
+          <Input v-model="formData.name" label="承辦姓名" placeholder="請輸入承辦姓名" size="lg" required container-class="w-[364px]" />
 
           <!-- 公務信箱 -->
-          <Input v-model="formData.email" label="公務信箱" :placeholder="isEditMode ? '' : '請輸入公務信箱'" size="lg" required
-            :disabled="isEditMode" container-class="w-[364px]" />
+          <Input
+            v-model="formData.email"
+            label="公務信箱"
+            :placeholder="isEditMode ? '' : '請輸入公務信箱'"
+            size="lg"
+            required
+            :disabled="isEditMode"
+            container-class="w-[364px]"
+          />
 
           <!-- 科室 -->
-          <InputDropdown label="科室" :button-text="formData.department" placeholder="選擇科室別" :items="departmentOptions"
-            required container-class="w-[364px]" @item-click="handleDepartmentSelect" />
+          <InputDropdown
+            label="科室"
+            :button-text="formData.department"
+            placeholder="選擇科室別"
+            :items="departmentOptions"
+            required
+            container-class="w-[364px]"
+            @item-click="handleDepartmentSelect"
+          />
 
           <!-- 組別 -->
-          <InputDropdown label="組別" :button-text="formData.group" placeholder="請選擇組別" :items="groupOptions" required
-            container-class="w-[364px]" @item-click="handleGroupSelect" />
+          <InputDropdown
+            label="組別"
+            :button-text="formData.group"
+            placeholder="請選擇組別"
+            :items="groupOptions"
+            required
+            container-class="w-[364px]"
+            @item-click="handleGroupSelect"
+          />
 
           <!-- 權限管理 -->
           <div class="flex flex-col gap-2">
             <div class="flex items-start gap-2">
               <label class="text-base font-medium text-gray-900">權限管理</label>
-              <span class="text-red-500 text-xs leading-none pt-1">*</span>
+              <span class="pt-1 text-xs leading-none text-red-500">*</span>
             </div>
-            <div class="flex flex-col gap-6 rounded-lg border border-gray-300 p-6 w-[922px]">
+            <div class="flex w-[922px] flex-col gap-6 rounded-lg border border-gray-300 p-6">
               <!-- 開通所有權限 -->
               <div class="flex flex-col gap-4">
                 <div class="flex items-center justify-between">
-                  <Checkbox v-model="selectAllPermissions" :indeterminate="isIndeterminate" label="開通所有權限"
-                    label-class="text-sm font-medium" @update:model-value="handleSelectAllPermissions" />
+                  <Checkbox
+                    v-model="selectAllPermissions"
+                    :indeterminate="isIndeterminate"
+                    label="開通所有權限"
+                    label-class="text-sm font-medium"
+                    @update:model-value="handleSelectAllPermissions"
+                  />
                 </div>
                 <div class="h-px bg-gray-300"></div>
               </div>
@@ -61,11 +86,18 @@
                 <div v-for="permissionGroup in permissionGroups" :key="permissionGroup.key" class="flex flex-col gap-4">
                   <p class="text-base font-medium text-gray-800">{{ permissionGroup.title }}</p>
                   <div class="flex flex-col gap-4">
-                    <Checkbox v-for="(func, index) in permissionGroup.functions"
+                    <Checkbox
+                      v-for="(func, index) in permissionGroup.functions"
                       :key="`${permissionGroup.key}-${index}`"
                       :model-value="(formData.permissions as any)[permissionGroup.key][func.key]"
-                      @update:model-value="(value: boolean) => { ((formData.permissions as any)[permissionGroup.key][func.key] = value); }"
-                      :label="func.label" label-class="text-sm font-medium" />
+                      @update:model-value="
+                        (value: boolean) => {
+                          (formData.permissions as any)[permissionGroup.key][func.key] = value;
+                        }
+                      "
+                      :label="func.label"
+                      label-class="text-sm font-medium"
+                    />
                   </div>
                 </div>
               </div>
@@ -73,15 +105,13 @@
           </div>
 
           <!-- 授權主管信箱 -->
-          <Input v-model="formData.supervisorEmail" label="授權主管信箱" placeholder="請輸入授權主管信箱" size="lg" required
-            container-class="w-[364px]" />
+          <Input v-model="formData.supervisorEmail" label="授權主管信箱" placeholder="請輸入授權主管信箱" size="lg" required container-class="w-[364px]" />
 
           <!-- 分隔線 -->
-          <div class="h-px bg-gray-300 w-[958px]"></div>
+          <div class="h-px w-[958px] bg-gray-300"></div>
 
           <!-- 帳號狀態 -->
-          <Switch v-model="formData.status" label="帳號狀態" show-text on-text="上架" off-text="下架" required
-            label-position="horizontal" />
+          <Switch v-model="formData.status" label="帳號狀態" show-text on-text="上架" off-text="下架" required label-position="horizontal" />
         </div>
 
         <!-- Action Buttons -->
@@ -174,12 +204,7 @@ const permissionGroups = [
 ];
 
 // Options
-const departmentOptions = [
-  { label: "都市修復工程科" },
-  { label: "住宅發展工程處" },
-  { label: "都市更新工程科" },
-  { label: "都計測量工程科" },
-];
+const departmentOptions = [{ label: "都市修復工程科" }, { label: "住宅發展工程處" }, { label: "都市更新工程科" }, { label: "都計測量工程科" }];
 
 const groupOptions = [
   { label: "審議委員" },
@@ -268,9 +293,9 @@ const convertPermissionsFormat = (permissions: Array<{ category: string; functio
 
   permissions.forEach((perm) => {
     const keyMap: Record<string, string> = {
-      "案件管理功能": "caseManagement",
-      "首頁維護功能": "homepageMaintenance",
-      "我的帳號功能": "myAccount",
+      案件管理功能: "caseManagement",
+      首頁維護功能: "homepageMaintenance",
+      我的帳號功能: "myAccount",
     };
     const key = keyMap[perm.category];
     if (key) {

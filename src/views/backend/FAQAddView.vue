@@ -8,8 +8,7 @@
       <div class="flex flex-col gap-6">
         <Breadcrumb />
         <div class="flex items-center gap-4">
-          <button type="button" class="flex h-6 w-6 items-center justify-center" @click="handleGoBack"
-            aria-label="返回上一頁">
+          <button type="button" class="flex h-6 w-6 items-center justify-center" @click="handleGoBack" aria-label="返回上一頁">
             <Icon name="arrowLeftOutline" class="h-6 w-6 text-gray-900" />
           </button>
           <h1 class="text-3xl font-bold leading-[30px] text-gray-900">前ㄧ頁</h1>
@@ -27,32 +26,35 @@
         <!-- Form Fields -->
         <div class="flex flex-col gap-6">
           <!-- Title Input -->
-          <Input v-model="formData.title" label="標題(限50字)" placeholder="我家的建築是幾年的？該走危老還都更？" size="lg" :maxlength="50"
-            required />
+          <Input v-model="formData.title" label="標題(限50字)" placeholder="我家的建築是幾年的？該走危老還都更？" size="lg" :maxlength="50" required />
 
           <!-- Category Selection -->
           <RadioGroup label="類別" required>
             <template #radios>
-              <Radio v-for="category in categoryOptions" :key="category.value" :model-value="formData.category"
-                :value="category.value" :label="category.label" name="category"
-                container-class="flex items-center gap-2" label-class="text-sm font-medium text-gray-900"
-                @update:model-value="(value) => (formData.category = value as string)" />
+              <Radio
+                v-for="category in categoryOptions"
+                :key="category.value"
+                :model-value="formData.category"
+                :value="category.value"
+                :label="category.label"
+                name="category"
+                container-class="flex items-center gap-2"
+                label-class="text-sm font-medium text-gray-900"
+                @update:model-value="(value) => (formData.category = value as string)"
+              />
             </template>
             <div class="flex items-start">
-              <ButtonCTA variant="outline" size="sm" left-icon="plus" @click="handleAddCategory">
-                新增類別
-              </ButtonCTA>
+              <ButtonCTA variant="outline" size="sm" left-icon="plus" @click="handleAddCategory"> 新增類別 </ButtonCTA>
             </div>
           </RadioGroup>
 
           <!-- Answer Editor -->
-          <RichTextEditor v-model="formData.answer" label="回答(限200字)" placeholder="請輸入回答內容..." required
-            :maxlength="200" />
+          <RichTextEditor v-model="formData.answer" label="回答(限200字)" placeholder="請輸入回答內容..." required :maxlength="200" />
         </div>
       </div>
 
       <!-- Action Buttons -->
-      <div class="flex items-center gap-4 justify-center">
+      <div class="flex items-center justify-center gap-4">
         <ButtonCTA variant="outline" size="l" @click="handleSaveDraft">暫存</ButtonCTA>
         <ButtonCTA variant="primary" size="l" @click="handlePublish">發布</ButtonCTA>
       </div>

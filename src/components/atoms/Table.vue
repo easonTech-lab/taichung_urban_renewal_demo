@@ -6,9 +6,13 @@
           <!-- Checkbox 欄位 -->
           <th v-if="showCheckbox" scope="col" class="p-4">
             <div class="flex items-center">
-              <input :id="`table-checkbox-all-${tableId}`" type="checkbox" :checked="isAllSelected"
+              <input
+                :id="`table-checkbox-all-${tableId}`"
+                type="checkbox"
+                :checked="isAllSelected"
                 class="h-4 w-4 rounded border border-gray-300 bg-gray-100 focus:ring-2 focus:ring-primary-500"
-                @change="handleSelectAll" />
+                @change="handleSelectAll"
+              />
               <label :for="`table-checkbox-all-${tableId}`" class="sr-only"> Select all </label>
             </div>
           </th>
@@ -30,19 +34,19 @@
       <tbody>
         <template v-for="(row, rowIndex) in sortedRows" :key="rowIndex">
           <tr
-            :class="[
-              'border-b border-gray-300 hover:bg-gray-50',
-              rowClickable ? 'cursor-pointer' : '',
-              (row as any).isExpanded ? 'bg-blue-50' : 'bg-white',
-            ]"
+            :class="['border-b border-gray-300 hover:bg-gray-50', rowClickable ? 'cursor-pointer' : '', (row as any).isExpanded ? 'bg-blue-50' : 'bg-white']"
             @click="rowClickable && handleRowClick(row, rowIndex, $event)"
           >
             <!-- Checkbox 欄位 -->
             <td v-if="showCheckbox" class="w-4 p-4">
               <div class="flex items-center">
-                <input :id="`table-checkbox-${tableId}-${rowIndex}`" type="checkbox" :checked="isRowSelected(rowIndex)"
+                <input
+                  :id="`table-checkbox-${tableId}-${rowIndex}`"
+                  type="checkbox"
+                  :checked="isRowSelected(rowIndex)"
                   class="h-4 w-4 rounded border border-gray-300 bg-gray-100 focus:ring-2 focus:ring-primary-500"
-                  @change="handleRowSelect(rowIndex, $event)" />
+                  @change="handleRowSelect(rowIndex, $event)"
+                />
                 <label :for="`table-checkbox-${tableId}-${rowIndex}`" class="sr-only"> Table checkbox </label>
               </div>
             </td>
@@ -68,8 +72,7 @@
     </table>
 
     <!-- 分頁導航 -->
-    <nav v-if="pagination" class="flex flex-wrap items-center justify-between p-4 md:flex-row"
-      aria-label="Table navigation">
+    <nav v-if="pagination" class="flex flex-wrap items-center justify-between p-4 md:flex-row" aria-label="Table navigation">
       <span class="mb-4 block w-full text-sm font-normal text-gray-900 md:mb-0 md:inline md:w-auto">
         顯示
         <span class="font-semibold text-gray-900">{{ paginationFrom }}-{{ paginationTo }}</span>
@@ -78,30 +81,37 @@
       </span>
       <ul class="flex -space-x-px text-sm">
         <li>
-          <a href="#"
+          <a
+            href="#"
             class="flex h-9 items-center justify-center rounded-l-lg border border-gray-300 bg-gray-100 px-3 text-sm font-medium text-gray-900 hover:bg-gray-200 hover:text-gray-900 focus:outline-none"
-            @click.prevent="handlePageChange(pagination.currentPage - 1)">
+            @click.prevent="handlePageChange(pagination.currentPage - 1)"
+          >
             <Icon name="arrowLeft" :size="16" class="h-4 w-4" />
           </a>
         </li>
         <li v-for="page in paginationPages" :key="page">
-          <a v-if="page !== '...'" href="#" :aria-current="page === pagination.currentPage ? 'page' : undefined" :class="[
-            'flex h-9 w-9 items-center justify-center border border-gray-300 text-sm font-medium focus:outline-none',
-            page === pagination.currentPage
-              ? 'bg-primary-100 text-primary-700 hover:bg-primary-200 hover:text-primary-800'
-              : 'bg-gray-100 text-gray-900 hover:bg-gray-200 hover:text-gray-900',
-          ]" @click.prevent="handlePageClick(page)">
+          <a
+            v-if="page !== '...'"
+            href="#"
+            :aria-current="page === pagination.currentPage ? 'page' : undefined"
+            :class="[
+              'flex h-9 w-9 items-center justify-center border border-gray-300 text-sm font-medium focus:outline-none',
+              page === pagination.currentPage
+                ? 'bg-primary-100 text-primary-700 hover:bg-primary-200 hover:text-primary-800'
+                : 'bg-gray-100 text-gray-900 hover:bg-gray-200 hover:text-gray-900',
+            ]"
+            @click.prevent="handlePageClick(page)"
+          >
             {{ page }}
           </a>
-          <span v-else
-            class="flex h-9 w-9 items-center justify-center border border-gray-300 bg-gray-100 text-sm font-medium text-gray-900">
-            ...
-          </span>
+          <span v-else class="flex h-9 w-9 items-center justify-center border border-gray-300 bg-gray-100 text-sm font-medium text-gray-900"> ... </span>
         </li>
         <li>
-          <a href="#"
+          <a
+            href="#"
             class="flex h-9 items-center justify-center rounded-r-lg border border-gray-300 bg-gray-100 px-3 text-sm font-medium text-gray-900 hover:bg-gray-200 hover:text-gray-900 focus:outline-none"
-            @click.prevent="handlePageChange(pagination.currentPage + 1)">
+            @click.prevent="handlePageChange(pagination.currentPage + 1)"
+          >
             <Icon name="arrowRight" :size="16" class="h-4 w-4" />
           </a>
         </li>
