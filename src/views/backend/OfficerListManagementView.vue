@@ -1,19 +1,13 @@
 <template>
   <div class="min-h-screen bg-indigo-50">
-    <!-- Sidebar -->
     <SidebarSection @item-select="handleSidebarItemSelect" />
-    <!-- Main Content -->
     <div class="flex flex-1 flex-col gap-10 p-4 sm:ml-[328px] sm:p-10">
-      <!-- Breadcrumb and Title -->
       <div class="flex flex-col gap-6">
         <Breadcrumb />
         <h1 class="text-3xl font-bold leading-[30px] text-gray-900">幹事名單管理</h1>
       </div>
-      <!-- Form Card -->
       <div class="flex flex-col gap-10 rounded-lg bg-white p-6 shadow-sm">
-        <!-- Header Section -->
         <div class="flex items-center justify-between">
-          <!-- Title Section -->
           <div class="flex flex-col gap-2">
             <div class="flex items-center gap-3">
               <div class="h-7 w-1 rounded bg-primary-600"></div>
@@ -21,47 +15,38 @@
             </div>
             <p class="pl-4 text-xl font-normal leading-5 text-gray-400">在此管理幹事名單及資訊</p>
           </div>
-          <!-- Action Buttons -->
           <div class="flex gap-3">
             <ButtonCTA variant="outline" size="sm" left-icon="userSettings" @click="handleManageList"> 管理名單 </ButtonCTA>
             <ButtonCTA variant="outline" size="sm" right-icon="download" @click="handleExportList"> 匯出名單 </ButtonCTA>
           </div>
         </div>
-        <!-- Tabs -->
         <Tabs :items="tabItems" :model-value="activeTab" @tab-click="handleTabClick" />
-        <!-- Empty State or Table -->
         <div v-if="allOfficers.length === 0" class="flex flex-col items-center justify-center py-20">
           <Empty type="case" message="尚未導入審查幹事名單" button-text="添加幹事" :show-button="true" @button-click="handleAddOfficer" />
         </div>
-        <!-- Officer List Table -->
         <div v-else class="flex flex-col gap-0">
           <Table :columns="tableColumns" :rows="paginatedOfficers" :pagination="pagination" @page-change="handlePageChange">
-            <!-- Index Column -->
             <template #cell-index="{ row }">
               <div class="flex h-20 items-center justify-center p-4">
                 <p class="text-base font-normal leading-[1.5] text-gray-500">{{ row.index }}</p>
               </div>
             </template>
-            <!-- Name and Gender Column -->
             <template #cell-nameGender="{ row }">
               <div class="flex h-20 flex-col items-start justify-center gap-1 px-4 py-4">
                 <p class="text-nowrap text-base font-normal leading-[1.5] text-gray-800">{{ row.name || "未選擇" }}</p>
                 <p v-if="row.gender" class="text-base font-normal leading-[1.5] text-gray-500">{{ row.gender }}</p>
               </div>
             </template>
-            <!-- Title Column -->
             <template #cell-title="{ row }">
               <div class="flex h-20 items-center p-4">
                 <p class="text-base font-normal leading-[1.5] text-gray-500">{{ row.title || "-" }}</p>
               </div>
             </template>
-            <!-- Education/Experience Column -->
             <template #cell-education="{ row }">
               <div class="flex h-20 items-center p-4">
                 <p class="whitespace-pre-wrap text-base font-normal leading-[1.5] text-gray-500">{{ row.education || "-" }}</p>
               </div>
             </template>
-            <!-- Action Column -->
             <template #cell-action="{ row }">
               <div class="flex h-20 items-center gap-4 px-4 py-4">
                 <Icon name="profileCard" :size="24" class="shrink-0" />
@@ -80,19 +65,14 @@
         </div>
       </div>
     </div>
-    <!-- Drawer: 幹事管理名單 -->
     <Drawer v-model="isDrawerOpen" title="幹事管理名單" width="xl" @close="handleDrawerClose">
       <template #default>
         <div class="flex flex-col gap-0">
-          <!-- Officer List Items (20 items) -->
           <div v-for="(officer, index) in officerList" :key="index" class="flex items-center justify-between border-b border-gray-300 py-5">
-            <!-- Left Section: Index and Dropdown -->
             <div class="flex flex-1 items-center gap-2">
-              <!-- Index -->
               <div class="flex w-5 items-center justify-center">
                 <span class="text-base font-normal leading-[1.25] text-gray-500">{{ index + 1 }}</span>
               </div>
-              <!-- Dropdown -->
               <InputDropdown
                 :button-text="officer.selectedOfficer || ''"
                 placeholder="選擇"
@@ -102,12 +82,10 @@
                 @item-click="(item) => handleOfficerSelect(index, item)"
               />
             </div>
-            <!-- Right Section: Remove Button -->
             <div class="flex items-center px-3 py-4">
               <ButtonCTA variant="textPlain" size="base" class="p-0" @click="handleRemoveOfficer(index)"> 移除 </ButtonCTA>
             </div>
           </div>
-          <!-- Add Officer Button -->
           <div class="flex items-center justify-start border-b border-gray-300 py-5">
             <ButtonCTA variant="outline" size="xl" class="w-full" left-icon="plus" @click="handleAddNewOfficer"> 新增幹事 </ButtonCTA>
           </div>

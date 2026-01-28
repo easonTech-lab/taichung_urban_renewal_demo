@@ -1,26 +1,18 @@
 <template>
   <div class="min-h-screen bg-indigo-50">
-    <!-- Sidebar -->
     <SidebarSection @item-select="handleSidebarItemSelect" />
-    <!-- Main Content -->
     <div class="flex flex-1 flex-col gap-10 p-4 sm:ml-[328px] sm:p-10">
-      <!-- Breadcrumb and Title -->
       <div class="flex flex-col gap-6">
         <Breadcrumb />
         <h1 class="text-3xl font-bold leading-[30px] text-gray-900">內部人員帳號管理</h1>
       </div>
-
-      <!-- Main Content Card -->
       <div class="flex flex-col gap-10 rounded-lg bg-white p-6 shadow-sm">
-        <!-- Administrator Section -->
         <div class="flex flex-col gap-4">
           <div class="flex items-center gap-3">
             <div class="h-7 w-1 rounded bg-primary-600"></div>
             <h2 class="text-2xl font-medium leading-6 text-gray-900">管理員和權限</h2>
           </div>
           <p class="text-xl text-gray-500">管理者可以在系統中查看內容或執行的操作。</p>
-
-          <!-- Highest Admin Account Card -->
           <div class="flex items-center justify-between rounded-lg border border-gray-300 bg-white p-6">
             <div class="flex flex-col gap-4">
               <p class="text-base font-medium text-gray-800">最高管理權限帳號</p>
@@ -32,8 +24,6 @@
             <ButtonCTA variant="primary" size="sm" @click="handleChangeAccount">更換帳號</ButtonCTA>
           </div>
         </div>
-
-        <!-- Handler Accounts Section -->
         <div class="flex flex-col gap-6">
           <div class="flex items-center justify-between">
             <div class="flex flex-col gap-4">
@@ -42,15 +32,11 @@
             </div>
             <ButtonCTA variant="primary" size="sm" @click="handleAddHandler">新增承辦</ButtonCTA>
           </div>
-
-          <!-- Table -->
           <div class="rounded-lg border border-gray-300 bg-white">
             <Table :columns="tableColumns" :rows="paginatedHandlers" :pagination="pagination" @page-change="handlePageChange">
-              <!-- Index -->
               <template #cell-index="{ rowIndex }">
                 <p class="text-base text-gray-500">{{ (currentPage - 1) * pageSize + rowIndex + 1 }}</p>
               </template>
-              <!-- Permissions -->
               <template #cell-permissions="{ row }">
                 <div class="text-base text-gray-600">
                   <div v-for="(permission, index) in row.permissions" :key="index" class="mb-2 last:mb-0">
@@ -63,13 +49,9 @@
                   </div>
                 </div>
               </template>
-
-              <!-- Status -->
               <template #cell-status="{ row }">
                 <Switch :model-value="row.status" :show-text="true" on-text="啟用" off-text="停權" @update:model-value="(value) => handleStatusChange(row, value)" />
               </template>
-
-              <!-- Action -->
               <template #cell-action="{ row }">
                 <div class="flex items-center">
                   <ButtonCTA variant="text" size="sm" icon-only left-icon="pencil" @click.stop="handleEdit(row)" aria-label="編輯承辦帳號" />
@@ -81,8 +63,6 @@
         </div>
       </div>
     </div>
-
-    <!-- Change Account Drawer -->
     <Drawer v-model="showChangeAccountDrawer" title="更換最高權限" width="xl" close-icon="close">
       <div class="flex flex-col gap-6">
         <!-- Current Account -->
@@ -93,11 +73,7 @@
             <p class="text-base text-gray-600">{{ currentAdminAccount.email }}</p>
           </div>
         </div>
-
-        <!-- Divider -->
         <div class="border-t border-gray-300"></div>
-
-        <!-- Change Account Section -->
         <div class="flex flex-col gap-4 pt-6">
           <p class="text-base font-medium text-gray-900">更換最高權限帳號</p>
           <div class="flex flex-col gap-6">
@@ -119,7 +95,6 @@
           </div>
         </div>
       </div>
-
       <template #footer>
         <div class="flex w-full justify-end gap-4">
           <ButtonCTA variant="outline" size="xl" class="w-[124px]" @click="handleCancelChangeAccount">取消</ButtonCTA>

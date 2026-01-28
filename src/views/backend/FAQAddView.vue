@@ -50,14 +50,14 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import { useRouter } from "vue-router";
-import SidebarSection from "@/components/sections/backend/SidebarSection.vue";
-import Breadcrumb from "@/components/atoms/Breadcrumb.vue";
+import Icon from "@/components/atoms/Icon.vue";
 import Input from "@/components/atoms/Input.vue";
 import Radio from "@/components/atoms/Radio.vue";
-import RadioGroup from "@/components/atoms/RadioGroup.vue";
-import RichTextEditor from "@/components/atoms/RichTextEditor.vue";
 import ButtonCTA from "@/components/atoms/ButtonCTA.vue";
-import Icon from "@/components/atoms/Icon.vue";
+import RadioGroup from "@/components/atoms/RadioGroup.vue";
+import Breadcrumb from "@/components/atoms/Breadcrumb.vue";
+import RichTextEditor from "@/components/atoms/RichTextEditor.vue";
+import SidebarSection from "@/components/sections/backend/SidebarSection.vue";
 
 const router = useRouter();
 

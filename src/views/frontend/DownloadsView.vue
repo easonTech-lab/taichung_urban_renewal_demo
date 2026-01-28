@@ -4,7 +4,6 @@
       <Breadcrumb />
     </div>
     <div class="px-[60px] py-[40px]">
-      <!-- Title -->
       <h1 class="mb-6 text-[30px] font-bold leading-[30px] text-gray-900">下載專區</h1>
       <div class="mb-6 flex items-center gap-4">
         <div class="w-[160px]">
@@ -14,7 +13,6 @@
           <SearchInput v-model="searchQuery" placeholder="搜尋" button-text="搜尋" input-variant="gray" container-class="mb-0" @submit="handleSearch" />
         </div>
       </div>
-      <!-- Table -->
       <div v-if="filteredData.length === 0" class="flex items-center justify-center py-16">
         <Empty type="search" message="查無符合條件的檔案資料" />
       </div>

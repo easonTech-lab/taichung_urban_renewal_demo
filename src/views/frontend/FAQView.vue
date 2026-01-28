@@ -66,7 +66,6 @@
                   <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m5 15 7-7 7 7" />
                 </svg>
               </button>
-
               <!-- 子問題列表（展開時顯示） -->
               <div
                 v-show="isCategoryOpen(categoryIndex)"
@@ -93,7 +92,6 @@
             </div>
           </div>
         </div>
-
         <!-- 右側：詳細內容手風琴 -->
         <div class="flex-1">
           <div class="flex flex-col gap-6">
@@ -231,9 +229,9 @@
 
 <script setup lang="ts">
 import { ref, computed } from "vue";
+import Empty from "@/components/atoms/Empty.vue";
 import Breadcrumb from "@/components/atoms/Breadcrumb.vue";
 import SearchInput from "@/components/atoms/SearchInput.vue";
-import Empty from "@/components/atoms/Empty.vue";
 import FooterSection from "@/components/sections/global/FooterSection.vue";
 
 export interface FAQQuestion {

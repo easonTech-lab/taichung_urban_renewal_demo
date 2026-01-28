@@ -1,5 +1,44 @@
 import { createRouter, createWebHistory, type RouteRecordRaw } from "vue-router";
 
+const isAdminUser = () => {
+  const userInfo = localStorage.getItem("userInfo");
+  if (userInfo) {
+    try {
+      const user = JSON.parse(userInfo);
+      return user.role === "admin";
+    } catch {
+      return false;
+    }
+  }
+  return false;
+};
+
+const getAccountBreadcrumbItems = () => {
+  if (isAdminUser()) {
+    return [{ label: "首頁", to: "/" }, { label: "我的帳號" }, { label: "人員帳號管理" }];
+  }
+  return [{ label: "首頁", to: "/" }, { label: "我的帳號" }, { label: "編輯個人資料" }];
+};
+
+const getCaseDetailBreadcrumbItems = (route: any) => {
+  const fromRoute = route.query?.from as string | undefined;
+  const isFromAdmin = fromRoute?.includes("-admin") || route.query?.admin === "true" || isAdminUser();
+  if (isFromAdmin) {
+    return [
+      { label: "首頁", to: "/" },
+      { label: "案件管理" },
+      { label: "都市更新案件管理", to: "/case-management-admin" },
+      { label: "案件詳情" },
+    ];
+  }
+  return [
+    { label: "首頁", to: "/" },
+    { label: "我的案件" },
+    { label: "都市更新案件", to: "/case-management" },
+    { label: "案件詳情" },
+  ];
+};
+
 // 導出路由配置，供組件使用
 export const routes: RouteRecordRaw[] = [
   {
@@ -120,16 +159,7 @@ export const routes: RouteRecordRaw[] = [
     name: "case-detail",
     component: () => import("@/views/backend/CaseDetailView.vue"),
     meta: {
-      breadcrumb: {
-        label: "案件詳情",
-        parent: {
-          label: "都市更新案件",
-          to: "/case-management",
-          parent: {
-            label: "案件管理",
-          },
-        },
-      },
+      breadcrumb: getCaseDetailBreadcrumbItems,
     },
   },
   {
@@ -137,12 +167,7 @@ export const routes: RouteRecordRaw[] = [
     name: "profile",
     component: () => import("@/views/backend/ProfileView.vue"),
     meta: {
-      breadcrumb: {
-        label: "編輯個人資料",
-        parent: {
-          label: "我的帳號",
-        },
-      },
+      breadcrumb: getAccountBreadcrumbItems,
     },
   },
   {
@@ -150,12 +175,7 @@ export const routes: RouteRecordRaw[] = [
     name: "change-password",
     component: () => import("@/views/backend/ChangePasswordView.vue"),
     meta: {
-      breadcrumb: {
-        label: "編輯個人資料",
-        parent: {
-          label: "我的帳號",
-        },
-      },
+      breadcrumb: getAccountBreadcrumbItems,
     },
   },
   {

@@ -15,6 +15,7 @@
     "format:check": "prettier --check \"src/**/*.{js,ts,vue,json,css,scss,md}\""
   },
   "dependencies": {
+    "@tailwindcss/typography": "^0.5.15",
     "@tiptap/core": "^2.1.13",
     "@tiptap/extension-color": "^2.1.13",
     "@tiptap/extension-font-family": "^2.1.13",
@@ -28,8 +29,8 @@
     "@tiptap/extension-youtube": "^2.1.13",
     "@tiptap/starter-kit": "^2.1.13",
     "@tiptap/vue-3": "^2.1.13",
-    "@tailwindcss/typography": "^0.5.15",
     "@vueuse/core": "^10.11.0",
+    "axios": "^1.13.4",
     "dayjs": "^1.11.19",
     "flowbite": "^2.5.2",
     "pinia": "^2.1.7",

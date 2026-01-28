@@ -7,7 +7,7 @@
     <div class="flex flex-1 flex-col gap-10 p-4 sm:ml-[328px] sm:p-10">
       <!-- Breadcrumb and Title -->
       <div class="flex flex-col gap-6">
-        <Breadcrumb :items="breadcrumbItems" />
+        <Breadcrumb />
         <h1 class="text-3xl font-bold leading-[30px] text-gray-900">都市更新案件</h1>
       </div>
 
@@ -256,9 +256,8 @@
 
 <script setup lang="ts">
 import { ref, computed } from "vue";
-import { useRoute } from "vue-router";
 import SidebarSection from "@/components/sections/backend/SidebarSection.vue";
-import Breadcrumb, { type BreadcrumbItem } from "@/components/atoms/Breadcrumb.vue";
+import Breadcrumb from "@/components/atoms/Breadcrumb.vue";
 import Icon from "@/components/atoms/Icon.vue";
 import Badge from "@/components/atoms/Badge.vue";
 import Stepper, { type StepperStep } from "@/components/atoms/Stepper.vue";
@@ -266,34 +265,6 @@ import Dropdown, { type DropdownItem } from "@/components/atoms/Dropdown.vue";
 import Table, { type TableColumn } from "@/components/atoms/Table.vue";
 import Empty from "@/components/atoms/Empty.vue";
 import { useTablePagination } from "@/composables/useTablePagination";
-
-const route = useRoute();
-
-// 動態麵包屑：根據來源路由或用戶角色判斷
-const breadcrumbItems = computed<BreadcrumbItem[]>(() => {
-  const items: BreadcrumbItem[] = [{ label: "首頁", to: "/" }];
-
-  // 檢查是否為管理員（從 localStorage 或查詢參數）
-  const userInfo = localStorage.getItem("userInfo");
-  const isAdmin = userInfo ? JSON.parse(userInfo).role === "admin" : false;
-
-  // 檢查查詢參數中的來源路由
-  const fromRoute = route.query.from as string | undefined;
-  const isFromAdmin = fromRoute?.includes("-admin") || route.query.admin === "true" || isAdmin;
-
-  if (isFromAdmin) {
-    // 管理員版本：案件管理 > 都市更新案件管理 > 案件詳情
-    items.push({ label: "案件管理" });
-    items.push({ label: "都市更新案件管理", to: "/case-management-admin" });
-  } else {
-    // 用戶版本：我的案件 > 都市更新案件 > 案件詳情
-    items.push({ label: "我的案件" });
-    items.push({ label: "都市更新案件", to: "/case-management" });
-  }
-
-  items.push({ label: "案件詳情" });
-  return items;
-});
 
 interface ProgressStage {
   name: string;

@@ -38,14 +38,14 @@
 <script setup lang="ts">
 import { ref, computed } from "vue";
 import { useRouter } from "vue-router";
-import SidebarSection from "@/components/sections/backend/SidebarSection.vue";
-import Breadcrumb from "@/components/atoms/Breadcrumb.vue";
-import Tabs from "@/components/atoms/Tabs.vue";
-import Table, { type TableColumn } from "@/components/atoms/Table.vue";
-import Switch from "@/components/atoms/Switch.vue";
-import Icon from "@/components/atoms/Icon.vue";
-import ButtonCTA from "@/components/atoms/ButtonCTA.vue";
 import { useTablePagination } from "@/composables/useTablePagination";
+import Tabs from "@/components/atoms/Tabs.vue";
+import Icon from "@/components/atoms/Icon.vue";
+import Switch from "@/components/atoms/Switch.vue";
+import ButtonCTA from "@/components/atoms/ButtonCTA.vue";
+import Breadcrumb from "@/components/atoms/Breadcrumb.vue";
+import SidebarSection from "@/components/sections/backend/SidebarSection.vue";
+import Table, { type TableColumn } from "@/components/atoms/Table.vue";
 
 interface FAQItem {
   index: number;

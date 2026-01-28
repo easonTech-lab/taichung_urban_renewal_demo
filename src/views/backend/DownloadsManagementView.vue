@@ -1,18 +1,12 @@
 <template>
   <div class="min-h-screen bg-indigo-50">
-    <!-- Sidebar -->
     <SidebarSection @item-select="handleSidebarItemSelect" />
-    <!-- Main Content -->
     <div class="flex flex-1 flex-col gap-10 p-4 sm:ml-[328px] sm:p-10">
-      <!-- Breadcrumb and Title -->
       <div class="flex flex-col gap-6">
         <Breadcrumb />
         <h1 class="text-3xl font-bold leading-[30px] text-gray-900">下載專區維護</h1>
       </div>
-
-      <!-- Downloads List Card -->
       <div class="flex flex-col gap-4 rounded-lg bg-white p-6 shadow-sm">
-        <!-- Header Section -->
         <div class="flex items-center justify-between">
           <div class="flex items-center gap-3">
             <div class="h-7 w-1 rounded bg-primary-600"></div>
@@ -20,30 +14,20 @@
           </div>
           <ButtonCTA variant="outline" size="sm" left-icon="plus" @click="handleAddDownload"> 新增資料下載 </ButtonCTA>
         </div>
-
-        <!-- Tabs -->
         <div class="flex flex-col gap-4">
           <Tabs :items="tabItems" :model-value="activeTab" @tab-click="handleTabClick" />
         </div>
-
-        <!-- Category Filter -->
         <div class="w-[160px]">
           <Dropdown :button-text="selectedCategory || '全部案件類別'" :items="categoryOptions" variant="outline" @item-click="handleCategoryChange" />
         </div>
-
-        <!-- Table -->
         <div class="rounded-lg border border-gray-300 bg-white">
           <Table :columns="tableColumns" :rows="paginatedDownloads" :pagination="pagination" @page-change="handlePageChange">
-            <!-- Index -->
             <template #cell-index="{ rowIndex }">
               <p class="text-base text-gray-500">{{ (currentPage - 1) * pageSize + rowIndex + 1 }}</p>
             </template>
-            <!-- Status -->
             <template #cell-status="{ row }">
               <Switch :model-value="row.status" :show-text="true" on-text="上架" off-text="下架" @update:model-value="(value) => handleStatusChange(row, value)" />
             </template>
-
-            <!-- Action -->
             <template #cell-action="{ row }">
               <div class="flex items-center">
                 <ButtonCTA variant="textPlain" size="sm" @click.stop="handlePreview(row)">預覽</ButtonCTA>
@@ -60,14 +44,16 @@
 <script setup lang="ts">
 import { ref, computed } from "vue";
 import { useRouter } from "vue-router";
-import SidebarSection from "@/components/sections/backend/SidebarSection.vue";
-import Breadcrumb from "@/components/atoms/Breadcrumb.vue";
+import { useTablePagination } from "@/composables/useTablePagination";
 import Tabs from "@/components/atoms/Tabs.vue";
-import Table, { type TableColumn } from "@/components/atoms/Table.vue";
 import Switch from "@/components/atoms/Switch.vue";
 import Dropdown from "@/components/atoms/Dropdown.vue";
 import ButtonCTA from "@/components/atoms/ButtonCTA.vue";
-import { useTablePagination } from "@/composables/useTablePagination";
+import Breadcrumb from "@/components/atoms/Breadcrumb.vue";
+import SidebarSection from "@/components/sections/backend/SidebarSection.vue";
+import Table, { type TableColumn } from "@/components/atoms/Table.vue";
+
+
 
 interface DownloadItem {
   fileName: string;

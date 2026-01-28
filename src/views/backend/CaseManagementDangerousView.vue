@@ -64,10 +64,6 @@ import Table, { type TableColumn } from "@/components/atoms/Table.vue";
 import Dropdown, { type DropdownItem } from "@/components/atoms/Dropdown.vue";
 import ButtonDropdown, { type ButtonDropdownItem } from "@/components/atoms/ButtonDropdown.vue";
 
-
-
-
-
 const route = useRoute();
 
 // 判斷是否為管理員模式（根據路由名稱）

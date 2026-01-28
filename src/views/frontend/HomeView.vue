@@ -30,14 +30,14 @@
   </div>
 </template>
 <script setup lang="ts">
+import FooterSection from "@/components/sections/global/FooterSection.vue";
+import FAQSection from "@/components/sections/frontend/home/FAQSection.vue";
+import NewsSection from "@/components/sections/frontend/home/NewsSection.vue";
 import HeroSection from "@/components/sections/frontend/home/HeroSection.vue";
 import StatsSection from "@/components/sections/frontend/home/StatsSection.vue";
-import FAQSection from "@/components/sections/frontend/home/FAQSection.vue";
-import DownloadSection from "@/components/sections/frontend/home/DownloadSection.vue";
-import NewsSection from "@/components/sections/frontend/home/NewsSection.vue";
 import MeetingSection from "@/components/sections/frontend/home/MeetingSection.vue";
 import ServiceSection from "@/components/sections/frontend/home/ServiceSection.vue";
-import FooterSection from "@/components/sections/global/FooterSection.vue";
+import DownloadSection from "@/components/sections/frontend/home/DownloadSection.vue";
 </script>
 <style scoped>
 .curve-bottom svg {

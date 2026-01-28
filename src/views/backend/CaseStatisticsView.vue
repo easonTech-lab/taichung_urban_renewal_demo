@@ -1,18 +1,12 @@
 <template>
   <div class="min-h-screen bg-indigo-50">
-    <!-- Sidebar -->
     <SidebarSection @item-select="handleSidebarItemSelect" />
-    <!-- Main Content -->
     <div class="flex flex-1 flex-col gap-10 p-4 sm:ml-[328px] sm:p-10">
-      <!-- Breadcrumb and Title -->
       <div class="flex flex-col gap-6">
         <Breadcrumb />
         <h1 class="text-3xl font-bold leading-[30px] text-gray-900">案件統計維護</h1>
       </div>
-
-      <!-- Statistics Table Card -->
       <div class="flex flex-col gap-4 rounded-lg bg-white p-6 shadow-sm">
-        <!-- Header Section -->
         <div class="flex items-center justify-between">
           <div class="flex items-center gap-3">
             <div class="h-7 w-1 rounded bg-primary-600"></div>
@@ -20,33 +14,19 @@
           </div>
           <ButtonCTA variant="outline" size="sm" left-icon="plus" @click="handleAddYear"> 新增年度 </ButtonCTA>
         </div>
-
-        <!-- Tabs and Filters -->
         <div class="flex flex-col gap-6">
-          <!-- Tabs -->
           <Tabs :items="tabItems" :model-value="activeTab" @tab-click="handleTabClick" />
-
-          <!-- Year Range Filter -->
           <div class="flex items-center gap-2">
-            <div class="w-40">
-              <Dropdown :button-text="selectedStartYear || '選擇年度區間'" :items="yearOptions" variant="outline" @item-click="handleStartYearChange" />
-            </div>
+            <Dropdown :button-text="selectedStartYear || '選擇年度區間'" :items="yearOptions" variant="outline" @item-click="handleStartYearChange" />
             <span class="text-xl font-normal leading-5 text-gray-500">-</span>
-            <div class="w-40">
-              <Dropdown :button-text="selectedEndYear || '選擇年度區間'" :items="yearOptions" variant="outline" @item-click="handleEndYearChange" />
-            </div>
+            <Dropdown :button-text="selectedEndYear || '選擇年度區間'" :items="yearOptions" variant="outline" @item-click="handleEndYearChange" />
           </div>
         </div>
-
-        <!-- Table -->
         <div class="rounded-lg border border-gray-300 bg-white">
           <Table :columns="tableColumns" :rows="paginatedStatistics" :pagination="pagination" @page-change="handlePageChange">
-            <!-- Growth Rate -->
             <template #cell-growthRate="{ row }">
               <Badge :variant="getGrowthRateVariant(row.growthRate)" :text="row.growthRate" />
             </template>
-
-            <!-- Action -->
             <template #cell-action="{ row }">
               <ButtonCTA variant="text" size="sm" icon-only left-icon="editOutline" @click.stop="handleEdit(row)" aria-label="編輯" />
             </template>
@@ -60,16 +40,15 @@
 <script setup lang="ts">
 import { ref, computed } from "vue";
 import { useRouter } from "vue-router";
-import SidebarSection from "@/components/sections/backend/SidebarSection.vue";
-import Breadcrumb from "@/components/atoms/Breadcrumb.vue";
 import Tabs from "@/components/atoms/Tabs.vue";
-import Dropdown, { type DropdownItem } from "@/components/atoms/Dropdown.vue";
-import Table, { type TableColumn } from "@/components/atoms/Table.vue";
-import Badge from "@/components/atoms/Badge.vue";
 import Icon from "@/components/atoms/Icon.vue";
+import Badge from "@/components/atoms/Badge.vue";
 import ButtonCTA from "@/components/atoms/ButtonCTA.vue";
+import Breadcrumb from "@/components/atoms/Breadcrumb.vue";
+import SidebarSection from "@/components/sections/backend/SidebarSection.vue";
 import { useTablePagination } from "@/composables/useTablePagination";
-
+import Table, { type TableColumn } from "@/components/atoms/Table.vue";
+import Dropdown, { type DropdownItem } from "@/components/atoms/Dropdown.vue";
 const router = useRouter();
 
 interface StatisticsItem {
@@ -184,7 +163,12 @@ const filteredStatistics = computed(() => {
   return stats;
 });
 
-const { paginatedRows: paginatedStatistics, pagination, handlePageChange, resetPage } = useTablePagination({
+const {
+  paginatedRows: paginatedStatistics,
+  pagination,
+  handlePageChange,
+  resetPage,
+} = useTablePagination({
   rows: filteredStatistics,
   pageSize,
 });

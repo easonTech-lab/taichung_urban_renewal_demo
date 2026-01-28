@@ -7,7 +7,6 @@
         <h1 class="text-3xl font-bold leading-[30px] text-gray-900">公開消息維護</h1>
       </div>
       <div class="flex flex-col gap-4 rounded-lg bg-white p-6 shadow-sm">
-        <!-- Header Section -->
         <div class="flex items-center justify-between">
           <div class="flex items-center gap-3">
             <div class="h-7 w-1 rounded bg-primary-600"></div>
@@ -15,15 +14,12 @@
           </div>
           <ButtonCTA variant="outline" size="sm" left-icon="plus" @click="handleAddMessage"> 新增公開消息 </ButtonCTA>
         </div>
-        <!-- Tabs -->
         <div class="flex flex-col gap-4">
           <Tabs :items="tabItems" :model-value="activeTab" @tab-click="handleTabClick" />
         </div>
-        <!-- Category Filter -->
         <div class="w-[160px]">
           <Dropdown :button-text="selectedCategory || '全部類別'" :items="categoryOptions" variant="outline" @item-click="handleCategoryChange" />
         </div>
-        <!-- Table -->
         <div class="rounded-lg border border-gray-300 bg-white">
           <Table :columns="tableColumns" :rows="paginatedMessages" :pagination="pagination" @page-change="handlePageChange">
             <!-- Index -->
@@ -57,8 +53,8 @@ import Dropdown from "@/components/atoms/Dropdown.vue";
 import ButtonCTA from "@/components/atoms/ButtonCTA.vue";
 import Breadcrumb from "@/components/atoms/Breadcrumb.vue";
 import SidebarSection from "@/components/sections/backend/SidebarSection.vue";
-import Table, { type TableColumn } from "@/components/atoms/Table.vue";
 import { useTablePagination } from "@/composables/useTablePagination";
+import Table, { type TableColumn } from "@/components/atoms/Table.vue";
 
 interface PublicMessageItem {
   title: string;

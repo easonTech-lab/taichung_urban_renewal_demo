@@ -3,7 +3,7 @@
     <SidebarSection @item-select="handleSidebarItemSelect" />
     <div class="flex flex-1 flex-col gap-10 p-4 sm:ml-[328px] sm:p-10">
       <div class="flex flex-col gap-6">
-        <Breadcrumb :items="breadcrumbItems" />
+        <Breadcrumb />
         <div class="flex items-center gap-4">
           <ButtonCTA variant="none" icon-only left-icon="arrowLeftOutline" @click="handleGoBack" aria-label="返回上一頁" />
           <h1 class="text-3xl font-bold leading-[30px] text-gray-900">前一頁</h1>
@@ -99,36 +99,13 @@
 <script setup lang="ts">
 import { ref, computed } from "vue";
 import { useRouter } from "vue-router";
-import SidebarSection from "@/components/sections/backend/SidebarSection.vue";
-import Breadcrumb, { type BreadcrumbItem } from "@/components/atoms/Breadcrumb.vue";
-import Input from "@/components/atoms/Input.vue";
-import ButtonCTA from "@/components/atoms/ButtonCTA.vue";
 import Icon from "@/components/atoms/Icon.vue";
 import Modal from "@/components/atoms/Modal.vue";
-
+import Input from "@/components/atoms/Input.vue";
+import ButtonCTA from "@/components/atoms/ButtonCTA.vue";
+import SidebarSection from "@/components/sections/backend/SidebarSection.vue";
+import Breadcrumb from "@/components/atoms/Breadcrumb.vue";
 const router = useRouter();
-
-// Check if user is admin
-const isAdmin = computed(() => {
-  const userInfo = localStorage.getItem("userInfo");
-  if (userInfo) {
-    try {
-      const user = JSON.parse(userInfo);
-      return user.role === "admin";
-    } catch {
-      return false;
-    }
-  }
-  return false;
-});
-
-// Breadcrumb items based on role
-const breadcrumbItems = computed<BreadcrumbItem[]>(() => {
-  if (isAdmin.value) {
-    return [{ label: "首頁", to: "/" }, { label: "我的帳號" }, { label: "人員帳號管理", to: "/profile" }];
-  }
-  return [{ label: "首頁", to: "/" }, { label: "我的帳號" }, { label: "編輯個人資料", to: "/profile" }];
-});
 
 // Form Data
 const formData = ref({

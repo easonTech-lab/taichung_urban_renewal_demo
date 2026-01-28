@@ -100,13 +100,13 @@
 <script setup lang="ts">
 import { ref, watch, computed, onMounted } from "vue";
 import { useRouter, useRoute } from "vue-router";
-import SidebarSection from "@/components/sections/backend/SidebarSection.vue";
-import Breadcrumb from "@/components/atoms/Breadcrumb.vue";
 import Input from "@/components/atoms/Input.vue";
-import InputDropdown from "@/components/atoms/InputDropdown.vue";
-import Checkbox from "@/components/atoms/Checkbox.vue";
 import Switch from "@/components/atoms/Switch.vue";
+import Checkbox from "@/components/atoms/Checkbox.vue";
 import ButtonCTA from "@/components/atoms/ButtonCTA.vue";
+import Breadcrumb from "@/components/atoms/Breadcrumb.vue";
+import InputDropdown from "@/components/atoms/InputDropdown.vue";
+import SidebarSection from "@/components/sections/backend/SidebarSection.vue";
 
 const router = useRouter();
 const route = useRoute();

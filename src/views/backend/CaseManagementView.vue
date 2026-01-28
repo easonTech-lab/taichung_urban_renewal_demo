@@ -61,15 +61,15 @@
 <script setup lang="ts">
 import { ref, computed } from "vue";
 import { useRouter, useRoute } from "vue-router";
-import SidebarSection from "@/components/sections/backend/SidebarSection.vue";
-import Breadcrumb from "@/components/atoms/Breadcrumb.vue";
-import ButtonDropdown, { type ButtonDropdownItem } from "@/components/atoms/ButtonDropdown.vue";
-import Dropdown, { type DropdownItem } from "@/components/atoms/Dropdown.vue";
-import CheckboxDropdown, { type CheckboxDropdownItem } from "@/components/atoms/CheckboxDropdown.vue";
-import Table, { type TableColumn } from "@/components/atoms/Table.vue";
+import { useTablePagination } from "@/composables/useTablePagination";
 import Badge from "@/components/atoms/Badge.vue";
 import Empty from "@/components/atoms/Empty.vue";
-import { useTablePagination } from "@/composables/useTablePagination";
+import Breadcrumb from "@/components/atoms/Breadcrumb.vue";
+import SidebarSection from "@/components/sections/backend/SidebarSection.vue";
+import Table, { type TableColumn } from "@/components/atoms/Table.vue";
+import Dropdown, { type DropdownItem } from "@/components/atoms/Dropdown.vue";
+import ButtonDropdown, { type ButtonDropdownItem } from "@/components/atoms/ButtonDropdown.vue";
+import CheckboxDropdown, { type CheckboxDropdownItem } from "@/components/atoms/CheckboxDropdown.vue";
 
 const router = useRouter();
 const route = useRoute();
@@ -112,7 +112,6 @@ const selectedStages = ref<(string | number)[]>(stageOptions.map((opt) => opt.va
 const selectedStatus = ref<string>("");
 const selectedAddCaseIndex = ref<number | undefined>(undefined);
 const pageSize = ref<number>(10);
-const totalCases = ref<number>(1000); // 管理員顯示的總案件數
 
 // Mock Data
 const allCases: CaseItem[] = [
