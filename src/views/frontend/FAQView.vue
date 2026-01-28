@@ -7,7 +7,6 @@
         <Breadcrumb />
         <h1 class="text-[30px] font-bold leading-[30px] text-gray-900">常見問題</h1>
       </div>
-
       <!-- 搜尋框 -->
       <div class="mt-6 px-[60px]">
         <div class="flex items-start gap-4">
@@ -30,13 +29,13 @@
       <div class="mt-6 flex items-start gap-10 px-[60px] pb-[40px]">
         <!-- 左側：搜索結果統計（搜索時顯示）或分類導航手風琴（無搜索時顯示） -->
         <div class="w-[360px] shrink-0">
-          <!-- 搜索結果統計（搜索時顯示，即使0筆也顯示） -->
+          <!-- 搜索結果統計 -->
           <div v-if="appliedSearchQuery.trim()" class="flex items-end gap-2">
             <p class="text-2xl font-medium leading-normal text-black">搜尋結果共</p>
             <p class="text-3xl font-bold leading-normal text-primary-700">{{ allMatchingQuestions.length }}</p>
             <p class="text-2xl font-medium leading-normal text-black">筆</p>
           </div>
-          <!-- 分類導航手風琴（無搜索時顯示） -->
+          <!-- 分類導航手風琴 -->
           <div v-else class="flex flex-col gap-6">
             <div v-for="(category, categoryIndex) in faqCategories" :key="categoryIndex" class="flex flex-col gap-6">
               <!-- 分類標題（可展開/收起） -->
@@ -100,20 +99,12 @@
           <div class="flex flex-col gap-6">
             <!-- 搜索結果視圖 -->
             <template v-if="appliedSearchQuery.trim()">
-              <!-- 無搜索結果提示 -->
               <Empty v-if="allMatchingQuestions.length === 0" />
-              <!-- 搜索結果：按分類分組顯示 -->
               <template v-else>
                 <div v-for="(categoryGroup, categoryIndex) in groupedSearchResults" :key="categoryIndex" class="flex flex-col gap-6">
-                  <!-- 分類標題 -->
-                  <h2 class="text-2xl font-bold leading-normal tracking-[-0.24px] text-gray-900">
-                    {{ categoryGroup.categoryTitle }}
-                  </h2>
-
-                  <!-- 該分類下的問題列表 -->
+                  <h2 class="text-2xl font-bold leading-normal tracking-[-0.24px] text-gray-900">{{ categoryGroup.categoryTitle }}</h2>
                   <div class="flex flex-col gap-6">
-                    <template v-for="(question, questionIndex) in categoryGroup.questions" :key="question.id">
-                      <!-- 展開的問題（顯示詳細內容） -->
+                    <template v-for="question in categoryGroup.questions" :key="question.id">
                       <div
                         v-if="activeQuestionId === question.id"
                         :id="`question-${question.id}-content`"
@@ -139,13 +130,10 @@
                               </svg>
                             </div>
                           </div>
-                          <p class="text-xl font-medium text-gray-900">
-                            {{ question.title }}
-                          </p>
+                          <p class="text-xl font-medium text-gray-900">{{ question.title }}</p>
                         </button>
                         <div class="pl-8 text-base leading-loose text-gray-800" v-html="question.content"></div>
                       </div>
-
                       <!-- 收起的問題（只顯示標題） -->
                       <button
                         v-else
@@ -166,24 +154,16 @@
                             </svg>
                           </div>
                         </div>
-                        <p class="text-xl font-medium text-gray-900">
-                          {{ question.title }}
-                        </p>
+                        <p class="text-xl font-medium text-gray-900">{{ question.title }}</p>
                       </button>
                     </template>
                   </div>
                 </div>
               </template>
             </template>
-
             <!-- 正常視圖（無搜索時顯示） -->
             <template v-else>
-              <!-- 分類標題 -->
-              <h2 v-show="activeCategory" class="text-2xl font-bold leading-normal tracking-[-0.24px] text-gray-900">
-                {{ activeCategory?.title || "" }}
-              </h2>
-
-              <!-- 問題列表 -->
+              <h2 v-show="activeCategory" class="text-2xl font-bold leading-normal tracking-[-0.24px] text-gray-900">{{ activeCategory?.title || "" }}</h2>
               <div v-if="currentQuestions.length > 0" class="flex flex-col gap-6">
                 <template v-for="(question, index) in currentQuestions" :key="question.id">
                   <!-- 展開的問題（顯示詳細內容） -->
@@ -212,13 +192,10 @@
                           </svg>
                         </div>
                       </div>
-                      <p class="text-xl font-medium text-gray-900">
-                        {{ question.title }}
-                      </p>
+                      <p class="text-xl font-medium text-gray-900">{{ question.title }}</p>
                     </button>
                     <div class="pl-8 text-base leading-loose text-gray-800" v-html="question.content"></div>
                   </div>
-
                   <!-- 收起的問題（只顯示標題） -->
                   <button
                     v-else
@@ -239,9 +216,7 @@
                         </svg>
                       </div>
                     </div>
-                    <p class="text-xl font-medium text-gray-900">
-                      {{ question.title }}
-                    </p>
+                    <p class="text-xl font-medium text-gray-900">{{ question.title }}</p>
                   </button>
                 </template>
               </div>
@@ -387,10 +362,8 @@ const isCategoryOpen = (index: number) => {
 // 獲取所有匹配搜尋的問題（跨分類）
 const allMatchingQuestions = computed(() => {
   if (!appliedSearchQuery.value.trim()) return [];
-
   const query = appliedSearchQuery.value.trim().toLowerCase();
   const matching: Array<{ categoryIndex: number; categoryTitle: string; question: FAQQuestion }> = [];
-
   faqCategories.forEach((category, categoryIndex) => {
     category.questions.forEach((question) => {
       // 搜尋標題
@@ -398,7 +371,6 @@ const allMatchingQuestions = computed(() => {
         matching.push({ categoryIndex, categoryTitle: category.title, question });
         return;
       }
-
       // 搜尋內容（去除 HTML 標籤後）
       const textContent = stripHtmlTags(question.content).toLowerCase();
       if (textContent.includes(query)) {
@@ -413,16 +385,13 @@ const allMatchingQuestions = computed(() => {
 // 按分類分組的搜索結果
 const groupedSearchResults = computed(() => {
   if (!appliedSearchQuery.value.trim() || allMatchingQuestions.value.length === 0) return [];
-
   const groups = new Map<string, FAQQuestion[]>();
-
   allMatchingQuestions.value.forEach((item) => {
     if (!groups.has(item.categoryTitle)) {
       groups.set(item.categoryTitle, []);
     }
     groups.get(item.categoryTitle)!.push(item.question);
   });
-
   return Array.from(groups.entries()).map(([categoryTitle, questions]) => ({
     categoryTitle,
     questions,
@@ -442,9 +411,9 @@ const stripHtmlTags = (html: string): string => {
   return tmp.textContent || tmp.innerText || "";
 };
 
+//點擊分類標題展開/收起
 const selectCategory = (index: number) => {
   const currentIndex = activeCategoryIndexes.value.indexOf(index);
-
   if (currentIndex > -1) {
     // 如果點擊已展開的分類，則收起
     activeCategoryIndexes.value = [];
@@ -459,6 +428,7 @@ const selectCategory = (index: number) => {
   }
 };
 
+//點擊問題標題展開/收起
 const selectQuestion = (questionId: string) => {
   // 如果點擊的是已展開的問題，則收起
   if (activeQuestionId.value === questionId) {
@@ -470,7 +440,6 @@ const selectQuestion = (questionId: string) => {
 
 const handleSearch = () => {
   const query = searchQuery.value.trim();
-
   if (query) {
     // 有搜尋關鍵字時，預設所有結果都是收起的
     activeQuestionId.value = null;

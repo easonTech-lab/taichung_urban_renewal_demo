@@ -1,23 +1,15 @@
 <template>
   <div class="min-h-screen bg-indigo-50">
-    <!-- Sidebar -->
     <SidebarSection @item-select="handleSidebarItemSelect" />
-
-    <!-- Main Content -->
     <div class="flex flex-1 flex-col gap-10 p-4 sm:ml-[328px] sm:p-10">
-      <!-- Breadcrumb and Title -->
       <div class="flex flex-col gap-6">
         <Breadcrumb />
         <h1 class="text-3xl font-bold leading-[30px] text-gray-900">
           {{ isAdmin ? "危老重建案件管理" : "危老重建案件" }}
         </h1>
       </div>
-
-      <!-- Case List Card -->
       <div class="rounded-lg bg-white px-6 py-6 shadow-sm">
-        <!-- Header Section -->
         <div class="mb-6 flex flex-col gap-6">
-          <!-- Title and Add Button -->
           <div class="flex items-center justify-between">
             <div class="flex flex-col gap-2">
               <div class="flex items-center gap-3">
@@ -38,8 +30,6 @@
               @item-click="handleAddCaseOption"
             />
           </div>
-
-          <!-- Filters -->
           <div class="flex items-center gap-4">
             <div class="w-40">
               <Dropdown :button-text="selectedStage || '全部案件階段'" :items="stageOptions" variant="outline" @item-click="handleStageChange" />
@@ -49,15 +39,9 @@
             </div>
           </div>
         </div>
-        <!-- Table or Empty State -->
         <div class="rounded-lg border border-gray-300 bg-white">
           <Empty v-if="filteredCases.length === 0" type="case-management" @button-click="handleEmptyStateAddCase" />
           <Table v-else :columns="tableColumns" :rows="paginatedCases" :pagination="pagination" @page-change="handlePageChange">
-            <!-- 動態生成簡單欄位的 slots -->
-            <template v-for="column in simpleColumns" :key="column.key" #[`cell-${column.key}`]="{ row }">
-              <p :class="column.textClass">{{ row[column.key] }}</p>
-            </template>
-            <!-- 例外欄位：caseStatus 使用 Badge -->
             <template #cell-caseStatus="{ row }">
               <Badge :variant="getStatusVariant(row.caseStatus)" :text="row.caseStatus" />
             </template>
@@ -71,13 +55,18 @@
 <script setup lang="ts">
 import { ref, computed } from "vue";
 import { useRoute } from "vue-router";
-import SidebarSection from "@/components/sections/backend/SidebarSection.vue";
-import Breadcrumb from "@/components/atoms/Breadcrumb.vue";
-import ButtonDropdown, { type ButtonDropdownItem } from "@/components/atoms/ButtonDropdown.vue";
-import Dropdown, { type DropdownItem } from "@/components/atoms/Dropdown.vue";
-import Table, { type TableColumn, type TablePagination } from "@/components/atoms/Table.vue";
+import { useTablePagination } from "@/composables/useTablePagination";
 import Badge from "@/components/atoms/Badge.vue";
 import Empty from "@/components/atoms/Empty.vue";
+import Breadcrumb from "@/components/atoms/Breadcrumb.vue";
+import SidebarSection from "@/components/sections/backend/SidebarSection.vue";
+import Table, { type TableColumn } from "@/components/atoms/Table.vue";
+import Dropdown, { type DropdownItem } from "@/components/atoms/Dropdown.vue";
+import ButtonDropdown, { type ButtonDropdownItem } from "@/components/atoms/ButtonDropdown.vue";
+
+
+
+
 
 const route = useRoute();
 
@@ -109,8 +98,6 @@ const addCaseOptions: ButtonDropdownItem[] = [
 const selectedStage = ref<string>("");
 const selectedStatus = ref<string>("");
 const selectedAddCaseIndex = ref<number | undefined>(undefined);
-const currentPage = ref<number>(1);
-const pageSize = ref<number>(10);
 const totalCases = ref<number>(1000); // 管理員顯示的總案件數
 
 // Mock Data - 危老重建案件
@@ -193,38 +180,30 @@ const tableColumns: TableColumn[] = [
     key: "caseNumber",
     label: "案件編號",
     headerClass: "w-[196px]",
-    cellClass: "w-[196px]",
+    cellClass: "w-[196px] text-base text-gray-900",
   },
   {
     key: "caseName",
     label: "案件名稱",
     headerClass: "w-[375px]",
-    cellClass: "w-[375px]",
+    cellClass: "w-[375px] text-base text-gray-900",
   },
   {
     key: "caseCategory",
     label: "案件類別",
     headerClass: "w-[140px]",
-    cellClass: "w-[140px]",
+    cellClass: "w-[140px] text-base text-gray-500",
   },
   {
     key: "caseStage",
     label: "案件階段",
     headerClass: "w-[160px]",
-    cellClass: "w-[160px]",
+    cellClass: "w-[160px] text-base text-gray-500",
   },
   {
     key: "caseStatus",
     label: "案件狀態",
   },
-];
-
-// 簡單欄位配置（不需要特殊組件的欄位）
-const simpleColumns = [
-  { key: "caseNumber", textClass: "text-base text-gray-900" },
-  { key: "caseName", textClass: "text-base text-gray-900" },
-  { key: "caseCategory", textClass: "text-base text-gray-500" },
-  { key: "caseStage", textClass: "text-base text-gray-500" },
 ];
 
 // Filtered Cases
@@ -242,19 +221,11 @@ const filteredCases = computed(() => {
   return cases;
 });
 
-// Paginated Cases
-const paginatedCases = computed(() => {
-  const start = (currentPage.value - 1) * pageSize.value;
-  const end = start + pageSize.value;
-  return filteredCases.value.slice(start, end);
+const { paginatedRows: paginatedCases, pagination, handlePageChange, resetPage } = useTablePagination({
+  rows: filteredCases,
+  pageSize: 10,
+  total: computed(() => (isAdmin.value ? totalCases.value : filteredCases.value.length)),
 });
-
-// Pagination
-const pagination = computed<TablePagination>(() => ({
-  currentPage: currentPage.value,
-  total: isAdmin.value ? totalCases.value : filteredCases.value.length, // 管理員使用總數，用戶使用過濾後的數量
-  pageSize: pageSize.value,
-}));
 
 // Status Variant Mapping
 const getStatusVariant = (status: string): "primary" | "success" | "danger" => {
@@ -273,16 +244,12 @@ const handleSidebarItemSelect = (itemName: string) => {
 
 const handleStageChange = (item: DropdownItem) => {
   selectedStage.value = item.label;
-  currentPage.value = 1;
+  resetPage();
 };
 
 const handleStatusChange = (item: DropdownItem) => {
   selectedStatus.value = item.label;
-  currentPage.value = 1;
-};
-
-const handlePageChange = (page: number) => {
-  currentPage.value = page;
+  resetPage();
 };
 
 const handleAddCaseOption = (item: ButtonDropdownItem, index: number) => {

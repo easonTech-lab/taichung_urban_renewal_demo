@@ -1,10 +1,7 @@
 <template>
   <div class="min-h-screen bg-indigo-50">
-    <!-- Sidebar -->
     <SidebarSection @item-select="handleSidebarItemSelect" />
-    <!-- Main Content -->
     <div class="flex flex-1 flex-col gap-10 p-4 sm:ml-[328px] sm:p-10">
-      <!-- Breadcrumb and Title -->
       <div class="flex flex-col gap-6">
         <Breadcrumb />
         <div class="flex items-center gap-4">
@@ -14,21 +11,13 @@
           <h1 class="text-3xl font-bold leading-[30px] text-gray-900">前ㄧ頁</h1>
         </div>
       </div>
-
-      <!-- Form Card -->
       <div class="flex flex-col gap-10 rounded-lg bg-white p-6 shadow-sm">
-        <!-- Section Title -->
         <div class="flex items-center gap-3">
           <div class="h-7 w-1 rounded bg-primary-600"></div>
           <h2 class="text-2xl font-medium leading-6 text-gray-900">新增問題內容</h2>
         </div>
-
-        <!-- Form Fields -->
         <div class="flex flex-col gap-6">
-          <!-- Title Input -->
           <Input v-model="formData.title" label="標題(限50字)" placeholder="我家的建築是幾年的？該走危老還都更？" size="lg" :maxlength="50" required />
-
-          <!-- Category Selection -->
           <RadioGroup label="類別" required>
             <template #radios>
               <Radio
@@ -47,13 +36,9 @@
               <ButtonCTA variant="outline" size="sm" left-icon="plus" @click="handleAddCategory"> 新增類別 </ButtonCTA>
             </div>
           </RadioGroup>
-
-          <!-- Answer Editor -->
           <RichTextEditor v-model="formData.answer" label="回答(限200字)" placeholder="請輸入回答內容..." required :maxlength="200" />
         </div>
       </div>
-
-      <!-- Action Buttons -->
       <div class="flex items-center justify-center gap-4">
         <ButtonCTA variant="outline" size="l" @click="handleSaveDraft">暫存</ButtonCTA>
         <ButtonCTA variant="primary" size="l" @click="handlePublish">發布</ButtonCTA>

@@ -135,11 +135,12 @@ import { useRouter } from "vue-router";
 import { ref, computed } from "vue";
 import SidebarSection from "@/components/sections/backend/SidebarSection.vue";
 import Breadcrumb from "@/components/atoms/Breadcrumb.vue";
-import Table, { type TableColumn, type TablePagination } from "@/components/atoms/Table.vue";
+import Table, { type TableColumn } from "@/components/atoms/Table.vue";
 import Switch from "@/components/atoms/Switch.vue";
 import ButtonCTA from "@/components/atoms/ButtonCTA.vue";
 import Drawer from "@/components/atoms/Drawer.vue";
 import Radio from "@/components/atoms/Radio.vue";
+import { useTablePagination } from "@/composables/useTablePagination";
 
 interface Permission {
   category: string;
@@ -156,7 +157,6 @@ interface HandlerAccount {
 }
 
 // State
-const currentPage = ref<number>(1);
 const router = useRouter();
 const pageSize = ref<number>(10);
 const showEditModal = ref<boolean>(false);
@@ -328,25 +328,15 @@ const tableColumns: TableColumn[] = [
   },
 ];
 
-// 注意：分頁現在由 Table 組件內部處理，所以這裡直接傳遞所有數據
-const paginatedHandlers = computed(() => {
-  return handlerAccounts.value;
+const { currentPage, paginatedRows: paginatedHandlers, pagination, handlePageChange } = useTablePagination({
+  rows: handlerAccounts,
+  pageSize,
+  slice: false,
 });
-
-// Pagination
-const pagination = computed<TablePagination>(() => ({
-  currentPage: currentPage.value,
-  total: handlerAccounts.value.length,
-  pageSize: pageSize.value,
-}));
 
 // Event Handlers
 const handleSidebarItemSelect = (itemName: string) => {
   console.log("Selected sidebar item:", itemName);
-};
-
-const handlePageChange = (page: number) => {
-  currentPage.value = page;
 };
 
 const handleChangeAccount = () => {

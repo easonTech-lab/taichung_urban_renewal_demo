@@ -9,7 +9,7 @@
         </div>
 
         <!-- 聯絡資訊 -->
-        <div class="flex flex-col gap-6 font-['Noto_Sans_TC:Regular',sans-serif] text-sm font-normal leading-[1.5] tracking-[1.4px] text-gray-800">
+        <div class="flex flex-col gap-6 font-sans text-sm font-normal leading-[1.5] tracking-[1.4px] text-gray-800">
           <div>
             <p class="mb-0">地址</p>
             <p>407662臺中市西屯區文心路二段588號</p>
@@ -28,7 +28,7 @@
         <div class="flex items-center justify-center gap-2 md:justify-start">
           <a
             href="/privacy"
-            class="font-['Noto_Sans_TC:Regular',sans-serif] text-sm font-normal leading-[1.5] tracking-[1.4px] text-gray-600 hover:text-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
+            class="font-sans text-sm font-normal leading-[1.5] tracking-[1.4px] text-gray-600 hover:text-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
             aria-label="查看資訊安全政策"
           >
             資訊安全政策
@@ -36,7 +36,7 @@
           <span class="h-3 w-0 border-l border-gray-300" aria-hidden="true"></span>
           <a
             href="/security"
-            class="font-['Noto_Sans_TC:Regular',sans-serif] text-sm font-normal leading-[1.5] tracking-[1.4px] text-gray-600 hover:text-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
+            class="font-sans text-sm font-normal leading-[1.5] tracking-[1.4px] text-gray-600 hover:text-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
             aria-label="查看隱私權政策"
           >
             隱私權政策
@@ -44,7 +44,7 @@
           <span class="h-3 w-0 border-l border-gray-300" aria-hidden="true"></span>
           <a
             href="/open-data"
-            class="font-['Noto_Sans_TC:Regular',sans-serif] text-sm font-normal leading-[1.5] tracking-[1.4px] text-gray-600 hover:text-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
+            class="font-sans text-sm font-normal leading-[1.5] tracking-[1.4px] text-gray-600 hover:text-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
             aria-label="查看政府網站資料開放宣告"
           >
             政府網站資料開放宣告
@@ -65,20 +65,20 @@
         </div>
 
         <!-- 瀏覽人次和更新日期 -->
-        <div class="flex flex-col items-center gap-2 font-['Noto_Sans_TC:Regular',sans-serif] text-sm font-normal leading-[1.5] tracking-[1.4px] text-gray-800 md:items-end">
+        <div class="flex flex-col items-center gap-2 font-sans text-sm font-normal leading-[1.5] tracking-[1.4px] text-gray-800 md:items-end">
           <p>瀏覽人次:2769422</p>
           <p>更新日期:114年6月27日</p>
         </div>
 
         <!-- 系統建議 -->
-        <div class="text-center font-['Noto_Sans_TC:Regular',sans-serif] text-sm font-normal leading-[1.5] tracking-[1.4px] text-gray-500 md:text-right">
+        <div class="text-center font-sans text-sm font-normal leading-[1.5] tracking-[1.4px] text-gray-500 md:text-right">
           <p class="mb-0">最佳瀏覽環境</p>
           <p>IE(第9版以上)或Chrome FireFox、Edge</p>
         </div>
 
         <!-- 版權資訊 -->
         <div class="w-full md:w-[261px]">
-          <p class="text-center font-['Noto_Sans_TC:Regular',sans-serif] text-sm font-normal leading-[1.5] tracking-[1.4px] text-gray-500 md:text-right">
+          <p class="text-center font-sans text-sm font-normal leading-[1.5] tracking-[1.4px] text-gray-500 md:text-right">
             ©2025 UDBT All Rights Reserved.
           </p>
         </div>

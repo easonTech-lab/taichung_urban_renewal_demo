@@ -1,16 +1,11 @@
 <template>
   <div class="min-h-screen bg-indigo-50">
-    <!-- Sidebar -->
     <SidebarSection @item-select="handleSidebarItemSelect" />
-    <!-- Main Content -->
     <div class="flex flex-1 flex-col gap-10 p-4 sm:ml-[328px] sm:p-10">
-      <!-- Breadcrumb and Title -->
       <div class="flex flex-col gap-6">
         <Breadcrumb />
         <h1 class="text-3xl font-bold leading-[30px] text-gray-900">公開消息維護</h1>
       </div>
-
-      <!-- Public Messages List Card -->
       <div class="flex flex-col gap-4 rounded-lg bg-white p-6 shadow-sm">
         <!-- Header Section -->
         <div class="flex items-center justify-between">
@@ -20,17 +15,14 @@
           </div>
           <ButtonCTA variant="outline" size="sm" left-icon="plus" @click="handleAddMessage"> 新增公開消息 </ButtonCTA>
         </div>
-
         <!-- Tabs -->
         <div class="flex flex-col gap-4">
           <Tabs :items="tabItems" :model-value="activeTab" @tab-click="handleTabClick" />
         </div>
-
         <!-- Category Filter -->
         <div class="w-[160px]">
           <Dropdown :button-text="selectedCategory || '全部類別'" :items="categoryOptions" variant="outline" @item-click="handleCategoryChange" />
         </div>
-
         <!-- Table -->
         <div class="rounded-lg border border-gray-300 bg-white">
           <Table :columns="tableColumns" :rows="paginatedMessages" :pagination="pagination" @page-change="handlePageChange">
@@ -42,7 +34,6 @@
             <template #cell-status="{ row }">
               <Switch :model-value="row.status" :show-text="true" on-text="上架" off-text="下架" @update:model-value="(value) => handleStatusChange(row, value)" />
             </template>
-
             <!-- Action -->
             <template #cell-action="{ row }">
               <div class="flex items-center">
@@ -60,13 +51,14 @@
 <script setup lang="ts">
 import { ref, computed } from "vue";
 import { useRouter } from "vue-router";
-import SidebarSection from "@/components/sections/backend/SidebarSection.vue";
-import Breadcrumb from "@/components/atoms/Breadcrumb.vue";
 import Tabs from "@/components/atoms/Tabs.vue";
-import Table, { type TableColumn, type TablePagination } from "@/components/atoms/Table.vue";
 import Switch from "@/components/atoms/Switch.vue";
 import Dropdown from "@/components/atoms/Dropdown.vue";
 import ButtonCTA from "@/components/atoms/ButtonCTA.vue";
+import Breadcrumb from "@/components/atoms/Breadcrumb.vue";
+import SidebarSection from "@/components/sections/backend/SidebarSection.vue";
+import Table, { type TableColumn } from "@/components/atoms/Table.vue";
+import { useTablePagination } from "@/composables/useTablePagination";
 
 interface PublicMessageItem {
   title: string;
@@ -78,11 +70,9 @@ interface PublicMessageItem {
 
 // Tabs
 const tabItems = [{ label: "全部" }, { label: "已上架" }, { label: "暫存中" }, { label: "已下架" }];
-
 const activeTab = ref<number>(0);
 
 // State
-const currentPage = ref<number>(1);
 const pageSize = ref<number>(10);
 const selectedCategory = ref<string>("");
 
@@ -96,7 +86,7 @@ const categoryOptions = [
 
 const handleCategoryChange = (item: { label: string; value?: string }) => {
   selectedCategory.value = item.value || "";
-  currentPage.value = 1;
+  resetPage();
 };
 
 // Mock Data (使用 ref 使其響應式)
@@ -206,17 +196,11 @@ const filteredMessages = computed(() => {
   return messages;
 });
 
-// 注意：分頁現在由 Table 組件內部處理，所以這裡直接傳遞所有過濾後的數據
-const paginatedMessages = computed(() => {
-  return filteredMessages.value;
+const { currentPage, paginatedRows: paginatedMessages, pagination, handlePageChange, resetPage } = useTablePagination({
+  rows: filteredMessages,
+  pageSize,
+  slice: false,
 });
-
-// Pagination
-const pagination = computed<TablePagination>(() => ({
-  currentPage: currentPage.value,
-  total: filteredMessages.value.length,
-  pageSize: pageSize.value,
-}));
 
 // Event Handlers
 const handleSidebarItemSelect = (itemName: string) => {
@@ -225,11 +209,7 @@ const handleSidebarItemSelect = (itemName: string) => {
 
 const handleTabClick = (index: number, item: any, event?: Event) => {
   activeTab.value = index;
-  currentPage.value = 1;
-};
-
-const handlePageChange = (page: number) => {
-  currentPage.value = page;
+  resetPage();
 };
 
 const router = useRouter();

@@ -1,10 +1,7 @@
 <template>
   <div class="min-h-screen bg-indigo-50">
-    <!-- Sidebar -->
     <SidebarSection @item-select="handleSidebarItemSelect" />
-    <!-- Main Content -->
     <div class="flex flex-1 flex-col gap-10 p-4 sm:ml-[328px] sm:p-10">
-      <!-- Breadcrumb and Back Button -->
       <div class="flex flex-col gap-6">
         <Breadcrumb />
         <div class="flex items-center gap-4">
@@ -12,22 +9,15 @@
           <h1 class="text-3xl font-bold leading-[30px] text-gray-900">{{ isEditMode ? "編輯承辦帳號" : "新增承辦帳號" }}</h1>
         </div>
       </div>
-
-      <!-- Form Card -->
       <div class="flex flex-col gap-10 rounded-lg bg-white p-6 shadow-sm">
-        <!-- Form Title -->
         <div class="flex flex-col gap-2">
           <div class="flex items-center gap-3">
             <div class="h-7 w-1 rounded bg-primary-600"></div>
             <h2 class="text-2xl font-medium leading-6 text-gray-900">標題</h2>
           </div>
         </div>
-        <!-- Form Fields -->
         <div class="flex flex-col gap-6">
-          <!-- 承辦姓名 -->
           <Input v-model="formData.name" label="承辦姓名" placeholder="請輸入承辦姓名" size="lg" required container-class="w-[364px]" />
-
-          <!-- 公務信箱 -->
           <Input
             v-model="formData.email"
             label="公務信箱"
@@ -37,8 +27,6 @@
             :disabled="isEditMode"
             container-class="w-[364px]"
           />
-
-          <!-- 科室 -->
           <InputDropdown
             label="科室"
             :button-text="formData.department"
@@ -48,8 +36,6 @@
             container-class="w-[364px]"
             @item-click="handleDepartmentSelect"
           />
-
-          <!-- 組別 -->
           <InputDropdown
             label="組別"
             :button-text="formData.group"
@@ -59,15 +45,12 @@
             container-class="w-[364px]"
             @item-click="handleGroupSelect"
           />
-
-          <!-- 權限管理 -->
           <div class="flex flex-col gap-2">
             <div class="flex items-start gap-2">
               <label class="text-base font-medium text-gray-900">權限管理</label>
               <span class="pt-1 text-xs leading-none text-red-500">*</span>
             </div>
             <div class="flex w-[922px] flex-col gap-6 rounded-lg border border-gray-300 p-6">
-              <!-- 開通所有權限 -->
               <div class="flex flex-col gap-4">
                 <div class="flex items-center justify-between">
                   <Checkbox
@@ -80,8 +63,6 @@
                 </div>
                 <div class="h-px bg-gray-300"></div>
               </div>
-
-              <!-- 權限功能組 -->
               <div class="flex flex-col gap-4">
                 <div v-for="permissionGroup in permissionGroups" :key="permissionGroup.key" class="flex flex-col gap-4">
                   <p class="text-base font-medium text-gray-800">{{ permissionGroup.title }}</p>
@@ -103,18 +84,10 @@
               </div>
             </div>
           </div>
-
-          <!-- 授權主管信箱 -->
           <Input v-model="formData.supervisorEmail" label="授權主管信箱" placeholder="請輸入授權主管信箱" size="lg" required container-class="w-[364px]" />
-
-          <!-- 分隔線 -->
           <div class="h-px w-[958px] bg-gray-300"></div>
-
-          <!-- 帳號狀態 -->
           <Switch v-model="formData.status" label="帳號狀態" show-text on-text="上架" off-text="下架" required label-position="horizontal" />
         </div>
-
-        <!-- Action Buttons -->
         <div class="flex gap-4">
           <ButtonCTA variant="outline" size="xl" @click="handleSaveDraft">暫存</ButtonCTA>
           <ButtonCTA variant="gray" size="xl" @click="handleSave">{{ isEditMode ? "儲存" : "建立" }}</ButtonCTA>

@@ -1,10 +1,7 @@
 <template>
   <div class="min-h-screen bg-indigo-50">
-    <!-- Sidebar -->
     <SidebarSection @item-select="handleSidebarItemSelect" />
-    <!-- Main Content -->
     <div class="flex flex-1 flex-col gap-10 p-4 sm:ml-[328px] sm:p-10">
-      <!-- Breadcrumb and Title -->
       <div class="flex flex-col gap-6">
         <Breadcrumb />
         <div class="flex items-center gap-4">
@@ -12,21 +9,13 @@
           <h1 class="text-3xl font-bold leading-[30px] text-gray-900">前一頁</h1>
         </div>
       </div>
-
-      <!-- Form Card -->
       <div class="flex flex-col gap-10 rounded-lg bg-white p-6 shadow-sm">
-        <!-- Section Title -->
         <div class="flex items-center gap-3">
           <div class="h-7 w-1 rounded bg-primary-600"></div>
           <h2 class="text-2xl font-medium leading-6 text-gray-900">新增下載內容</h2>
         </div>
-
-        <!-- Form Fields -->
         <div class="flex flex-col gap-6">
-          <!-- Title Input -->
           <Input v-model="formData.title" label="標題(限50字)" placeholder="填寫標題" size="lg" :maxlength="50" required />
-
-          <!-- Category Selection -->
           <RadioGroup label="案件類別" required>
             <template #radios>
               <Radio
@@ -42,16 +31,10 @@
               />
             </template>
           </RadioGroup>
-
-          <!-- Text Editor -->
           <RichTextEditor v-model="formData.text" label="文字(限200字)" placeholder="文字輸入" :maxlength="200" />
-
-          <!-- File Upload -->
           <FileUpload v-model="formData.files" label="檔案上傳" :max-size="10" multiple required @file-error="handleFileError" />
         </div>
       </div>
-
-      <!-- Action Buttons -->
       <div class="flex items-center justify-center gap-4">
         <ButtonCTA variant="outline" size="l" @click="handleSaveDraft">暫存</ButtonCTA>
         <ButtonCTA variant="gray" size="l" @click="handlePublish">發布</ButtonCTA>
@@ -59,7 +42,6 @@
     </div>
   </div>
 </template>
-
 <script setup lang="ts">
 import { ref } from "vue";
 import { useRouter } from "vue-router";

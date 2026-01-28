@@ -1,19 +1,13 @@
 <template>
   <div class="min-h-screen bg-indigo-50">
-    <!-- Sidebar -->
     <SidebarSection @item-select="handleSidebarItemSelect" />
-    <!-- Main Content -->
     <div class="flex flex-1 flex-col gap-10 p-4 sm:ml-[328px] sm:p-10">
-      <!-- Breadcrumb and Title -->
       <div class="flex flex-col gap-6">
         <Breadcrumb />
         <h1 class="text-3xl font-bold leading-[30px] text-gray-900">{{ isAdmin ? "都市更新案件管理" : "都市更新案件" }}</h1>
       </div>
-      <!-- Case List Card -->
       <div class="rounded-lg bg-white px-6 py-6 shadow-sm">
-        <!-- Header Section -->
         <div class="mb-6 flex flex-col gap-6">
-          <!-- Title and Add Button -->
           <div class="flex items-center justify-between">
             <div class="flex flex-col gap-2">
               <div class="flex items-center gap-3">
@@ -35,7 +29,6 @@
               @item-click="handleAddCaseOption"
             />
           </div>
-          <!-- Filters -->
           <div class="flex items-center gap-4">
             <div class="w-[160px]">
               <CheckboxDropdown
@@ -52,11 +45,9 @@
             </div>
           </div>
         </div>
-        <!-- Table or Empty State -->
         <div class="rounded-lg border border-gray-300 bg-white">
           <Empty v-if="filteredCases.length === 0" type="case-management" @button-click="handleEmptyStateAddCase" />
           <Table v-else :columns="tableColumns" :rows="paginatedCases" :pagination="pagination" :row-clickable="true" @page-change="handlePageChange" @row-click="handleRowClick">
-            <!-- Case Status -->
             <template #cell-caseStatus="{ row }">
               <Badge :variant="getStatusVariant(row.caseStatus)" :text="row.caseStatus" />
             </template>
@@ -75,9 +66,10 @@ import Breadcrumb from "@/components/atoms/Breadcrumb.vue";
 import ButtonDropdown, { type ButtonDropdownItem } from "@/components/atoms/ButtonDropdown.vue";
 import Dropdown, { type DropdownItem } from "@/components/atoms/Dropdown.vue";
 import CheckboxDropdown, { type CheckboxDropdownItem } from "@/components/atoms/CheckboxDropdown.vue";
-import Table, { type TableColumn, type TablePagination } from "@/components/atoms/Table.vue";
+import Table, { type TableColumn } from "@/components/atoms/Table.vue";
 import Badge from "@/components/atoms/Badge.vue";
 import Empty from "@/components/atoms/Empty.vue";
+import { useTablePagination } from "@/composables/useTablePagination";
 
 const router = useRouter();
 const route = useRoute();
@@ -119,7 +111,6 @@ const addCaseOptions: ButtonDropdownItem[] = [
 const selectedStages = ref<(string | number)[]>(stageOptions.map((opt) => opt.value));
 const selectedStatus = ref<string>("");
 const selectedAddCaseIndex = ref<number | undefined>(undefined);
-const currentPage = ref<number>(1);
 const pageSize = ref<number>(10);
 const totalCases = ref<number>(1000); // 管理員顯示的總案件數
 
@@ -209,18 +200,11 @@ const filteredCases = computed(() => {
   return allCases.filter((item) => selectedStages.value.includes(item.caseStage));
 });
 
-// 注意：排序和分頁現在由 Table 組件內部處理，所以這裡直接傳遞所有過濾後的數據
-const paginatedCases = computed(() => {
-  return filteredCases.value;
+const { paginatedRows: paginatedCases, pagination, handlePageChange, resetPage } = useTablePagination({
+  rows: filteredCases,
+  pageSize,
+  slice: false,
 });
-
-// Pagination
-// 注意：由於排序和分頁現在由 Table 組件內部處理，total 應該反映傳入的 rows 的總數
-const pagination = computed<TablePagination>(() => ({
-  currentPage: currentPage.value,
-  total: filteredCases.value.length, // 使用過濾後的數據總數
-  pageSize: pageSize.value,
-}));
 
 // Status Variant Mapping
 const getStatusVariant = (status: string): "primary" | "success" | "danger" => {
@@ -270,16 +254,12 @@ const handleStageChange = (values: (string | number)[]) => {
 
   // 如果使用者清除所有勾選，設為空陣列（全不選）
   selectedStages.value = validValues;
-  currentPage.value = 1;
+  resetPage();
 };
 
 const handleStatusChange = (item: DropdownItem) => {
   selectedStatus.value = item.label;
-  currentPage.value = 1;
-};
-
-const handlePageChange = (page: number) => {
-  currentPage.value = page;
+  resetPage();
 };
 
 const handleAddCaseOption = (item: ButtonDropdownItem, index: number) => {

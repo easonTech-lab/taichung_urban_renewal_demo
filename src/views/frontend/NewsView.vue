@@ -1,16 +1,11 @@
 <template>
   <div class="min-h-screen bg-[#f3f5fa]">
-    <!-- Breadcrumb -->
     <div class="px-[60px] pb-0 pt-[40px]">
       <Breadcrumb />
     </div>
-    <!-- Main Content -->
     <div class="px-[60px] py-[40px]">
-      <!-- Title -->
       <h1 class="mb-6 text-[30px] font-bold leading-[30px] text-gray-900">公開消息</h1>
-      <!-- Search and Filter Section -->
       <div class="mb-6 flex items-center gap-4">
-        <!-- Category Dropdown -->
         <div class="w-[364px]">
           <InputDropdown
             :button-text="selectedCategoryText"
@@ -22,7 +17,6 @@
             @item-click="handleCategoryChange"
           />
         </div>
-        <!-- Search Input -->
         <div class="relative w-[364px]">
           <div class="pointer-events-none absolute inset-y-0 left-0 z-10 flex items-center pl-4">
             <Icon name="search" :size="16" class="text-gray-500" aria-hidden="true" />
@@ -32,24 +26,19 @@
             type="text"
             placeholder="搜尋"
             class="block w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-3 pl-10 text-sm text-gray-900 shadow-sm transition-colors placeholder:text-gray-500 focus:border-primary-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary-500"
-            @input="handleSearchInput"
             @keydown.enter="handleSearch"
           />
         </div>
-        <!-- Search Button -->
         <ButtonCTA variant="primary" @click="handleSearch" class="h-[40px] px-5 py-2.5"> 搜尋 </ButtonCTA>
       </div>
-      <!-- Table -->
       <div v-if="filteredData.length === 0" class="flex items-center justify-center py-16">
         <Empty type="search" message="查無符合條件的公開消息" />
       </div>
       <div v-else class="rounded-lg bg-white p-6 shadow-sm">
-        <Table :columns="tableColumns" :rows="displayedRows" :pagination="pagination" @page-change="handlePageChange">
-          <!-- 項次欄位 -->
+        <Table :columns="tableColumns" :rows="paginatedRows" :pagination="pagination" @page-change="handlePageChange">
           <template #cell-index="{ rowIndex }">
             {{ (currentPage - 1) * pageSize + rowIndex + 1 }}
           </template>
-          <!-- 標題欄位 -->
           <template #cell-title="{ row }">
             <button
               class="text-left text-base text-gray-800 transition-colors hover:text-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
@@ -71,13 +60,15 @@
 <script setup lang="ts">
 import { ref, computed } from "vue";
 import { useRouter } from "vue-router";
-import Breadcrumb from "@/components/atoms/Breadcrumb.vue";
-import InputDropdown, { type InputDropdownItem } from "@/components/atoms/InputDropdown.vue";
+import { useTablePagination } from "@/composables/useTablePagination";
 import Icon from "@/components/atoms/Icon.vue";
-import ButtonCTA from "@/components/atoms/ButtonCTA.vue";
-import Table, { type TableColumn } from "@/components/atoms/Table.vue";
 import Empty from "@/components/atoms/Empty.vue";
+import ButtonCTA from "@/components/atoms/ButtonCTA.vue";
+import Breadcrumb from "@/components/atoms/Breadcrumb.vue";
 import FooterSection from "@/components/sections/global/FooterSection.vue";
+import Table, { type TableColumn } from "@/components/atoms/Table.vue";
+import InputDropdown, { type InputDropdownItem } from "@/components/atoms/InputDropdown.vue";
+
 
 const router = useRouter();
 
@@ -163,8 +154,6 @@ const selectedCategory = ref<string>("");
 const selectedCategoryText = ref<string>("全部類別");
 const searchQuery = ref<string>("");
 const appliedSearchQuery = ref<string>(""); // 應用於過濾的搜尋關鍵字（點擊搜尋後才應用）
-const currentPage = ref<number>(1);
-const pageSize = ref<number>(10);
 
 // Table Columns
 const tableColumns: TableColumn[] = [
@@ -196,53 +185,38 @@ const tableColumns: TableColumn[] = [
 // Filtered Data
 const filteredData = computed(() => {
   let data = [...allData];
-
   // Filter by category
   if (selectedCategory.value && selectedCategory.value !== "全部類別") {
     data = data.filter((item) => item.category === selectedCategory.value);
   }
-
   // Filter by search query (only apply when search button is clicked)
   if (appliedSearchQuery.value.trim()) {
     const query = appliedSearchQuery.value.toLowerCase();
     data = data.filter((item) => item.title.toLowerCase().includes(query) || item.category.toLowerCase().includes(query));
   }
-
   return data;
 });
 
-const displayedRows = computed(() => {
-  const start = (currentPage.value - 1) * pageSize.value;
-  const end = start + pageSize.value;
-  return filteredData.value.slice(start, end);
+const { currentPage, pageSize, paginatedRows, pagination, handlePageChange: setPage, resetPage } = useTablePagination({
+  rows: filteredData,
+  pageSize: 10,
 });
-
-const pagination = computed(() => ({
-  currentPage: currentPage.value,
-  total: filteredData.value.length,
-  pageSize: pageSize.value,
-}));
 
 // Handlers
 const handleCategoryChange = (item: InputDropdownItem) => {
   selectedCategory.value = item.label === "全部類別" ? "" : item.label;
   selectedCategoryText.value = item.label;
-  currentPage.value = 1; // Reset to first page when filter changes
+  resetPage(); // Reset to first page when filter changes
 };
 
 const handleSearch = () => {
   // 將當前輸入的搜尋關鍵字應用到過濾
   appliedSearchQuery.value = searchQuery.value;
-  currentPage.value = 1; // Reset to first page when search
-};
-
-const handleSearchInput = () => {
-  // 輸入時不觸發搜尋，只更新 searchQuery
-  // 搜尋只在按下搜尋按鈕時觸發
+  resetPage(); // Reset to first page when search
 };
 
 const handlePageChange = (page: number) => {
-  currentPage.value = page;
+  setPage(page);
   // Scroll to top of table
   window.scrollTo({ top: 0, behavior: "smooth" });
 };

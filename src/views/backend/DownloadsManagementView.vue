@@ -63,10 +63,11 @@ import { useRouter } from "vue-router";
 import SidebarSection from "@/components/sections/backend/SidebarSection.vue";
 import Breadcrumb from "@/components/atoms/Breadcrumb.vue";
 import Tabs from "@/components/atoms/Tabs.vue";
-import Table, { type TableColumn, type TablePagination } from "@/components/atoms/Table.vue";
+import Table, { type TableColumn } from "@/components/atoms/Table.vue";
 import Switch from "@/components/atoms/Switch.vue";
 import Dropdown from "@/components/atoms/Dropdown.vue";
 import ButtonCTA from "@/components/atoms/ButtonCTA.vue";
+import { useTablePagination } from "@/composables/useTablePagination";
 
 interface DownloadItem {
   fileName: string;
@@ -82,7 +83,6 @@ const tabItems = [{ label: "全部" }, { label: "已上架" }, { label: "暫存�
 const activeTab = ref<number>(0);
 
 // State
-const currentPage = ref<number>(1);
 const pageSize = ref<number>(10);
 const selectedCategory = ref<string>("");
 
@@ -97,7 +97,7 @@ const categoryOptions = [
 
 const handleCategoryChange = (item: { label: string; value?: string }) => {
   selectedCategory.value = item.value || "";
-  currentPage.value = 1;
+  resetPage();
 };
 
 // Mock Data (使用 ref 使其響應式)
@@ -207,17 +207,11 @@ const filteredDownloads = computed(() => {
   return downloads;
 });
 
-// 注意：分頁現在由 Table 組件內部處理，所以這裡直接傳遞所有過濾後的數據
-const paginatedDownloads = computed(() => {
-  return filteredDownloads.value;
+const { currentPage, paginatedRows: paginatedDownloads, pagination, handlePageChange, resetPage } = useTablePagination({
+  rows: filteredDownloads,
+  pageSize,
+  slice: false,
 });
-
-// Pagination
-const pagination = computed<TablePagination>(() => ({
-  currentPage: currentPage.value,
-  total: filteredDownloads.value.length,
-  pageSize: pageSize.value,
-}));
 
 // Event Handlers
 const handleSidebarItemSelect = (itemName: string) => {
@@ -226,11 +220,7 @@ const handleSidebarItemSelect = (itemName: string) => {
 
 const handleTabClick = (index: number, item: any, event?: Event) => {
   activeTab.value = index;
-  currentPage.value = 1;
-};
-
-const handlePageChange = (page: number) => {
-  currentPage.value = page;
+  resetPage();
 };
 
 const router = useRouter();

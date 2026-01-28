@@ -97,7 +97,6 @@ const setError = (field: "username" | "password" | "captcha", message: string) =
 const handleLogin = () => {
   // 清除之前的錯誤
   clearErrors();
-
   if (!isFormValid.value) {
     // 表單驗證失敗
     if (!formData.value.username.trim()) {
@@ -111,7 +110,6 @@ const handleLogin = () => {
     }
     return;
   }
-
   // 驗證帳密
   const user = mockUsers.find((u) => u.username === formData.value.username && u.password === formData.value.password);
   if (user) {
@@ -141,7 +139,6 @@ const handleLogin = () => {
 };
 
 const handleForgotPassword = () => {
-  console.log("忘記密碼");
   router.push("/forgot-password");
 };
 </script>

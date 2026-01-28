@@ -2,7 +2,6 @@
   <div class="min-h-screen bg-indigo-50">
     <!-- Sidebar -->
     <SidebarSection @item-select="handleSidebarItemSelect" />
-
     <!-- Main Content -->
     <div class="flex flex-1 flex-col gap-10 p-4 sm:ml-[328px] sm:p-10">
       <!-- Breadcrumb and Title -->
@@ -10,7 +9,6 @@
         <Breadcrumb :items="breadcrumbItems" />
         <h1 class="text-3xl font-bold leading-[30px] text-gray-900">{{ isAdmin ? "人員帳號管理" : "編輯個人資料" }}</h1>
       </div>
-
       <!-- Form Card -->
       <div class="flex flex-col gap-10">
         <!-- Form Section -->
@@ -20,7 +18,6 @@
             <div class="h-7 w-1 rounded bg-primary-600"></div>
             <h2 class="text-2xl font-medium leading-6 text-gray-900">{{ isAdmin ? "標題" : "編輯個人資料" }}</h2>
           </div>
-
           <!-- Admin Form Fields -->
           <div v-if="isAdmin" class="flex flex-col gap-4">
             <!-- 人員類別 -->
@@ -34,12 +31,10 @@
                 @item-click="handlePersonnelTypeSelect"
               />
             </div>
-
             <!-- 人員姓名 -->
             <div class="w-full max-w-[744px]">
               <Input v-model="adminFormData.name" label="人員姓名" type="text" size="lg" placeholder="請輸入姓名" required />
             </div>
-
             <!-- 帳號和密碼 -->
             <div class="flex gap-4">
               <div class="w-full max-w-[364px]">
@@ -50,7 +45,6 @@
                 <ButtonCTA variant="textPlain" size="base" class="self-start p-0 underline" @click="handleChangePassword"> 變更密碼 </ButtonCTA>
               </div>
             </div>
-
             <!-- 公務信箱和公務分機 -->
             <div class="flex gap-4">
               <div class="w-full max-w-[364px]">
@@ -60,7 +54,6 @@
                 <Input v-model="adminFormData.officialExtension" label="公務分機" type="text" size="lg" placeholder="請輸入公務分機" required />
               </div>
             </div>
-
             <!-- 局處和科別 -->
             <div class="flex gap-4">
               <div class="w-full max-w-[364px]">
@@ -77,7 +70,6 @@
                 <InputDropdown label="科別" :button-text="adminFormData.division" placeholder="請選擇科別" :items="divisionOptions" required @item-click="handleDivisionSelect" />
               </div>
             </div>
-
             <!-- 申請事由 -->
             <div class="w-full max-w-[744px]">
               <Textarea v-model="adminFormData.reason" label="申請事由" size="lg" placeholder="請輸入申請事由" required />
@@ -100,7 +92,6 @@
                 <Input v-model="userFormData.account" label="帳號" type="text" size="lg" disabled />
               </div>
             </div>
-
             <!-- 手機號碼和電子信箱 -->
             <div class="flex gap-4">
               <div class="w-full max-w-[364px]">
@@ -110,7 +101,6 @@
                 <Input v-model="userFormData.email" label="電子信箱" type="email" size="lg" placeholder="請輸入電子信箱" />
               </div>
             </div>
-
             <!-- 密碼 -->
             <div class="flex flex-col gap-2">
               <label class="text-base font-medium text-gray-900">密碼</label>
@@ -118,7 +108,6 @@
             </div>
           </div>
         </div>
-
         <!-- Action Buttons -->
         <div class="flex justify-center gap-4">
           <ButtonCTA variant="outline" size="xl" class="w-[124px]" @click="handleCancel"> 取消 </ButtonCTA>
@@ -130,14 +119,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from "vue";
+import { ref, computed } from "vue";
 import { useRouter } from "vue-router";
-import SidebarSection from "@/components/sections/backend/SidebarSection.vue";
-import Breadcrumb, { type BreadcrumbItem } from "@/components/atoms/Breadcrumb.vue";
 import Input from "@/components/atoms/Input.vue";
-import InputDropdown from "@/components/atoms/InputDropdown.vue";
 import Textarea from "@/components/atoms/Textarea.vue";
 import ButtonCTA from "@/components/atoms/ButtonCTA.vue";
+import InputDropdown from "@/components/atoms/InputDropdown.vue";
+import SidebarSection from "@/components/sections/backend/SidebarSection.vue";
+import Breadcrumb, { type BreadcrumbItem } from "@/components/atoms/Breadcrumb.vue";
 
 const router = useRouter();
 

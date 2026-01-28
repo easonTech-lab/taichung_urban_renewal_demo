@@ -64,10 +64,11 @@ import SidebarSection from "@/components/sections/backend/SidebarSection.vue";
 import Breadcrumb from "@/components/atoms/Breadcrumb.vue";
 import Tabs from "@/components/atoms/Tabs.vue";
 import Dropdown, { type DropdownItem } from "@/components/atoms/Dropdown.vue";
-import Table, { type TableColumn, type TablePagination } from "@/components/atoms/Table.vue";
+import Table, { type TableColumn } from "@/components/atoms/Table.vue";
 import Badge from "@/components/atoms/Badge.vue";
 import Icon from "@/components/atoms/Icon.vue";
 import ButtonCTA from "@/components/atoms/ButtonCTA.vue";
+import { useTablePagination } from "@/composables/useTablePagination";
 
 const router = useRouter();
 
@@ -98,7 +99,6 @@ const yearOptions: DropdownItem[] = Array.from({ length: 20 }, (_, i) => {
 // State
 const selectedStartYear = ref<string>("");
 const selectedEndYear = ref<string>("");
-const currentPage = ref<number>(1);
 const pageSize = ref<number>(10);
 
 // Mock Data
@@ -184,19 +184,10 @@ const filteredStatistics = computed(() => {
   return stats;
 });
 
-// Paginated Statistics
-const paginatedStatistics = computed(() => {
-  const start = (currentPage.value - 1) * pageSize.value;
-  const end = start + pageSize.value;
-  return filteredStatistics.value.slice(start, end);
+const { paginatedRows: paginatedStatistics, pagination, handlePageChange, resetPage } = useTablePagination({
+  rows: filteredStatistics,
+  pageSize,
 });
-
-// Pagination
-const pagination = computed<TablePagination>(() => ({
-  currentPage: currentPage.value,
-  total: filteredStatistics.value.length,
-  pageSize: pageSize.value,
-}));
 
 // Growth Rate Variant Mapping
 const getGrowthRateVariant = (rate: string): "primary" | "success" | "danger" => {
@@ -215,21 +206,17 @@ const handleSidebarItemSelect = (itemName: string) => {
 
 const handleTabClick = (index: number, item: any, event?: Event) => {
   activeTab.value = index;
-  currentPage.value = 1;
+  resetPage();
 };
 
 const handleStartYearChange = (item: DropdownItem) => {
   selectedStartYear.value = item.label;
-  currentPage.value = 1;
+  resetPage();
 };
 
 const handleEndYearChange = (item: DropdownItem) => {
   selectedEndYear.value = item.label;
-  currentPage.value = 1;
-};
-
-const handlePageChange = (page: number) => {
-  currentPage.value = page;
+  resetPage();
 };
 
 const handleAddYear = () => {

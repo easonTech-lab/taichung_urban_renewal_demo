@@ -1,20 +1,15 @@
 <template>
   <div class="min-h-screen bg-[#f3f5fa]">
-    <!-- Breadcrumb -->
     <div class="px-[60px] pb-0 pt-[40px]">
       <Breadcrumb />
     </div>
-    <!-- Main Content -->
     <div class="px-[60px] py-[40px]">
       <!-- Title -->
       <h1 class="mb-6 text-[30px] font-bold leading-[30px] text-gray-900">下載專區</h1>
-      <!-- Search and Filter Section -->
       <div class="mb-6 flex items-center gap-4">
-        <!-- Category Dropdown -->
         <div class="w-[160px]">
           <Dropdown :button-text="selectedCategory || '全部案件類別'" :items="categoryItems" variant="outline" @item-click="handleCategoryChange" />
         </div>
-        <!-- Search Input -->
         <div class="w-[364px]">
           <SearchInput v-model="searchQuery" placeholder="搜尋" button-text="搜尋" input-variant="gray" container-class="mb-0" @submit="handleSearch" />
         </div>
@@ -24,16 +19,10 @@
         <Empty type="search" message="查無符合條件的檔案資料" />
       </div>
       <div v-else class="rounded-lg bg-white p-6 shadow-sm">
-        <Table :columns="tableColumns" :rows="displayedRows" :pagination="pagination" @page-change="handlePageChange">
+        <Table :columns="tableColumns" :rows="paginatedRows" :pagination="pagination" @page-change="handlePageChange">
           <!-- 項次欄位 -->
           <template #cell-index="{ rowIndex }">
             {{ (currentPage - 1) * pageSize + rowIndex + 1 }}
-          </template>
-          <!-- 文件名稱欄位 -->
-          <template #cell-fileName="{ row }">
-            <p class="line-clamp-2 text-base text-gray-900">
-              {{ row.fileName }}
-            </p>
           </template>
           <!-- 動作欄位 -->
           <template #cell-action="{ row }">
@@ -55,14 +44,14 @@
 
 <script setup lang="ts">
 import { ref, computed } from "vue";
-import Breadcrumb from "@/components/atoms/Breadcrumb.vue";
-import Dropdown, { type DropdownItem } from "@/components/atoms/Dropdown.vue";
-import SearchInput from "@/components/atoms/SearchInput.vue";
-import Table, { type TableColumn } from "@/components/atoms/Table.vue";
+import { useTablePagination } from "@/composables/useTablePagination";
 import Icon from "@/components/atoms/Icon.vue";
 import Empty from "@/components/atoms/Empty.vue";
+import Breadcrumb from "@/components/atoms/Breadcrumb.vue";
+import SearchInput from "@/components/atoms/SearchInput.vue";
 import FooterSection from "@/components/sections/global/FooterSection.vue";
-
+import Table, { type TableColumn } from "@/components/atoms/Table.vue";
+import Dropdown, { type DropdownItem } from "@/components/atoms/Dropdown.vue";
 // Props
 const props = withDefaults(
   defineProps<{
@@ -144,7 +133,6 @@ const categoryItems: DropdownItem[] = [{ label: "全部案件類別" }, { label:
 const selectedCategory = ref<string>("");
 const searchQuery = ref<string>("");
 const appliedSearchQuery = ref<string>(""); // 應用於過濾的搜尋關鍵字（點擊搜尋後才應用）
-const currentPage = ref<number>(1);
 const pageSize = computed(() => props.pageSize);
 
 // Table Columns
@@ -177,54 +165,46 @@ const tableColumns: TableColumn[] = [
   },
 ];
 
-// Filtered Data
+// 搜索資料
 const filteredData = computed(() => {
   let data = [...allData];
-
   // Filter by category
   if (selectedCategory.value && selectedCategory.value !== "全部案件類別") {
     data = data.filter((item) => item.category === selectedCategory.value);
   }
-
   // Filter by search query (only apply when search button is clicked)
   if (appliedSearchQuery.value.trim()) {
     const query = appliedSearchQuery.value.toLowerCase();
     data = data.filter((item) => item.fileName.toLowerCase().includes(query) || item.category.toLowerCase().includes(query));
   }
-
   return data;
 });
 
-const displayedRows = computed(() => {
-  const start = (currentPage.value - 1) * pageSize.value;
-  const end = start + pageSize.value;
-  return filteredData.value.slice(start, end);
+const { currentPage, paginatedRows, pagination, resetPage, handlePageChange: setPage } = useTablePagination({
+  rows: filteredData,
+  pageSize,
 });
-
-const pagination = computed(() => ({
-  currentPage: currentPage.value,
-  total: filteredData.value.length,
-  pageSize: pageSize.value,
-}));
 
 // Handlers
 const handleCategoryChange = (item: DropdownItem) => {
   selectedCategory.value = item.label;
-  currentPage.value = 1; // Reset to first page when filter changes
+  resetPage(); // Reset to first page when filter changes
 };
 
 const handleSearch = () => {
   // 將當前輸入的搜尋關鍵字應用到過濾
   appliedSearchQuery.value = searchQuery.value;
-  currentPage.value = 1; // Reset to first page when search
+  resetPage(); // Reset to first page when search
 };
 
+// 處理分頁變更
 const handlePageChange = (page: number) => {
-  currentPage.value = page;
+  setPage(page);
   // Scroll to top of table
   window.scrollTo({ top: 0, behavior: "smooth" });
 };
 
+// 處理下載動作
 const handleDownload = (row: Record<string, any>) => {
   // TODO: Implement actual download logic
   const item = row as DownloadItem;

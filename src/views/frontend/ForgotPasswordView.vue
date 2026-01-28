@@ -1,8 +1,6 @@
 <template>
   <div class="min-h-screen bg-[#F0F5FF]">
-    <!-- Main Content -->
     <div class="flex flex-col gap-10 px-[60px] py-10">
-      <!-- Back to Login Link and Title -->
       <div class="flex flex-col gap-[52px]">
         <router-link
           to="/login"
@@ -12,12 +10,8 @@
           <Icon name="arrowleft" :size="16" class="shrink-0" aria-hidden="true" />
           <span>返回登入</span>
         </router-link>
-
-        <!-- Title -->
         <h1 class="text-center text-2xl font-medium leading-normal text-gray-900">忘記密碼</h1>
       </div>
-
-      <!-- Form Section -->
       <div class="flex w-full flex-col items-center gap-10">
         <div class="flex w-[428px] flex-col items-start gap-4 rounded-lg bg-white p-8 shadow-sm">
           <h2 class="text-2xl font-medium leading-normal text-black">發送設定連結至以下信箱</h2>
@@ -38,22 +32,17 @@
         <ButtonCTA :disabled="!isFormValid" variant="primary" type="button" class="h-[52px] w-[240px]" @click="handleSubmit">發送</ButtonCTA>
       </div>
     </div>
-
-    <!-- Success Modal -->
     <Modal v-model="showSuccessModal" :static="true" :show-close-button="false" size="md">
       <template #header>
         <div class="flex w-full items-center justify-end px-4 pb-0 pt-4">
-          <ButtonCTA variant="none" icon-only left-icon="close" aria-label="關閉" @click="handleCloseSuccessModal" />
+          <ButtonCTA variant="none" icon-only left-icon="close" aria-label="關閉" @click="handleReturnToLogin" />
         </div>
       </template>
-
       <template #body>
         <div class="flex w-full flex-col items-center gap-4 px-6 py-5">
-          <!-- Success Icon -->
           <div class="relative flex size-[42px] shrink-0 items-center justify-center">
             <Icon name="check" :size="42" class="text-gray-400" aria-hidden="true" />
           </div>
-          <!-- Success Message -->
           <div class="flex w-full flex-col items-center">
             <div class="whitespace-pre-wrap text-center text-base font-normal leading-normal text-gray-600">
               <p class="mb-0">密碼設定連結已發送至信箱</p>
@@ -62,7 +51,6 @@
           </div>
         </div>
       </template>
-
       <template #footer>
         <div class="flex w-full items-center justify-center gap-4 px-6 pb-6 pt-0">
           <ButtonCTA variant="primary" type="button" class="h-[34px] w-[120px] text-base" @click="handleReturnToLogin"> 回登入頁</ButtonCTA>
@@ -76,8 +64,8 @@
 import { ref, computed } from "vue";
 import { useRouter } from "vue-router";
 import Icon from "@/components/atoms/Icon.vue";
-import ButtonCTA from "@/components/atoms/ButtonCTA.vue";
 import Modal from "@/components/atoms/Modal.vue";
+import ButtonCTA from "@/components/atoms/ButtonCTA.vue";
 
 const router = useRouter();
 
@@ -113,27 +101,20 @@ const handleInput = (event: Event) => {
 const handleSubmit = () => {
   // 清除之前的錯誤
   errors.value.email = "";
-
   if (!formData.value.email.trim()) {
     errors.value.email = "請輸入電子信箱";
     return;
   }
-
   if (!isValidEmail(formData.value.email)) {
     errors.value.email = "請輸入有效的電子信箱";
     return;
   }
-
   if (isFormValid.value) {
     console.log("發送重設密碼連結至:", formData.value.email);
     // TODO: 實作發送重設密碼連結的邏輯
     // 顯示成功 Modal
     showSuccessModal.value = true;
   }
-};
-
-const handleCloseSuccessModal = () => {
-  showSuccessModal.value = false;
 };
 
 const handleReturnToLogin = () => {

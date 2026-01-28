@@ -2,7 +2,6 @@
   <div class="min-h-screen bg-indigo-50">
     <!-- Sidebar -->
     <SidebarSection @item-select="handleSidebarItemSelect" />
-
     <!-- Main Content -->
     <div class="flex flex-1 flex-col gap-10 p-4 sm:ml-[328px] sm:p-10">
       <!-- Breadcrumb and Title -->
@@ -10,7 +9,6 @@
         <Breadcrumb />
         <h1 class="text-3xl font-bold leading-[30px] text-gray-900">幹事名單管理</h1>
       </div>
-
       <!-- Form Card -->
       <div class="flex flex-col gap-10 rounded-lg bg-white p-6 shadow-sm">
         <!-- Header Section -->
@@ -23,22 +21,18 @@
             </div>
             <p class="pl-4 text-xl font-normal leading-5 text-gray-400">在此管理幹事名單及資訊</p>
           </div>
-
           <!-- Action Buttons -->
           <div class="flex gap-3">
             <ButtonCTA variant="outline" size="sm" left-icon="userSettings" @click="handleManageList"> 管理名單 </ButtonCTA>
             <ButtonCTA variant="outline" size="sm" right-icon="download" @click="handleExportList"> 匯出名單 </ButtonCTA>
           </div>
         </div>
-
         <!-- Tabs -->
         <Tabs :items="tabItems" :model-value="activeTab" @tab-click="handleTabClick" />
-
         <!-- Empty State or Table -->
         <div v-if="allOfficers.length === 0" class="flex flex-col items-center justify-center py-20">
           <Empty type="case" message="尚未導入審查幹事名單" button-text="添加幹事" :show-button="true" @button-click="handleAddOfficer" />
         </div>
-
         <!-- Officer List Table -->
         <div v-else class="flex flex-col gap-0">
           <Table :columns="tableColumns" :rows="paginatedOfficers" :pagination="pagination" @page-change="handlePageChange">
@@ -48,7 +42,6 @@
                 <p class="text-base font-normal leading-[1.5] text-gray-500">{{ row.index }}</p>
               </div>
             </template>
-
             <!-- Name and Gender Column -->
             <template #cell-nameGender="{ row }">
               <div class="flex h-20 flex-col items-start justify-center gap-1 px-4 py-4">
@@ -56,21 +49,18 @@
                 <p v-if="row.gender" class="text-base font-normal leading-[1.5] text-gray-500">{{ row.gender }}</p>
               </div>
             </template>
-
             <!-- Title Column -->
             <template #cell-title="{ row }">
               <div class="flex h-20 items-center p-4">
                 <p class="text-base font-normal leading-[1.5] text-gray-500">{{ row.title || "-" }}</p>
               </div>
             </template>
-
             <!-- Education/Experience Column -->
             <template #cell-education="{ row }">
               <div class="flex h-20 items-center p-4">
                 <p class="whitespace-pre-wrap text-base font-normal leading-[1.5] text-gray-500">{{ row.education || "-" }}</p>
               </div>
             </template>
-
             <!-- Action Column -->
             <template #cell-action="{ row }">
               <div class="flex h-20 items-center gap-4 px-4 py-4">
@@ -90,7 +80,6 @@
         </div>
       </div>
     </div>
-
     <!-- Drawer: 幹事管理名單 -->
     <Drawer v-model="isDrawerOpen" title="幹事管理名單" width="xl" @close="handleDrawerClose">
       <template #default>
@@ -103,7 +92,6 @@
               <div class="flex w-5 items-center justify-center">
                 <span class="text-base font-normal leading-[1.25] text-gray-500">{{ index + 1 }}</span>
               </div>
-
               <!-- Dropdown -->
               <InputDropdown
                 :button-text="officer.selectedOfficer || ''"
@@ -114,7 +102,6 @@
                 @item-click="(item) => handleOfficerSelect(index, item)"
               />
             </div>
-
             <!-- Right Section: Remove Button -->
             <div class="flex items-center px-3 py-4">
               <ButtonCTA variant="textPlain" size="base" class="p-0" @click="handleRemoveOfficer(index)"> 移除 </ButtonCTA>
@@ -126,7 +113,6 @@
           </div>
         </div>
       </template>
-
       <template #footer>
         <div class="flex gap-4">
           <ButtonCTA variant="outline" size="xl" class="w-[124px]" @click="handleCancel"> 取消 </ButtonCTA>
@@ -139,15 +125,25 @@
 
 <script setup lang="ts">
 import { ref, computed } from "vue";
-import SidebarSection from "@/components/sections/backend/SidebarSection.vue";
-import Breadcrumb from "@/components/atoms/Breadcrumb.vue";
 import Tabs, { type TabItem } from "@/components/atoms/Tabs.vue";
-import Empty from "@/components/atoms/Empty.vue";
-import ButtonCTA from "@/components/atoms/ButtonCTA.vue";
-import Drawer from "@/components/atoms/Drawer.vue";
 import InputDropdown, { type InputDropdownItem } from "@/components/atoms/InputDropdown.vue";
-import Table, { type TableColumn, type TablePagination } from "@/components/atoms/Table.vue";
+import Table, { type TableColumn } from "@/components/atoms/Table.vue";
+import { useTablePagination } from "@/composables/useTablePagination";
 import Icon from "@/components/atoms/Icon.vue";
+import Empty from "@/components/atoms/Empty.vue";
+import Drawer from "@/components/atoms/Drawer.vue";
+import ButtonCTA from "@/components/atoms/ButtonCTA.vue";
+import Breadcrumb from "@/components/atoms/Breadcrumb.vue";
+import SidebarSection from "@/components/sections/backend/SidebarSection.vue";
+
+// Officer Data Interface
+interface OfficerData {
+  index: number;
+  name: string;
+  gender: string;
+  title: string;
+  education: string;
+}
 
 // Tabs
 const tabItems: TabItem[] = [{ label: "115" }, { label: "114" }, { label: "113" }, { label: "添加年度" }];
@@ -165,15 +161,6 @@ const tableColumns: TableColumn[] = [
   { key: "education", label: "學經歷" },
   { key: "action", label: "動作" },
 ];
-
-// Officer Data Interface
-interface OfficerData {
-  index: number;
-  name: string;
-  gender: string;
-  title: string;
-  education: string;
-}
 
 // Mock Officer Data
 const allOfficers = ref<OfficerData[]>([
@@ -217,18 +204,10 @@ const allOfficers = ref<OfficerData[]>([
   { index: 20, name: "未選擇", gender: "男", title: "-", education: "-" },
 ]);
 
-// Pagination
-const pagination = ref<TablePagination>({
-  currentPage: 1,
+const { paginatedRows: paginatedOfficers, pagination, handlePageChange } = useTablePagination({
+  rows: allOfficers,
   pageSize: 10,
   total: 1000,
-});
-
-// Computed: Paginated Officers
-const paginatedOfficers = computed(() => {
-  const start = (pagination.value.currentPage - 1) * pagination.value.pageSize;
-  const end = start + pagination.value.pageSize;
-  return allOfficers.value.slice(start, end);
 });
 
 // Officer List (20 items default)
@@ -307,10 +286,6 @@ const handleSave = () => {
   console.log("Save officer list:", officerList.value);
   // TODO: Implement save logic
   isDrawerOpen.value = false;
-};
-
-const handlePageChange = (page: number) => {
-  pagination.value.currentPage = page;
 };
 
 const handleRemoveOfficerFromTable = (row: Record<string, any>) => {

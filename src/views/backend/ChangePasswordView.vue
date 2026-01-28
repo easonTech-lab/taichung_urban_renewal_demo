@@ -1,11 +1,7 @@
 <template>
   <div class="min-h-screen bg-indigo-50">
-    <!-- Sidebar -->
     <SidebarSection @item-select="handleSidebarItemSelect" />
-
-    <!-- Main Content -->
     <div class="flex flex-1 flex-col gap-10 p-4 sm:ml-[328px] sm:p-10">
-      <!-- Breadcrumb and Back Button -->
       <div class="flex flex-col gap-6">
         <Breadcrumb :items="breadcrumbItems" />
         <div class="flex items-center gap-4">
@@ -13,20 +9,13 @@
           <h1 class="text-3xl font-bold leading-[30px] text-gray-900">前一頁</h1>
         </div>
       </div>
-
-      <!-- Form Card -->
       <div class="flex flex-col gap-10">
-        <!-- Form Section -->
         <div class="rounded-lg bg-white p-8 shadow-sm">
-          <!-- Section Title -->
           <div class="mb-10 flex items-center gap-3">
             <div class="h-7 w-1 rounded bg-primary-600"></div>
             <h2 class="text-2xl font-medium leading-6 text-gray-900">變更密碼</h2>
           </div>
-
-          <!-- Form Fields -->
           <div class="flex flex-col gap-4">
-            <!-- 舊密碼 -->
             <div class="w-full max-w-[364px]">
               <Input
                 v-model="formData.oldPassword"
@@ -39,8 +28,6 @@
                 @clear-error="errors.oldPassword = false"
               />
             </div>
-
-            <!-- 新密碼 -->
             <div class="w-full max-w-[364px]">
               <Input
                 v-model="formData.newPassword"
@@ -54,8 +41,6 @@
               />
               <p class="mt-2 text-base leading-[1.25] text-gray-500">密碼至少需要9字元，包含大小寫字母、數字、特殊符號</p>
             </div>
-
-            <!-- 再次確認密碼 -->
             <div class="w-full max-w-[364px]">
               <Input
                 v-model="formData.confirmPassword"
@@ -70,16 +55,12 @@
             </div>
           </div>
         </div>
-
-        <!-- Action Buttons -->
         <div class="flex gap-4">
           <ButtonCTA variant="outline" size="xl" class="w-[124px]" @click="handleCancel"> 取消 </ButtonCTA>
           <ButtonCTA variant="primary" size="xl" class="w-[124px]" :disabled="isSaveDisabled" @click="handleSave"> 儲存變更 </ButtonCTA>
         </div>
       </div>
     </div>
-
-    <!-- Success Modal -->
     <Modal v-model="showSuccessModal" :static="true" size="md">
       <template #header>
         <div class="flex w-full items-center justify-end px-4 pb-0 pt-4">
@@ -96,20 +77,16 @@
           </ButtonCTA>
         </div>
       </template>
-
       <template #body>
         <div class="flex w-full flex-col items-center gap-4 px-6 py-5">
-          <!-- Success Icon -->
           <div class="relative flex size-[42px] shrink-0 items-center justify-center">
             <Icon name="check" :size="42" class="text-gray-400" aria-hidden="true" />
           </div>
-          <!-- Success Message -->
           <div class="flex w-full flex-col items-center">
             <p class="text-center text-base font-normal leading-normal text-gray-600">密碼重設成功，請使用新密碼登入</p>
           </div>
         </div>
       </template>
-
       <template #footer>
         <div class="flex items-center justify-center gap-4 px-6 pb-6 pt-0">
           <ButtonCTA variant="primary" class="h-[34px] w-[120px] px-5 py-3 text-base" @click="handleGoToLogin"> 回登入頁 </ButtonCTA>

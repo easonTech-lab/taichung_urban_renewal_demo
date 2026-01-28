@@ -263,8 +263,9 @@ import Icon from "@/components/atoms/Icon.vue";
 import Badge from "@/components/atoms/Badge.vue";
 import Stepper, { type StepperStep } from "@/components/atoms/Stepper.vue";
 import Dropdown, { type DropdownItem } from "@/components/atoms/Dropdown.vue";
-import Table, { type TableColumn, type TablePagination } from "@/components/atoms/Table.vue";
+import Table, { type TableColumn } from "@/components/atoms/Table.vue";
 import Empty from "@/components/atoms/Empty.vue";
+import { useTablePagination } from "@/composables/useTablePagination";
 
 const route = useRoute();
 
@@ -583,7 +584,6 @@ const fileTableColumns: TableColumn[] = [
   },
 ];
 
-const fileCurrentPage = ref(1);
 const filePageSize = ref(10);
 
 const filteredFiles = computed(() => {
@@ -594,25 +594,14 @@ const filteredFiles = computed(() => {
   return files;
 });
 
-const paginatedFiles = computed(() => {
-  const start = (fileCurrentPage.value - 1) * filePageSize.value;
-  const end = start + filePageSize.value;
-  return filteredFiles.value.slice(start, end);
+const { paginatedRows: paginatedFiles, pagination: filePagination, handlePageChange: handleFilePageChange, resetPage: resetFilePage } = useTablePagination({
+  rows: filteredFiles,
+  pageSize: filePageSize,
 });
-
-const filePagination = computed<TablePagination>(() => ({
-  currentPage: fileCurrentPage.value,
-  total: filteredFiles.value.length,
-  pageSize: filePageSize.value,
-}));
 
 const handleFileStageChange = (item: DropdownItem) => {
   selectedFileStage.value = item.value || "全部案件階段";
-  fileCurrentPage.value = 1; // Reset to first page when filter changes
-};
-
-const handleFilePageChange = (page: number) => {
-  fileCurrentPage.value = page;
+  resetFilePage(); // Reset to first page when filter changes
 };
 
 const handleFileDownload = (file: Record<string, any>) => {

@@ -1,22 +1,14 @@
 <template>
   <div class="min-h-screen bg-[#f3f5fa]">
-    <!-- Breadcrumb -->
     <div class="px-[60px] pb-0 pt-[40px]">
       <Breadcrumb />
     </div>
-    <!-- Main Content -->
     <div class="px-[60px] py-[40px]">
-      <!-- Title -->
       <h1 class="mb-6 text-[30px] font-bold leading-[30px] text-gray-900">審查會議</h1>
-      <!-- Tabs and Filters Section -->
       <div class="mb-6 flex flex-col gap-6">
-        <!-- Tabs -->
         <Tabs :items="tabItems" v-model="activeTab" @tab-change="handleTabChange" />
-        <!-- Filters -->
         <div class="flex flex-wrap items-center gap-4">
-          <!-- Stage Dropdown -->
           <Dropdown :items="stageOptions" :button-text="selectedStageText" variant="outline" @item-click="handleStageChange" />
-          <!-- Date Range Picker -->
           <DateRangePicker
             v-model="dateRange"
             start-placeholder="選擇起始日期"
@@ -25,36 +17,31 @@
             :container-class="'flex gap-2 items-center'"
             @range-change="handleDateRangeChange"
           />
-          <!-- Search Button -->
           <ButtonCTA variant="primary" @click="handleSearch" class="h-[40px] px-5 py-2.5"> 搜尋 </ButtonCTA>
         </div>
       </div>
-      <!-- Table -->
       <div v-if="filteredDataAll.length === 0" class="flex items-center justify-center py-16">
         <Empty type="search" message="查無符合條件的會議資料" />
       </div>
       <div v-else class="rounded-lg bg-white p-6 shadow-sm">
         <Table :columns="tableColumns" :rows="filteredData" :pagination="pagination" @page-change="handlePageChange">
-          <!-- Index Column -->
           <template #cell-index="{ rowIndex }">
-            <p class="font-['Noto_Sans_TC:Regular',sans-serif] text-base font-normal text-[#6b7280]">
+            <p class="font-sans text-base font-normal text-[#6b7280]">
               {{ rowIndex + 1 + (pagination.currentPage - 1) * pagination.pageSize }}
             </p>
           </template>
-          <!-- Agenda Column -->
           <template #cell-agenda="{ row }">
-            <p class="line-clamp-2 font-['Noto_Sans_TC:Regular',sans-serif] text-base font-normal text-[#1f2a37]">
+            <p class="line-clamp-2 font-sans text-base font-normal text-[#1f2a37]">
               {{ row.agenda }}
             </p>
           </template>
-          <!-- Action Column -->
           <template #cell-action="{ row }">
             <button
               @click="handleDownload(row)"
               class="flex h-10 items-center gap-2 rounded-lg px-0 py-2 transition-opacity hover:opacity-80 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
               :aria-label="`下載檔案：${row.agenda}`"
             >
-              <span class="font-['Noto_Sans_TC:Medium',sans-serif] text-sm font-medium text-[#1a56db] underline"> 下載檔案 </span>
+              <span class="font-sans text-sm font-medium text-[#1a56db] underline"> 下載檔案 </span>
               <Icon name="download" class="h-6 w-6" color="#1a56db" aria-hidden="true" />
             </button>
           </template>
@@ -67,16 +54,16 @@
 
 <script setup lang="ts">
 import { ref, computed } from "vue";
-import Breadcrumb from "@/components/atoms/Breadcrumb.vue";
-import Tabs, { type TabItem } from "@/components/atoms/Tabs.vue";
-import Dropdown from "@/components/atoms/Dropdown.vue";
-import type { DropdownItem } from "@/components/atoms/Dropdown.vue";
-import DateRangePicker, { type DateRange } from "@/components/atoms/DateRangePicker.vue";
-import ButtonCTA from "@/components/atoms/ButtonCTA.vue";
-import Table, { type TableColumn, type TablePagination } from "@/components/atoms/Table.vue";
 import Icon from "@/components/atoms/Icon.vue";
 import Empty from "@/components/atoms/Empty.vue";
+import ButtonCTA from "@/components/atoms/ButtonCTA.vue";
+import Breadcrumb from "@/components/atoms/Breadcrumb.vue";
 import FooterSection from "@/components/sections/global/FooterSection.vue";
+import Tabs, { type TabItem } from "@/components/atoms/Tabs.vue";
+import Dropdown, { type DropdownItem } from "@/components/atoms/Dropdown.vue";
+import DateRangePicker, { type DateRange } from "@/components/atoms/DateRangePicker.vue";
+import Table, { type TableColumn } from "@/components/atoms/Table.vue";
+import { useTablePagination } from "@/composables/useTablePagination";
 
 // Types
 interface MeetingItem {
@@ -236,13 +223,11 @@ const tableColumns: TableColumn[] = [
 ];
 
 // Pagination
-const currentPage = ref(1);
 const pageSize = computed(() => props.pageSize);
 
 // Filtered Data (before pagination)
 const filteredDataAll = computed(() => {
   let data = [...allData];
-
   // Filter by tab (category)
   if (activeTab.value === 1) {
     // 都更案件
@@ -294,47 +279,38 @@ const filteredDataAll = computed(() => {
   return data;
 });
 
-// Paginated Data
-const filteredData = computed(() => {
-  const start = (currentPage.value - 1) * pageSize.value;
-  const end = start + pageSize.value;
-  return filteredDataAll.value.slice(start, end);
+const { currentPage, paginatedRows: filteredData, pagination, handlePageChange: setPage, resetPage } = useTablePagination({
+  rows: filteredDataAll,
+  pageSize,
 });
-
-// Pagination
-const pagination = computed<TablePagination>(() => ({
-  currentPage: currentPage.value,
-  total: filteredDataAll.value.length,
-  pageSize: pageSize.value,
-}));
 
 // Event Handlers
 const handleTabChange = (index: number, item: TabItem) => {
   activeTab.value = index;
-  currentPage.value = 1; // Reset to first page when filter changes
+  resetPage(); // Reset to first page when filter changes
 };
 
 const handleStageChange = (item: DropdownItem, index: number) => {
   selectedStage.value = item.value as string;
-  currentPage.value = 1; // Reset to first page when filter changes
+  resetPage(); // Reset to first page when filter changes
 };
 
 const handleDateRangeChange = (range: DateRange | null) => {
   dateRange.value = range;
-  currentPage.value = 1; // Reset to first page when filter changes
+  resetPage(); // Reset to first page when filter changes
 };
 
 const handleSearch = () => {
   // 將當前選擇的日期範圍應用到過濾
   appliedDateRange.value = dateRange.value ? { ...dateRange.value } : null;
   // 重置到第一頁
-  currentPage.value = 1;
+  resetPage();
   // 滾動到表格頂部
   window.scrollTo({ top: 0, behavior: "smooth" });
 };
 
 const handlePageChange = (page: number) => {
-  currentPage.value = page;
+  setPage(page);
 };
 
 const handleDownload = (row: any) => {
