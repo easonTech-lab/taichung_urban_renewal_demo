@@ -28,9 +28,9 @@
       </div>
 
       <!-- Tab Content -->
-      <div :class="activeTab !== 0 ? 'rounded-lg bg-white p-6 shadow-sm' : ''">
+      <div :class="activeTab === 'files' ? 'rounded-lg bg-white p-6 shadow-sm' : ''">
         <!-- Case Information Tab -->
-        <div v-if="activeTab === 0" class="flex flex-col gap-10">
+        <div v-if="activeTab === 'info'" class="flex flex-col gap-10">
           <!-- Case Basic Information Section -->
           <div class="flex flex-col gap-10 rounded-lg bg-white p-6">
             <!-- Section Title -->
@@ -90,7 +90,7 @@
             </div>
 
             <!-- Action Cards -->
-            <div class="flex gap-5" v-if="!isAdminUser">
+            <div class="flex gap-5">
               <!-- Application Basic Information Card -->
               <button
                 type="button"
@@ -147,117 +147,144 @@
           </div>
         </div>
 
+        <!-- Complaints Tab -->
+        <div v-if="activeTab === 'complaints'" class="flex flex-col gap-6">
+          <div v-for="(section, index) in complaintSections" :key="`${section.title}-${index}`" class="rounded-lg bg-white p-6 shadow-sm">
+            <div class="flex items-center justify-between gap-6">
+              <div class="flex items-center gap-3">
+                <div class="h-7 w-1 rounded bg-primary-600"></div>
+                <h2 class="text-2xl font-medium leading-6 text-gray-900">{{ section.title }}</h2>
+              </div>
+              <ButtonCTA
+                variant="outline"
+                size="xs"
+                left-icon="plus"
+                class="!h-9 !min-w-[96px] px-3 py-2 text-sm"
+                @click="handleComplaintUpload(section)"
+              >
+                上傳檔案
+              </ButtonCTA>
+            </div>
+            <div class="mt-6">
+              <Table :columns="complaintTableColumns" :rows="section.rows" :show-checkbox="false" :borderless="true" class="shadow-none">
+                <template #cell-title="{ row }">
+                  <p class="line-clamp-2 text-base text-gray-800">
+                    {{ row.title }}
+                  </p>
+                </template>
+                <template #cell-uploadedAt="{ row }">
+                  <p class="text-base text-gray-500">
+                    {{ row.uploadedAt }}
+                  </p>
+                </template>
+                <template #cell-action="{ row }">
+                  <div class="flex items-center gap-4">
+                    <button class="flex items-center justify-center text-primary-600" @click.stop="handleComplaintDownload(row)" aria-label="下載檔案">
+                      <Icon name="download" :size="24" color="#1C64F2" />
+                    </button>
+                    <button class="flex items-center justify-center text-primary-600" @click.stop="handleComplaintDelete(row)" aria-label="刪除檔案">
+                      <Icon name="trashCan" :size="24" color="#1C64F2" />
+                    </button>
+                  </div>
+                </template>
+              </Table>
+            </div>
+          </div>
+        </div>
+
         <!-- Case Progress Tab -->
-        <div v-if="activeTab === 1" class="flex flex-col gap-10">
-          <!-- Section Title -->
-          <div class="flex items-center gap-3">
-            <div class="h-7 w-1 rounded bg-primary-600"></div>
-            <h2 class="text-2xl font-medium leading-6 text-gray-900">案件各階段進度</h2>
+        <div v-if="activeTab === 'progress'" class="flex flex-col gap-10">
+          <div class="flex items-center justify-between gap-6">
+            <div class="flex items-center gap-3">
+              <div class="h-7 w-1 rounded bg-primary-600"></div>
+              <h2 class="text-2xl font-medium leading-6 text-gray-900">案件各階段進度</h2>
+            </div>
+            <ButtonCTA v-if="isAdminUser" variant="outline" size="xs" left-icon="editOutline" class="!h-9 !min-w-[96px] px-3 py-2 text-sm">
+              編輯階段
+            </ButtonCTA>
           </div>
 
-          <!-- Progress Table -->
-          <div class="rounded-lg border border-gray-300 bg-white shadow-sm">
-            <Table :columns="progressTableColumns" :rows="progressTableRows" :show-checkbox="false">
-              <!-- Stage Name with Stepper Icon -->
-              <template #cell-stageName="{ row }">
-                <div class="flex items-center gap-4">
-                  <div class="flex h-20 w-[120px] items-center justify-center">
-                    <div :class="['flex h-8 w-8 items-center justify-center rounded-full ring-4 ring-white', getStageIconClass(row.status)]">
-                      <Icon v-if="row.status === 'completed'" name="check" :size="20" color="#ffffff" />
-                      <div v-else-if="row.status === 'current'" class="h-4 w-4 rounded-full bg-primary-500"></div>
-                      <div v-else class="h-4 w-4 rounded-full border-2 border-primary-500 bg-white"></div>
+          <div class="rounded-lg border border-gray-200 bg-white shadow-sm">
+            <div class="grid grid-cols-[80px_minmax(200px,1fr)_140px_140px_120px_150px_56px] items-center border-b border-gray-200 bg-gray-50 text-sm font-medium text-gray-500">
+              <div class="h-[54px]"></div>
+              <div class="px-4">案件階段</div>
+              <div class="px-4">階段狀態</div>
+              <div class="px-4">審議日期</div>
+              <div class="px-4">審議時間</div>
+              <div class="px-4">操作</div>
+              <div class="px-4"></div>
+            </div>
+            <div class="relative">
+              <div class="absolute left-[40px] top-0 h-full w-px bg-gray-200"></div>
+              <div v-for="(stage, index) in progressStages" :key="`${stage.name}-${index}`" class="border-b border-gray-200">
+                <div class="grid h-20 grid-cols-[80px_minmax(200px,1fr)_140px_140px_120px_150px_56px] items-center">
+                  <div class="flex items-center justify-center">
+                    <div :class="['relative z-10 flex h-7 w-7 items-center justify-center rounded-full border-2', getStageIconClass(stage.status)]">
+                      <Icon v-if="stage.status === 'completed'" name="check" :size="16" color="#ffffff" />
+                      <div v-else-if="stage.status === 'current'" class="h-3 w-3 rounded-full bg-primary-500"></div>
                     </div>
                   </div>
-                  <div>
-                    <p class="text-base font-medium text-gray-800">{{ row.name }}</p>
+                  <div class="px-4 text-base font-medium text-gray-900">
+                    {{ stage.name }}
+                  </div>
+                  <div class="px-4">
+                    <Badge :variant="getStatusBadgeVariant(stage.status)" :text="stage.statusText" />
+                  </div>
+                  <div class="px-4 text-base text-gray-500">{{ stage.reviewDate }}</div>
+                  <div class="px-4 text-base text-gray-500">{{ stage.reviewTime }}</div>
+                  <div class="px-4">
+                    <button v-if="stage.hasDetails" class="text-base text-primary-600 hover:text-primary-700" @click.stop="handleViewDetails(index)">查看詳細資料</button>
+                  </div>
+                  <div class="px-4">
+                    <button v-if="stage.hasSubStages" class="flex items-center justify-center" @click.stop="toggleStageExpand(index)">
+                      <Icon :name="stage.isExpanded ? 'chevronUp' : 'chevronDown'" :size="24" color="#1A56DB" />
+                    </button>
                   </div>
                 </div>
-              </template>
-
-              <!-- Stage Status Badge -->
-              <template #cell-status="{ row }">
-                <Badge :variant="getStatusBadgeVariant(row.status)" :text="row.statusText" />
-              </template>
-
-              <!-- Action Buttons -->
-              <template #cell-action="{ row, rowIndex }">
-                <div class="flex items-center gap-4">
-                  <button v-if="row.hasDetails" class="text-base text-primary-600 hover:text-primary-700" @click.stop="handleViewDetails(rowIndex)">查看詳細資料</button>
-                  <button v-if="row.hasSubStages" class="flex items-center justify-center" @click.stop="toggleStageExpand(rowIndex)">
-                    <Icon :name="row.isExpanded ? 'chevronUp' : 'chevronDown'" :size="24" color="#1A56DB" />
-                  </button>
+                <div v-if="stage.isExpanded && stage.subStages && stage.subStages.length > 0" class="bg-blue-50 px-10 py-6">
+                  <div class="max-w-[560px]">
+                    <Stepper :steps="stage.subStages" />
+                  </div>
                 </div>
-              </template>
-
-              <!-- Expanded Sub-stages Row -->
-              <template #row-after="{ row, rowIndex }">
-                <tr v-if="row.isExpanded && row.subStages && row.subStages.length > 0" class="bg-blue-50">
-                  <td colspan="5" class="px-4 py-6">
-                    <div class="flex gap-4">
-                      <!-- Sub-stages Stepper -->
-                      <div class="flex w-[120px] flex-col items-center">
-                        <div class="relative flex flex-col items-center">
-                          <div
-                            v-for="(subStage, subIndex) in row.subStages"
-                            :key="subIndex"
-                            class="flex flex-col items-center"
-                            :class="Number(subIndex) < (row.subStages?.length || 0) - 1 ? 'mb-[52px]' : ''"
-                          >
-                            <div :class="['flex h-[18px] w-[18px] items-center justify-center rounded-full', getSubStageIconClass(subStage.status)]">
-                              <Icon v-if="subStage.status === 'completed'" name="check" :size="14" color="#ffffff" />
-                              <div v-else-if="subStage.status === 'current'" class="h-2 w-2 rounded-full bg-primary-500"></div>
-                              <div v-else class="h-[18px] w-[18px] rounded-full border-2 border-primary-500 bg-white"></div>
-                            </div>
-                            <div v-if="Number(subIndex) < (row.subStages?.length || 0) - 1" class="h-[52px] w-0.5 bg-primary-500"></div>
-                          </div>
-                        </div>
-                      </div>
-
-                      <!-- Sub-stages Content -->
-                      <div class="flex-1 space-y-8">
-                        <div v-for="(subStage, subIndex) in row.subStages" :key="subIndex" class="flex items-center">
-                          <div class="flex-1">
-                            <p :class="['text-base font-medium', subStage.status === 'current' ? 'text-gray-900' : 'text-gray-500']">
-                              {{ subStage.title }}
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </td>
-                </tr>
-              </template>
-            </Table>
+              </div>
+            </div>
           </div>
         </div>
 
         <!-- Project Files Tab -->
-        <div v-if="activeTab === 2" class="flex flex-col gap-10">
-          <!-- Section Title -->
-          <div class="flex items-center gap-3">
-            <div class="h-7 w-1 rounded bg-primary-600"></div>
-            <h2 class="text-2xl font-medium leading-6 text-gray-900">專案檔案</h2>
-          </div>
-
-          <!-- Filter and Table -->
-          <div class="flex flex-col gap-6">
-            <!-- Filter Dropdown -->
-            <div class="flex items-center gap-4">
-              <Dropdown :button-text="selectedFileStage" :items="fileStageOptions" variant="outline" @item-click="handleFileStageChange" />
+        <div v-if="activeTab === 'files'" class="flex flex-col gap-10">
+          <div class="rounded-lg bg-white p-6 shadow-sm">
+            <div class="flex items-center gap-3">
+              <div class="h-7 w-1 rounded bg-primary-600"></div>
+              <h2 class="text-2xl font-medium leading-6 text-gray-900">專案檔案</h2>
             </div>
 
-            <!-- File Table -->
-            <div class="rounded-lg border border-gray-300 bg-white shadow-sm">
-              <Table :columns="fileTableColumns" :rows="paginatedFiles" :pagination="filePagination" @page-change="handleFilePageChange">
-                <!-- Action -->
+            <div class="mt-6 flex flex-col gap-4">
+              <Tabs :items="fileTabItems" :model-value="activeFileTab" @tab-click="handleFileTabClick" />
+              <div class="flex flex-wrap items-center gap-3">
+                <Dropdown :button-text="selectedFileStage" placeholder="全部案件階段" :items="fileStageOptions" @item-click="handleFileStageChange" />
+                <Dropdown :button-text="selectedFileCategory" placeholder="檔案類別" :items="fileCategoryOptions" @item-click="handleFileCategoryChange" />
+              </div>
+            </div>
+
+            <div class="mt-6">
+              <Table
+                :columns="fileTableColumns"
+                :rows="paginatedFiles"
+                :pagination="filePagination"
+                :borderless="true"
+                class="shadow-none"
+                @page-change="handleFilePageChange"
+              >
                 <template #cell-action="{ row }">
-                  <button
-                    class="flex items-center justify-center text-primary-600 transition-colors hover:text-primary-700"
-                    @click.stop="handleFileDownload(row)"
-                    aria-label="下載檔案"
-                  >
-                    <Icon name="download" :size="24" color="#1C64F2" />
-                  </button>
+                  <div class="flex items-center gap-4">
+                    <button class="flex items-center justify-center text-primary-600" @click.stop="handleFileDownload(row)" aria-label="下載檔案">
+                      <Icon name="download" :size="24" color="#1C64F2" />
+                    </button>
+                    <button class="flex items-center justify-center text-primary-600" @click.stop="handleFileDelete(row)" aria-label="刪除檔案">
+                      <Icon name="trashCan" :size="24" color="#1C64F2" />
+                    </button>
+                  </div>
                 </template>
               </Table>
             </div>
@@ -326,6 +353,45 @@
         @close="handleCloseToast"
       />
     </div>
+
+    <Modal v-model="showComplaintDeleteModal" size="md" :static="false" :show-close-button="false" close-action="emit" backdrop-class="bg-gray-600/80">
+      <template #header>
+        <div class="flex w-full items-center justify-end px-4 pt-4">
+          <button type="button" class="flex h-6 w-6 items-center justify-center text-gray-400 hover:text-gray-500" @click="handleCloseComplaintDeleteModal" aria-label="關閉">
+            <Icon name="close" :size="20" aria-hidden="true" />
+          </button>
+        </div>
+      </template>
+      <template #body>
+        <div class="flex w-full flex-col items-center gap-4 px-6 py-5">
+          <div class="flex h-6 w-6 items-center justify-center rounded-full bg-gray-400 text-xs font-medium text-white">!</div>
+          <div class="w-[311px] text-center text-base font-normal leading-[1.5] text-gray-600">
+            <p class="mb-0">確認刪除檔案</p>
+            <p>內容將完全刪除無法復原</p>
+          </div>
+        </div>
+      </template>
+      <template #footer>
+        <div class="flex w-full items-center justify-center gap-4 px-6 pb-6 pt-0">
+          <ButtonCTA
+            variant="white"
+            size="xs"
+            class="h-8 w-[120px] border-gray-200 px-3 py-2 text-xs font-medium leading-[1.5] text-gray-800 hover:bg-gray-50"
+            @click="handleCloseComplaintDeleteModal"
+          >
+            取消
+          </ButtonCTA>
+          <ButtonCTA
+            variant="red"
+            size="xs"
+            class="h-8 w-[120px] bg-red-700 px-3 py-2 text-sm font-medium leading-[1.5] text-white hover:bg-red-800"
+            @click="handleConfirmComplaintDelete"
+          >
+            刪除
+          </ButtonCTA>
+        </div>
+      </template>
+    </Modal>
   </div>
 </template>
 
@@ -333,6 +399,7 @@
 import { ref, computed } from "vue";
 import SidebarSection from "@/components/sections/backend/SidebarSection.vue";
 import Breadcrumb from "@/components/atoms/Breadcrumb.vue";
+import Tabs, { type TabItem } from "@/components/atoms/Tabs.vue";
 import Icon from "@/components/atoms/Icon.vue";
 import Badge from "@/components/atoms/Badge.vue";
 import Stepper, { type StepperStep } from "@/components/atoms/Stepper.vue";
@@ -344,6 +411,7 @@ import Empty from "@/components/atoms/Empty.vue";
 import Drawer from "@/components/atoms/Drawer.vue";
 import ButtonCTA from "@/components/atoms/ButtonCTA.vue";
 import Toast from "@/components/atoms/Toast.vue";
+import Modal from "@/components/atoms/Modal.vue";
 import { useTablePagination } from "@/composables/useTablePagination";
 
 interface ProgressStage {
@@ -358,13 +426,27 @@ interface ProgressStage {
   subStages?: StepperStep[];
 }
 
-const tabs = [
-  { label: "案件資訊", value: "info" },
-  { label: "案件進度", value: "progress" },
-  { label: "專案檔案", value: "files" },
-];
+const tabs = computed(() => {
+  if (isAdminUser.value) {
+    return [
+      { label: "案件資訊", value: "info" },
+      { label: "人民陳情", value: "complaints" },
+      { label: "案件進度", value: "progress" },
+      { label: "專案檔案", value: "files" },
+    ];
+  }
+  return [
+    { label: "案件資訊", value: "info" },
+    { label: "案件進度", value: "progress" },
+    { label: "專案檔案", value: "files" },
+  ];
+});
 
-const activeTab = ref(0);
+const activeTab = ref<string>("info");
+const activeTabIndex = computed(() => {
+  const index = tabs.value.findIndex((tab) => tab.value === activeTab.value);
+  return index === -1 ? 0 : index;
+});
 const isDrawerOpen = ref(false);
 type DrawerMode = "officerList" | "editInfo";
 const drawerMode = ref<DrawerMode>("officerList");
@@ -381,7 +463,7 @@ const isAdminUser = computed(() => {
 });
 
 const getTabClass = (index: number): string => {
-  const isActive = index === activeTab.value;
+  const isActive = index === activeTabIndex.value;
   const baseClasses = ["flex flex-1 flex-col items-center justify-center p-4 transition-colors"];
 
   if (isActive) {
@@ -394,12 +476,12 @@ const getTabClass = (index: number): string => {
 };
 
 const getTabTextClass = (index: number): string => {
-  const isActive = index === activeTab.value;
+  const isActive = index === activeTabIndex.value;
   return isActive ? "text-base font-medium text-primary-500" : "text-base font-medium text-gray-500";
 };
 
 const handleTabClick = (index: number) => {
-  activeTab.value = index;
+  activeTab.value = tabs.value[index]?.value || "info";
 };
 
 const handleSidebarItemSelect = (itemName: string) => {
@@ -434,24 +516,37 @@ const progressStages = ref<ProgressStage[]>([
     isExpanded: true,
     subStages: [
       {
-        title: "階段開放",
+        title: "申請送出",
         status: "completed",
+        description: "已提出申請審查",
+        icon: "check",
       },
       {
         title: "審查中",
+        status: "completed",
+        description: "審核中",
+        icon: "check",
+      },
+      {
+        title: "依意見修正補件",
         status: "current",
+        description: "申請人上傳意見修正檔件",
+        descriptionClass: "text-red-500",
       },
       {
         title: "召開會議",
         status: "pending",
+        description: "會議時間 114.10.25",
       },
       {
         title: "函發會議記錄",
         status: "pending",
+        description: "會議紀錄",
       },
       {
         title: "已完成",
         status: "pending",
+        description: "進入下階段 都更事審會",
       },
     ] as StepperStep[],
   },
@@ -500,24 +595,12 @@ const progressStages = ref<ProgressStage[]>([
 const getStageIconClass = (status: string): string => {
   switch (status) {
     case "completed":
-      return "bg-primary-500";
+      return "border-primary-500 bg-primary-500";
     case "current":
-      return "bg-primary-500";
+      return "border-primary-500 bg-white";
     case "pending":
     default:
-      return "border-2 border-primary-500 bg-white";
-  }
-};
-
-const getSubStageIconClass = (status?: string): string => {
-  switch (status) {
-    case "completed":
-      return "bg-primary-500";
-    case "current":
-      return "bg-primary-500";
-    case "pending":
-    default:
-      return "border-2 border-primary-500 bg-white";
+      return "border-gray-300 bg-white";
   }
 };
 
@@ -542,32 +625,105 @@ const handleViewDetails = (index: number) => {
   // TODO: Navigate to details page or show modal
 };
 
-// Progress Table Columns
-const progressTableColumns: TableColumn[] = [
-  { key: "stageName", label: "案件階段" },
-  { key: "status", label: "階段狀態" },
-  { key: "reviewDate", label: "審議日期" },
-  { key: "reviewTime", label: "審議時間" },
-  { key: "action", label: "操作" },
-];
+interface ComplaintRow {
+  title: string;
+  uploadedAt: string;
+}
 
-// Convert progressStages to table rows format
-const progressTableRows = computed(() => {
-  return progressStages.value.map((stage) => ({
-    ...stage,
-    stageName: stage.name, // Map name to stageName for the column key
-  }));
-});
+interface ComplaintSection {
+  title: string;
+  rows: ComplaintRow[];
+}
+
+const complaintSections = ref<ComplaintSection[]>([
+  {
+    title: "書面受理資料",
+    rows: [
+      {
+        title: "台中市行政段645地號等21筆土地 都市更新事業計畫及權利變換計畫案-第一次專案意見回饋",
+        uploadedAt: "114/10/12 17:50",
+      },
+      {
+        title: "台中市捷運路線地區申請開發許可細部計畫案",
+        uploadedAt: "114/10/12 17:50",
+      },
+      {
+        title: "變更部分細部土地使用分區管制計畫",
+        uploadedAt: "114/10/12 17:50",
+      },
+    ],
+  },
+  {
+    title: "委員會審議紀錄",
+    rows: [
+      {
+        title: "台中市行政段645地號等21筆土地 都市更新事業計畫及權利變換計畫案-第一次專案意見回饋",
+        uploadedAt: "114/10/12 17:50",
+      },
+      {
+        title: "台中市捷運路線地區申請開發許可細部計畫案",
+        uploadedAt: "114/10/12 17:50",
+      },
+      {
+        title: "變更部分細部土地使用分區管制計畫",
+        uploadedAt: "114/10/12 17:50",
+      },
+    ],
+  },
+  {
+    title: "人民或團體陳情意見紀錄表",
+    rows: [
+      {
+        title: "台中市行政段645地號等21筆土地 都市更新事業計畫及權利變換計畫案-第一次專案意見回饋",
+        uploadedAt: "114/10/12 17:50",
+      },
+      {
+        title: "台中市捷運路線地區申請開發許可細部計畫案",
+        uploadedAt: "114/10/12 17:50",
+      },
+      {
+        title: "變更部分細部土地使用分區管制計畫",
+        uploadedAt: "114/10/12 17:50",
+      },
+    ],
+  },
+]);
+
+const complaintTableColumns: TableColumn[] = [
+  {
+    key: "title",
+    label: "案件名稱",
+    headerClass: "w-auto",
+    sortable: true,
+  },
+  {
+    key: "uploadedAt",
+    label: "上傳時間",
+    headerClass: "w-[170px]",
+    sortable: true,
+  },
+  {
+    key: "action",
+    label: "動作",
+    headerClass: "w-[96px]",
+  },
+];
 
 // Project Files Tab Data
 interface ProjectFile {
   fileName: string;
   uploadTime: string;
   caseStage: string;
+  fileCategory: string;
+  uploaderType: "全部" | "申請人" | "幹事" | "承辦";
   fileSize: string;
 }
 
+const fileTabItems: TabItem[] = [{ label: "全部" }, { label: "申請人" }, { label: "幹事" }, { label: "承辦" }];
+const activeFileTab = ref(0);
+
 const selectedFileStage = ref<string>("全部案件階段");
+const selectedFileCategory = ref<string>("檔案類別");
 const fileStageOptions: DropdownItem[] = [
   { label: "全部案件階段", value: "全部案件階段" },
   { label: "案件申請", value: "案件申請" },
@@ -577,42 +733,60 @@ const fileStageOptions: DropdownItem[] = [
   { label: "都更大會", value: "都更大會" },
   { label: "最終核定", value: "最終核定" },
 ];
+const fileCategoryOptions: DropdownItem[] = [
+  { label: "檔案類別", value: "檔案類別" },
+  { label: "申請人上傳", value: "申請人上傳" },
+  { label: "幹事上傳", value: "幹事上傳" },
+  { label: "承辦上傳", value: "承辦上傳" },
+];
 
 const allFiles = ref<ProjectFile[]>([
   {
     fileName: "小組審查文件.pdf",
     uploadTime: "114/10/12 17:50",
     caseStage: "都更大會",
+    fileCategory: "申請人上傳",
+    uploaderType: "申請人",
     fileSize: "967 KB",
   },
   {
     fileName: "專家小組審查文檔內部研討第一期專案會議.pdf",
     uploadTime: "114/10/12 17:50",
     caseStage: "都更大會",
+    fileCategory: "幹事上傳",
+    uploaderType: "幹事",
     fileSize: "967 KB",
   },
   {
     fileName: "專家小組審查文檔內部研討第一期專案會議.pdf",
     uploadTime: "114/10/12 17:50",
     caseStage: "都更大會",
+    fileCategory: "幹事上傳",
+    uploaderType: "幹事",
     fileSize: "967 KB",
   },
   {
     fileName: "都更幹事會開會通知單.pdf",
     uploadTime: "114/10/12 17:50",
     caseStage: "都更幹事會",
+    fileCategory: "承辦上傳",
+    uploaderType: "承辦",
     fileSize: "25 KB",
   },
   {
     fileName: "公辦公聽會會議記錄.pdf",
     uploadTime: "114/10/12 17:50",
     caseStage: "公辦公聽會",
+    fileCategory: "承辦上傳",
+    uploaderType: "承辦",
     fileSize: "107 KB",
   },
   {
     fileName: "公辦公聽會開會通知單.pdf",
     uploadTime: "114/10/12 17:50",
     caseStage: "公辦公聽會",
+    fileCategory: "承辦上傳",
+    uploaderType: "承辦",
     fileSize: "107 KB",
   },
 ]);
@@ -633,19 +807,24 @@ const fileTableColumns: TableColumn[] = [
   {
     key: "caseStage",
     label: "案件階段",
-    headerClass: "w-[140px]",
+    headerClass: "w-[115px]",
     sortable: true,
+  },
+  {
+    key: "fileCategory",
+    label: "檔案類別",
+    headerClass: "w-[125px]",
   },
   {
     key: "fileSize",
     label: "檔案大小",
-    headerClass: "w-[100px]",
+    headerClass: "w-[108px]",
     sortable: true,
   },
   {
     key: "action",
     label: "動作",
-    headerClass: "w-[60px]",
+    headerClass: "w-[80px]",
   },
 ];
 
@@ -653,8 +832,15 @@ const filePageSize = ref(10);
 
 const filteredFiles = computed(() => {
   let files = [...allFiles.value];
+  const activeUploader = fileTabItems[activeFileTab.value]?.label;
+  if (activeUploader && activeUploader !== "全部") {
+    files = files.filter((file) => file.uploaderType === activeUploader);
+  }
   if (selectedFileStage.value && selectedFileStage.value !== "全部案件階段") {
     files = files.filter((file) => file.caseStage === selectedFileStage.value);
+  }
+  if (selectedFileCategory.value && selectedFileCategory.value !== "檔案類別") {
+    files = files.filter((file) => file.fileCategory === selectedFileCategory.value);
   }
   return files;
 });
@@ -674,9 +860,40 @@ const handleFileStageChange = (item: DropdownItem) => {
   resetFilePage(); // Reset to first page when filter changes
 };
 
+const handleFileCategoryChange = (item: DropdownItem) => {
+  selectedFileCategory.value = item.value || "檔案類別";
+  resetFilePage();
+};
+
+const handleFileTabClick = (index: number) => {
+  activeFileTab.value = index;
+  resetFilePage();
+};
+
 const handleFileDownload = (file: Record<string, any>) => {
   console.log("Download file:", file);
   // TODO: Implement file download logic
+};
+
+const handleFileDelete = (file: Record<string, any>) => {
+  console.log("Delete file:", file);
+  // TODO: Implement delete logic
+};
+
+const handleComplaintUpload = (section: ComplaintSection) => {
+  console.log("Upload complaint file for:", section.title);
+  // TODO: Implement upload handler
+};
+
+const handleComplaintDownload = (row: ComplaintRow) => {
+  console.log("Download complaint file:", row);
+  // TODO: Implement download handler
+};
+
+const handleComplaintDelete = (row: ComplaintRow) => {
+  console.log("Delete complaint file:", row);
+  selectedComplaintRow.value = row;
+  showComplaintDeleteModal.value = true;
 };
 
 const editForm = ref({
@@ -793,5 +1010,23 @@ const handleToastExit = () => {
 const handleToastDraft = () => {
   handleCloseToast();
   handleEditSave();
+};
+
+const showComplaintDeleteModal = ref(false);
+const selectedComplaintRow = ref<ComplaintRow | null>(null);
+
+const handleCloseComplaintDeleteModal = () => {
+  showComplaintDeleteModal.value = false;
+  selectedComplaintRow.value = null;
+};
+
+const handleConfirmComplaintDelete = () => {
+  if (selectedComplaintRow.value) {
+    const targetTitle = selectedComplaintRow.value.title;
+    complaintSections.value.forEach((section) => {
+      section.rows = section.rows.filter((row) => row.title !== targetTitle);
+    });
+  }
+  handleCloseComplaintDeleteModal();
 };
 </script>

@@ -17,9 +17,9 @@
         <div class="flex flex-col gap-6">
           <Tabs :items="tabItems" :model-value="activeTab" @tab-click="handleTabClick" />
           <div class="flex items-center gap-2">
-            <Dropdown :button-text="selectedStartYear || '選擇年度區間'" :items="yearOptions" variant="outline" @item-click="handleStartYearChange" />
+            <Dropdown :button-text="selectedStartYear" placeholder="選擇年度區間" :items="yearOptions" @item-click="handleStartYearChange" />
             <span class="text-xl font-normal leading-5 text-gray-500">-</span>
-            <Dropdown :button-text="selectedEndYear || '選擇年度區間'" :items="yearOptions" variant="outline" @item-click="handleEndYearChange" />
+            <Dropdown :button-text="selectedEndYear" placeholder="選擇年度區間" :items="yearOptions" @item-click="handleEndYearChange" />
           </div>
         </div>
         <div class="rounded-lg border border-gray-300 bg-white">
@@ -28,11 +28,68 @@
               <Badge :variant="getGrowthRateVariant(row.growthRate)" :text="row.growthRate" />
             </template>
             <template #cell-action="{ row }">
-              <ButtonCTA variant="text" size="sm" icon-only left-icon="editOutline" @click.stop="handleEdit(row)" aria-label="編輯" />
+              <div class="flex items-center gap-2">
+                <ButtonCTA variant="text" size="sm" icon-only left-icon="editOutline" @click.stop="handleEdit(row)" aria-label="編輯" />
+                <ButtonCTA variant="text" size="sm" icon-only left-icon="trashCan" @click.stop="handleDelete(row)" aria-label="刪除" />
+              </div>
             </template>
           </Table>
         </div>
       </div>
+    </div>
+
+    <Modal
+      v-model="showDeleteModal"
+      size="md"
+      :static="false"
+      :show-close-button="false"
+      close-action="emit"
+      backdrop-class="bg-gray-600/80"
+    >
+      <template #header>
+        <div class="flex w-full items-center justify-end px-4 pt-4">
+          <button type="button" class="flex h-6 w-6 items-center justify-center text-gray-400 hover:text-gray-500" @click="handleCloseDeleteModal" aria-label="關閉">
+            <Icon name="close" :size="20" aria-hidden="true" />
+          </button>
+        </div>
+      </template>
+      <template #body>
+        <div class="flex w-full flex-col items-center gap-4 px-6 py-5">
+          <div class="flex h-6 w-6 items-center justify-center rounded-full bg-gray-400 text-xs font-medium text-white">!</div>
+          <div class="w-[311px] text-center text-base font-normal leading-[1.5] text-gray-600">
+            <p class="mb-0">確認刪除此項目</p>
+            <p>內容將完全刪除無法復原</p>
+          </div>
+        </div>
+      </template>
+      <template #footer>
+        <div class="flex w-full items-center justify-center gap-4 px-6 pb-6 pt-0">
+          <ButtonCTA
+            variant="white"
+            size="xs"
+            class="h-8 w-[120px] border-gray-200 px-3 py-2 text-xs font-medium leading-[1.5] text-gray-800 hover:bg-gray-50"
+            @click="handleCloseDeleteModal"
+          >
+            取消
+          </ButtonCTA>
+          <ButtonCTA
+            variant="red"
+            size="xs"
+            class="h-8 w-[120px] bg-red-700 px-3 py-2 text-sm font-medium leading-[1.5] text-white hover:bg-red-800"
+            @click="handleConfirmDelete"
+          >
+            刪除
+          </ButtonCTA>
+        </div>
+      </template>
+    </Modal>
+
+    <div class="fixed bottom-6 z-[90]" :style="deleteToastStyle">
+      <Toast v-model="showDeleteToast" :message="toastMessage" :show-actions="false" :show-close="false" :auto-close="true">
+        <template #icon>
+          <Icon name="check" :size="24" class="text-gray-50" aria-hidden="true" />
+        </template>
+      </Toast>
     </div>
   </div>
 </template>
@@ -43,6 +100,8 @@ import { useRouter } from "vue-router";
 import Tabs from "@/components/atoms/Tabs.vue";
 import Icon from "@/components/atoms/Icon.vue";
 import Badge from "@/components/atoms/Badge.vue";
+import Modal from "@/components/atoms/Modal.vue";
+import Toast from "@/components/atoms/Toast.vue";
 import ButtonCTA from "@/components/atoms/ButtonCTA.vue";
 import Breadcrumb from "@/components/atoms/Breadcrumb.vue";
 import SidebarSection from "@/components/sections/backend/SidebarSection.vue";
@@ -79,6 +138,17 @@ const yearOptions: DropdownItem[] = Array.from({ length: 20 }, (_, i) => {
 const selectedStartYear = ref<string>("");
 const selectedEndYear = ref<string>("");
 const pageSize = ref<number>(10);
+const showDeleteModal = ref(false);
+const pendingDeleteItem = ref<StatisticsItem | null>(null);
+const showDeleteToast = ref(false);
+const toastMessage = ref("刪除成功");
+const deleteToastStyle = {
+  left: "50%",
+  transform: "translateX(-50%)",
+  width: "min(1420px, calc(100vw - 2rem))",
+  maxWidth: "min(1420px, calc(100vw - 2rem))",
+  minWidth: "min(1420px, calc(100vw - 2rem))",
+};
 
 // Mock Data
 const allStatistics: StatisticsItem[] = [
@@ -134,8 +204,8 @@ const tableColumns: TableColumn[] = [
   {
     key: "action",
     label: "動作",
-    headerClass: "w-[60px]",
-    cellClass: "w-[60px]",
+    headerClass: "w-[96px]",
+    cellClass: "w-[96px]",
   },
 ];
 
@@ -218,5 +288,24 @@ const handleEdit = (row: Record<string, any>) => {
       annualCount: item.annualCount.toString(),
     },
   });
+};
+
+const handleDelete = (row: Record<string, any>) => {
+  const item = row as StatisticsItem;
+  pendingDeleteItem.value = item;
+  showDeleteModal.value = true;
+};
+
+const handleCloseDeleteModal = () => {
+  showDeleteModal.value = false;
+  pendingDeleteItem.value = null;
+};
+
+const handleConfirmDelete = () => {
+  if (!pendingDeleteItem.value) return;
+  // TODO: Implement delete logic
+  console.log("Deleting:", pendingDeleteItem.value);
+  handleCloseDeleteModal();
+  showDeleteToast.value = true;
 };
 </script>

@@ -4,8 +4,8 @@
       :id="buttonId"
       type="button"
       :data-dropdown-toggle="dropdownId"
-      class="inline-flex items-center focus:outline-none focus:ring-4 focus:ring-gray-200"
-      :class="[buttonClasses, variant === 'filter' ? 'w-full justify-between' : 'justify-center']"
+      class="inline-flex items-center focus:outline-none focus:ring-2 focus:ring-primary-500"
+      :class="[buttonClasses, 'w-full justify-between']"
       :aria-expanded="isOpen"
       :aria-haspopup="true"
       @click="toggle"
@@ -14,7 +14,7 @@
       @keydown.esc="close"
     >
       <slot name="button">
-        <span :class="variant === 'filter' ? 'flex-1 text-left' : ''">{{ buttonText }}</span>
+        <span :class="['flex-1 text-left', buttonTextClasses]">{{ displayText }}</span>
       </slot>
       <Icon name="chevronDown" :size="16" class="-me-0.5 ms-1.5 shrink-0 transition-transform" :class="isOpen ? 'rotate-180' : ''" aria-hidden="true" />
     </button>
@@ -91,18 +91,18 @@ const props = withDefaults(
     buttonText?: string;
     items: CheckboxDropdownItem[];
     modelValue?: (string | number)[];
-    variant?: "primary" | "secondary" | "outline" | "ghost" | "filter";
     align?: "left" | "right";
     minWidth?: string;
     showSelectAll?: boolean;
+    placeholder?: string;
   }>(),
   {
     buttonText: "Dropdown button",
     modelValue: () => [],
-    variant: "primary",
     align: "left",
     minWidth: "auto",
     showSelectAll: false,
+    placeholder: "",
   }
 );
 
@@ -118,14 +118,17 @@ const buttonId = computed(() => `checkbox-dropdown-button-${Math.random().toStri
 const dropdownId = computed(() => `checkbox-dropdown-${Math.random().toString(36).substring(2, 11)}`);
 
 const buttonClasses = computed(() => {
-  const variantClasses = {
-    primary: "text-white bg-primary-600 hover:bg-primary-700 focus:ring-4 focus:ring-primary-300 rounded-lg px-4 py-2.5 text-sm font-medium shadow-sm",
-    secondary: "bg-gray-600 hover:bg-gray-700 focus:ring-4 focus:ring-gray-300 text-white rounded-lg px-4 py-2.5 text-sm font-medium shadow-sm",
-    outline: "bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 focus:ring-4 focus:ring-gray-200 rounded-lg px-4 py-2.5 text-sm font-medium shadow-sm",
-    ghost: "bg-transparent text-gray-700 hover:bg-gray-100 focus:ring-4 focus:ring-gray-200 rounded-lg px-4 py-2.5 text-sm font-medium",
-    filter: "bg-gray-50 border border-gray-300 text-gray-500 hover:bg-gray-100 focus:ring-4 focus:ring-gray-200 rounded-lg px-4 py-3 text-sm font-normal leading-[1.25]",
-  };
-  return variantClasses[props.variant];
+  return "bg-gray-50 border border-gray-300 text-gray-500 hover:bg-gray-100 focus:border-primary-500 focus:ring-primary-500 rounded-lg px-4 py-3 text-sm font-normal leading-[1.25]";
+});
+
+const displayText = computed(() => {
+  if (props.buttonText) return props.buttonText;
+  return props.placeholder || "";
+});
+
+const buttonTextClasses = computed(() => {
+  const isPlaceholder = !props.buttonText || (!!props.placeholder && props.buttonText === props.placeholder);
+  return isPlaceholder ? "text-gray-500" : "text-gray-900";
 });
 
 // 處理「全選」選項

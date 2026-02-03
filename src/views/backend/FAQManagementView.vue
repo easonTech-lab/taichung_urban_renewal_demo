@@ -18,12 +18,19 @@
           <Tabs :items="tabItems" :model-value="activeTab" @tab-click="handleTabClick" />
         </div>
         <div class="rounded-lg border border-gray-300 bg-white">
-          <Table :columns="tableColumns" :rows="paginatedFAQs" :pagination="pagination" @page-change="handlePageChange">
+          <Table
+            :columns="tableColumns"
+            :rows="paginatedFAQs"
+            :pagination="pagination"
+            :row-clickable="true"
+            @row-click="handleRowClick"
+            @page-change="handlePageChange"
+          >
             <template #cell-status="{ row }">
               <Switch :model-value="row.status" :show-text="true" on-text="上架" off-text="下架" @update:model-value="(value) => handleStatusChange(row, value)" />
             </template>
             <template #cell-action="{ row }">
-              <div class="flex items-center">
+              <div class="flex items-center gap-2">
                 <ButtonCTA variant="textPlain" size="sm" @click.stop="handlePreview(row)"> 預覽 </ButtonCTA>
                 <ButtonCTA variant="text" size="sm" icon-only left-icon="trashCan" @click.stop="handleDelete(row)" aria-label="刪除" />
               </div>
@@ -78,16 +85,25 @@
         </div>
       </template>
     </Modal>
+
+    <div class="fixed bottom-6 z-[90]" :style="toastStyle">
+      <Toast v-model="showSuccessToast" :message="toastMessage" :show-actions="false" :show-close="false" :auto-close="true">
+        <template #icon>
+          <Icon name="check" :size="24" class="text-gray-50" aria-hidden="true" />
+        </template>
+      </Toast>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from "vue";
-import { useRouter } from "vue-router";
+import { ref, computed, onMounted, watch } from "vue";
+import { useRouter, useRoute } from "vue-router";
 import { useTablePagination } from "@/composables/useTablePagination";
 import Tabs from "@/components/atoms/Tabs.vue";
 import Icon from "@/components/atoms/Icon.vue";
 import Modal from "@/components/atoms/Modal.vue";
+import Toast from "@/components/atoms/Toast.vue";
 import Switch from "@/components/atoms/Switch.vue";
 import ButtonCTA from "@/components/atoms/ButtonCTA.vue";
 import Breadcrumb from "@/components/atoms/Breadcrumb.vue";
@@ -110,6 +126,15 @@ const activeTab = ref<number>(0);
 
 // State
 const pageSize = ref<number>(10);
+const showSuccessToast = ref(false);
+const toastMessage = ref("新增成功");
+const toastStyle = {
+  left: "50%",
+  transform: "translateX(-50%)",
+  width: "min(1420px, calc(100vw - 2rem))",
+  maxWidth: "min(1420px, calc(100vw - 2rem))",
+  minWidth: "min(1420px, calc(100vw - 2rem))",
+};
 
 // Mock Data (使用 ref 使其響應式)
 const allFAQs = ref<FAQItem[]>([
@@ -235,6 +260,7 @@ const handleTabClick = (index: number, item: any, event?: Event) => {
 };
 
 const router = useRouter();
+const route = useRoute();
 const showDeleteModal = ref(false);
 const deleteTarget = ref<FAQItem | null>(null);
 
@@ -255,6 +281,19 @@ const handlePreview = (row: Record<string, any>) => {
   // TODO: Implement preview logic
 };
 
+const handleRowClick = (row: Record<string, any>) => {
+  const item = row as FAQItem;
+  router.push({
+    path: "/faq-management/add",
+    query: {
+      edit: "true",
+      title: item.question,
+      category: item.category,
+      answer: "",
+    },
+  });
+};
+
 const handleDelete = (row: Record<string, any>) => {
   const item = row as FAQItem;
   console.log("Delete clicked for:", item);
@@ -272,5 +311,25 @@ const handleConfirmDelete = () => {
     allFAQs.value = allFAQs.value.filter((item) => item.index !== deleteTarget.value?.index);
   }
   handleCloseDeleteModal();
+  toastMessage.value = "刪除成功";
+  showSuccessToast.value = true;
 };
+
+const maybeShowReturnToast = () => {
+  const toastType = route.query.toast as string | undefined;
+  if (toastType !== "success") return;
+  const msg = (route.query.msg as string | undefined) || "新增成功";
+  toastMessage.value = msg;
+  showSuccessToast.value = true;
+  router.replace({ path: route.path, query: { ...route.query, toast: undefined, msg: undefined } });
+};
+
+onMounted(maybeShowReturnToast);
+
+watch(
+  () => route.query.toast,
+  () => {
+    maybeShowReturnToast();
+  }
+);
 </script>

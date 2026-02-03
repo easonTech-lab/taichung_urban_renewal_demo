@@ -7,7 +7,7 @@
       <h1 class="mb-6 text-[30px] font-bold leading-[30px] text-gray-900">下載專區</h1>
       <div class="mb-6 flex items-center gap-4">
         <div class="w-[160px]">
-          <Dropdown :button-text="selectedCategory || '全部案件類別'" :items="categoryItems" variant="outline" @item-click="handleCategoryChange" />
+          <Dropdown :button-text="selectedCategory" placeholder="全部案件類別" :items="categoryItems" @item-click="handleCategoryChange" />
         </div>
         <div class="w-[364px]">
           <SearchInput v-model="searchQuery" placeholder="搜尋" button-text="搜尋" input-variant="gray" container-class="mb-0" @submit="handleSearch" />

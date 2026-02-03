@@ -11,7 +11,7 @@
         <button
           :id="buttonId"
           type="button"
-          class="inline-flex h-[52px] w-full items-center justify-between rounded-lg border px-4 py-3.5 text-lg font-medium leading-5 shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2"
+          class="inline-flex h-[52px] w-full items-center justify-between rounded-lg border px-4 py-3.5 text-lg font-medium leading-5 shadow-sm focus:outline-none focus:ring-2"
           :class="buttonClasses"
           :aria-expanded="isOpen"
           :aria-haspopup="true"
@@ -71,7 +71,7 @@
           <button
             :id="buttonId"
             type="button"
-            class="inline-flex h-[52px] w-full items-center justify-between rounded-lg border px-4 py-3.5 text-lg font-medium leading-5 shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2"
+            class="inline-flex h-[52px] w-full items-center justify-between rounded-lg border px-4 py-3.5 text-lg font-medium leading-5 shadow-sm focus:outline-none focus:ring-2"
             :class="buttonClasses"
             :aria-expanded="isOpen"
             :aria-haspopup="true"
@@ -168,9 +168,9 @@ const dropdownId = computed(() => `input-dropdown-${Math.random().toString(36).s
 const buttonClasses = computed(() => {
   const variantClasses = {
     primary: "bg-primary-500 hover:bg-primary-600 focus:ring-primary-500 text-white border-primary-500",
-    secondary: "bg-gray-600 hover:bg-gray-700 focus:ring-gray-500 text-white border-gray-600",
-    outline: "bg-gray-50 border-gray-300 text-gray-500 hover:bg-gray-50 focus:ring-gray-500 placeholder:text-gray-500",
-    ghost: "bg-transparent border-transparent text-gray-700 hover:bg-gray-100 focus:ring-gray-500",
+    secondary: "bg-gray-600 hover:bg-gray-700 focus:ring-primary-500 text-white border-gray-600",
+    outline: "bg-gray-50 border-gray-300 text-gray-500 hover:bg-gray-50 focus:border-primary-500 focus:ring-primary-500 placeholder:text-gray-500",
+    ghost: "bg-transparent border-transparent text-gray-700 hover:bg-gray-100 focus:border-primary-500 focus:ring-primary-500",
   };
   return variantClasses[props.variant];
 });

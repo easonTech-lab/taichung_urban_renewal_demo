@@ -32,10 +32,10 @@
           </div>
           <div class="flex items-center gap-4">
             <div class="w-40">
-              <Dropdown :button-text="selectedStage || '全部案件階段'" :items="stageOptions" variant="outline" @item-click="handleStageChange" />
+              <Dropdown :button-text="selectedStage" placeholder="全部案件階段" :items="stageOptions" @item-click="handleStageChange" />
             </div>
             <div class="w-40">
-              <Dropdown :button-text="selectedStatus || '全部案件狀態'" :items="statusOptions" variant="outline" @item-click="handleStatusChange" />
+              <Dropdown :button-text="selectedStatus" placeholder="全部案件狀態" :items="statusOptions" @item-click="handleStatusChange" />
             </div>
           </div>
         </div>

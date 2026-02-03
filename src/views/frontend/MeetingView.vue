@@ -8,7 +8,7 @@
       <div class="mb-6 flex flex-col gap-6">
         <Tabs :items="tabItems" v-model="activeTab" @tab-change="handleTabChange" />
         <div class="flex flex-wrap items-center gap-4">
-          <Dropdown :items="stageOptions" :button-text="selectedStageText" variant="outline" @item-click="handleStageChange" />
+          <Dropdown :items="stageOptions" :button-text="selectedStageText" placeholder="全部案件階段" @item-click="handleStageChange" />
           <DateRangePicker
             v-model="dateRange"
             start-placeholder="選擇起始日期"

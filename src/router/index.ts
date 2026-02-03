@@ -189,6 +189,19 @@ export const routes: RouteRecordRaw[] = [
     },
   },
   {
+    path: "/data-analysis",
+    name: "data-analysis",
+    component: () => import("@/views/backend/DataAnalysisView.vue"),
+    meta: {
+      breadcrumb: {
+        label: "數據分析",
+        parent: {
+          label: "系統管理",
+        },
+      },
+    },
+  },
+  {
     path: "/case-statistics",
     name: "case-statistics",
     component: () => import("@/views/backend/CaseStatisticsView.vue"),

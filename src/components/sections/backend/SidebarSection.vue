@@ -153,7 +153,7 @@ const adminSidebarMenuConfig = [
       {
         label: "數據分析",
         value: "數據分析",
-        route: "#",
+        route: "/data-analysis",
       },
     ],
   },

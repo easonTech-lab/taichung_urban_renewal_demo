@@ -3,7 +3,7 @@
   <router-link
     v-if="variant === 'text' && href && !disabled"
     :to="href"
-    class="inline-flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium leading-normal text-primary-700 underline focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-600 focus-visible:ring-offset-2"
+    class="inline-flex items-center gap-2 rounded-lg text-sm font-medium leading-normal text-primary-700 underline focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-600 focus-visible:ring-offset-2"
     :class="textButtonClasses"
     v-bind="$attrs"
   >
@@ -15,7 +15,7 @@
     v-else-if="variant === 'text' && (!href || disabled)"
     :type="type"
     :disabled="disabled"
-    class="inline-flex items-center gap-1 rounded-lg px-4 py-2.5 text-sm font-medium leading-normal text-primary-700 underline focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-600 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+    class="inline-flex items-center gap-1 rounded-lg text-sm font-medium leading-normal text-primary-700 underline focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-600 focus-visible:ring-offset-2 disabled:cursor-not-allowed"
     :class="textButtonClasses"
     v-bind="$attrs"
   >
@@ -27,7 +27,7 @@
   <router-link
     v-else-if="variant === 'textPlain' && href && !disabled"
     :to="href"
-    class="inline-flex items-center gap-1 rounded-lg px-4 py-2.5 text-sm font-medium leading-normal text-primary-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-600 focus-visible:ring-offset-2"
+    class="inline-flex items-center gap-1 rounded-lg text-sm font-medium leading-normal text-primary-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-600 focus-visible:ring-offset-2"
     :class="textButtonClasses"
     v-bind="$attrs"
   >
@@ -39,7 +39,7 @@
     v-else-if="variant === 'textPlain' && (!href || disabled)"
     :type="type"
     :disabled="disabled"
-    class="inline-flex items-center gap-1 rounded-lg px-4 py-2.5 text-sm font-medium leading-normal text-primary-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-600 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+    class="inline-flex items-center gap-1 rounded-lg text-sm font-medium leading-normal text-primary-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-600 focus-visible:ring-offset-2 disabled:cursor-not-allowed"
     :class="textButtonClasses"
     v-bind="$attrs"
   >
@@ -66,7 +66,7 @@
     v-else
     :type="type"
     :disabled="disabled"
-    class="flex items-center justify-center gap-1 rounded-lg font-medium leading-normal transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+    class="flex items-center justify-center gap-1 rounded-lg font-medium leading-normal transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:cursor-not-allowed"
     :class="[buttonClasses, sizeClasses, justifyClasses]"
     v-bind="$attrs"
   >

@@ -34,14 +34,14 @@
               <CheckboxDropdown
                 v-model="selectedStages"
                 :button-text="selectedStageText"
+                placeholder="全部案件階段"
                 :items="stageOptions"
-                variant="filter"
                 :show-select-all="true"
                 @change="handleStageChange"
               />
             </div>
             <div class="w-[160px]">
-              <Dropdown :button-text="selectedStatus || '全部案件狀態'" :items="statusOptions" variant="filter" @item-click="handleStatusChange" />
+              <Dropdown :button-text="selectedStatus" placeholder="全部案件狀態" :items="statusOptions" @item-click="handleStatusChange" />
             </div>
           </div>
         </div>

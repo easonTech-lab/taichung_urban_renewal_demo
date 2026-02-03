@@ -76,7 +76,7 @@ const props = withDefaults(
     showActions: false,
     showRestore: false,
     autoClose: false,
-    duration: 3000,
+    duration: 2000,
   }
 );
 
@@ -119,6 +119,17 @@ watch(
   () => [props.autoClose, props.duration],
   () => {
     startTimer();
+  }
+);
+
+watch(
+  () => props.modelValue,
+  (isOpen) => {
+    if (isOpen) {
+      startTimer();
+    } else {
+      clearTimer();
+    }
   }
 );
 

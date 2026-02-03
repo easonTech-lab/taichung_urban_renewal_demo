@@ -33,9 +33,27 @@
               />
             </template>
             <div class="flex items-start">
-              <ButtonCTA variant="outline" size="sm" left-icon="plus" @click="handleAddCategory"> 新增類別 </ButtonCTA>
+              <ButtonCTA variant="outline" size="sm" left-icon="plusCircle" @click="handleAddCategory"> 新增類別 </ButtonCTA>
             </div>
           </RadioGroup>
+          <div v-if="showNewCategory" class="flex flex-wrap items-center gap-4">
+            <input
+              v-model="newCategoryName"
+              type="text"
+              placeholder="輸入類別"
+              class="h-[52px] w-full max-w-[364px] rounded-lg border border-gray-300 bg-gray-50 px-4 text-lg text-gray-700 placeholder:text-gray-400 focus:border-primary-600 focus:outline-none"
+              aria-label="輸入類別"
+            />
+            <ButtonCTA
+              :variant="isNewCategoryValid ? 'primary' : 'gray'"
+              size="l"
+              class="h-12 min-w-[96px] px-5 py-3 text-base disabled:!bg-gray-500 disabled:!text-white disabled:!opacity-100"
+              @click="handleCreateCategory"
+              :disabled="!isNewCategoryValid"
+            >
+              新增
+            </ButtonCTA>
+          </div>
           <RichTextEditor v-model="formData.answer" label="回答(限200字)" placeholder="請輸入回答內容..." required :maxlength="200" />
         </div>
       </div>
@@ -48,8 +66,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
-import { useRouter } from "vue-router";
+import { ref, computed, onMounted } from "vue";
+import { useRouter, useRoute } from "vue-router";
 import Icon from "@/components/atoms/Icon.vue";
 import Input from "@/components/atoms/Input.vue";
 import Radio from "@/components/atoms/Radio.vue";
@@ -60,6 +78,9 @@ import RichTextEditor from "@/components/atoms/RichTextEditor.vue";
 import SidebarSection from "@/components/sections/backend/SidebarSection.vue";
 
 const router = useRouter();
+const route = useRoute();
+
+const isEditMode = computed(() => route.query.edit === "true");
 
 interface FormData {
   title: string;
@@ -73,11 +94,15 @@ const formData = ref<FormData>({
   answer: "",
 });
 
-const categoryOptions = [
+const categoryOptions = ref([
   { label: "我適合哪種重建方式？", value: "reconstruction-type" },
   { label: "要怎麼申請？需要準備什麼？", value: "application-process" },
   { label: "有什麼補助或政府協助？", value: "subsidy-assistance" },
-];
+]);
+
+const showNewCategory = ref(false);
+const newCategoryName = ref("");
+const isNewCategoryValid = computed(() => newCategoryName.value.trim().length > 0);
 
 const handleSidebarItemSelect = (itemName: string) => {
   // Handle sidebar item selection
@@ -88,15 +113,20 @@ const handleGoBack = () => {
 };
 
 const handleAddCategory = () => {
-  // TODO: Implement add category functionality
-  const newCategory = window.prompt("請輸入新類別名稱：");
-  if (newCategory) {
-    // Add new category to options
-    categoryOptions.push({
-      label: newCategory,
-      value: `custom-${Date.now()}`,
-    });
-  }
+  showNewCategory.value = true;
+};
+
+const handleCreateCategory = () => {
+  const name = newCategoryName.value.trim();
+  if (!name) return;
+  const value = `custom-${Date.now()}`;
+  categoryOptions.value.push({
+    label: name,
+    value,
+  });
+  formData.value.category = value;
+  newCategoryName.value = "";
+  showNewCategory.value = false;
 };
 
 const handleSaveDraft = () => {
@@ -110,7 +140,13 @@ const handlePublish = () => {
   // TODO: Implement publish functionality
   console.log("發布", formData.value);
   // Navigate back to FAQ management page
-  router.push("/faq-management");
+  router.push({
+    path: "/faq-management",
+    query: {
+      toast: "success",
+      msg: isEditMode.value ? "儲存成功" : "新增成功",
+    },
+  });
 };
 
 // Get plain text length from HTML
@@ -120,4 +156,26 @@ const getPlainTextLength = (html: string): number => {
   tempDiv.innerHTML = html;
   return tempDiv.textContent?.length || 0;
 };
+
+const normalizeCategoryValue = (label: string) => {
+  const existing = categoryOptions.value.find((option) => option.label === label);
+  if (existing) return existing.value;
+  const value = `custom-${Date.now()}`;
+  categoryOptions.value.push({ label, value });
+  return value;
+};
+
+onMounted(() => {
+  if (!isEditMode.value) return;
+  if (route.query.title) {
+    formData.value.title = route.query.title as string;
+  }
+  if (route.query.category) {
+    const label = route.query.category as string;
+    formData.value.category = normalizeCategoryValue(label);
+  }
+  if (route.query.answer) {
+    formData.value.answer = route.query.answer as string;
+  }
+});
 </script>

@@ -18,24 +18,18 @@
         </div>
         <div class="flex flex-col gap-6">
           <div class="flex flex-wrap gap-4">
-            <div class="flex w-full max-w-[364px] flex-col gap-2">
-              <label class="text-base font-medium text-gray-900">案件類別</label>
-              <Dropdown
-                :button-text="selectedCategory || '請選擇案件類別'"
-                :items="categoryOptions"
-                variant="filter"
-                @item-click="handleCategoryChange"
-              />
-            </div>
-            <div class="flex w-full max-w-[364px] flex-col gap-2">
-              <label class="text-base font-medium text-gray-900">填報年度</label>
-              <Input v-model="yearValue" placeholder="請輸入年度" type="text" size="lg" />
-            </div>
+            <InputDropdown
+              label="案件類別"
+              :button-text="selectedCategory"
+              placeholder="請選擇案件類別"
+              :items="categoryOptions"
+              variant="outline"
+              container-class="w-full max-w-[364px]"
+              @item-click="handleCategoryChange"
+            />
+            <Input v-model="yearValue" label="填報年度" placeholder="請輸入年度" type="text" size="lg" container-class="w-full max-w-[364px]" />
           </div>
-          <div class="flex w-full max-w-[364px] flex-col gap-2">
-            <label class="text-base font-medium text-gray-900">年件數</label>
-            <Input v-model="annualCount" placeholder="請輸入年度件數" type="text" size="lg" />
-          </div>
+          <Input v-model="annualCount" label="年件數" placeholder="請輸入年度件數" type="text" size="lg" container-class="w-full max-w-[364px]" />
         </div>
       </div>
       <div class="flex items-center justify-center gap-4">
@@ -51,7 +45,7 @@ import { ref, computed, onMounted } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import SidebarSection from "@/components/sections/backend/SidebarSection.vue";
 import Breadcrumb from "@/components/atoms/Breadcrumb.vue";
-import Dropdown, { type DropdownItem } from "@/components/atoms/Dropdown.vue";
+import InputDropdown, { type InputDropdownItem } from "@/components/atoms/InputDropdown.vue";
 import Input from "@/components/atoms/Input.vue";
 import Icon from "@/components/atoms/Icon.vue";
 import ButtonCTA from "@/components/atoms/ButtonCTA.vue";
@@ -72,7 +66,7 @@ const breadcrumbItems = [
 const annualCount = ref<string>("");
 const yearValue = ref<string>("");
 const selectedCategory = ref<string>("");
-const categoryOptions: DropdownItem[] = [
+const categoryOptions: InputDropdownItem[] = [
   { label: "都更案件", value: "都更案件" },
   { label: "危老案件", value: "危老案件" },
 ];
@@ -104,7 +98,7 @@ const handleSave = () => {
   router.push("/case-statistics");
 };
 
-const handleCategoryChange = (item: DropdownItem) => {
+const handleCategoryChange = (item: InputDropdownItem) => {
   selectedCategory.value = item.label;
 };
 

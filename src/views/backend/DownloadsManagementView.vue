@@ -18,10 +18,17 @@
           <Tabs :items="tabItems" :model-value="activeTab" @tab-click="handleTabClick" />
         </div>
         <div class="w-[160px]">
-          <Dropdown :button-text="selectedCategory || '全部案件類別'" :items="categoryOptions" variant="outline" @item-click="handleCategoryChange" />
+          <Dropdown :button-text="selectedCategory" placeholder="全部案件類別" :items="categoryOptions" @item-click="handleCategoryChange" />
         </div>
         <div class="rounded-lg border border-gray-300 bg-white">
-          <Table :columns="tableColumns" :rows="paginatedDownloads" :pagination="pagination" @page-change="handlePageChange">
+          <Table
+            :columns="tableColumns"
+            :rows="paginatedDownloads"
+            :pagination="pagination"
+            :row-clickable="true"
+            @row-click="handleRowClick"
+            @page-change="handlePageChange"
+          >
             <template #cell-index="{ rowIndex }">
               <p class="text-base text-gray-500">{{ (currentPage - 1) * pageSize + rowIndex + 1 }}</p>
             </template>
@@ -29,7 +36,7 @@
               <Switch :model-value="row.status" :show-text="true" on-text="上架" off-text="下架" @update:model-value="(value) => handleStatusChange(row, value)" />
             </template>
             <template #cell-action="{ row }">
-              <div class="flex items-center">
+              <div class="flex items-center gap-2">
                 <ButtonCTA variant="textPlain" size="sm" @click.stop="handlePreview(row)">預覽</ButtonCTA>
                 <ButtonCTA variant="text" size="sm" icon-only left-icon="trashCan" @click.stop="handleDelete(row)" aria-label="刪除" />
               </div>
@@ -86,14 +93,7 @@
     </Modal>
 
     <div class="fixed bottom-6 z-[90]" :style="deleteToastStyle">
-      <Toast
-        v-model="showDeleteToast"
-        message="已刪除"
-        :show-actions="false"
-        :show-close="false"
-        :auto-close="true"
-        :duration="3000"
-      >
+      <Toast v-model="showDeleteToast" :message="toastMessage" :show-actions="false" :show-close="false" :auto-close="true">
         <template #icon>
           <Icon name="check" :size="24" class="text-gray-50" aria-hidden="true" />
         </template>
@@ -103,8 +103,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from "vue";
-import { useRouter } from "vue-router";
+import { ref, computed, watch, onMounted } from "vue";
+import { useRouter, useRoute } from "vue-router";
 import { useTablePagination } from "@/composables/useTablePagination";
 import Tabs from "@/components/atoms/Tabs.vue";
 import Switch from "@/components/atoms/Switch.vue";
@@ -138,6 +138,7 @@ const selectedCategory = ref<string>("");
 const showDeleteModal = ref(false);
 const deleteTarget = ref<DownloadItem | null>(null);
 const showDeleteToast = ref(false);
+const toastMessage = ref("新增成功");
 const deleteToastStyle = {
   left: "50%",
   transform: "translateX(-50%)",
@@ -284,6 +285,7 @@ const handleTabClick = (index: number, item: any, event?: Event) => {
 };
 
 const router = useRouter();
+const route = useRoute();
 
 const handleAddDownload = () => {
   router.push("/downloads-management/add");
@@ -308,6 +310,18 @@ const handleDelete = (row: Record<string, any>) => {
   showDeleteModal.value = true;
 };
 
+const handleRowClick = (row: Record<string, any>) => {
+  const item = row as DownloadItem;
+  router.push({
+    path: "/downloads-management/add",
+    query: {
+      edit: "true",
+      title: item.fileName,
+      category: item.category,
+    },
+  });
+};
+
 const handleCloseDeleteModal = () => {
   showDeleteModal.value = false;
   deleteTarget.value = null;
@@ -318,6 +332,25 @@ const handleConfirmDelete = () => {
     allDownloads.value = allDownloads.value.filter((item) => item.fileName !== deleteTarget.value?.fileName);
   }
   handleCloseDeleteModal();
+  toastMessage.value = "刪除成功";
   showDeleteToast.value = true;
 };
+
+const maybeShowReturnToast = () => {
+  const toastType = route.query.toast as string | undefined;
+  if (toastType !== "success") return;
+  const msg = (route.query.msg as string | undefined) || "新增成功";
+  toastMessage.value = msg;
+  showDeleteToast.value = true;
+  router.replace({ path: route.path, query: { ...route.query, toast: undefined, msg: undefined } });
+};
+
+onMounted(maybeShowReturnToast);
+
+watch(
+  () => route.query.toast,
+  () => {
+    maybeShowReturnToast();
+  }
+);
 </script>

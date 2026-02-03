@@ -18,7 +18,7 @@
           <Tabs :items="tabItems" :model-value="activeTab" @tab-click="handleTabClick" />
         </div>
         <div class="w-[160px]">
-          <Dropdown :button-text="selectedCategory || '全部類別'" :items="categoryOptions" variant="outline" @item-click="handleCategoryChange" />
+          <Dropdown :button-text="selectedCategory" placeholder="全部類別" :items="categoryOptions" @item-click="handleCategoryChange" />
         </div>
         <div class="rounded-lg border border-gray-300 bg-white">
           <Table :columns="tableColumns" :rows="paginatedMessages" :pagination="pagination" @page-change="handlePageChange">
@@ -32,7 +32,7 @@
             </template>
             <!-- Action -->
             <template #cell-action="{ row }">
-              <div class="flex items-center">
+              <div class="flex items-center gap-2">
                 <ButtonCTA variant="textPlain" size="sm" @click.stop="handlePreview(row)">預覽</ButtonCTA>
                 <ButtonCTA variant="text" size="sm" icon-only left-icon="trashCan" @click.stop="handleDelete(row)" aria-label="刪除" />
               </div>

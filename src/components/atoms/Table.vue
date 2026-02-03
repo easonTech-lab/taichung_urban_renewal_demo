@@ -1,7 +1,10 @@
 <template>
-  <div class="relative overflow-x-auto rounded-lg border border-gray-300 bg-white shadow-sm">
+  <div
+    class="relative overflow-x-auto rounded-lg bg-white shadow-sm"
+    :class="borderless ? '' : 'border border-gray-300'"
+  >
     <table class="w-full table-auto text-left text-sm text-gray-900 rtl:text-right">
-      <thead class="border-b border-gray-300 bg-gray-50 text-sm text-gray-500">
+      <thead class="bg-gray-50 text-sm text-gray-500" :class="borderless ? '' : 'border-b border-gray-300'">
         <tr>
           <!-- Checkbox 欄位 -->
           <th v-if="showCheckbox" scope="col" class="p-4">
@@ -34,7 +37,12 @@
       <tbody>
         <template v-for="(row, rowIndex) in sortedRows" :key="rowIndex">
           <tr
-            :class="['border-b border-gray-300 hover:bg-gray-50', rowClickable ? 'cursor-pointer' : '', (row as any).isExpanded ? 'bg-blue-50' : 'bg-white']"
+            :class="[
+              borderless ? '' : 'border-b border-gray-300',
+              'hover:bg-gray-50',
+              rowClickable ? 'cursor-pointer' : '',
+              (row as any).isExpanded ? 'bg-blue-50' : 'bg-white',
+            ]"
             @click="rowClickable && handleRowClick(row, rowIndex, $event)"
           >
             <!-- Checkbox 欄位 -->
@@ -146,10 +154,12 @@ const props = withDefaults(
     showCheckbox?: boolean;
     pagination?: TablePagination;
     rowClickable?: boolean; // 是否啟用整行點擊功能
+    borderless?: boolean;
   }>(),
   {
     showCheckbox: false,
     rowClickable: false,
+    borderless: false,
   }
 );
 

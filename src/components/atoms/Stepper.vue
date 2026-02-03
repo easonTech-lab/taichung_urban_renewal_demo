@@ -15,7 +15,7 @@
           <h3 :class="['font-medium leading-tight', getStepTitleClass(step.status)]">
             {{ step.title }}
           </h3>
-          <p v-if="step.description" class="text-sm text-gray-600">
+          <p v-if="step.description" :class="['text-sm', step.descriptionClass || 'text-gray-600']">
             {{ step.description }}
           </p>
         </button>
@@ -23,7 +23,7 @@
           <h3 :class="['font-medium leading-tight', getStepTitleClass(step.status)]">
             {{ step.title }}
           </h3>
-          <p v-if="step.description" class="text-sm text-gray-600">
+          <p v-if="step.description" :class="['text-sm', step.descriptionClass || 'text-gray-600']">
             {{ step.description }}
           </p>
         </div>
@@ -64,6 +64,7 @@ export type StepperStatus = "completed" | "current" | "pending";
 export interface StepperStep {
   title: string;
   description?: string;
+  descriptionClass?: string;
   status?: StepperStatus;
   icon?: string; // 預設圖標名稱（如果沒有使用 slot）
   expanded?: boolean; // 是否展開（accordion 模式）
@@ -117,12 +118,12 @@ const isStepExpanded = (index: number): boolean => {
 const getStepIconClass = (status?: StepperStatus): string => {
   switch (status) {
     case "completed":
-      return "text-green-700 bg-green-100";
+      return "bg-primary-500 text-white";
     case "current":
-      return "text-primary-700 bg-primary-100";
+      return "bg-white border-2 border-primary-500 text-primary-600";
     case "pending":
     default:
-      return "bg-gray-200 text-gray-600";
+      return "bg-white border-2 border-primary-500 text-primary-600";
   }
 };
 
@@ -132,10 +133,10 @@ const getStepTitleClass = (status?: StepperStatus): string => {
     case "completed":
       return "text-gray-900";
     case "current":
-      return "text-primary-700";
+      return "text-primary-600";
     case "pending":
     default:
-      return "text-gray-600";
+      return "text-gray-500";
   }
 };
 
@@ -143,12 +144,11 @@ const getStepTitleClass = (status?: StepperStatus): string => {
 const getIconColor = (status?: StepperStatus): string => {
   switch (status) {
     case "completed":
-      return "#15803d"; // green-700
+      return "#ffffff";
     case "current":
-      return "#1c64f2"; // primary-700
     case "pending":
     default:
-      return "#4b5563"; // gray-600
+      return "#1c64f2";
   }
 };
 
