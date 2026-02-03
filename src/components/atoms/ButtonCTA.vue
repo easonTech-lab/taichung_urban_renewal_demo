@@ -8,74 +8,74 @@
     v-bind="$attrs"
   >
     <slot />
-    <Icon v-if="rightIcon" :name="rightIcon" :size="iconSize" fill="currentColor" class="shrink-0" aria-hidden="true" />
-    <Icon v-else-if="leftIcon" :name="leftIcon" :size="iconSize" fill="currentColor" class="shrink-0" aria-hidden="true" />
+    <Icon v-if="rightIcon" :name="rightIcon" :size="iconSize" class="shrink-0" aria-hidden="true" />
+    <Icon v-else-if="leftIcon" :name="leftIcon" :size="iconSize" class="shrink-0" aria-hidden="true" />
   </router-link>
   <button
     v-else-if="variant === 'text' && (!href || disabled)"
     :type="type"
     :disabled="disabled"
-    class="inline-flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium leading-normal text-primary-700 underline focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-600 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+    class="inline-flex items-center gap-1 rounded-lg px-4 py-2.5 text-sm font-medium leading-normal text-primary-700 underline focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-600 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
     :class="textButtonClasses"
     v-bind="$attrs"
   >
     <slot />
-    <Icon v-if="rightIcon" :name="rightIcon" :size="iconSize" fill="currentColor" class="shrink-0" aria-hidden="true" />
-    <Icon v-else-if="leftIcon" :name="leftIcon" :size="iconSize" fill="currentColor" class="shrink-0" aria-hidden="true" />
+    <Icon v-if="rightIcon" :name="rightIcon" :size="iconSize" class="shrink-0" aria-hidden="true" />
+    <Icon v-else-if="leftIcon" :name="leftIcon" :size="iconSize" class="shrink-0" aria-hidden="true" />
   </button>
   <!-- Text Plain Button Variant (no underline) -->
   <router-link
     v-else-if="variant === 'textPlain' && href && !disabled"
     :to="href"
-    class="inline-flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium leading-normal text-primary-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-600 focus-visible:ring-offset-2"
+    class="inline-flex items-center gap-1 rounded-lg px-4 py-2.5 text-sm font-medium leading-normal text-primary-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-600 focus-visible:ring-offset-2"
     :class="textButtonClasses"
     v-bind="$attrs"
   >
     <slot />
-    <Icon v-if="rightIcon" :name="rightIcon" :size="iconSize" fill="currentColor" class="shrink-0" aria-hidden="true" />
-    <Icon v-else-if="leftIcon" :name="leftIcon" :size="iconSize" fill="currentColor" class="shrink-0" aria-hidden="true" />
+    <Icon v-if="rightIcon" :name="rightIcon" :size="iconSize" class="shrink-0" aria-hidden="true" />
+    <Icon v-else-if="leftIcon" :name="leftIcon" :size="iconSize" class="shrink-0" aria-hidden="true" />
   </router-link>
   <button
     v-else-if="variant === 'textPlain' && (!href || disabled)"
     :type="type"
     :disabled="disabled"
-    class="inline-flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium leading-normal text-primary-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-600 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+    class="inline-flex items-center gap-1 rounded-lg px-4 py-2.5 text-sm font-medium leading-normal text-primary-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-600 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
     :class="textButtonClasses"
     v-bind="$attrs"
   >
     <slot />
-    <Icon v-if="rightIcon" :name="rightIcon" :size="iconSize" fill="currentColor" class="shrink-0" aria-hidden="true" />
-    <Icon v-else-if="leftIcon" :name="leftIcon" :size="iconSize" fill="currentColor" class="shrink-0" aria-hidden="true" />
+    <Icon v-if="rightIcon" :name="rightIcon" :size="iconSize" class="shrink-0" aria-hidden="true" />
+    <Icon v-else-if="leftIcon" :name="leftIcon" :size="iconSize" class="shrink-0" aria-hidden="true" />
   </button>
   <!-- Regular Button Variant -->
   <router-link
     v-else-if="href && !disabled"
     :to="href"
-    class="flex items-center justify-center gap-2 rounded-lg font-medium leading-normal transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
+    class="flex items-center justify-center gap-1 rounded-lg font-medium leading-normal transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
     :class="[buttonClasses, sizeClasses, justifyClasses]"
     v-bind="$attrs"
   >
-    <Icon v-if="leftIcon && !iconOnly" :name="leftIcon" :size="iconSize" fill="currentColor" class="shrink-0" aria-hidden="true" />
-    <Icon v-if="iconOnly && leftIcon" :name="leftIcon" :size="iconSize" fill="currentColor" class="shrink-0" aria-hidden="true" />
+    <Icon v-if="leftIcon && !iconOnly" :name="leftIcon" :size="iconSize" class="shrink-0" aria-hidden="true" />
+    <Icon v-if="iconOnly && leftIcon" :name="leftIcon" :size="iconSize" class="shrink-0" aria-hidden="true" />
     <span v-if="!iconOnly">
       <slot />
     </span>
-    <Icon v-if="rightIcon && !iconOnly" :name="rightIcon" :size="iconSize" fill="currentColor" class="shrink-0" aria-hidden="true" />
+    <Icon v-if="rightIcon && !iconOnly" :name="rightIcon" :size="iconSize" class="shrink-0" aria-hidden="true" />
   </router-link>
   <button
     v-else
     :type="type"
     :disabled="disabled"
-    class="flex items-center justify-center gap-2 rounded-lg font-medium leading-normal transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+    class="flex items-center justify-center gap-1 rounded-lg font-medium leading-normal transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
     :class="[buttonClasses, sizeClasses, justifyClasses]"
     v-bind="$attrs"
   >
-    <Icon v-if="leftIcon && !iconOnly" :name="leftIcon" :size="iconSize" fill="currentColor" class="shrink-0" aria-hidden="true" />
-    <Icon v-if="iconOnly && leftIcon" :name="leftIcon" :size="iconSize" fill="currentColor" class="shrink-0" aria-hidden="true" />
+    <Icon v-if="leftIcon && !iconOnly" :name="leftIcon" :size="iconSize" class="shrink-0" aria-hidden="true" />
+    <Icon v-if="iconOnly && leftIcon" :name="leftIcon" :size="iconSize" class="shrink-0" aria-hidden="true" />
     <span v-if="!iconOnly">
       <slot />
     </span>
-    <Icon v-if="rightIcon && !iconOnly" :name="rightIcon" :size="iconSize" fill="currentColor" class="shrink-0" aria-hidden="true" />
+    <Icon v-if="rightIcon && !iconOnly" :name="rightIcon" :size="iconSize" class="shrink-0" aria-hidden="true" />
   </button>
 </template>
 <script setup lang="ts">
@@ -109,47 +109,52 @@ const props = withDefaults(
   }
 );
 
-// Size configurations
+// Size configurations (design system)
 const sizeConfig = {
   xs: {
     height: "h-8",
+    minWidth: "min-w-[136px]",
     paddingX: "px-3",
-    paddingY: "py-1.5",
+    paddingY: "py-2",
     text: "text-xs",
-    icon: 16,
+    icon: 20,
     iconOnlySize: "w-8 h-8",
   },
   sm: {
     height: "h-9",
-    paddingX: "px-3.5",
+    minWidth: "min-w-[147px]",
+    paddingX: "px-3",
     paddingY: "py-2",
     text: "text-sm",
-    icon: 18,
-    iconOnlySize: "w-9 h-9",
-  },
-  base: {
-    height: "h-10",
-    paddingX: "px-4",
-    paddingY: "py-2",
-    text: "text-base",
     icon: 20,
     iconOnlySize: "w-10 h-10",
   },
-  l: {
-    height: "h-12",
+  base: {
+    height: "h-10",
+    minWidth: "min-w-[171px]",
     paddingX: "px-5",
     paddingY: "py-2.5",
+    text: "text-sm",
+    icon: 20,
+    iconOnlySize: "w-[44px] h-[44px]",
+  },
+  l: {
+    height: "h-12",
+    minWidth: "min-w-[190px]",
+    paddingX: "px-5",
+    paddingY: "py-3",
     text: "text-base",
-    icon: 24,
+    icon: 20,
     iconOnlySize: "w-12 h-12",
   },
   xl: {
     height: "h-[54px]",
+    minWidth: "min-w-[198px]",
     paddingX: "px-6",
-    paddingY: "py-3",
+    paddingY: "py-3.5",
     text: "text-base",
-    icon: 24,
-    iconOnlySize: "w-[54px] h-[54px]",
+    icon: 20,
+    iconOnlySize: "w-[52px] h-[52px]",
   },
 };
 
@@ -157,14 +162,13 @@ const iconSize = computed(() => {
   return sizeConfig[props.size].icon;
 });
 
+
 const sizeClasses = computed(() => {
   const config = sizeConfig[props.size];
   if (props.iconOnly) {
     return `${config.iconOnlySize} ${config.text}`;
   }
-  // 移除固定高度，讓高度由內容和 padding 決定
-  // 這樣當用戶添加自訂 padding（如 p-5）時，按鈕高度會自動調整
-  return `${config.paddingX} ${config.paddingY} ${config.text}`;
+  return `${config.height} ${config.minWidth} ${config.paddingX} ${config.paddingY} ${config.text}`;
 });
 
 const textButtonClasses = computed(() => {

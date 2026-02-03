@@ -6,13 +6,13 @@
           <img src="/logo.png" alt="臺中市都市更新" class="h-auto w-auto" aria-hidden="true" />
           <span class="sr-only">回首頁</span>
         </router-link>
-        <div class="hidden items-center gap-8 md:flex">
+        <div v-if="!isAuthPage" class="hidden items-center gap-8 md:flex">
           <router-link v-for="navRoute in navRoutes" :key="navRoute.path" :to="navRoute.path" :class="navLinkClass">
             {{ navRoute.label }}
           </router-link>
         </div>
       </div>
-      <div v-if="isLoggedIn" class="flex items-center gap-4">
+      <div v-if="!isAuthPage && isLoggedIn" class="flex items-center gap-4">
         <div class="flex items-center gap-2">
           <div class="flex h-8 w-8 items-center justify-center rounded-full bg-gray-100">
             <span class="text-xs font-medium text-gray-900">{{ userInitial }}</span>
@@ -22,7 +22,7 @@
         <div class="h-8 w-px bg-gray-200"></div>
         <button type="button" class="text-nowrap text-base font-normal leading-normal text-primary-600 hover:text-primary-700" @click="handleLogout">登出</button>
       </div>
-      <div v-else class="flex items-center gap-3 text-nowrap">
+      <div v-else-if="!isAuthPage" class="flex items-center gap-3 text-nowrap">
         <ButtonCTA href="/login" variant="none" aria-label="登入系統">登入</ButtonCTA>
         <ButtonCTA href="/register" variant="primary" aria-label="申請案件">案件申請</ButtonCTA>
       </div>
@@ -86,6 +86,9 @@ onUnmounted(() => {
 });
 
 const isLoggedIn = computed(() => !!userInfo.value);
+const isAuthPage = computed(() => {
+  return route.path === "/login" || route.path === "/forgot-password";
+});
 
 const userName = computed(() => {
   if (!userInfo.value) return "訪客";

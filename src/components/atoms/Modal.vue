@@ -6,33 +6,27 @@
       :id="modalId"
       tabindex="-1"
       aria-hidden="true"
-      class="fixed inset-0 z-50 flex h-[calc(100%-1rem)] max-h-full items-center justify-center overflow-y-auto overflow-x-hidden bg-black/50 p-4 md:inset-0"
+      class="fixed inset-0 z-[80] flex min-h-screen w-screen items-center justify-center overflow-y-auto overflow-x-hidden p-4"
+      :class="backdropClass"
       @click.self="handleBackdropClick"
     >
       <div class="relative max-h-full w-full" :class="sizeClasses">
         <!-- Modal content -->
         <div class="relative rounded-lg border border-gray-200 bg-white shadow-sm">
+          <div v-if="showCloseButton" class="flex w-full items-center justify-end px-4 pb-0 pt-4">
+            <ButtonCTA variant="none" icon-only left-icon="close" :aria-label="closeButtonAriaLabel" @click="handleCloseClick" />
+          </div>
           <!-- Modal header -->
-          <div v-if="$slots.header || title || showCloseButton" class="flex items-center justify-between">
+          <div v-if="$slots.header || title" class="flex items-center justify-between px-4">
             <!-- 如果提供了 header slot，完全使用 slot 內容 -->
             <template v-if="$slots.header">
               <slot name="header" />
             </template>
-            <!-- 否則使用默認的標題和關閉按鈕 -->
+            <!-- 否則使用默認的標題 -->
             <template v-else>
               <h3 v-if="title" class="text-lg font-medium text-gray-900">
                 {{ title }}
               </h3>
-              <button
-                v-if="showCloseButton"
-                type="button"
-                class="ms-auto inline-flex h-9 w-9 items-center justify-center rounded-lg bg-transparent text-sm text-gray-600 hover:bg-gray-100 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary-500"
-                :aria-label="closeButtonAriaLabel"
-                @click="handleClose"
-              >
-                <Icon name="close" :size="20" class="text-current" aria-hidden="true" />
-                <span class="sr-only">{{ closeButtonAriaLabel }}</span>
-              </button>
             </template>
           </div>
 
@@ -57,6 +51,7 @@
 <script setup lang="ts">
 import { computed, watch, onMounted, onUnmounted } from "vue";
 import Icon from "@/components/atoms/Icon.vue";
+import ButtonCTA from "@/components/atoms/ButtonCTA.vue";
 
 const props = withDefaults(
   defineProps<{
@@ -64,15 +59,19 @@ const props = withDefaults(
     title?: string; // Modal 標題
     showCloseButton?: boolean; // 是否顯示關閉按鈕
     closeButtonAriaLabel?: string; // 關閉按鈕的 aria-label
+    closeAction?: "close" | "emit"; // 關閉按鈕行為
     static?: boolean; // 是否為靜態 Modal（點擊 backdrop 不關閉）
     size?: "sm" | "md" | "lg" | "xl" | "2xl"; // Modal 大小
+    backdropClass?: string; // 背景樣式
   }>(),
   {
     modelValue: false,
     showCloseButton: true,
     closeButtonAriaLabel: "關閉",
+    closeAction: "close",
     static: false,
     size: "lg",
+    backdropClass: "bg-black/50",
   }
 );
 
@@ -80,6 +79,7 @@ const emit = defineEmits<{
   "update:modelValue": [value: boolean];
   close: [];
   open: [];
+  "close-click": [];
 }>();
 
 const modalId = computed(() => `modal-${Math.random().toString(36).substring(2, 11)}`);
@@ -100,6 +100,15 @@ const sizeClasses = computed(() => {
 const handleClose = () => {
   emit("update:modelValue", false);
   emit("close");
+};
+
+const handleCloseClick = () => {
+  emit("close-click");
+  if (props.closeAction === "emit") {
+    emit("close");
+    return;
+  }
+  handleClose();
 };
 
 // 處理 backdrop 點擊

@@ -86,7 +86,7 @@ const props = withDefaults(defineProps<PaginationProps>(), {
   previousLabel: "上一頁",
   nextLabel: "下一頁",
   pageSize: 5,
-  getPageLink: () => undefined,
+  getPageLink: (_page: number): string | undefined => undefined,
 });
 
 const emit = defineEmits<{

@@ -16,7 +16,7 @@
             <p class="pl-4 text-xl font-normal leading-5 text-gray-400">在此管理幹事名單及資訊</p>
           </div>
           <div class="flex gap-3">
-            <ButtonCTA variant="outline" size="sm" left-icon="userSettings" @click="handleManageList"> 管理名單 </ButtonCTA>
+            <ButtonCTA variant="outline" size="sm" left-icon="manage" @click="handleManageList"> 管理名單 </ButtonCTA>
             <ButtonCTA variant="outline" size="sm" right-icon="download" @click="handleExportList"> 匯出名單 </ButtonCTA>
           </div>
         </div>

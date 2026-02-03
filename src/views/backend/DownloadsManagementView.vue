@@ -38,6 +38,67 @@
         </div>
       </div>
     </div>
+
+    <Modal
+      v-model="showDeleteModal"
+      size="md"
+      :static="false"
+      :show-close-button="false"
+      close-action="emit"
+      backdrop-class="bg-gray-600/80"
+    >
+      <template #header>
+        <div class="flex w-full items-center justify-end px-4 pt-4">
+          <button type="button" class="flex h-6 w-6 items-center justify-center text-gray-400 hover:text-gray-500" @click="handleCloseDeleteModal" aria-label="關閉">
+            <Icon name="close" :size="20" aria-hidden="true" />
+          </button>
+        </div>
+      </template>
+      <template #body>
+        <div class="flex w-full flex-col items-center gap-4 px-6 py-5">
+          <div class="flex h-6 w-6 items-center justify-center rounded-full bg-gray-400 text-xs font-medium text-white">!</div>
+          <div class="w-[311px] text-center text-base font-normal leading-[1.5] text-gray-600">
+            <p class="mb-0">確認刪除此項目</p>
+            <p>內容將完全刪除無法復原</p>
+          </div>
+        </div>
+      </template>
+      <template #footer>
+        <div class="flex w-full items-center justify-center gap-4 px-6 pb-6 pt-0">
+          <ButtonCTA
+            variant="white"
+            size="xs"
+            class="h-8 w-[120px] border-gray-200 px-3 py-2 text-xs font-medium leading-[1.5] text-gray-800 hover:bg-gray-50"
+            @click="handleCloseDeleteModal"
+          >
+            取消
+          </ButtonCTA>
+          <ButtonCTA
+            variant="red"
+            size="xs"
+            class="h-8 w-[120px] bg-red-700 px-3 py-2 text-sm font-medium leading-[1.5] text-white hover:bg-red-800"
+            @click="handleConfirmDelete"
+          >
+            刪除
+          </ButtonCTA>
+        </div>
+      </template>
+    </Modal>
+
+    <div class="fixed bottom-6 z-[90]" :style="deleteToastStyle">
+      <Toast
+        v-model="showDeleteToast"
+        message="已刪除"
+        :show-actions="false"
+        :show-close="false"
+        :auto-close="true"
+        :duration="3000"
+      >
+        <template #icon>
+          <Icon name="check" :size="24" class="text-gray-50" aria-hidden="true" />
+        </template>
+      </Toast>
+    </div>
   </div>
 </template>
 
@@ -52,6 +113,9 @@ import ButtonCTA from "@/components/atoms/ButtonCTA.vue";
 import Breadcrumb from "@/components/atoms/Breadcrumb.vue";
 import SidebarSection from "@/components/sections/backend/SidebarSection.vue";
 import Table, { type TableColumn } from "@/components/atoms/Table.vue";
+import Modal from "@/components/atoms/Modal.vue";
+import Toast from "@/components/atoms/Toast.vue";
+import Icon from "@/components/atoms/Icon.vue";
 
 
 
@@ -71,6 +135,16 @@ const activeTab = ref<number>(0);
 // State
 const pageSize = ref<number>(10);
 const selectedCategory = ref<string>("");
+const showDeleteModal = ref(false);
+const deleteTarget = ref<DownloadItem | null>(null);
+const showDeleteToast = ref(false);
+const deleteToastStyle = {
+  left: "50%",
+  transform: "translateX(-50%)",
+  width: "min(1420px, calc(100vw - 2rem))",
+  maxWidth: "min(1420px, calc(100vw - 2rem))",
+  minWidth: "min(1420px, calc(100vw - 2rem))",
+};
 
 // Category Options
 const categoryOptions = [
@@ -230,7 +304,20 @@ const handlePreview = (row: Record<string, any>) => {
 
 const handleDelete = (row: Record<string, any>) => {
   const item = row as DownloadItem;
-  console.log("Delete clicked for:", item);
-  // TODO: Implement delete logic
+  deleteTarget.value = item;
+  showDeleteModal.value = true;
+};
+
+const handleCloseDeleteModal = () => {
+  showDeleteModal.value = false;
+  deleteTarget.value = null;
+};
+
+const handleConfirmDelete = () => {
+  if (deleteTarget.value) {
+    allDownloads.value = allDownloads.value.filter((item) => item.fileName !== deleteTarget.value?.fileName);
+  }
+  handleCloseDeleteModal();
+  showDeleteToast.value = true;
 };
 </script>

@@ -32,6 +32,52 @@
         </div>
       </div>
     </div>
+
+    <Modal
+      v-model="showDeleteModal"
+      size="md"
+      :static="false"
+      :show-close-button="false"
+      close-action="emit"
+      backdrop-class="bg-gray-600/80"
+    >
+      <template #header>
+        <div class="flex w-full items-center justify-end px-4 pt-4">
+          <button type="button" class="flex h-6 w-6 items-center justify-center text-gray-400 hover:text-gray-500" @click="handleCloseDeleteModal" aria-label="關閉">
+            <Icon name="close" :size="20" aria-hidden="true" />
+          </button>
+        </div>
+      </template>
+      <template #body>
+        <div class="flex w-full flex-col items-center gap-4 px-6 py-5">
+          <div class="flex h-6 w-6 items-center justify-center rounded-full bg-gray-400 text-xs font-medium text-white">!</div>
+          <div class="w-[311px] text-center text-base font-normal leading-[1.5] text-gray-600">
+            <p class="mb-0">確認刪除此項目</p>
+            <p>內容將完全刪除無法復原</p>
+          </div>
+        </div>
+      </template>
+      <template #footer>
+        <div class="flex w-full items-center justify-center gap-4 px-6 pb-6 pt-0">
+          <ButtonCTA
+            variant="white"
+            size="xs"
+            class="h-8 w-[120px] border-gray-200 px-3 py-2 text-xs font-medium leading-[1.5] text-gray-800 hover:bg-gray-50"
+            @click="handleCloseDeleteModal"
+          >
+            取消
+          </ButtonCTA>
+          <ButtonCTA
+            variant="red"
+            size="xs"
+            class="h-8 w-[120px] bg-red-700 px-3 py-2 text-sm font-medium leading-[1.5] text-white hover:bg-red-800"
+            @click="handleConfirmDelete"
+          >
+            確認
+          </ButtonCTA>
+        </div>
+      </template>
+    </Modal>
   </div>
 </template>
 
@@ -41,6 +87,7 @@ import { useRouter } from "vue-router";
 import { useTablePagination } from "@/composables/useTablePagination";
 import Tabs from "@/components/atoms/Tabs.vue";
 import Icon from "@/components/atoms/Icon.vue";
+import Modal from "@/components/atoms/Modal.vue";
 import Switch from "@/components/atoms/Switch.vue";
 import ButtonCTA from "@/components/atoms/ButtonCTA.vue";
 import Breadcrumb from "@/components/atoms/Breadcrumb.vue";
@@ -188,6 +235,8 @@ const handleTabClick = (index: number, item: any, event?: Event) => {
 };
 
 const router = useRouter();
+const showDeleteModal = ref(false);
+const deleteTarget = ref<FAQItem | null>(null);
 
 const handleAddQuestion = () => {
   router.push("/faq-management/add");
@@ -209,6 +258,19 @@ const handlePreview = (row: Record<string, any>) => {
 const handleDelete = (row: Record<string, any>) => {
   const item = row as FAQItem;
   console.log("Delete clicked for:", item);
-  // TODO: Implement delete logic
+  deleteTarget.value = item;
+  showDeleteModal.value = true;
+};
+
+const handleCloseDeleteModal = () => {
+  showDeleteModal.value = false;
+  deleteTarget.value = null;
+};
+
+const handleConfirmDelete = () => {
+  if (deleteTarget.value) {
+    allFAQs.value = allFAQs.value.filter((item) => item.index !== deleteTarget.value?.index);
+  }
+  handleCloseDeleteModal();
 };
 </script>

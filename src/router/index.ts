@@ -66,6 +66,16 @@ export const routes: RouteRecordRaw[] = [
     },
   },
   {
+    path: "/news/:id",
+    name: "news-detail",
+    component: () => import("@/views/frontend/NewsDetailView.vue"),
+    meta: {
+      breadcrumb: {
+        label: "公開消息",
+      },
+    },
+  },
+  {
     path: "/downloads",
     name: "downloads",
     component: () => import("@/views/frontend/DownloadsView.vue"),
@@ -194,7 +204,7 @@ export const routes: RouteRecordRaw[] = [
   {
     path: "/case-statistics/add",
     name: "case-statistics-add",
-    component: () => import("@/views/backend/CaseStatisticsAddView.vue"),
+    component: () => import("@/views/backend/CaseStatisticsEditView.vue"),
     meta: {
       breadcrumb: {
         label: "案件統計維護", // 顯示父路由的標籤，不顯示「新增年度」
@@ -340,6 +350,10 @@ export const routes: RouteRecordRaw[] = [
 const router = createRouter({
   history: createWebHistory(),
   routes,
+  scrollBehavior(to, from, savedPosition) {
+    if (savedPosition) return savedPosition;
+    return { top: 0 };
+  },
 });
 
 export default router;

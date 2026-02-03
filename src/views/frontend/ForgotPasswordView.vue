@@ -1,43 +1,37 @@
 <template>
   <div class="min-h-screen bg-[#F0F5FF]">
-    <div class="flex flex-col gap-10 px-[60px] py-10">
-      <div class="flex flex-col gap-[52px]">
-        <router-link
-          to="/login"
-          class="flex items-center gap-2 text-base font-normal leading-normal text-primary-700 hover:text-primary-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-600 focus-visible:ring-offset-2"
-          aria-label="返回登入頁面"
-        >
-          <Icon name="arrowleft" :size="16" class="shrink-0" aria-hidden="true" />
-          <span>返回登入</span>
-        </router-link>
-        <h1 class="text-center text-2xl font-medium leading-normal text-gray-900">忘記密碼</h1>
-      </div>
-      <div class="flex w-full flex-col items-center gap-10">
-        <div class="flex w-[428px] flex-col items-start gap-4 rounded-lg bg-white p-8 shadow-sm">
-          <h2 class="text-2xl font-medium leading-normal text-black">發送設定連結至以下信箱</h2>
-          <div class="flex w-full flex-col gap-2">
-            <label class="block text-base font-medium text-gray-900">電子信箱</label>
-            <input
-              v-model="formData.email"
-              type="email"
-              placeholder="請輸入電子信箱"
-              required
-              class="h-[52px] w-full rounded-lg border border-gray-300 bg-gray-200 px-4 py-3.5 text-lg text-gray-700 placeholder:text-gray-700 focus:border-primary-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary-500"
-              :class="errors.email ? 'border-red-300 bg-red-50 focus:border-red-500 focus:ring-red-500' : ''"
-              @input="handleInput"
-            />
-            <p v-if="errors.email" class="mt-1 text-sm text-red-600">{{ errors.email }}</p>
-          </div>
+    <div class="relative flex min-h-screen flex-col px-4 pt-[40px] sm:px-[60px]">
+      <router-link
+        to="/login"
+        class="flex items-center gap-2 text-base font-normal leading-normal text-primary-700 hover:text-primary-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-600 focus-visible:ring-offset-2"
+        aria-label="返回登入頁面"
+      >
+        <Icon name="arrowleft" :size="16" class="shrink-0" aria-hidden="true" />
+        <span>返回登入</span>
+      </router-link>
+
+      <div class="mt-[120px] flex w-full max-w-[428px] flex-col items-start gap-10 self-center rounded-lg border border-gray-200 bg-white p-8 shadow-sm">
+        <div class="flex flex-col gap-2">
+          <h1 class="text-2xl font-medium leading-6 text-gray-900">忘記密碼</h1>
+          <p class="text-base font-normal leading-[1.5] text-gray-500">發送設定連結至以下信箱</p>
         </div>
-        <ButtonCTA :disabled="!isFormValid" variant="primary" type="button" class="h-[52px] w-[240px]" @click="handleSubmit">發送</ButtonCTA>
+        <div class="flex w-full flex-col gap-2">
+          <label class="block text-base font-medium text-gray-900">電子信箱</label>
+          <input
+            v-model="formData.email"
+            type="email"
+            placeholder="請輸入電子信箱"
+            required
+            class="h-[52px] w-full rounded-lg border border-gray-300 bg-gray-200 px-4 py-3.5 text-lg text-gray-700 placeholder:text-gray-700 focus:border-primary-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary-500"
+            :class="errors.email ? 'border-red-300 bg-red-50 focus:border-red-500 focus:ring-red-500' : ''"
+            @input="handleInput"
+          />
+          <p v-if="errors.email" class="mt-1 text-sm text-red-600">{{ errors.email }}</p>
+        </div>
+        <ButtonCTA :disabled="!isFormValid" variant="primary" type="button" class="h-[40px] w-full" @click="handleSubmit">發送</ButtonCTA>
       </div>
     </div>
-    <Modal v-model="showSuccessModal" :static="true" :show-close-button="false" size="md">
-      <template #header>
-        <div class="flex w-full items-center justify-end px-4 pb-0 pt-4">
-          <ButtonCTA variant="none" icon-only left-icon="close" aria-label="關閉" @click="handleReturnToLogin" />
-        </div>
-      </template>
+    <Modal v-model="showSuccessModal" :static="true" size="md" close-action="emit" @close-click="handleReturnToLogin">
       <template #body>
         <div class="flex w-full flex-col items-center gap-4 px-6 py-5">
           <div class="relative flex size-[42px] shrink-0 items-center justify-center">

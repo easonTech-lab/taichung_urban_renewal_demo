@@ -2,7 +2,7 @@
   <div class="inline-flex flex-col items-start gap-2" :class="[containerClass || 'w-full']">
     <!-- Vertical Layout (default) -->
     <template v-if="labelPosition === 'vertical' || !labelPosition">
-      <label v-if="showLabel && label" :for="buttonId" class="relative block inline-block text-base font-medium" :class="labelClasses">
+      <label v-if="showLabel && label" :for="buttonId" class="relative inline-block text-base font-medium" :class="labelClasses">
         {{ label }}
         <span v-if="required" class="absolute -right-2 -top-1 text-xs leading-none text-red-500">*</span>
       </label>

@@ -39,6 +39,7 @@ coverage
 *.sln
 *.sw?
 lib
+*.toml
 # Ignore all .md files in root directory except README.md
 /*.md
 !/README.md

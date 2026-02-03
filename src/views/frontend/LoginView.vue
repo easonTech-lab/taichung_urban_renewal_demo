@@ -1,49 +1,66 @@
 <template>
-  <div class="flex min-h-screen items-center justify-center bg-[#F0F5FF]">
-    <div class="flex max-w-[428px] flex-col items-center gap-10 bg-[#F0F5FF] px-0 py-[120px]">
-      <h1 class="text-center text-2xl font-medium leading-6 text-gray-900">管理者登入</h1>
-      <form class="flex w-full flex-col items-end gap-4 rounded-lg bg-white p-8 shadow-sm" @submit.prevent="handleLogin" aria-label="管理者登入表單">
-        <Input
-          v-model="formData.username"
-          label="帳號"
-          type="text"
-          placeholder="請輸入帳號"
-          required
-          :error="!!errors.username"
-          :error-message="errors.username"
-          @clear-error="errors.username = ''"
-        />
-        <Input
-          v-model="formData.password"
-          label="密碼"
-          type="password"
-          placeholder="請輸入密碼"
-          required
-          :error="!!errors.password"
-          :error-message="errors.password"
-          @clear-error="errors.password = ''"
-        />
-        <div class="flex w-full flex-wrap items-end gap-4">
-          <div class="min-w-[200px] flex-1">
-            <Input
-              v-model="formData.captcha"
-              label="驗證碼"
-              type="text"
-              placeholder="請輸入驗證碼"
-              required
-              :error="!!errors.captcha"
-              :error-message="errors.captcha"
-              @clear-error="errors.captcha = ''"
-            />
+  <div class="min-h-screen bg-[#F0F5FF]">
+    <div class="flex min-h-[calc(100vh-88px)] items-center justify-center px-4 py-[120px]">
+      <div class="w-full max-w-[428px] rounded-lg border border-gray-200 bg-white p-8">
+        <h1 class="text-2xl font-medium leading-6 text-gray-900">登入</h1>
+
+        <form class="mt-10 flex w-full flex-col gap-4" @submit.prevent="handleLogin" aria-label="登入表單">
+          <Input
+            v-model="formData.username"
+            label="帳號"
+            type="text"
+            placeholder="請輸入帳號"
+            required
+            size="lg"
+            :error="!!errors.username"
+            :error-message="errors.username"
+            @clear-error="errors.username = ''"
+          />
+          <div class="flex w-full items-center gap-2">
+            <input id="remember-me" type="checkbox" class="h-4 w-4 rounded border border-gray-300 bg-gray-50" />
+            <label for="remember-me" class="text-sm font-medium leading-[14px] text-gray-900">記住我</label>
           </div>
-          <div class="flex h-[49px] w-[125px] items-center justify-center rounded bg-gray-200">
-            <img :src="captchaImageUrl" alt="驗證碼圖片，請輸入圖片中顯示的文字或數字" class="h-full w-full rounded object-cover" aria-label="驗證碼圖片" />
+
+          <Input
+            v-model="formData.password"
+            label="密碼"
+            type="password"
+            placeholder="請輸入密碼"
+            required
+            size="lg"
+            :error="!!errors.password"
+            :error-message="errors.password"
+            @clear-error="errors.password = ''"
+          />
+          <button type="button" class="w-full text-right text-sm font-normal text-primary-600 hover:underline" @click.prevent="handleForgotPassword">忘記密碼</button>
+
+          <div class="flex w-full items-end gap-4 flex-wrap justify-center">
+            <div class="flex-1 min-w-[150px]">
+              <Input
+                v-model="formData.captcha"
+                label="驗證碼"
+                type="text"
+                placeholder="請輸入驗證碼"
+                required
+                size="lg"
+                :error="!!errors.captcha"
+                :error-message="errors.captcha"
+                @clear-error="errors.captcha = ''"
+              />
+            </div>
+            <div class="h-[49px] w-[125px]">
+              <img :src="captchaImageUrl" alt="驗證碼圖片，請輸入圖片中顯示的文字或數字" class="h-full w-full rounded object-cover" aria-label="驗證碼圖片" />
+            </div>
           </div>
-        </div>
-      </form>
-      <div class="flex w-[240px] flex-col items-center gap-6">
-        <ButtonCTA :disabled="!isFormValid" variant="primary" type="button" class="w-full" @click="handleLogin">登入</ButtonCTA>
-        <a href="#" class="w-full text-center text-base font-medium leading-normal text-primary-700 hover:underline" @click.prevent="handleForgotPassword"> 忘記密碼 </a>
+
+          <div class="mt-4 w-full">
+            <ButtonCTA :disabled="!isFormValid" :variant="isFormValid ? 'primary' : 'gray'" type="submit" class="h-[40px] w-full">登入</ButtonCTA>
+          </div>
+          <div class="text-center text-sm font-medium leading-[1.5]">
+            <p class="mb-0 text-gray-500">不知道如何申請帳號?</p>
+            <router-link to="/register" class="text-primary-600 hover:underline">了解申請流程</router-link>
+          </div>
+        </form>
       </div>
     </div>
   </div>

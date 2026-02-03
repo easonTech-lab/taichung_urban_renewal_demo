@@ -35,20 +35,14 @@
         <Empty type="search" message="查無符合條件的公開消息" />
       </div>
       <div v-else class="rounded-lg bg-white p-6 shadow-sm">
-        <Table :columns="tableColumns" :rows="paginatedRows" :pagination="pagination" @page-change="handlePageChange">
+        <Table :columns="tableColumns" :rows="paginatedRows" :pagination="pagination" row-clickable @page-change="handlePageChange" @row-click="handleRowClick">
           <template #cell-index="{ rowIndex }">
             {{ (currentPage - 1) * pageSize + rowIndex + 1 }}
           </template>
           <template #cell-title="{ row }">
-            <button
-              class="text-left text-base text-gray-800 transition-colors hover:text-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
-              :aria-label="`查看：${row.title}`"
-              @click="handleTitleClick(row)"
-            >
-              <p class="line-clamp-2">
-                {{ row.title }}
-              </p>
-            </button>
+            <p class="line-clamp-2 text-left text-base text-gray-800">
+              {{ row.title }}
+            </p>
           </template>
         </Table>
       </div>
@@ -224,6 +218,10 @@ const handlePageChange = (page: number) => {
 const handleTitleClick = (row: Record<string, any>) => {
   // TODO: Navigate to news detail page
   console.log("View news:", row);
-  // router.push(`/news/${row.id}`);
+  router.push(`/news/${row.id}`);
+};
+
+const handleRowClick = (row: Record<string, any>) => {
+  handleTitleClick(row);
 };
 </script>

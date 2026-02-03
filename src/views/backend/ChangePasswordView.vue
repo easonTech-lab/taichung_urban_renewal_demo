@@ -61,22 +61,7 @@
         </div>
       </div>
     </div>
-    <Modal v-model="showSuccessModal" :static="true" size="md">
-      <template #header>
-        <div class="flex w-full items-center justify-end px-4 pb-0 pt-4">
-          <ButtonCTA
-            variant="none"
-            icon-only
-            left-icon="close"
-            size="xs"
-            class="h-5 w-5 rounded-lg bg-transparent text-gray-400 hover:bg-gray-100 hover:text-gray-900"
-            aria-label="關閉"
-            @click="handleCloseSuccessModal"
-          >
-            <span class="sr-only">關閉</span>
-          </ButtonCTA>
-        </div>
-      </template>
+    <Modal v-model="showSuccessModal" :static="true" size="md" @close="handleCloseSuccessModal">
       <template #body>
         <div class="flex w-full flex-col items-center gap-4 px-6 py-5">
           <div class="relative flex size-[42px] shrink-0 items-center justify-center">

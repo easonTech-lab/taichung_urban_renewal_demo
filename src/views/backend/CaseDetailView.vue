@@ -8,7 +8,16 @@
       <!-- Breadcrumb and Title -->
       <div class="flex flex-col gap-6">
         <Breadcrumb />
-        <h1 class="text-3xl font-bold leading-[30px] text-gray-900">都市更新案件</h1>
+        <div class="flex items-center gap-3">
+          <h1 class="max-w-[400px] truncate text-3xl font-bold leading-[30px] text-gray-900">擬訂臺中市豐原區三村段三小段20地號(等)3筆土地重建計畫案</h1>
+          <div
+            class="flex h-10 w-10 cursor-pointer items-center justify-center rounded-full border border-primary-500 bg-white hover:bg-gray-50"
+            @click="isDrawerOpen = true"
+            title="編輯幹事名單"
+          >
+            <Icon name="pencil" :size="24" color="#1C64F2" class="m-auto" />
+          </div>
+        </div>
       </div>
 
       <!-- Tabs Navigation -->
@@ -19,15 +28,20 @@
       </div>
 
       <!-- Tab Content -->
-      <div class="rounded-lg bg-white p-6 shadow-sm">
+      <div :class="activeTab !== 0 ? 'rounded-lg bg-white p-6 shadow-sm' : ''">
         <!-- Case Information Tab -->
         <div v-if="activeTab === 0" class="flex flex-col gap-10">
           <!-- Case Basic Information Section -->
-          <div class="flex flex-col gap-10">
+          <div class="flex flex-col gap-10 rounded-lg bg-white p-6">
             <!-- Section Title -->
-            <div class="flex items-center gap-3">
-              <div class="h-7 w-1 rounded bg-primary-600"></div>
-              <h2 class="text-2xl font-medium leading-6 text-gray-900">案件基本資訊</h2>
+            <div class="flex items-center justify-between gap-3">
+              <div class="flex items-center gap-3">
+                <div class="h-7 w-1 rounded bg-primary-600"></div>
+                <h2 class="text-2xl font-medium leading-6 text-gray-900">案件基本資訊</h2>
+              </div>
+              <div>
+                <ButtonCTA v-if="isAdminUser" variant="outline" left-icon="editOutline" class="flex items-center gap-2" @click="openEditInfoDrawer">編輯內容</ButtonCTA>
+              </div>
             </div>
 
             <!-- Information Grid -->
@@ -76,7 +90,7 @@
             </div>
 
             <!-- Action Cards -->
-            <div class="flex gap-5">
+            <div class="flex gap-5" v-if="!isAdminUser">
               <!-- Application Basic Information Card -->
               <button
                 type="button"
@@ -86,7 +100,7 @@
                 <span class="text-lg font-bold leading-[1.3] text-gray-500">申請基本資料</span>
                 <div class="relative flex h-12 w-12 shrink-0 items-center justify-center">
                   <div class="absolute inset-0 rounded-full bg-blue-100"></div>
-                  <Icon name="arrowRightOutline" :size="24" color="#6B7280" class="relative z-10" />
+                  <Icon name="arrowRightOutline" :size="24" color="#1C64F2" class="relative z-10" />
                 </div>
               </button>
 
@@ -99,7 +113,7 @@
                 <span class="text-lg font-bold leading-[1.3] text-gray-500">都市更新審議資料表</span>
                 <div class="relative flex h-12 w-12 shrink-0 items-center justify-center">
                   <div class="absolute inset-0 rounded-full bg-blue-100"></div>
-                  <Icon name="arrowRightOutline" :size="24" color="#6B7280" class="relative z-10" />
+                  <Icon name="arrowRightOutline" :size="24" color="#1C64F2" class="relative z-10" />
                 </div>
               </button>
 
@@ -112,14 +126,14 @@
                 <span class="text-lg font-bold leading-[1.3] text-gray-500">容積獎勵項目及額度</span>
                 <div class="relative flex h-12 w-12 shrink-0 items-center justify-center">
                   <div class="absolute inset-0 rounded-full bg-blue-100"></div>
-                  <Icon name="arrowRightOutline" :size="24" color="#6B7280" class="relative z-10" />
+                  <Icon name="arrowRightOutline" :size="24" color="#1C64F2" class="relative z-10" />
                 </div>
               </button>
             </div>
           </div>
 
           <!-- Review Officer List Section -->
-          <div class="flex flex-col gap-10">
+          <div class="flex flex-col gap-10 rounded-lg bg-white p-6" v-if="isAdminUser">
             <!-- Section Title -->
             <div class="flex items-center gap-3">
               <div class="h-7 w-1 rounded bg-primary-600"></div>
@@ -127,7 +141,7 @@
             </div>
 
             <!-- Empty State -->
-            <div class="rounded-lg bg-white p-6 shadow-sm">
+            <div class="rounded-lg bg-white p-6">
               <Empty type="case" message="尚未導入審查幹事名單" button-text="導入幹事名單" :show-button="true" @button-click="handleImportOfficerList" />
             </div>
           </div>
@@ -250,6 +264,67 @@
           </div>
         </div>
       </div>
+
+      <Drawer v-model="isDrawerOpen" :title="drawerTitle" :width="drawerWidth" @close="handleDrawerClose">
+        <template #default>
+          <div v-if="drawerMode === 'officerList'" class="flex flex-col gap-0">
+            <div v-for="(officer, index) in officerList" :key="index" class="flex items-center justify-between border-b border-gray-300 py-5">
+              <div class="flex flex-1 items-center gap-2">
+                <div class="flex w-5 items-center justify-center">
+                  <span class="text-base font-normal leading-[1.25] text-gray-500">{{ index + 1 }}</span>
+                </div>
+                <InputDropdown
+                  :button-text="officer.selectedOfficer || ''"
+                  placeholder="選擇"
+                  :items="getAvailableOfficersForIndex(index)"
+                  required
+                  :show-label="false"
+                  @item-click="(item) => handleOfficerSelect(index, item)"
+                />
+              </div>
+              <div class="flex items-center px-3 py-4">
+                <ButtonCTA variant="textPlain" size="base" class="p-0" @click="handleRemoveOfficer(index)"> 移除 </ButtonCTA>
+              </div>
+            </div>
+            <div class="flex items-center justify-start border-b border-gray-300 py-5">
+              <ButtonCTA variant="outline" size="xl" class="w-full" left-icon="plus" @click="handleAddNewOfficer"> 新增委員 </ButtonCTA>
+            </div>
+          </div>
+          <div v-else class="flex flex-col gap-6">
+            <Input v-model="editForm.caseNumber" label="案件編號" required size="lg" />
+            <Input v-model="editForm.applyDate" label="申請日期" required size="lg" />
+            <Input v-model="editForm.applicantName" label="申請者姓名" required size="lg" />
+            <Input v-model="editForm.phone" label="聯絡電話" required size="lg" />
+            <Input v-model="editForm.address" label="聯絡地址" required size="lg" />
+            <Input v-model="editForm.email" label="E-mail" required size="lg" />
+          </div>
+        </template>
+        <template #footer>
+          <div v-if="drawerMode === 'officerList'" class="flex gap-4">
+            <ButtonCTA variant="outline" size="xl" class="w-[124px]" @click="handleCancel"> 取消 </ButtonCTA>
+            <ButtonCTA variant="primary" size="xl" class="w-[124px]" @click="handleSave"> 儲存 </ButtonCTA>
+          </div>
+          <div v-else class="flex gap-4">
+            <ButtonCTA variant="outline" size="xl" class="w-[124px]" @click="handleEditCancel"> 取消 </ButtonCTA>
+            <ButtonCTA variant="primary" size="xl" class="w-[124px]" @click="handleEditSave"> 儲存 </ButtonCTA>
+          </div>
+        </template>
+      </Drawer>
+    </div>
+
+    <div class="fixed bottom-6 z-[90]" :style="toastPositionStyle">
+      <Toast
+        v-model="showCancelToast"
+        message="有尚未儲存的修改"
+        :show-actions="true"
+        primary-label="暫存"
+        secondary-label="退出編輯"
+        :auto-close="false"
+        close-label="關閉提示"
+        @primary="handleToastDraft"
+        @secondary="handleToastExit"
+        @close="handleCloseToast"
+      />
     </div>
   </div>
 </template>
@@ -262,8 +337,13 @@ import Icon from "@/components/atoms/Icon.vue";
 import Badge from "@/components/atoms/Badge.vue";
 import Stepper, { type StepperStep } from "@/components/atoms/Stepper.vue";
 import Dropdown, { type DropdownItem } from "@/components/atoms/Dropdown.vue";
+import InputDropdown, { type InputDropdownItem } from "@/components/atoms/InputDropdown.vue";
+import Input from "@/components/atoms/Input.vue";
 import Table, { type TableColumn } from "@/components/atoms/Table.vue";
 import Empty from "@/components/atoms/Empty.vue";
+import Drawer from "@/components/atoms/Drawer.vue";
+import ButtonCTA from "@/components/atoms/ButtonCTA.vue";
+import Toast from "@/components/atoms/Toast.vue";
 import { useTablePagination } from "@/composables/useTablePagination";
 
 interface ProgressStage {
@@ -285,6 +365,20 @@ const tabs = [
 ];
 
 const activeTab = ref(0);
+const isDrawerOpen = ref(false);
+type DrawerMode = "officerList" | "editInfo";
+const drawerMode = ref<DrawerMode>("officerList");
+const drawerTitle = computed(() => (drawerMode.value === "officerList" ? "編輯幹事名單" : "編輯案件資訊"));
+const isAdminUser = computed(() => {
+  const userInfo = localStorage.getItem("userInfo");
+  if (!userInfo) return false;
+  try {
+    const user = JSON.parse(userInfo);
+    return user.role === "admin";
+  } catch {
+    return false;
+  }
+});
 
 const getTabClass = (index: number): string => {
   const isActive = index === activeTab.value;
@@ -565,7 +659,12 @@ const filteredFiles = computed(() => {
   return files;
 });
 
-const { paginatedRows: paginatedFiles, pagination: filePagination, handlePageChange: handleFilePageChange, resetPage: resetFilePage } = useTablePagination({
+const {
+  paginatedRows: paginatedFiles,
+  pagination: filePagination,
+  handlePageChange: handleFilePageChange,
+  resetPage: resetFilePage,
+} = useTablePagination({
   rows: filteredFiles,
   pageSize: filePageSize,
 });
@@ -580,8 +679,119 @@ const handleFileDownload = (file: Record<string, any>) => {
   // TODO: Implement file download logic
 };
 
+const editForm = ref({
+  caseNumber: "abc13456788999",
+  applyDate: "114/10/20",
+  applicantName: "陳傑瑞",
+  phone: "0933123123",
+  address: "台中市文心路二段588號",
+  email: "abc@gmail.com",
+});
+const showCancelToast = ref(false);
+const drawerWidth = ref<"sm" | "md" | "lg" | "xl">("xl");
+const drawerWidthPx = computed(() => {
+  const widths: Record<"sm" | "md" | "lg" | "xl", number> = {
+    sm: 256,
+    md: 320,
+    lg: 384,
+    xl: 460,
+  };
+  return widths[drawerWidth.value];
+});
+const toastPositionStyle = computed(() => {
+  if (!isDrawerOpen.value) {
+    return {
+      left: "50%",
+      transform: "translateX(-50%)",
+      width: "min(900px, calc(100vw - 2rem))",
+      maxWidth: "min(900px, calc(100vw - 2rem))",
+      minWidth: "min(900px, calc(100vw - 2rem))",
+    };
+  }
+  const width = `min(900px, calc(100vw - ${drawerWidthPx.value}px - 2rem))`;
+  return {
+    left: `max(1rem, calc((100vw - ${drawerWidthPx.value}px) / 2))`,
+    transform: "translateX(-50%)",
+    width,
+    maxWidth: width,
+    minWidth: width,
+  };
+});
+
+interface OfficerItem {
+  selectedOfficer: string;
+}
+
+const officerList = ref<OfficerItem[]>(
+  Array.from({ length: 5 }, () => ({
+    selectedOfficer: "",
+  }))
+);
+
+const allAvailableOfficers: InputDropdownItem[] = [{ label: "陳傑瑞" }, { label: "張森" }, { label: "吳偉翔" }, { label: "林美華" }, { label: "王小明" }, { label: "李大同" }];
+
+const getAvailableOfficersForIndex = (index: number) => {
+  const selectedOfficers = officerList.value.map((o, i) => (i !== index ? o.selectedOfficer : "")).filter((o) => o !== "");
+  return allAvailableOfficers.filter((officer) => !selectedOfficers.includes(officer.label));
+};
+
 const handleImportOfficerList = () => {
-  console.log("Import officer list");
-  // TODO: Implement import officer list logic
+  drawerMode.value = "officerList";
+  isDrawerOpen.value = true;
+};
+
+const handleDrawerClose = () => {
+  isDrawerOpen.value = false;
+};
+
+const openEditInfoDrawer = () => {
+  drawerMode.value = "editInfo";
+  isDrawerOpen.value = true;
+};
+
+const handleOfficerSelect = (index: number, item: InputDropdownItem) => {
+  officerList.value[index].selectedOfficer = item.label;
+};
+
+const handleRemoveOfficer = (index: number) => {
+  officerList.value[index].selectedOfficer = "";
+};
+
+const handleAddNewOfficer = () => {
+  officerList.value.push({
+    selectedOfficer: "",
+  });
+};
+
+const handleCancel = () => {
+  isDrawerOpen.value = false;
+};
+
+const handleSave = () => {
+  console.log("Save officer list:", officerList.value);
+  isDrawerOpen.value = false;
+};
+
+const handleEditCancel = () => {
+  showCancelToast.value = true;
+};
+
+const handleEditSave = () => {
+  console.log("Save case info:", editForm.value);
+  isDrawerOpen.value = false;
+};
+
+const handleCloseToast = () => {
+  showCancelToast.value = false;
+};
+
+const handleToastExit = () => {
+  handleCloseToast();
+  isDrawerOpen.value = false;
+};
+
+const handleToastDraft = () => {
+  handleCloseToast();
+  handleEditSave();
 };
 </script>
