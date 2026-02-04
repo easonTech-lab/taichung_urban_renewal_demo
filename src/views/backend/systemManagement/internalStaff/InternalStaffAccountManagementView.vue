@@ -116,20 +116,7 @@ import ButtonCTA from "@/components/atoms/ButtonCTA.vue";
 import Drawer from "@/components/atoms/Drawer.vue";
 import Radio from "@/components/atoms/Radio.vue";
 import { useTablePagination } from "@/composables/useTablePagination";
-
-interface Permission {
-  category: string;
-  functions: string[];
-}
-
-interface HandlerAccount {
-  name: string;
-  email: string;
-  department: string;
-  group: string;
-  permissions: Permission[];
-  status: boolean; // true = 啟用, false = 停權
-}
+import type { HandlerAccount, Permission } from "@/types/backend/systemManagement/internalStaff/internalStaffAccountManagement.d";
 
 // State
 const router = useRouter();

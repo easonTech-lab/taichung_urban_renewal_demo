@@ -113,15 +113,7 @@ import Drawer from "@/components/atoms/Drawer.vue";
 import ButtonCTA from "@/components/atoms/ButtonCTA.vue";
 import Breadcrumb from "@/components/atoms/Breadcrumb.vue";
 import SidebarSection from "@/components/sections/backend/SidebarSection.vue";
-
-// Officer Data Interface
-interface OfficerData {
-  index: number;
-  name: string;
-  gender: string;
-  title: string;
-  education: string;
-}
+import type { OfficerData, OfficerItem } from "@/types/backend/systemManagement/officerList/officerListManagement.d";
 
 // Tabs
 const tabItems: TabItem[] = [{ label: "115" }, { label: "114" }, { label: "113" }, { label: "添加年度" }];
@@ -189,10 +181,6 @@ const { paginatedRows: paginatedOfficers, pagination, handlePageChange } = useTa
 });
 
 // Officer List (20 items default)
-interface OfficerItem {
-  selectedOfficer: string;
-}
-
 const officerList = ref<OfficerItem[]>(
   Array.from({ length: 20 }, () => ({
     selectedOfficer: "",

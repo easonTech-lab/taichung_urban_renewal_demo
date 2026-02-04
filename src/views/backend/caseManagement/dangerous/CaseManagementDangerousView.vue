@@ -63,19 +63,12 @@ import SidebarSection from "@/components/sections/backend/SidebarSection.vue";
 import Table, { type TableColumn } from "@/components/atoms/Table.vue";
 import Dropdown, { type DropdownItem } from "@/components/atoms/Dropdown.vue";
 import ButtonDropdown, { type ButtonDropdownItem } from "@/components/atoms/ButtonDropdown.vue";
+import type { CaseItem } from "@/types/backend/caseManagement/dangerous/caseManagementDangerous.d";
 
 const route = useRoute();
 
 // 判斷是否為管理員模式（根據路由名稱）
 const isAdmin = computed(() => route.name === "case-management-dangerous-admin" || route.path.includes("-admin"));
-
-interface CaseItem {
-  caseNumber: string;
-  caseName: string;
-  caseCategory: string;
-  caseStage: string;
-  caseStatus: "進行中" | "已中斷" | "已完成";
-}
 
 // Filter Options
 const stageOptions: DropdownItem[] = [{ label: "全部案件階段" }, { label: "專案小組" }, { label: "其他階段" }];

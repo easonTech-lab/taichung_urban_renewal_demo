@@ -115,7 +115,7 @@ export const routes: RouteRecordRaw[] = [
   {
     path: "/case-management",
     name: "case-management",
-    component: () => import("@/views/backend/CaseManagementView.vue"),
+    component: () => import("@/views/backend/caseManagement/urbanRenewal/CaseManagementView.vue"),
     meta: {
       sidebar: {
         section: "我的案件",
@@ -137,7 +137,7 @@ export const routes: RouteRecordRaw[] = [
   {
     path: "/case-management-admin",
     name: "case-management-admin",
-    component: () => import("@/views/backend/CaseManagementView.vue"), // 使用同一個組件
+    component: () => import("@/views/backend/caseManagement/urbanRenewal/CaseManagementView.vue"), // 使用同一個組件
     meta: {
       sidebar: {
         section: "案件管理",
@@ -159,7 +159,7 @@ export const routes: RouteRecordRaw[] = [
   {
     path: "/case-management-dangerous",
     name: "case-management-dangerous",
-    component: () => import("@/views/backend/CaseManagementDangerousView.vue"),
+    component: () => import("@/views/backend/caseManagement/dangerous/CaseManagementDangerousView.vue"),
     meta: {
       sidebar: {
         section: "我的案件",
@@ -180,7 +180,7 @@ export const routes: RouteRecordRaw[] = [
   {
     path: "/case-management-dangerous-admin",
     name: "case-management-dangerous-admin",
-    component: () => import("@/views/backend/CaseManagementDangerousView.vue"), // 使用同一個組件
+    component: () => import("@/views/backend/caseManagement/dangerous/CaseManagementDangerousView.vue"), // 使用同一個組件
     meta: {
       sidebar: {
         section: "案件管理",
@@ -201,7 +201,7 @@ export const routes: RouteRecordRaw[] = [
   {
     path: "/case-detail",
     name: "case-detail",
-    component: () => import("@/views/backend/CaseDetailView.vue"),
+    component: () => import("@/views/backend/caseManagement/common/CaseDetailView.vue"),
     meta: {
       breadcrumb: getCaseDetailBreadcrumbItems,
     },
@@ -209,7 +209,7 @@ export const routes: RouteRecordRaw[] = [
   {
     path: "/profile",
     name: "profile",
-    component: () => import("@/views/backend/ProfileView.vue"),
+    component: () => import("@/views/backend/myAccount/ProfileView.vue"),
     meta: {
       sidebar: [
         {
@@ -235,7 +235,7 @@ export const routes: RouteRecordRaw[] = [
   {
     path: "/change-password",
     name: "change-password",
-    component: () => import("@/views/backend/ChangePasswordView.vue"),
+    component: () => import("@/views/backend/myAccount/ChangePasswordView.vue"),
     meta: {
       breadcrumb: getAccountBreadcrumbItems,
     },
@@ -243,7 +243,7 @@ export const routes: RouteRecordRaw[] = [
   {
     path: "/data-analysis",
     name: "data-analysis",
-    component: () => import("@/views/backend/DataAnalysisView.vue"),
+    component: () => import("@/views/backend/systemManagement/dataAnalysis/DataAnalysisView.vue"),
     meta: {
       sidebar: {
         section: "系統管理",
@@ -414,7 +414,7 @@ export const routes: RouteRecordRaw[] = [
   {
     path: "/internal-staff-account-management",
     name: "internal-staff-account-management",
-    component: () => import("@/views/backend/InternalStaffAccountManagementView.vue"),
+    component: () => import("@/views/backend/systemManagement/internalStaff/InternalStaffAccountManagementView.vue"),
     meta: {
       sidebar: {
         section: "系統管理",
@@ -435,7 +435,7 @@ export const routes: RouteRecordRaw[] = [
   {
     path: "/internal-staff-account-management/add",
     name: "internal-staff-account-management-add",
-    component: () => import("@/views/backend/InternalStaffAccountAddView.vue"),
+    component: () => import("@/views/backend/systemManagement/internalStaff/InternalStaffAccountAddView.vue"),
     meta: {
       breadcrumb: {
         label: "新增承辦帳號",
@@ -449,7 +449,7 @@ export const routes: RouteRecordRaw[] = [
   {
     path: "/officer-list-management",
     name: "officer-list-management",
-    component: () => import("@/views/backend/OfficerListManagementView.vue"),
+    component: () => import("@/views/backend/systemManagement/officerList/OfficerListManagementView.vue"),
     meta: {
       sidebar: {
         section: "系統管理",

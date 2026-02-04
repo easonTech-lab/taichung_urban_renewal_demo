@@ -70,20 +70,13 @@ import Table, { type TableColumn } from "@/components/atoms/Table.vue";
 import Dropdown, { type DropdownItem } from "@/components/atoms/Dropdown.vue";
 import ButtonDropdown, { type ButtonDropdownItem } from "@/components/atoms/ButtonDropdown.vue";
 import CheckboxDropdown, { type CheckboxDropdownItem } from "@/components/atoms/CheckboxDropdown.vue";
+import type { CaseItem } from "@/types/backend/caseManagement/urbanRenewal/caseManagement.d";
 
 const router = useRouter();
 const route = useRoute();
 
 // 判斷是否為管理員模式（根據路由名稱）
 const isAdmin = computed(() => route.name === "case-management-admin");
-
-interface CaseItem {
-  caseNumber: string;
-  caseName: string;
-  caseCategory: string;
-  caseStage: string;
-  caseStatus: "進行中" | "已中斷" | "已完成";
-}
 
 // Filter Options
 const stageOptions: CheckboxDropdownItem[] = [

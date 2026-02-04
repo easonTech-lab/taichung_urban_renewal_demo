@@ -425,18 +425,15 @@ import ButtonCTA from "@/components/atoms/ButtonCTA.vue";
 import Toast from "@/components/atoms/Toast.vue";
 import Modal from "@/components/atoms/Modal.vue";
 import { useTablePagination } from "@/composables/useTablePagination";
-
-interface ProgressStage {
-  name: string;
-  status: "completed" | "current" | "pending";
-  statusText: string;
-  reviewDate: string;
-  reviewTime: string;
-  hasDetails: boolean;
-  hasSubStages: boolean;
-  isExpanded: boolean;
-  subStages?: StepperStep[];
-}
+import type {
+  ComplaintRow,
+  ComplaintSection,
+  DrawerMode,
+  OfficerItem,
+  OfficerTableRow,
+  ProgressStage,
+  ProjectFile,
+} from "@/types/backend/caseManagement/common/caseDetail.d";
 
 const tabs = computed(() => {
   if (isAdminUser.value) {
@@ -460,7 +457,6 @@ const activeTabIndex = computed(() => {
   return index === -1 ? 0 : index;
 });
 const isDrawerOpen = ref(false);
-type DrawerMode = "officerList" | "editInfo";
 const drawerMode = ref<DrawerMode>("officerList");
 const drawerTitle = computed(() => (drawerMode.value === "officerList" ? "編輯幹事名單" : "編輯案件資訊"));
 const isAdminUser = computed(() => {
@@ -642,16 +638,6 @@ const handleViewDetails = (index: number) => {
   // TODO: Navigate to details page or show modal
 };
 
-interface ComplaintRow {
-  title: string;
-  uploadedAt: string;
-}
-
-interface ComplaintSection {
-  title: string;
-  rows: ComplaintRow[];
-}
-
 const complaintSections = ref<ComplaintSection[]>([
   {
     title: "書面受理資料",
@@ -727,15 +713,6 @@ const complaintTableColumns: TableColumn[] = [
 ];
 
 // Project Files Tab Data
-interface ProjectFile {
-  fileName: string;
-  uploadTime: string;
-  caseStage: string;
-  fileCategory: string;
-  uploaderType: "全部" | "申請人" | "幹事" | "承辦";
-  fileSize: string;
-}
-
 const fileTabItems: TabItem[] = [{ label: "全部" }, { label: "申請人" }, { label: "幹事" }, { label: "承辦" }];
 const activeFileTab = ref(0);
 
@@ -953,17 +930,6 @@ const toastPositionStyle = computed(() => {
     minWidth: width,
   };
 });
-
-interface OfficerItem {
-  selectedOfficer: string;
-}
-
-interface OfficerTableRow {
-  name: string;
-  gender: string;
-  title: string;
-  background: string;
-}
 
 const officerList = ref<OfficerItem[]>(
   Array.from({ length: 5 }, () => ({
