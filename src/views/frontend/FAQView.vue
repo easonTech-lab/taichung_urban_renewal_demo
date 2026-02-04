@@ -233,17 +233,7 @@ import Empty from "@/components/atoms/Empty.vue";
 import Breadcrumb from "@/components/atoms/Breadcrumb.vue";
 import SearchInput from "@/components/atoms/SearchInput.vue";
 import FooterSection from "@/components/sections/global/FooterSection.vue";
-
-export interface FAQQuestion {
-  id: string;
-  title: string;
-  content: string;
-}
-
-export interface FAQCategory {
-  title: string;
-  questions: FAQQuestion[];
-}
+import type { FAQCategory, FAQQuestion } from "@/types/frontend/frontend.d";
 
 const faqCategories: FAQCategory[] = [
   {

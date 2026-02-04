@@ -1,0 +1,389 @@
+<template>
+  <div class="flex flex-col gap-10">
+    <div class="flex flex-col gap-10 rounded-lg bg-white p-6">
+      <div class="flex items-center gap-3">
+        <div class="h-7 w-1 rounded bg-primary-600"></div>
+        <h2 class="text-2xl font-medium leading-6 text-gray-900">案件基本資訊</h2>
+      </div>
+
+      <div class="flex flex-wrap gap-10">
+        <div class="flex min-w-[840px] flex-col gap-2 pl-5">
+          <p class="text-base font-medium text-gray-500">案件名稱</p>
+          <p class="text-lg text-gray-900">{{ caseInfo.name }}</p>
+        </div>
+        <div class="flex min-w-[280px] flex-col gap-2 pl-5">
+          <p class="text-base font-medium text-gray-500">案件編號</p>
+          <p class="text-lg text-gray-900">{{ caseInfo.number }}</p>
+        </div>
+        <div class="flex min-w-[280px] flex-col gap-2 pl-5">
+          <p class="text-base font-medium text-gray-500">申請日期</p>
+          <p class="text-lg text-gray-900">{{ caseInfo.applyDate }}</p>
+        </div>
+        <div class="flex min-w-[280px] flex-col gap-2 pl-5">
+          <p class="text-base font-medium text-gray-500">申請者姓名</p>
+          <p class="text-lg text-gray-900">{{ caseInfo.applicantName }}</p>
+        </div>
+        <div class="flex min-w-[280px] flex-col gap-2 pl-5">
+          <p class="text-base font-medium text-gray-500">聯絡電話</p>
+          <p class="text-lg text-gray-900">{{ caseInfo.phone }}</p>
+        </div>
+        <div class="flex min-w-[280px] flex-col gap-2 pl-5">
+          <p class="text-base font-medium text-gray-500">E-mail</p>
+          <p class="text-lg text-gray-900">{{ caseInfo.email }}</p>
+        </div>
+        <div class="flex min-w-[840px] flex-col gap-2 pl-5">
+          <p class="text-base font-medium text-gray-500">聯絡地址</p>
+          <p class="text-lg text-gray-900">{{ caseInfo.address }}</p>
+        </div>
+      </div>
+
+      <div class="flex gap-5">
+        <button
+          type="button"
+          class="flex h-[66px] flex-1 items-center justify-between gap-5 rounded-lg border border-gray-400 bg-white p-5 transition-colors hover:bg-gray-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
+          @click="handleCardClick('application-basic')"
+        >
+          <span class="text-lg font-bold leading-[1.3] text-gray-500">申請基本資料</span>
+          <div class="relative flex h-12 w-12 shrink-0 items-center justify-center">
+            <div class="absolute inset-0 rounded-full bg-blue-100"></div>
+            <Icon name="arrowRightOutline" :size="24" color="#1C64F2" class="relative z-10" />
+          </div>
+        </button>
+        <button
+          type="button"
+          class="flex h-[66px] flex-1 items-center justify-between gap-5 rounded-lg border border-gray-400 bg-white p-5 transition-colors hover:bg-gray-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
+          @click="handleCardClick('review-data')"
+        >
+          <span class="text-lg font-bold leading-[1.3] text-gray-500">都市更新審議資料表</span>
+          <div class="relative flex h-12 w-12 shrink-0 items-center justify-center">
+            <div class="absolute inset-0 rounded-full bg-blue-100"></div>
+            <Icon name="arrowRightOutline" :size="24" color="#1C64F2" class="relative z-10" />
+          </div>
+        </button>
+        <button
+          type="button"
+          class="flex h-[66px] flex-1 items-center justify-between gap-5 rounded-lg border border-gray-400 bg-white p-5 transition-colors hover:bg-gray-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
+          @click="handleCardClick('floor-area-ratio')"
+        >
+          <span class="text-lg font-bold leading-[1.3] text-gray-500">容積獎勵項目及額度</span>
+          <div class="relative flex h-12 w-12 shrink-0 items-center justify-center">
+            <div class="absolute inset-0 rounded-full bg-blue-100"></div>
+            <Icon name="arrowRightOutline" :size="24" color="#1C64F2" class="relative z-10" />
+          </div>
+        </button>
+      </div>
+    </div>
+
+    <div v-if="isAdminUser" class="flex flex-col gap-10 rounded-lg bg-white p-6">
+      <div class="flex items-center justify-between gap-3">
+        <div class="flex items-center gap-3">
+          <div class="h-7 w-1 rounded bg-primary-600"></div>
+          <h2 class="text-2xl font-medium leading-6 text-gray-900">審查幹事列表</h2>
+        </div>
+        <div class="flex items-center gap-3">
+          <ButtonCTA variant="outline" size="sm" left-icon="secretary" class="h-9 !min-w-0 px-3 py-2 text-sm" @click="handleImportOfficerList">管理名單</ButtonCTA>
+          <ButtonCTA variant="outline" size="sm" left-icon="download" class="h-9 !min-w-0 px-3 py-2 text-sm" @click="handleExportOfficerList">匯出名單</ButtonCTA>
+        </div>
+      </div>
+
+      <div class="rounded-lg border border-gray-300 bg-white">
+        <Table :columns="officerTableColumns" :rows="paginatedOfficerRows" :pagination="officerPagination" @page-change="handleOfficerPageChange">
+          <template #cell-index="{ rowIndex }">
+            <p class="text-base text-gray-500">{{ rowIndex + 1 }}</p>
+          </template>
+          <template #cell-name="{ row }">
+            <div class="flex flex-col gap-1">
+              <p class="text-base text-gray-900">{{ row.name }}</p>
+              <p class="text-base text-gray-500">{{ row.gender }}</p>
+            </div>
+          </template>
+          <template #cell-action="{ row }">
+            <div class="flex items-center gap-2">
+              <ButtonCTA variant="textPlain" size="sm" left-icon="profileCard" class="p-0" @click.stop="handleOfficerProfile(row as OfficerTableRow)" aria-label="查看委員資料"> </ButtonCTA>
+              <ButtonCTA variant="textPlain" size="sm" class="p-0 text-primary-600" @click.stop="handleOfficerRemove(row as OfficerTableRow)">移除</ButtonCTA>
+            </div>
+          </template>
+        </Table>
+      </div>
+    </div>
+  </div>
+
+  <Drawer v-model="isDrawerOpen" :title="drawerTitle" :width="drawerWidth" @close="handleDrawerClose">
+    <template #default>
+      <div v-if="drawerMode === 'officerList'" class="flex flex-col gap-0">
+        <div v-for="(officer, index) in localOfficerList" :key="index" class="flex items-center justify-between border-b border-gray-300 py-5">
+          <div class="flex flex-1 items-center gap-2">
+            <div class="flex w-5 items-center justify-center">
+              <span class="text-base font-normal leading-[1.25] text-gray-500">{{ index + 1 }}</span>
+            </div>
+            <InputDropdown
+              :button-text="officer.selectedOfficer || ''"
+              placeholder="選擇"
+              :items="getAvailableOfficersForIndex(index)"
+              required
+              :show-label="false"
+              @item-click="(item) => handleOfficerSelect(index, item)"
+            />
+          </div>
+          <div class="flex items-center px-3 py-4">
+            <ButtonCTA variant="textPlain" size="base" class="p-0" @click="handleRemoveOfficer(index)"> 移除 </ButtonCTA>
+          </div>
+        </div>
+        <div class="flex items-center justify-start border-b border-gray-300 py-5">
+          <ButtonCTA variant="outline" size="xl" class="w-full" left-icon="plus" @click="handleAddNewOfficer"> 新增委員 </ButtonCTA>
+        </div>
+      </div>
+      <div v-else class="flex flex-col gap-6">
+        <Input v-model="editForm.caseNumber" label="案件編號" required size="lg" />
+        <Input v-model="editForm.applyDate" label="申請日期" required size="lg" />
+        <Input v-model="editForm.applicantName" label="申請者姓名" required size="lg" />
+        <Input v-model="editForm.phone" label="聯絡電話" required size="lg" />
+        <Input v-model="editForm.address" label="聯絡地址" required size="lg" />
+        <Input v-model="editForm.email" label="E-mail" required size="lg" />
+      </div>
+    </template>
+    <template #footer>
+      <div v-if="drawerMode === 'officerList'" class="flex gap-4">
+        <ButtonCTA variant="outline" size="xl" class="w-[124px]" @click="handleCancel"> 取消 </ButtonCTA>
+        <ButtonCTA variant="primary" size="xl" class="w-[124px]" @click="handleSave"> 儲存 </ButtonCTA>
+      </div>
+      <div v-else class="flex gap-4">
+        <ButtonCTA variant="outline" size="xl" class="w-[124px]" @click="handleEditCancel"> 取消 </ButtonCTA>
+        <ButtonCTA variant="primary" size="xl" class="w-[124px]" @click="handleEditSave"> 儲存 </ButtonCTA>
+      </div>
+    </template>
+  </Drawer>
+
+  <div class="fixed bottom-6 z-[90]" :style="toastPositionStyle">
+    <Toast
+      v-model="showCancelToast"
+      message="有尚未儲存的修改"
+      :show-actions="true"
+      primary-label="暫存"
+      secondary-label="退出編輯"
+      :auto-close="false"
+      close-label="關閉提示"
+      @primary="handleToastDraft"
+      @secondary="handleToastExit"
+      @close="handleCloseToast"
+    />
+  </div>
+</template>
+
+<script setup lang="ts">
+import { ref, computed, watch } from "vue";
+import Icon from "@/components/atoms/Icon.vue";
+import Table, { type TableColumn } from "@/components/atoms/Table.vue";
+import ButtonCTA from "@/components/atoms/ButtonCTA.vue";
+import Drawer from "@/components/atoms/Drawer.vue";
+import InputDropdown, { type InputDropdownItem } from "@/components/atoms/InputDropdown.vue";
+import Input from "@/components/atoms/Input.vue";
+import Toast from "@/components/atoms/Toast.vue";
+import { useTablePagination } from "@/composables/useTablePagination";
+import type { DrawerMode, OfficerItem, OfficerTableRow } from "@/types/backend/caseManagement/common/caseDetail.d";
+
+const props = defineProps<{
+  isAdminUser: boolean;
+  caseInfo: {
+    name: string;
+    number: string;
+    applyDate: string;
+    applicantName: string;
+    phone: string;
+    email: string;
+    address: string;
+  };
+  officerTableRows: OfficerTableRow[];
+  officerList: OfficerItem[];
+}>();
+
+const emit = defineEmits<{
+  "save-officer-list": [items: OfficerItem[]];
+  "request-remove-officer": [row: OfficerTableRow];
+}>();
+
+const isDrawerOpen = ref(false);
+const drawerMode = ref<DrawerMode>("officerList");
+const drawerTitle = computed(() => (drawerMode.value === "officerList" ? "編輯幹事名單" : "編輯案件資訊"));
+const drawerWidth = ref<"sm" | "md" | "lg" | "xl">("xl");
+const drawerWidthPx = computed(() => {
+  const widths: Record<"sm" | "md" | "lg" | "xl", number> = {
+    sm: 256,
+    md: 320,
+    lg: 384,
+    xl: 460,
+  };
+  return widths[drawerWidth.value];
+});
+const toastPositionStyle = computed(() => {
+  if (!isDrawerOpen.value) {
+    return {
+      left: "50%",
+      transform: "translateX(-50%)",
+      width: "min(900px, calc(100vw - 2rem))",
+      maxWidth: "min(900px, calc(100vw - 2rem))",
+      minWidth: "min(900px, calc(100vw - 2rem))",
+    };
+  }
+  const width = `min(900px, calc(100vw - ${drawerWidthPx.value}px - 2rem))`;
+  return {
+    left: `max(1rem, calc((100vw - ${drawerWidthPx.value}px) / 2))`,
+    transform: "translateX(-50%)",
+    width,
+    maxWidth: width,
+    minWidth: width,
+  };
+});
+
+const handleCardClick = (cardType: string) => {
+  console.log("Card clicked:", cardType);
+  // TODO: Navigate to respective pages
+};
+
+const officerTableColumns: TableColumn[] = [
+  { key: "index", label: "項次", headerClass: "w-[60px]", cellClass: "w-[60px]" },
+  { key: "name", label: "委員姓名", headerClass: "w-[140px]", cellClass: "w-[140px]" },
+  { key: "title", label: "現職", headerClass: "w-[220px]", cellClass: "w-[220px]" },
+  { key: "background", label: "學經歷" },
+  { key: "action", label: "動作", headerClass: "w-[120px]", cellClass: "w-[120px]" },
+];
+
+const {
+  paginatedRows: paginatedOfficerRows,
+  pagination: officerPagination,
+  handlePageChange: handleOfficerPageChange,
+} = useTablePagination({
+  rows: computed(() => props.officerTableRows),
+  pageSize: 10,
+});
+
+const localOfficerList = ref<OfficerItem[]>(props.officerList.map((item) => ({ ...item })));
+const originalOfficerList = ref<OfficerItem[]>([]);
+const toastContext = ref<"officerList" | "editInfo">("editInfo");
+const showCancelToast = ref(false);
+const hasOfficerChanges = computed(() => JSON.stringify(localOfficerList.value) !== JSON.stringify(originalOfficerList.value));
+
+const allAvailableOfficers: InputDropdownItem[] = [
+  { label: "陳傑瑞" },
+  { label: "張森" },
+  { label: "吳偉翔" },
+  { label: "林美華" },
+  { label: "王小明" },
+  { label: "李大同" },
+];
+
+const editForm = ref({
+  caseNumber: "abc13456788999",
+  applyDate: "114/10/20",
+  applicantName: "陳傑瑞",
+  phone: "0933123123",
+  address: "台中市文心路二段588號",
+  email: "abc@gmail.com",
+});
+
+const getAvailableOfficersForIndex = (index: number) => {
+  const selectedOfficers = localOfficerList.value.map((o, i) => (i !== index ? o.selectedOfficer : "")).filter((o) => o !== "");
+  return allAvailableOfficers.filter((officer) => !selectedOfficers.includes(officer.label));
+};
+
+const openOfficerListDrawer = () => {
+  drawerMode.value = "officerList";
+  localOfficerList.value = props.officerList.map((item) => ({ ...item }));
+  originalOfficerList.value = localOfficerList.value.map((item) => ({ ...item }));
+  isDrawerOpen.value = true;
+};
+
+const handleImportOfficerList = () => {
+  localOfficerList.value = props.officerTableRows.map((row) => ({
+    selectedOfficer: row.name,
+  }));
+  originalOfficerList.value = localOfficerList.value.map((item) => ({ ...item }));
+  drawerMode.value = "officerList";
+  isDrawerOpen.value = true;
+};
+
+const handleExportOfficerList = () => {
+  console.log("Export officer list");
+};
+
+const handleDrawerClose = () => {
+  isDrawerOpen.value = false;
+};
+
+const handleOfficerSelect = (index: number, item: InputDropdownItem) => {
+  localOfficerList.value[index].selectedOfficer = item.label;
+};
+
+const handleRemoveOfficer = (index: number) => {
+  localOfficerList.value[index].selectedOfficer = "";
+};
+
+const handleAddNewOfficer = () => {
+  localOfficerList.value.push({
+    selectedOfficer: "",
+  });
+};
+
+const handleCancel = () => {
+  if (hasOfficerChanges.value) {
+    toastContext.value = "officerList";
+    showCancelToast.value = true;
+    return;
+  }
+  isDrawerOpen.value = false;
+};
+
+const handleSave = () => {
+  emit("save-officer-list", localOfficerList.value.map((item) => ({ ...item })));
+  originalOfficerList.value = localOfficerList.value.map((item) => ({ ...item }));
+  isDrawerOpen.value = false;
+};
+
+const handleEditCancel = () => {
+  toastContext.value = "editInfo";
+  showCancelToast.value = true;
+};
+
+const handleEditSave = () => {
+  console.log("Save case info:", editForm.value);
+  isDrawerOpen.value = false;
+};
+
+const handleCloseToast = () => {
+  showCancelToast.value = false;
+};
+
+const handleToastExit = () => {
+  handleCloseToast();
+  isDrawerOpen.value = false;
+};
+
+const handleToastDraft = () => {
+  handleCloseToast();
+  if (toastContext.value === "officerList") {
+    handleSave();
+  } else {
+    handleEditSave();
+  }
+};
+
+const handleOfficerProfile = (row: OfficerTableRow) => {
+  console.log("Open officer profile:", row);
+};
+
+const handleOfficerRemove = (row: OfficerTableRow) => {
+  emit("request-remove-officer", row);
+};
+
+watch(
+  () => props.officerList,
+  (value) => {
+    localOfficerList.value = value.map((item) => ({ ...item }));
+  },
+  { deep: true }
+);
+
+defineExpose({
+  openOfficerListDrawer,
+});
+</script>

@@ -6,7 +6,7 @@
       :id="modalId"
       tabindex="-1"
       aria-hidden="true"
-      class="fixed inset-0 z-[80] flex min-h-screen w-screen items-center justify-center overflow-y-auto overflow-x-hidden p-4"
+      class="fixed inset-0 z-[100] flex min-h-screen w-screen items-center justify-center overflow-y-auto overflow-x-hidden p-4"
       :class="backdropClass"
       @click.self="handleBackdropClick"
     >

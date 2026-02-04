@@ -64,16 +64,7 @@ import Tabs, { type TabItem } from "@/components/atoms/Tabs.vue";
 import Table, { type TableColumn } from "@/components/atoms/Table.vue";
 import Dropdown, { type DropdownItem } from "@/components/atoms/Dropdown.vue";
 import DateRangePicker, { type DateRange } from "@/components/atoms/DateRangePicker.vue";
-
-// Types
-interface MeetingItem {
-  id: number;
-  agenda: string;
-  stage: string;
-  date: string;
-  fileUrl: string;
-  category: "all" | "urban-renewal" | "dangerous";
-}
+import type { MeetingItem } from "@/types/frontend/frontend.d";
 
 // Props
 const props = withDefaults(

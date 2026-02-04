@@ -50,6 +50,7 @@ import SearchInput from "@/components/atoms/SearchInput.vue";
 import FooterSection from "@/components/sections/global/FooterSection.vue";
 import Table, { type TableColumn } from "@/components/atoms/Table.vue";
 import Dropdown, { type DropdownItem } from "@/components/atoms/Dropdown.vue";
+import type { DownloadItem } from "@/types/frontend/frontend.d";
 // Props
 const props = withDefaults(
   defineProps<{
@@ -61,13 +62,6 @@ const props = withDefaults(
 );
 
 // 模擬資料
-interface DownloadItem {
-  fileName: string;
-  category: string;
-  publishDate: string;
-  fileUrl?: string;
-}
-
 const mockData: DownloadItem[] = [
   {
     fileName: "修正臺中市都市更新事業計畫及權利變換計畫核定後申請變更之審議層級簡化處理方式",

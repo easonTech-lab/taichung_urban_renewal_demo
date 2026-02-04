@@ -39,6 +39,28 @@ const getCaseDetailBreadcrumbItems = (route: any) => {
   ];
 };
 
+const getCaseStageDetailBreadcrumbItems = (route: any) => {
+  const fromRoute = route.query?.from as string | undefined;
+  const isFromAdmin = fromRoute?.includes("-admin") || route.query?.admin === "true" || isAdminUser();
+  const stageName = (route.query?.stage as string | undefined) || "階段詳細資料";
+  if (isFromAdmin) {
+    return [
+      { label: "首頁", to: "/" },
+      { label: "案件管理" },
+      { label: "都市更新案件管理", to: "/case-management-admin" },
+      { label: "案件進度" },
+      { label: stageName },
+    ];
+  }
+  return [
+    { label: "首頁", to: "/" },
+    { label: "我的案件" },
+    { label: "都市更新案件", to: "/case-management" },
+    { label: "案件進度" },
+    { label: stageName },
+  ];
+};
+
 // 導出路由配置，供組件使用
 export const routes: RouteRecordRaw[] = [
   {
@@ -204,6 +226,14 @@ export const routes: RouteRecordRaw[] = [
     component: () => import("@/views/backend/caseManagement/common/CaseDetailView.vue"),
     meta: {
       breadcrumb: getCaseDetailBreadcrumbItems,
+    },
+  },
+  {
+    path: "/case-stage-detail",
+    name: "case-stage-detail",
+    component: () => import("@/views/backend/caseManagement/common/CaseStageDetailView.vue"),
+    meta: {
+      breadcrumb: getCaseStageDetailBreadcrumbItems,
     },
   },
   {

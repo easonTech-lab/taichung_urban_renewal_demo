@@ -62,18 +62,12 @@ import Breadcrumb from "@/components/atoms/Breadcrumb.vue";
 import FooterSection from "@/components/sections/global/FooterSection.vue";
 import Table, { type TableColumn } from "@/components/atoms/Table.vue";
 import InputDropdown, { type InputDropdownItem } from "@/components/atoms/InputDropdown.vue";
+import type { NewsItem } from "@/types/frontend/frontend.d";
 
 
 const router = useRouter();
 
 // 模擬資料
-interface NewsItem {
-  id: number;
-  title: string;
-  category: string;
-  publishDate: string;
-}
-
 const mockData: NewsItem[] = [
   {
     id: 1,
