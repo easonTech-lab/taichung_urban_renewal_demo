@@ -59,7 +59,7 @@
       </div>
       <div class="flex items-center justify-center gap-4">
         <ButtonCTA variant="outline" size="l" @click="handleSaveDraft">暫存</ButtonCTA>
-        <ButtonCTA variant="primary" size="l" @click="handlePublish">發布</ButtonCTA>
+        <ButtonCTA variant="primary" size="l" :disabled="isPublishDisabled" @click="handlePublish">發布</ButtonCTA>
       </div>
     </div>
   </div>
@@ -76,23 +76,25 @@ import RadioGroup from "@/components/atoms/RadioGroup.vue";
 import Breadcrumb from "@/components/atoms/Breadcrumb.vue";
 import RichTextEditor from "@/components/atoms/RichTextEditor.vue";
 import SidebarSection from "@/components/sections/backend/SidebarSection.vue";
+import type { FaqFormData } from "@/types/backend/homepageMaintenance/faqManagement.d";
 
 const router = useRouter();
 const route = useRoute();
 
 const isEditMode = computed(() => route.query.edit === "true");
 
-interface FormData {
-  title: string;
-  category: string;
-  answer: string;
-}
-
-const formData = ref<FormData>({
+const formData = ref<FaqFormData>({
   title: "",
   category: "",
   answer: "",
 });
+
+const getPlainTextLength = (html: string): number => {
+  if (!html) return 0;
+  const tempDiv = document.createElement("div");
+  tempDiv.innerHTML = html;
+  return tempDiv.textContent?.length || 0;
+};
 
 const categoryOptions = ref([
   { label: "我適合哪種重建方式？", value: "reconstruction-type" },
@@ -103,6 +105,11 @@ const categoryOptions = ref([
 const showNewCategory = ref(false);
 const newCategoryName = ref("");
 const isNewCategoryValid = computed(() => newCategoryName.value.trim().length > 0);
+const isPublishDisabled = computed(() => {
+  if (!formData.value.title.trim()) return true;
+  if (!formData.value.category) return true;
+  return getPlainTextLength(formData.value.answer) === 0;
+});
 
 const handleSidebarItemSelect = (itemName: string) => {
   // Handle sidebar item selection
@@ -147,14 +154,6 @@ const handlePublish = () => {
       msg: isEditMode.value ? "儲存成功" : "新增成功",
     },
   });
-};
-
-// Get plain text length from HTML
-const getPlainTextLength = (html: string): number => {
-  if (!html) return 0;
-  const tempDiv = document.createElement("div");
-  tempDiv.innerHTML = html;
-  return tempDiv.textContent?.length || 0;
 };
 
 const normalizeCategoryValue = (label: string) => {

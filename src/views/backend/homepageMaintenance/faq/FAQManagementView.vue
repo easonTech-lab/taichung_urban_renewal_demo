@@ -4,40 +4,34 @@
     <div class="flex flex-1 flex-col gap-10 p-4 sm:ml-[328px] sm:p-10">
       <div class="flex flex-col gap-6">
         <Breadcrumb />
-        <h1 class="text-3xl font-bold leading-[30px] text-gray-900">下載專區維護</h1>
+        <h1 class="text-3xl font-bold leading-[30px] text-gray-900">常見問題維護</h1>
       </div>
       <div class="flex flex-col gap-4 rounded-lg bg-white p-6 shadow-sm">
         <div class="flex items-center justify-between">
           <div class="flex items-center gap-3">
             <div class="h-7 w-1 rounded bg-primary-600"></div>
-            <h2 class="text-2xl font-medium leading-6 text-gray-900">下載專區列表</h2>
+            <h2 class="text-2xl font-medium leading-6 text-gray-900">常見問題列表</h2>
           </div>
-          <ButtonCTA variant="outline" size="sm" left-icon="plus" @click="handleAddDownload"> 新增資料下載 </ButtonCTA>
+          <ButtonCTA variant="outline" size="sm" left-icon="plus" @click="handleAddQuestion"> 新增問題 </ButtonCTA>
         </div>
         <div class="flex flex-col gap-4">
           <Tabs :items="tabItems" :model-value="activeTab" @tab-click="handleTabClick" />
         </div>
-        <div class="w-[160px]">
-          <Dropdown :button-text="selectedCategory" placeholder="全部案件類別" :items="categoryOptions" @item-click="handleCategoryChange" />
-        </div>
         <div class="rounded-lg border border-gray-300 bg-white">
           <Table
             :columns="tableColumns"
-            :rows="paginatedDownloads"
+            :rows="paginatedFAQs"
             :pagination="pagination"
             :row-clickable="true"
             @row-click="handleRowClick"
             @page-change="handlePageChange"
           >
-            <template #cell-index="{ rowIndex }">
-              <p class="text-base text-gray-500">{{ (currentPage - 1) * pageSize + rowIndex + 1 }}</p>
-            </template>
             <template #cell-status="{ row }">
               <Switch :model-value="row.status" :show-text="true" on-text="上架" off-text="下架" @update:model-value="(value) => handleStatusChange(row, value)" />
             </template>
             <template #cell-action="{ row }">
               <div class="flex items-center gap-2">
-                <ButtonCTA variant="textPlain" size="sm" @click.stop="handlePreview(row)">預覽</ButtonCTA>
+                <ButtonCTA variant="textPlain" size="sm" @click.stop="handlePreview(row)"> 預覽 </ButtonCTA>
                 <ButtonCTA variant="text" size="sm" icon-only left-icon="trashCan" @click.stop="handleDelete(row)" aria-label="刪除" />
               </div>
             </template>
@@ -86,14 +80,14 @@
             class="h-8 w-[120px] bg-red-700 px-3 py-2 text-sm font-medium leading-[1.5] text-white hover:bg-red-800"
             @click="handleConfirmDelete"
           >
-            刪除
+            確認
           </ButtonCTA>
         </div>
       </template>
     </Modal>
 
-    <div class="fixed bottom-6 z-[90]" :style="deleteToastStyle">
-      <Toast v-model="showDeleteToast" :message="toastMessage" :show-actions="false" :show-close="false" :auto-close="true">
+    <div class="fixed bottom-6 z-[90]" :style="toastStyle">
+      <Toast v-model="showSuccessToast" :message="toastMessage" :show-actions="false" :show-close="false" :auto-close="true">
         <template #icon>
           <Icon name="check" :size="24" class="text-gray-50" aria-hidden="true" />
         </template>
@@ -103,29 +97,19 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, onMounted } from "vue";
+import { ref, computed, onMounted, watch } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import { useTablePagination } from "@/composables/useTablePagination";
 import Tabs from "@/components/atoms/Tabs.vue";
+import Icon from "@/components/atoms/Icon.vue";
+import Modal from "@/components/atoms/Modal.vue";
+import Toast from "@/components/atoms/Toast.vue";
 import Switch from "@/components/atoms/Switch.vue";
-import Dropdown from "@/components/atoms/Dropdown.vue";
 import ButtonCTA from "@/components/atoms/ButtonCTA.vue";
 import Breadcrumb from "@/components/atoms/Breadcrumb.vue";
 import SidebarSection from "@/components/sections/backend/SidebarSection.vue";
 import Table, { type TableColumn } from "@/components/atoms/Table.vue";
-import Modal from "@/components/atoms/Modal.vue";
-import Toast from "@/components/atoms/Toast.vue";
-import Icon from "@/components/atoms/Icon.vue";
-
-
-
-interface DownloadItem {
-  fileName: string;
-  category: string;
-  publishDate: string;
-  status: boolean; // true = 上架, false = 下架
-  tabStatus: "all" | "published" | "draft" | "unpublished";
-}
+import type { FaqItem } from "@/types/backend/homepageMaintenance/faqManagement.d";
 
 // Tabs
 const tabItems = [{ label: "全部" }, { label: "已上架" }, { label: "暫存中" }, { label: "已下架" }];
@@ -134,12 +118,9 @@ const activeTab = ref<number>(0);
 
 // State
 const pageSize = ref<number>(10);
-const selectedCategory = ref<string>("");
-const showDeleteModal = ref(false);
-const deleteTarget = ref<DownloadItem | null>(null);
-const showDeleteToast = ref(false);
+const showSuccessToast = ref(false);
 const toastMessage = ref("新增成功");
-const deleteToastStyle = {
+const toastStyle = {
   left: "50%",
   transform: "translateX(-50%)",
   width: "min(1420px, calc(100vw - 2rem))",
@@ -147,60 +128,52 @@ const deleteToastStyle = {
   minWidth: "min(1420px, calc(100vw - 2rem))",
 };
 
-// Category Options
-const categoryOptions = [
-  { label: "全部案件類別", value: "" },
-  { label: "都市更新類", value: "都市更新類" },
-  { label: "危老類", value: "危老類" },
-  { label: "老舊街區", value: "老舊街區" },
-  { label: "整建維護", value: "整建維護" },
-];
-
-const handleCategoryChange = (item: { label: string; value?: string }) => {
-  selectedCategory.value = item.value || "";
-  resetPage();
-};
-
 // Mock Data (使用 ref 使其響應式)
-const allDownloads = ref<DownloadItem[]>([
+const allFAQs = ref<FaqItem[]>([
   {
-    fileName: "都市更新申請書範本（含事業計畫書、概要書）",
-    category: "都市更新類",
+    index: 1,
+    question: "都更、危老、整建維護差在哪？",
+    category: "我適合哪種重建方式？",
     publishDate: "114/11/09",
     status: true,
     tabStatus: "published",
   },
   {
-    fileName: "結構安全性初評申請表",
-    category: "危老類",
+    index: 2,
+    question: "房子幾歲了才算老？該選哪一種方式？",
+    category: "我適合哪種重建方式？",
     publishDate: "114/10/30",
     status: false,
     tabStatus: "unpublished",
   },
   {
-    fileName: "老街區認定與補助條件說明文件",
-    category: "老舊街區",
+    index: 3,
+    question: "需要準備什麼資料、文件？",
+    category: "要怎麼申請？需要準備什麼？",
     publishDate: "114/10/30",
     status: false,
     tabStatus: "unpublished",
   },
   {
-    fileName: "整建維護補助申請表",
-    category: "整建維護",
+    index: 4,
+    question: "同意比例要多少才可以啟動？",
+    category: "要怎麼申請？需要準備什麼？",
     publishDate: "114/10/12",
     status: false,
     tabStatus: "unpublished",
   },
   {
-    fileName: "同意書格式範例（住戶簽署用）",
-    category: "都市更新類",
+    index: 5,
+    question: "危老可以拿到多少容積獎勵？",
+    category: "有什麼補助或政府協助？",
     publishDate: "114/10/12",
     status: false,
     tabStatus: "unpublished",
   },
   {
-    fileName: "全體同意書格式（危老專用）",
-    category: "危老類",
+    index: 6,
+    question: "有沒有免費顧問或推動師可協助？",
+    category: "有什麼補助或政府協助？",
     publishDate: "114/10/12",
     status: false,
     tabStatus: "unpublished",
@@ -216,14 +189,14 @@ const tableColumns: TableColumn[] = [
     cellClass: "w-[60px]",
   },
   {
-    key: "fileName",
+    key: "question",
     label: "問題",
   },
   {
     key: "category",
-    label: "案件類別",
-    headerClass: "w-[200px]",
-    cellClass: "w-[200px]",
+    label: "類別",
+    headerClass: "w-[240px]",
+    cellClass: "w-[240px]",
   },
   {
     key: "publishDate",
@@ -244,34 +217,28 @@ const tableColumns: TableColumn[] = [
   },
 ];
 
-// Filtered Downloads
-const filteredDownloads = computed(() => {
-  let downloads = [...allDownloads.value];
-
-  // Filter by category
-  if (selectedCategory.value) {
-    downloads = downloads.filter((item) => item.category === selectedCategory.value);
-  }
+// Filtered FAQs
+const filteredFAQs = computed(() => {
+  let faqs = [...allFAQs.value];
 
   // Filter by tab
   if (activeTab.value === 1) {
     // 已上架
-    downloads = downloads.filter((item) => item.status === true);
+    faqs = faqs.filter((item) => item.status === true);
   } else if (activeTab.value === 2) {
     // 暫存中
-    downloads = downloads.filter((item) => item.tabStatus === "draft");
+    faqs = faqs.filter((item) => item.tabStatus === "draft");
   } else if (activeTab.value === 3) {
     // 已下架
-    downloads = downloads.filter((item) => item.status === false && item.tabStatus === "unpublished");
+    faqs = faqs.filter((item) => item.status === false && item.tabStatus === "unpublished");
   }
 
-  return downloads;
+  return faqs;
 });
 
-const { currentPage, paginatedRows: paginatedDownloads, pagination, handlePageChange, resetPage } = useTablePagination({
-  rows: filteredDownloads,
+const { paginatedRows: paginatedFAQs, pagination, handlePageChange, resetPage } = useTablePagination({
+  rows: filteredFAQs,
   pageSize,
-  slice: false,
 });
 
 // Event Handlers
@@ -286,40 +253,44 @@ const handleTabClick = (index: number, item: any, event?: Event) => {
 
 const router = useRouter();
 const route = useRoute();
+const showDeleteModal = ref(false);
+const deleteTarget = ref<FaqItem | null>(null);
 
-const handleAddDownload = () => {
-  router.push("/downloads-management/add");
+const handleAddQuestion = () => {
+  router.push("/faq-management/add");
 };
 
 const handleStatusChange = (row: Record<string, any>, value: boolean) => {
-  const item = row as DownloadItem;
+  const item = row as FaqItem;
   item.status = value;
   console.log("Status changed for:", item, "New status:", value);
   // TODO: Implement status change logic
 };
 
 const handlePreview = (row: Record<string, any>) => {
-  const item = row as DownloadItem;
+  const item = row as FaqItem;
   console.log("Preview clicked for:", item);
   // TODO: Implement preview logic
 };
 
-const handleDelete = (row: Record<string, any>) => {
-  const item = row as DownloadItem;
-  deleteTarget.value = item;
-  showDeleteModal.value = true;
-};
-
 const handleRowClick = (row: Record<string, any>) => {
-  const item = row as DownloadItem;
+  const item = row as FaqItem;
   router.push({
-    path: "/downloads-management/add",
+    path: "/faq-management/add",
     query: {
       edit: "true",
-      title: item.fileName,
+      title: item.question,
       category: item.category,
+      answer: "",
     },
   });
+};
+
+const handleDelete = (row: Record<string, any>) => {
+  const item = row as FaqItem;
+  console.log("Delete clicked for:", item);
+  deleteTarget.value = item;
+  showDeleteModal.value = true;
 };
 
 const handleCloseDeleteModal = () => {
@@ -329,11 +300,11 @@ const handleCloseDeleteModal = () => {
 
 const handleConfirmDelete = () => {
   if (deleteTarget.value) {
-    allDownloads.value = allDownloads.value.filter((item) => item.fileName !== deleteTarget.value?.fileName);
+    allFAQs.value = allFAQs.value.filter((item) => item.index !== deleteTarget.value?.index);
   }
   handleCloseDeleteModal();
   toastMessage.value = "刪除成功";
-  showDeleteToast.value = true;
+  showSuccessToast.value = true;
 };
 
 const maybeShowReturnToast = () => {
@@ -341,7 +312,7 @@ const maybeShowReturnToast = () => {
   if (toastType !== "success") return;
   const msg = (route.query.msg as string | undefined) || "新增成功";
   toastMessage.value = msg;
-  showDeleteToast.value = true;
+  showSuccessToast.value = true;
   router.replace({ path: route.path, query: { ...route.query, toast: undefined, msg: undefined } });
 };
 

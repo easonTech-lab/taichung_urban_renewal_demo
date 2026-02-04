@@ -15,7 +15,7 @@
     v-else-if="variant === 'text' && (!href || disabled)"
     :type="type"
     :disabled="disabled"
-    class="inline-flex items-center gap-1 rounded-lg text-sm font-medium leading-normal text-primary-700 underline focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-600 focus-visible:ring-offset-2 disabled:cursor-not-allowed"
+    class="inline-flex items-center gap-1 rounded-lg text-sm font-medium leading-normal text-primary-700 underline focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-600 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:text-gray-500"
     :class="textButtonClasses"
     v-bind="$attrs"
   >
@@ -39,7 +39,7 @@
     v-else-if="variant === 'textPlain' && (!href || disabled)"
     :type="type"
     :disabled="disabled"
-    class="inline-flex items-center gap-1 rounded-lg text-sm font-medium leading-normal text-primary-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-600 focus-visible:ring-offset-2 disabled:cursor-not-allowed"
+    class="inline-flex items-center gap-1 rounded-lg text-sm font-medium leading-normal text-primary-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-600 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:text-gray-500"
     :class="textButtonClasses"
     v-bind="$attrs"
   >
@@ -82,7 +82,7 @@
 import { computed } from "vue";
 import Icon from "@/components/atoms/Icon.vue";
 
-type ColorVariant = "primary" | "dark" | "green" | "red" | "gray" | "white" | "alternative" | "alternativeDark";
+type ColorVariant = "primary" | "dark" | "green" | "red" | "gray" | "white" | "alternative" | "alternativeDark" | "red-outline";
 type SizeVariant = "xs" | "sm" | "base" | "l" | "xl";
 
 const props = withDefaults(
@@ -185,7 +185,7 @@ const buttonClasses = computed(() => {
   if (props.disabled) {
     return getDisabledClasses();
   }
-  if (props.variant === "outline" || props.outline) {
+  if (props.variant === "outline" || props.variant === "red-outline" || props.outline) {
     return getOutlineClasses();
   }
   return getSolidClasses();
@@ -219,7 +219,8 @@ const getOutlineClasses = () => {
     outline: "border-primary-700 text-primary-700 hover:bg-primary-50 focus-visible:ring-primary-600",
     dark: "border-gray-900 text-gray-900 hover:bg-gray-50 focus-visible:ring-gray-600",
     green: "border-green-500 text-green-500 hover:bg-green-50 focus-visible:ring-green-600",
-    red: "border-red-500 text-red-500 hover:bg-red-50 focus-visible:ring-red-600",
+    red: "border-red-600 text-red-600 bg-white hover:bg-red-50 focus-visible:ring-red-600",
+    "red-outline": "border-red-600 text-red-600 bg-white hover:bg-red-50 focus-visible:ring-red-600",
     gray: "border-gray-500 text-gray-500 hover:bg-gray-50 focus-visible:ring-gray-600",
     white: "border-white text-white hover:bg-white/10 focus-visible:ring-white",
     alternative: "border-indigo-600 text-indigo-600 hover:bg-indigo-50 focus-visible:ring-indigo-600",
@@ -230,18 +231,18 @@ const getOutlineClasses = () => {
 
 const getNoneClasses = () => {
   if (props.disabled) {
-    return "bg-transparent text-gray-400";
+    return "bg-transparent text-gray-500";
   }
   return "bg-transparent text-black hover:text-gray-700 focus-visible:ring-gray-600";
 };
 
 const getDisabledClasses = () => {
   if (props.variant === "none") {
-    return "bg-transparent text-gray-400";
+    return "bg-transparent text-gray-500";
   }
   if (props.outline) {
-    return "border-gray-300 text-gray-400 bg-transparent";
+    return "border-gray-500 text-white bg-gray-500";
   }
-  return "bg-gray-300 text-gray-500";
+  return "bg-gray-500 text-white";
 };
 </script>

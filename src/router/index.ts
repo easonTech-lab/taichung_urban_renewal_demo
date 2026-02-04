@@ -117,6 +117,15 @@ export const routes: RouteRecordRaw[] = [
     name: "case-management",
     component: () => import("@/views/backend/CaseManagementView.vue"),
     meta: {
+      sidebar: {
+        section: "我的案件",
+        icon: "case",
+        label: "都市更新案件",
+        roles: ["user"],
+        sectionOrder: 1,
+        order: 1,
+        defaultExpanded: true,
+      },
       breadcrumb: {
         label: "都市更新案件",
         parent: {
@@ -130,6 +139,15 @@ export const routes: RouteRecordRaw[] = [
     name: "case-management-admin",
     component: () => import("@/views/backend/CaseManagementView.vue"), // 使用同一個組件
     meta: {
+      sidebar: {
+        section: "案件管理",
+        icon: "case",
+        label: "都市更新案件管理",
+        roles: ["admin"],
+        sectionOrder: 1,
+        order: 1,
+        defaultExpanded: true,
+      },
       breadcrumb: {
         label: "都市更新案件管理",
         parent: {
@@ -143,6 +161,14 @@ export const routes: RouteRecordRaw[] = [
     name: "case-management-dangerous",
     component: () => import("@/views/backend/CaseManagementDangerousView.vue"),
     meta: {
+      sidebar: {
+        section: "我的案件",
+        icon: "case",
+        label: "危老重建案件",
+        roles: ["user"],
+        sectionOrder: 1,
+        order: 2,
+      },
       breadcrumb: {
         label: "危老重建案件",
         parent: {
@@ -156,6 +182,14 @@ export const routes: RouteRecordRaw[] = [
     name: "case-management-dangerous-admin",
     component: () => import("@/views/backend/CaseManagementDangerousView.vue"), // 使用同一個組件
     meta: {
+      sidebar: {
+        section: "案件管理",
+        icon: "case",
+        label: "危老重建案件管理",
+        roles: ["admin"],
+        sectionOrder: 1,
+        order: 2,
+      },
       breadcrumb: {
         label: "危老重建案件管理",
         parent: {
@@ -177,6 +211,24 @@ export const routes: RouteRecordRaw[] = [
     name: "profile",
     component: () => import("@/views/backend/ProfileView.vue"),
     meta: {
+      sidebar: [
+        {
+          section: "我的帳號",
+          icon: "userSettings",
+          label: "編輯個人資料",
+          roles: ["user"],
+          sectionOrder: 4,
+          order: 1,
+        },
+        {
+          section: "我的帳號",
+          icon: "userSettings",
+          label: "人員帳號管理",
+          roles: ["admin"],
+          sectionOrder: 4,
+          order: 1,
+        },
+      ],
       breadcrumb: getAccountBreadcrumbItems,
     },
   },
@@ -193,6 +245,14 @@ export const routes: RouteRecordRaw[] = [
     name: "data-analysis",
     component: () => import("@/views/backend/DataAnalysisView.vue"),
     meta: {
+      sidebar: {
+        section: "系統管理",
+        icon: "briefcase",
+        label: "數據分析",
+        roles: ["admin"],
+        sectionOrder: 3,
+        order: 3,
+      },
       breadcrumb: {
         label: "數據分析",
         parent: {
@@ -204,8 +264,17 @@ export const routes: RouteRecordRaw[] = [
   {
     path: "/case-statistics",
     name: "case-statistics",
-    component: () => import("@/views/backend/CaseStatisticsView.vue"),
+    component: () => import("@/views/backend/homepageMaintenance/caseStatistics/CaseStatisticsView.vue"),
     meta: {
+      sidebar: {
+        section: "首頁維護",
+        icon: "page",
+        label: "案件統計維護",
+        roles: ["admin"],
+        sectionOrder: 2,
+        order: 1,
+        defaultExpanded: true,
+      },
       breadcrumb: {
         label: "案件統計維護",
         parent: {
@@ -217,7 +286,7 @@ export const routes: RouteRecordRaw[] = [
   {
     path: "/case-statistics/add",
     name: "case-statistics-add",
-    component: () => import("@/views/backend/CaseStatisticsEditView.vue"),
+    component: () => import("@/views/backend/homepageMaintenance/caseStatistics/CaseStatisticsEditView.vue"),
     meta: {
       breadcrumb: {
         label: "案件統計維護", // 顯示父路由的標籤，不顯示「新增年度」
@@ -230,7 +299,7 @@ export const routes: RouteRecordRaw[] = [
   {
     path: "/case-statistics/edit",
     name: "case-statistics-edit",
-    component: () => import("@/views/backend/CaseStatisticsEditView.vue"),
+    component: () => import("@/views/backend/homepageMaintenance/caseStatistics/CaseStatisticsEditView.vue"),
     meta: {
       breadcrumb: {
         label: "案件統計維護", // 顯示父路由的標籤，不顯示「編輯案件件數」
@@ -243,8 +312,16 @@ export const routes: RouteRecordRaw[] = [
   {
     path: "/faq-management",
     name: "faq-management",
-    component: () => import("@/views/backend/FAQManagementView.vue"),
+    component: () => import("@/views/backend/homepageMaintenance/faq/FAQManagementView.vue"),
     meta: {
+      sidebar: {
+        section: "首頁維護",
+        icon: "page",
+        label: "常見問題維護",
+        roles: ["admin"],
+        sectionOrder: 2,
+        order: 2,
+      },
       breadcrumb: {
         label: "常見問題維護",
         parent: {
@@ -256,7 +333,7 @@ export const routes: RouteRecordRaw[] = [
   {
     path: "/faq-management/add",
     name: "faq-management-add",
-    component: () => import("@/views/backend/FAQAddView.vue"),
+    component: () => import("@/views/backend/homepageMaintenance/faq/FAQAddView.vue"),
     meta: {
       breadcrumb: {
         label: "常見問題維護",
@@ -269,8 +346,16 @@ export const routes: RouteRecordRaw[] = [
   {
     path: "/downloads-management",
     name: "downloads-management",
-    component: () => import("@/views/backend/DownloadsManagementView.vue"),
+    component: () => import("@/views/backend/homepageMaintenance/downloads/DownloadsManagementView.vue"),
     meta: {
+      sidebar: {
+        section: "首頁維護",
+        icon: "page",
+        label: "下載專區維護",
+        roles: ["admin"],
+        sectionOrder: 2,
+        order: 3,
+      },
       breadcrumb: {
         label: "下載專區維護",
         parent: {
@@ -282,7 +367,7 @@ export const routes: RouteRecordRaw[] = [
   {
     path: "/downloads-management/add",
     name: "downloads-management-add",
-    component: () => import("@/views/backend/DownloadsAddView.vue"),
+    component: () => import("@/views/backend/homepageMaintenance/downloads/DownloadsAddView.vue"),
     meta: {
       breadcrumb: {
         label: "下載專區維護",
@@ -295,8 +380,16 @@ export const routes: RouteRecordRaw[] = [
   {
     path: "/public-message-management",
     name: "public-message-management",
-    component: () => import("@/views/backend/PublicMessageManagementView.vue"),
+    component: () => import("@/views/backend/homepageMaintenance/publicMessage/PublicMessageManagementView.vue"),
     meta: {
+      sidebar: {
+        section: "首頁維護",
+        icon: "page",
+        label: "公開消息維護",
+        roles: ["admin"],
+        sectionOrder: 2,
+        order: 4,
+      },
       breadcrumb: {
         label: "公開消息維護",
         parent: {
@@ -308,7 +401,7 @@ export const routes: RouteRecordRaw[] = [
   {
     path: "/public-message-management/add",
     name: "public-message-management-add",
-    component: () => import("@/views/backend/PublicMessageAddView.vue"),
+    component: () => import("@/views/backend/homepageMaintenance/publicMessage/PublicMessageAddView.vue"),
     meta: {
       breadcrumb: {
         label: "公開消息維護",
@@ -323,6 +416,14 @@ export const routes: RouteRecordRaw[] = [
     name: "internal-staff-account-management",
     component: () => import("@/views/backend/InternalStaffAccountManagementView.vue"),
     meta: {
+      sidebar: {
+        section: "系統管理",
+        icon: "briefcase",
+        label: "內部人員帳號管理",
+        roles: ["admin"],
+        sectionOrder: 3,
+        order: 1,
+      },
       breadcrumb: {
         label: "內部人員帳號管理",
         parent: {
@@ -350,6 +451,14 @@ export const routes: RouteRecordRaw[] = [
     name: "officer-list-management",
     component: () => import("@/views/backend/OfficerListManagementView.vue"),
     meta: {
+      sidebar: {
+        section: "系統管理",
+        icon: "briefcase",
+        label: "幹事名單管理",
+        roles: ["admin"],
+        sectionOrder: 3,
+        order: 2,
+      },
       breadcrumb: {
         label: "幹事名單管理",
         parent: {

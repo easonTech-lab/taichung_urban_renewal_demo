@@ -14,9 +14,14 @@
       </div>
       <div v-if="!isAuthPage && isLoggedIn" class="flex items-center gap-4">
         <div class="flex items-center gap-2">
-          <div class="flex h-8 w-8 items-center justify-center rounded-full bg-gray-100">
-            <span class="text-xs font-medium text-gray-900">{{ userInitial }}</span>
-          </div>
+          <AvatarDropdown
+            :avatar-text="userSurname"
+            :name="userName"
+            :email="userEmail"
+            :items="avatarItems"
+            align="left"
+            @item-click="handleAvatarItemClick"
+          />
           <span class="text-nowrap text-base font-normal leading-normal text-gray-900">{{ userName }}</span>
         </div>
         <div class="h-8 w-px bg-gray-200"></div>
@@ -34,6 +39,8 @@
 import { ref, computed, onMounted, onUnmounted, watch } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import ButtonCTA from "@/components/atoms/ButtonCTA.vue";
+import AvatarDropdown, { type AvatarDropdownItem } from "@/components/atoms/AvatarDropdown.vue";
+import { useSidebarMenuConfig } from "@/composables/useSidebarMenuConfig";
 import * as routerModule from "@/router/index";
 
 const router = useRouter();
@@ -96,7 +103,31 @@ const userName = computed(() => {
   return user.username === "adm" ? "陳傑瑞" : user.username;
 });
 
-const userInitial = computed(() => userName.value.charAt(0));
+const userEmail = computed(() => {
+  if (!userInfo.value) return "name@flowbite.com";
+  const user = JSON.parse(userInfo.value);
+  return user.email || "name@flowbite.com";
+});
+
+const userSurname = computed(() => userName.value.charAt(0));
+
+const isAdmin = computed(() => {
+  try {
+    if (!userInfo.value) return false;
+    const user = JSON.parse(userInfo.value);
+    return user.role === "admin";
+  } catch (error) {
+    console.error("Failed to parse userInfo from localStorage:", error);
+    return false;
+  }
+});
+
+const avatarItems = computed<AvatarDropdownItem[]>(() => {
+  return useSidebarMenuConfig(isAdmin.value).map((item) => ({
+    label: item.title,
+    icon: item.icon,
+  }));
+});
 
 const navLinkClass = computed(() => {
   return isLoggedIn.value
@@ -110,5 +141,14 @@ const handleLogout = () => {
   // 觸發自定義事件，通知其他組件
   window.dispatchEvent(new Event("login-status-changed"));
   router.push("/login");
+};
+
+const handleAvatarItemClick = (item: AvatarDropdownItem) => {
+  const config = useSidebarMenuConfig(isAdmin.value);
+  const match = config.find((menu) => menu.title === item.label);
+  const routeTarget = match?.subItems[0]?.route;
+  if (routeTarget && routeTarget !== "#") {
+    router.push(routeTarget);
+  }
 };
 </script>

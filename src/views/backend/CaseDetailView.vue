@@ -8,15 +8,18 @@
       <!-- Breadcrumb and Title -->
       <div class="flex flex-col gap-6">
         <Breadcrumb />
-        <div class="flex items-center gap-3">
-          <h1 class="max-w-[400px] truncate text-3xl font-bold leading-[30px] text-gray-900">擬訂臺中市豐原區三村段三小段20地號(等)3筆土地重建計畫案</h1>
-          <div
-            class="flex h-10 w-10 cursor-pointer items-center justify-center rounded-full border border-primary-500 bg-white hover:bg-gray-50"
-            @click="isDrawerOpen = true"
-            title="編輯幹事名單"
-          >
-            <Icon name="pencil" :size="24" color="#1C64F2" class="m-auto" />
+        <div class="flex items-center justify-between gap-6">
+          <div class="flex items-center gap-3">
+            <h1 class="max-w-[400px] truncate text-3xl font-bold leading-[30px] text-gray-900">擬訂臺中市豐原區三村段三小段20地號(等)3筆土地重建計畫案</h1>
+            <div
+              class="flex h-10 w-10 cursor-pointer items-center justify-center rounded-full border border-primary-500 bg-white hover:bg-gray-50"
+              @click="isDrawerOpen = true"
+              title="編輯幹事名單"
+            >
+              <Icon name="pencil" :size="24" color="#1C64F2" class="m-auto" />
+            </div>
           </div>
+          <ButtonCTA v-if="isAdminUser" variant="red-outline" size="l" class="flex items-center gap-2 !min-w-0" @click="handleDeleteCase">刪除案件</ButtonCTA>
         </div>
       </div>
 
@@ -34,14 +37,9 @@
           <!-- Case Basic Information Section -->
           <div class="flex flex-col gap-10 rounded-lg bg-white p-6">
             <!-- Section Title -->
-            <div class="flex items-center justify-between gap-3">
-              <div class="flex items-center gap-3">
-                <div class="h-7 w-1 rounded bg-primary-600"></div>
-                <h2 class="text-2xl font-medium leading-6 text-gray-900">案件基本資訊</h2>
-              </div>
-              <div>
-                <ButtonCTA v-if="isAdminUser" variant="outline" left-icon="editOutline" class="flex items-center gap-2" @click="openEditInfoDrawer">編輯內容</ButtonCTA>
-              </div>
+            <div class="flex items-center gap-3">
+              <div class="h-7 w-1 rounded bg-primary-600"></div>
+              <h2 class="text-2xl font-medium leading-6 text-gray-900">案件基本資訊</h2>
             </div>
 
             <!-- Information Grid -->
@@ -140,9 +138,24 @@
               <h2 class="text-2xl font-medium leading-6 text-gray-900">審查幹事列表</h2>
             </div>
 
-            <!-- Empty State -->
-            <div class="rounded-lg bg-white p-6">
-              <Empty type="case" message="尚未導入審查幹事名單" button-text="導入幹事名單" :show-button="true" @button-click="handleImportOfficerList" />
+            <div class="rounded-lg border border-gray-300 bg-white">
+              <Table :columns="officerTableColumns" :rows="paginatedOfficerRows" :pagination="officerPagination" @page-change="handleOfficerPageChange">
+                <template #cell-index="{ rowIndex }">
+                  <p class="text-base text-gray-500">{{ rowIndex + 1 }}</p>
+                </template>
+                <template #cell-name="{ row }">
+                  <div class="flex flex-col gap-1">
+                    <p class="text-base text-gray-900">{{ row.name }}</p>
+                    <p class="text-base text-gray-500">{{ row.gender }}</p>
+                  </div>
+                </template>
+                <template #cell-action="{ row }">
+                  <div class="flex items-center gap-2">
+                    <ButtonCTA variant="textPlain" size="sm" left-icon="profileCard" class="p-0" @click.stop="handleOfficerProfile(row)" aria-label="查看委員資料"> </ButtonCTA>
+                    <ButtonCTA variant="textPlain" size="sm" class="p-0 text-primary-600" @click.stop="handleOfficerRemove(row)">移除</ButtonCTA>
+                  </div>
+                </template>
+              </Table>
             </div>
           </div>
         </div>
@@ -407,7 +420,6 @@ import Dropdown, { type DropdownItem } from "@/components/atoms/Dropdown.vue";
 import InputDropdown, { type InputDropdownItem } from "@/components/atoms/InputDropdown.vue";
 import Input from "@/components/atoms/Input.vue";
 import Table, { type TableColumn } from "@/components/atoms/Table.vue";
-import Empty from "@/components/atoms/Empty.vue";
 import Drawer from "@/components/atoms/Drawer.vue";
 import ButtonCTA from "@/components/atoms/ButtonCTA.vue";
 import Toast from "@/components/atoms/Toast.vue";
@@ -491,6 +503,11 @@ const handleSidebarItemSelect = (itemName: string) => {
 const handleCardClick = (cardType: string) => {
   console.log("Card clicked:", cardType);
   // TODO: Navigate to respective pages
+};
+
+const handleDeleteCase = () => {
+  console.log("Delete case");
+  // TODO: Implement delete case logic
 };
 
 // Progress Stages Data
@@ -885,14 +902,16 @@ const handleComplaintUpload = (section: ComplaintSection) => {
   // TODO: Implement upload handler
 };
 
-const handleComplaintDownload = (row: ComplaintRow) => {
-  console.log("Download complaint file:", row);
+const handleComplaintDownload = (row: Record<string, any>) => {
+  const item = row as ComplaintRow;
+  console.log("Download complaint file:", item);
   // TODO: Implement download handler
 };
 
-const handleComplaintDelete = (row: ComplaintRow) => {
-  console.log("Delete complaint file:", row);
-  selectedComplaintRow.value = row;
+const handleComplaintDelete = (row: Record<string, any>) => {
+  const item = row as ComplaintRow;
+  console.log("Delete complaint file:", item);
+  selectedComplaintRow.value = item;
   showComplaintDeleteModal.value = true;
 };
 
@@ -939,11 +958,68 @@ interface OfficerItem {
   selectedOfficer: string;
 }
 
+interface OfficerTableRow {
+  name: string;
+  gender: string;
+  title: string;
+  background: string;
+}
+
 const officerList = ref<OfficerItem[]>(
   Array.from({ length: 5 }, () => ({
     selectedOfficer: "",
   }))
 );
+
+const officerTableColumns: TableColumn[] = [
+  { key: "index", label: "項次", headerClass: "w-[60px]", cellClass: "w-[60px]" },
+  { key: "name", label: "委員姓名", headerClass: "w-[140px]", cellClass: "w-[140px]" },
+  { key: "title", label: "現職", headerClass: "w-[220px]", cellClass: "w-[220px]" },
+  { key: "background", label: "學經歷" },
+  { key: "action", label: "動作", headerClass: "w-[120px]", cellClass: "w-[120px]" },
+];
+
+const officerTableRows = ref<OfficerTableRow[]>([
+  {
+    name: "張泓明",
+    gender: "男",
+    title: "內政部地政司代理司長",
+    background: "日本東京大學地震研究所 博士；銘傳大學都市規劃與防災學 碩士",
+  },
+  {
+    name: "林靖君",
+    gender: "女",
+    title: "專家委員",
+    background: "元智大學化學工程學系；美國奧克拉荷馬州州立大學環境工程碩士",
+  },
+  {
+    name: "郭依佳",
+    gender: "女",
+    title: "專家委員",
+    background: "元智大學化學工程學系；美國奧克拉荷馬州州立大學環境工程碩士",
+  },
+  {
+    name: "朱秀秋",
+    gender: "女",
+    title: "中山大學公共事務管理研究所教授兼管理學院副院長",
+    background: "美國北卡羅萊納州立大學景觀規劃博士",
+  },
+  {
+    name: "曾彰豪",
+    gender: "男",
+    title: "逢甲大學土地管理學系副教授",
+    background: "國立臺北大學都市計劃研究所博士",
+  },
+]);
+
+const {
+  paginatedRows: paginatedOfficerRows,
+  pagination: officerPagination,
+  handlePageChange: handleOfficerPageChange,
+} = useTablePagination({
+  rows: officerTableRows,
+  pageSize: 10,
+});
 
 const allAvailableOfficers: InputDropdownItem[] = [{ label: "陳傑瑞" }, { label: "張森" }, { label: "吳偉翔" }, { label: "林美華" }, { label: "王小明" }, { label: "李大同" }];
 
@@ -1010,6 +1086,16 @@ const handleToastExit = () => {
 const handleToastDraft = () => {
   handleCloseToast();
   handleEditSave();
+};
+
+const handleOfficerProfile = (row: Record<string, any>) => {
+  const officerRow = row as OfficerTableRow;
+  console.log("Open officer profile:", officerRow);
+};
+
+const handleOfficerRemove = (row: Record<string, any>) => {
+  const officerRow = row as OfficerTableRow;
+  console.log("Remove officer:", officerRow);
 };
 
 const showComplaintDeleteModal = ref(false);

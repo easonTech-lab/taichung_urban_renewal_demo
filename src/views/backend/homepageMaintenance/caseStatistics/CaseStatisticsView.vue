@@ -108,16 +108,8 @@ import SidebarSection from "@/components/sections/backend/SidebarSection.vue";
 import { useTablePagination } from "@/composables/useTablePagination";
 import Table, { type TableColumn } from "@/components/atoms/Table.vue";
 import Dropdown, { type DropdownItem } from "@/components/atoms/Dropdown.vue";
+import type { CaseStatisticsItem } from "@/types/backend/homepageMaintenance/caseStatistics.d";
 const router = useRouter();
-
-interface StatisticsItem {
-  index: number;
-  year: string;
-  caseCategory: string;
-  annualCount: number;
-  cumulativeCount: number;
-  growthRate: "成長" | "降低" | "持平";
-}
 
 // Tabs
 const tabItems = [
@@ -139,7 +131,7 @@ const selectedStartYear = ref<string>("");
 const selectedEndYear = ref<string>("");
 const pageSize = ref<number>(10);
 const showDeleteModal = ref(false);
-const pendingDeleteItem = ref<StatisticsItem | null>(null);
+const pendingDeleteItem = ref<CaseStatisticsItem | null>(null);
 const showDeleteToast = ref(false);
 const toastMessage = ref("刪除成功");
 const deleteToastStyle = {
@@ -151,7 +143,7 @@ const deleteToastStyle = {
 };
 
 // Mock Data
-const allStatistics: StatisticsItem[] = [
+const allStatistics: CaseStatisticsItem[] = [
   { index: 1, year: "114", caseCategory: "都更案件", annualCount: 103, cumulativeCount: 455, growthRate: "降低" },
   { index: 2, year: "114", caseCategory: "危老案件", annualCount: 55, cumulativeCount: 103, growthRate: "降低" },
   { index: 3, year: "113", caseCategory: "都更案件", annualCount: 98, cumulativeCount: 322, growthRate: "成長" },
@@ -278,7 +270,7 @@ const handleAddYear = () => {
 };
 
 const handleEdit = (row: Record<string, any>) => {
-  const item = row as StatisticsItem;
+  const item = row as CaseStatisticsItem;
   // 導航到編輯頁面，傳遞案件數據
   router.push({
     path: "/case-statistics/edit",
@@ -291,7 +283,7 @@ const handleEdit = (row: Record<string, any>) => {
 };
 
 const handleDelete = (row: Record<string, any>) => {
-  const item = row as StatisticsItem;
+  const item = row as CaseStatisticsItem;
   pendingDeleteItem.value = item;
   showDeleteModal.value = true;
 };

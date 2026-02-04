@@ -21,7 +21,14 @@
           <Dropdown :button-text="selectedCategory" placeholder="全部類別" :items="categoryOptions" @item-click="handleCategoryChange" />
         </div>
         <div class="rounded-lg border border-gray-300 bg-white">
-          <Table :columns="tableColumns" :rows="paginatedMessages" :pagination="pagination" @page-change="handlePageChange">
+          <Table
+            :columns="tableColumns"
+            :rows="paginatedMessages"
+            :pagination="pagination"
+            :row-clickable="true"
+            @row-click="handleRowClick"
+            @page-change="handlePageChange"
+          >
             <!-- Index -->
             <template #cell-index="{ rowIndex }">
               <p class="text-base text-gray-500">{{ (currentPage - 1) * pageSize + rowIndex + 1 }}</p>
@@ -41,12 +48,66 @@
         </div>
       </div>
     </div>
+
+    <Modal
+      v-model="showDeleteModal"
+      size="md"
+      :static="false"
+      :show-close-button="false"
+      close-action="emit"
+      backdrop-class="bg-gray-600/80"
+    >
+      <template #header>
+        <div class="flex w-full items-center justify-end px-4 pt-4">
+          <button type="button" class="flex h-6 w-6 items-center justify-center text-gray-400 hover:text-gray-500" @click="handleCloseDeleteModal" aria-label="關閉">
+            <Icon name="close" :size="20" aria-hidden="true" />
+          </button>
+        </div>
+      </template>
+      <template #body>
+        <div class="flex w-full flex-col items-center gap-4 px-6 py-5">
+          <div class="flex h-6 w-6 items-center justify-center rounded-full bg-gray-400 text-xs font-medium text-white">!</div>
+          <div class="w-[311px] text-center text-base font-normal leading-[1.5] text-gray-600">
+            <p class="mb-0">確認刪除此項目</p>
+            <p>內容將完全刪除無法復原</p>
+          </div>
+        </div>
+      </template>
+      <template #footer>
+        <div class="flex w-full items-center justify-center gap-4 px-6 pb-6 pt-0">
+          <ButtonCTA
+            variant="white"
+            size="xs"
+            class="h-8 w-[120px] border-gray-200 px-3 py-2 text-xs font-medium leading-[1.5] text-gray-800 hover:bg-gray-50"
+            @click="handleCloseDeleteModal"
+          >
+            取消
+          </ButtonCTA>
+          <ButtonCTA
+            variant="red"
+            size="xs"
+            class="h-8 w-[120px] bg-red-700 px-3 py-2 text-sm font-medium leading-[1.5] text-white hover:bg-red-800"
+            @click="handleConfirmDelete"
+          >
+            刪除
+          </ButtonCTA>
+        </div>
+      </template>
+    </Modal>
+
+    <div class="fixed bottom-6 z-[90]" :style="toastStyle">
+      <Toast v-model="showToast" :message="toastMessage" :show-actions="false" :show-close="false" :auto-close="true">
+        <template #icon>
+          <Icon name="check" :size="24" class="text-gray-50" aria-hidden="true" />
+        </template>
+      </Toast>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from "vue";
-import { useRouter } from "vue-router";
+import { ref, computed, onMounted, watch } from "vue";
+import { useRouter, useRoute } from "vue-router";
 import Tabs from "@/components/atoms/Tabs.vue";
 import Switch from "@/components/atoms/Switch.vue";
 import Dropdown from "@/components/atoms/Dropdown.vue";
@@ -55,14 +116,10 @@ import Breadcrumb from "@/components/atoms/Breadcrumb.vue";
 import SidebarSection from "@/components/sections/backend/SidebarSection.vue";
 import { useTablePagination } from "@/composables/useTablePagination";
 import Table, { type TableColumn } from "@/components/atoms/Table.vue";
-
-interface PublicMessageItem {
-  title: string;
-  category: string;
-  publishDate: string;
-  status: boolean; // true = 上架, false = 下架
-  tabStatus: "all" | "published" | "draft" | "unpublished";
-}
+import Modal from "@/components/atoms/Modal.vue";
+import Toast from "@/components/atoms/Toast.vue";
+import Icon from "@/components/atoms/Icon.vue";
+import type { PublicMessageItem } from "@/types/backend/homepageMaintenance/publicMessageManagement.d";
 
 // Tabs
 const tabItems = [{ label: "全部" }, { label: "已上架" }, { label: "暫存中" }, { label: "已下架" }];
@@ -71,6 +128,17 @@ const activeTab = ref<number>(0);
 // State
 const pageSize = ref<number>(10);
 const selectedCategory = ref<string>("");
+const showDeleteModal = ref(false);
+const deleteTarget = ref<PublicMessageItem | null>(null);
+const showToast = ref(false);
+const toastMessage = ref("新增成功");
+const toastStyle = {
+  left: "50%",
+  transform: "translateX(-50%)",
+  width: "min(1420px, calc(100vw - 2rem))",
+  maxWidth: "min(1420px, calc(100vw - 2rem))",
+  minWidth: "min(1420px, calc(100vw - 2rem))",
+};
 
 // Category Options
 const categoryOptions = [
@@ -209,9 +277,23 @@ const handleTabClick = (index: number, item: any, event?: Event) => {
 };
 
 const router = useRouter();
+const route = useRoute();
 
 const handleAddMessage = () => {
   router.push("/public-message-management/add");
+};
+
+const handleRowClick = (row: Record<string, any>) => {
+  const item = row as PublicMessageItem;
+  router.push({
+    path: "/public-message-management/add",
+    query: {
+      edit: "true",
+      title: item.title,
+      category: item.category,
+      content: "",
+    },
+  });
 };
 
 const handleStatusChange = (row: Record<string, any>, value: boolean) => {
@@ -230,6 +312,39 @@ const handlePreview = (row: Record<string, any>) => {
 const handleDelete = (row: Record<string, any>) => {
   const item = row as PublicMessageItem;
   console.log("Delete clicked for:", item);
-  // TODO: Implement delete logic
+  deleteTarget.value = item;
+  showDeleteModal.value = true;
 };
+
+const handleCloseDeleteModal = () => {
+  showDeleteModal.value = false;
+  deleteTarget.value = null;
+};
+
+const handleConfirmDelete = () => {
+  if (deleteTarget.value) {
+    allMessages.value = allMessages.value.filter((item) => item.title !== deleteTarget.value?.title);
+  }
+  handleCloseDeleteModal();
+  toastMessage.value = "刪除成功";
+  showToast.value = true;
+};
+
+const maybeShowReturnToast = () => {
+  const toastType = route.query.toast as string | undefined;
+  if (toastType !== "success") return;
+  const msg = (route.query.msg as string | undefined) || "新增成功";
+  toastMessage.value = msg;
+  showToast.value = true;
+  router.replace({ path: route.path, query: { ...route.query, toast: undefined, msg: undefined } });
+};
+
+onMounted(maybeShowReturnToast);
+
+watch(
+  () => route.query.toast,
+  () => {
+    maybeShowReturnToast();
+  }
+);
 </script>

@@ -34,7 +34,7 @@
       </div>
       <div class="flex items-center justify-center gap-4">
         <ButtonCTA variant="outline" size="xl" @click="handleGoBack"> 取消 </ButtonCTA>
-        <ButtonCTA variant="primary" size="xl" @click="handleSave"> 儲存 </ButtonCTA>
+        <ButtonCTA variant="primary" size="xl" :disabled="isSaveDisabled" @click="handleSave"> 儲存 </ButtonCTA>
       </div>
     </div>
   </div>
@@ -49,6 +49,7 @@ import InputDropdown, { type InputDropdownItem } from "@/components/atoms/InputD
 import Input from "@/components/atoms/Input.vue";
 import Icon from "@/components/atoms/Icon.vue";
 import ButtonCTA from "@/components/atoms/ButtonCTA.vue";
+import type { CaseStatisticsFormData } from "@/types/backend/homepageMaintenance/caseStatistics.d";
 
 const router = useRouter();
 const route = useRoute();
@@ -63,13 +64,17 @@ const breadcrumbItems = [
 ];
 
 // Form State
-const annualCount = ref<string>("");
-const yearValue = ref<string>("");
-const selectedCategory = ref<string>("");
+const annualCount = ref<CaseStatisticsFormData["annualCount"]>("");
+const yearValue = ref<CaseStatisticsFormData["year"]>("");
+const selectedCategory = ref<CaseStatisticsFormData["category"]>("");
 const categoryOptions: InputDropdownItem[] = [
   { label: "都更案件", value: "都更案件" },
   { label: "危老案件", value: "危老案件" },
 ];
+
+const isSaveDisabled = computed(() => {
+  return !selectedCategory.value || !yearValue.value.trim() || !annualCount.value.trim();
+});
 
 // Case Data (從路由參數或查詢參數獲取)
 const caseData = ref({

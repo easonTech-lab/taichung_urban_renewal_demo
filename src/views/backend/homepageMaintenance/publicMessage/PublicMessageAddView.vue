@@ -37,15 +37,15 @@
       </div>
       <div class="flex items-center justify-center gap-4">
         <ButtonCTA variant="outline" size="l" @click="handleSaveDraft">暫存</ButtonCTA>
-        <ButtonCTA variant="gray" size="l" @click="handlePublish">發布</ButtonCTA>
+        <ButtonCTA variant="primary" size="l" :disabled="isPublishDisabled" @click="handlePublish">發布</ButtonCTA>
       </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
-import { useRouter } from "vue-router";
+import { ref, computed, onMounted } from "vue";
+import { useRouter, useRoute } from "vue-router";
 import Input from "@/components/atoms/Input.vue";
 import Radio from "@/components/atoms/Radio.vue";
 import ButtonCTA from "@/components/atoms/ButtonCTA.vue";
@@ -54,17 +54,14 @@ import FileUpload from "@/components/atoms/FileUpload.vue";
 import RadioGroup from "@/components/atoms/RadioGroup.vue";
 import RichTextEditor from "@/components/atoms/RichTextEditor.vue";
 import SidebarSection from "@/components/sections/backend/SidebarSection.vue";
-
-interface FormData {
-  title: string;
-  category: string;
-  content: string;
-  files: File[];
-}
+import type { PublicMessageFormData } from "@/types/backend/homepageMaintenance/publicMessageManagement.d";
 
 const router = useRouter();
+const route = useRoute();
 
-const formData = ref<FormData>({
+const isEditMode = computed(() => route.query.edit === "true");
+
+const formData = ref<PublicMessageFormData>({
   title: "",
   category: "",
   content: "",
@@ -76,6 +73,20 @@ const categoryOptions = [
   { label: "新聞快訊", value: "news-flash" },
   { label: "會議公告", value: "meeting-announcement" },
 ];
+
+const getPlainTextLength = (html: string): number => {
+  if (!html) return 0;
+  const tempDiv = document.createElement("div");
+  tempDiv.innerHTML = html;
+  return tempDiv.textContent?.length || 0;
+};
+
+const isPublishDisabled = computed(() => {
+  if (!formData.value.title.trim()) return true;
+  if (!formData.value.category) return true;
+  if (getPlainTextLength(formData.value.content) === 0) return true;
+  return formData.value.files.length === 0;
+});
 
 const handleSidebarItemSelect = (itemName: string) => {
   // Handle sidebar item selection
@@ -93,12 +104,46 @@ const handleFileError = (error: string) => {
 const handleSaveDraft = () => {
   // TODO: Implement save draft functionality
   console.log("暫存", formData.value);
-  router.push("/public-message-management");
+  router.push({
+    path: "/public-message-management",
+    query: {
+      toast: "success",
+      msg: isEditMode.value ? "儲存成功" : "暫存成功",
+    },
+  });
 };
 
 const handlePublish = () => {
   // TODO: Implement publish functionality
   console.log("發布", formData.value);
-  router.push("/public-message-management");
+  router.push({
+    path: "/public-message-management",
+    query: {
+      toast: "success",
+      msg: isEditMode.value ? "編輯成功" : "新增成功",
+    },
+  });
 };
+
+const normalizeCategoryValue = (label: string) => {
+  const existing = categoryOptions.find((option) => option.label === label);
+  if (existing) return existing.value;
+  const value = `custom-${Date.now()}`;
+  categoryOptions.push({ label, value });
+  return value;
+};
+
+onMounted(() => {
+  if (!isEditMode.value) return;
+  if (route.query.title) {
+    formData.value.title = route.query.title as string;
+  }
+  if (route.query.category) {
+    const label = route.query.category as string;
+    formData.value.category = normalizeCategoryValue(label);
+  }
+  if (route.query.content) {
+    formData.value.content = route.query.content as string;
+  }
+});
 </script>

@@ -37,7 +37,7 @@
       </div>
       <div class="flex items-center justify-center gap-4">
         <ButtonCTA variant="outline" size="l" @click="handleSaveDraft">{{ isEditMode ? "取消" : "暫存" }}</ButtonCTA>
-        <ButtonCTA :variant="isEditMode ? 'primary' : 'gray'" size="l" @click="handlePublish">{{ isEditMode ? "儲存" : "發布" }}</ButtonCTA>
+        <ButtonCTA variant="primary" size="l" :disabled="isPublishDisabled" @click="handlePublish">發布</ButtonCTA>
       </div>
     </div>
   </div>
@@ -53,20 +53,14 @@ import RadioGroup from "@/components/atoms/RadioGroup.vue";
 import RichTextEditor from "@/components/atoms/RichTextEditor.vue";
 import FileUpload from "@/components/atoms/FileUpload.vue";
 import ButtonCTA from "@/components/atoms/ButtonCTA.vue";
+import type { DownloadFormData } from "@/types/backend/homepageMaintenance/downloadsManagement.d";
 
 const router = useRouter();
 const route = useRoute();
 
 const isEditMode = computed(() => route.query.edit === "true");
 
-interface FormData {
-  title: string;
-  category: string;
-  text: string;
-  files: File[];
-}
-
-const formData = ref<FormData>({
+const formData = ref<DownloadFormData>({
   title: "",
   category: "",
   text: "",
@@ -86,6 +80,12 @@ const categoryValueMap: Record<string, string> = {
   老舊街區: "old-district",
   整建維護: "renovation-maintenance",
 };
+
+const isPublishDisabled = computed(() => {
+  if (!formData.value.title.trim()) return true;
+  if (!formData.value.category) return true;
+  return formData.value.files.length === 0;
+});
 
 const handleSidebarItemSelect = (itemName: string) => {
   // Handle sidebar item selection
