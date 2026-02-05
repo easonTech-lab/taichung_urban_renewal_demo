@@ -106,16 +106,16 @@
 </template>
 
 <script setup lang="ts">
-import { useRouter } from "vue-router";
 import { ref, computed } from "vue";
-import SidebarSection from "@/components/sections/backend/SidebarSection.vue";
-import Breadcrumb from "@/components/atoms/Breadcrumb.vue";
-import Table, { type TableColumn } from "@/components/atoms/Table.vue";
+import { useRouter } from "vue-router";
+import { useTablePagination } from "@/composables/useTablePagination";
+import Radio from "@/components/atoms/Radio.vue";
+import Drawer from "@/components/atoms/Drawer.vue";
 import Switch from "@/components/atoms/Switch.vue";
 import ButtonCTA from "@/components/atoms/ButtonCTA.vue";
-import Drawer from "@/components/atoms/Drawer.vue";
-import Radio from "@/components/atoms/Radio.vue";
-import { useTablePagination } from "@/composables/useTablePagination";
+import Breadcrumb from "@/components/atoms/Breadcrumb.vue";
+import SidebarSection from "@/components/sections/backend/SidebarSection.vue";
+import Table, { type TableColumn } from "@/components/atoms/Table.vue";
 import type { HandlerAccount, Permission } from "@/types/backend/systemManagement/internalStaff/internalStaffAccountManagement.d";
 
 // State

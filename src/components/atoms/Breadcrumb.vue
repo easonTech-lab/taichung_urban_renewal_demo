@@ -45,9 +45,8 @@
 </template>
 <script setup lang="ts">
 import { computed } from "vue";
-import { useRoute, type RouteLocationNormalizedLoaded } from "vue-router";
 import Icon from "@/components/atoms/Icon.vue";
-
+import { useRoute, type RouteLocationNormalizedLoaded } from "vue-router";
 export interface BreadcrumbItem {
   label: string;
   to?: string; // Vue Router 路徑

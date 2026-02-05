@@ -41,8 +41,8 @@
 
 <script setup lang="ts">
 import { computed } from "vue";
-import Modal from "@/components/atoms/Modal.vue";
 import Icon from "@/components/atoms/Icon.vue";
+import Modal from "@/components/atoms/Modal.vue";
 import ButtonCTA from "@/components/atoms/ButtonCTA.vue";
 
 const props = withDefaults(

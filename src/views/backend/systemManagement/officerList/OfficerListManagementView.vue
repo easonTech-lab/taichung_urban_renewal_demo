@@ -103,9 +103,6 @@
 
 <script setup lang="ts">
 import { ref, computed } from "vue";
-import Tabs, { type TabItem } from "@/components/atoms/Tabs.vue";
-import InputDropdown, { type InputDropdownItem } from "@/components/atoms/InputDropdown.vue";
-import Table, { type TableColumn } from "@/components/atoms/Table.vue";
 import { useTablePagination } from "@/composables/useTablePagination";
 import Icon from "@/components/atoms/Icon.vue";
 import Empty from "@/components/atoms/Empty.vue";
@@ -113,6 +110,9 @@ import Drawer from "@/components/atoms/Drawer.vue";
 import ButtonCTA from "@/components/atoms/ButtonCTA.vue";
 import Breadcrumb from "@/components/atoms/Breadcrumb.vue";
 import SidebarSection from "@/components/sections/backend/SidebarSection.vue";
+import Tabs, { type TabItem } from "@/components/atoms/Tabs.vue";
+import Table, { type TableColumn } from "@/components/atoms/Table.vue";
+import InputDropdown, { type InputDropdownItem } from "@/components/atoms/InputDropdown.vue";
 import type { OfficerData, OfficerItem } from "@/types/backend/systemManagement/officerList/officerListManagement.d";
 
 // Tabs

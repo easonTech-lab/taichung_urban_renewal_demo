@@ -60,17 +60,17 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, watch } from "vue";
 import { useRouter, useRoute } from "vue-router";
+import { ref, computed, onMounted, watch } from "vue";
 import { useTablePagination } from "@/composables/useTablePagination";
 import Tabs from "@/components/atoms/Tabs.vue";
 import Icon from "@/components/atoms/Icon.vue";
-import ConfirmDeleteModal from "@/components/molecules/ConfirmDeleteModal.vue";
 import Toast from "@/components/atoms/Toast.vue";
 import Switch from "@/components/atoms/Switch.vue";
 import ButtonCTA from "@/components/atoms/ButtonCTA.vue";
 import Breadcrumb from "@/components/atoms/Breadcrumb.vue";
 import SidebarSection from "@/components/sections/backend/SidebarSection.vue";
+import ConfirmDeleteModal from "@/components/molecules/ConfirmDeleteModal.vue";
 import Table, { type TableColumn } from "@/components/atoms/Table.vue";
 import type { FaqItem } from "@/types/backend/homepageMaintenance/faqManagement.d";
 

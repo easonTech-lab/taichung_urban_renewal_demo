@@ -45,14 +45,14 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from "vue";
 import { useRouter, useRoute } from "vue-router";
-import SidebarSection from "@/components/sections/backend/SidebarSection.vue";
-import Breadcrumb from "@/components/atoms/Breadcrumb.vue";
 import Input from "@/components/atoms/Input.vue";
 import Radio from "@/components/atoms/Radio.vue";
-import RadioGroup from "@/components/atoms/RadioGroup.vue";
-import RichTextEditor from "@/components/atoms/RichTextEditor.vue";
-import FileUpload from "@/components/atoms/FileUpload.vue";
 import ButtonCTA from "@/components/atoms/ButtonCTA.vue";
+import Breadcrumb from "@/components/atoms/Breadcrumb.vue";
+import RadioGroup from "@/components/atoms/RadioGroup.vue";
+import FileUpload from "@/components/atoms/FileUpload.vue";
+import RichTextEditor from "@/components/atoms/RichTextEditor.vue";
+import SidebarSection from "@/components/sections/backend/SidebarSection.vue";
 import type { DownloadFormData } from "@/types/backend/homepageMaintenance/downloadsManagement.d";
 
 const router = useRouter();

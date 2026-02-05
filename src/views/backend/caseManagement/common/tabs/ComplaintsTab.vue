@@ -46,8 +46,8 @@
 
 <script setup lang="ts">
 import Icon from "@/components/atoms/Icon.vue";
-import Table, { type TableColumn } from "@/components/atoms/Table.vue";
 import ButtonCTA from "@/components/atoms/ButtonCTA.vue";
+import Table, { type TableColumn } from "@/components/atoms/Table.vue";
 import type { ComplaintSection, ComplaintRow } from "@/types/backend/caseManagement/common/caseDetail.d";
 
 defineProps<{

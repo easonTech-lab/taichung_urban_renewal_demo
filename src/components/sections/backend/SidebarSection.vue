@@ -48,11 +48,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted, watch } from "vue";
 import { useRouter, useRoute } from "vue-router";
-import SidebarAccordion, { type SidebarSubItem } from "@/components/atoms/SidebarAccordion.vue";
-import Icon from "@/components/atoms/Icon.vue";
+import { ref, computed, onMounted, onUnmounted, watch } from "vue";
 import { useSidebarMenuConfig } from "@/composables/useSidebarMenuConfig";
+import Icon from "@/components/atoms/Icon.vue";
+import SidebarAccordion, { type SidebarSubItem } from "@/components/atoms/SidebarAccordion.vue";
 
 // 根據身份選擇對應的選單配置
 const sidebarMenuConfig = computed(() => useSidebarMenuConfig(isAdmin.value));
@@ -126,6 +126,22 @@ const menuItems = computed(() => {
 const updateSelectedItem = () => {
   // 直接在 sidebarMenuConfig 中查找
   const config = sidebarMenuConfig.value;
+  const isCaseDetailRoute = ["/case-detail", "/case-stage-detail"].includes(route.path);
+  if (isCaseDetailRoute) {
+    const fromRoute = (route.query?.from as string | undefined) || "";
+    const caseType = (route.query?.caseType as string | undefined) || "";
+    const fallbackRoute = caseType === "dangerous" ? (isAdmin.value ? "/case-management-dangerous-admin" : "/case-management-dangerous") : isAdmin.value ? "/case-management-admin" : "/case-management";
+    const targetRoute = fromRoute || fallbackRoute;
+    for (let i = 0; i < config.length; i++) {
+      const menuItem = config[i];
+      const subItem = menuItem.subItems.find((item) => item.route === targetRoute);
+      if (subItem) {
+        selectedItem.value = subItem.value;
+        expandedIndex.value = i;
+        return;
+      }
+    }
+  }
   for (let i = 0; i < config.length; i++) {
     const menuItem = config[i];
     // 先嘗試精確匹配

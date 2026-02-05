@@ -72,8 +72,9 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted, watch } from "vue";
-import ButtonCTA from "@/components/atoms/ButtonCTA.vue";
 import Icon from "@/components/atoms/Icon.vue";
+import ButtonCTA from "@/components/atoms/ButtonCTA.vue";
+
 
 export interface ButtonDropdownItem {
   label: string;

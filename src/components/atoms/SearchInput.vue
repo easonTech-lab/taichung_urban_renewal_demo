@@ -47,8 +47,8 @@
 
 <script setup lang="ts">
 import { ref, watch, computed } from "vue";
-import ButtonCTA from "@/components/atoms/ButtonCTA.vue";
 import Icon from "@/components/atoms/Icon.vue";
+import ButtonCTA from "@/components/atoms/ButtonCTA.vue";
 
 const props = withDefaults(
   defineProps<{

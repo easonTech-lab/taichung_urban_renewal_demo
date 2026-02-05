@@ -23,40 +23,67 @@ const getAccountBreadcrumbItems = () => {
 const getCaseDetailBreadcrumbItems = (route: any) => {
   const fromRoute = route.query?.from as string | undefined;
   const isFromAdmin = fromRoute?.includes("-admin") || route.query?.admin === "true" || isAdminUser();
+  const isDangerous = fromRoute?.includes("dangerous") || route.query?.caseType === "dangerous";
+  const tabLabelMap: Record<string, string> = {
+    info: "案件資訊",
+    complaints: "人民陳情",
+    progress: "案件進度",
+    files: "專案檔案",
+  };
+  const tabLabel = tabLabelMap[(route.query?.tab as string) || ""] || "案件詳情";
   if (isFromAdmin) {
     return [
       { label: "首頁", to: "/" },
       { label: "案件管理" },
-      { label: "都市更新案件管理", to: "/case-management-admin" },
-      { label: "案件詳情" },
+      {
+        label: isDangerous ? "危老重建案件管理" : "都市更新案件管理",
+        to: isDangerous ? "/case-management-dangerous-admin" : "/case-management-admin",
+      },
+      { label: tabLabel },
     ];
   }
   return [
     { label: "首頁", to: "/" },
     { label: "我的案件" },
-    { label: "都市更新案件", to: "/case-management" },
-    { label: "案件詳情" },
+    { label: isDangerous ? "危老重建案件" : "都市更新案件", to: isDangerous ? "/case-management-dangerous" : "/case-management" },
+    { label: tabLabel },
   ];
 };
 
 const getCaseStageDetailBreadcrumbItems = (route: any) => {
   const fromRoute = route.query?.from as string | undefined;
   const isFromAdmin = fromRoute?.includes("-admin") || route.query?.admin === "true" || isAdminUser();
+  const isDangerous = fromRoute?.includes("dangerous") || route.query?.caseType === "dangerous";
   const stageName = (route.query?.stage as string | undefined) || "階段詳細資料";
+  const progressLink = {
+    label: "案件進度",
+    to: {
+      path: "/case-detail",
+      query: {
+        from: fromRoute,
+        admin: route.query?.admin,
+        caseType: route.query?.caseType,
+        tab: "progress",
+      },
+    },
+  };
   if (isFromAdmin) {
     return [
       { label: "首頁", to: "/" },
       { label: "案件管理" },
-      { label: "都市更新案件管理", to: "/case-management-admin" },
-      { label: "案件進度" },
+      {
+        label: isDangerous ? "危老重建案件管理" : "都市更新案件管理",
+        to: isDangerous ? "/case-management-dangerous-admin" : "/case-management-admin",
+      },
+      progressLink,
       { label: stageName },
     ];
   }
   return [
     { label: "首頁", to: "/" },
     { label: "我的案件" },
-    { label: "都市更新案件", to: "/case-management" },
-    { label: "案件進度" },
+    { label: isDangerous ? "危老重建案件" : "都市更新案件", to: isDangerous ? "/case-management-dangerous" : "/case-management" },
+    progressLink,
     { label: stageName },
   ];
 };

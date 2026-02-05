@@ -98,8 +98,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, computed, onMounted } from "vue";
 import { useRouter, useRoute } from "vue-router";
+import { ref, watch, computed, onMounted } from "vue";
 import Input from "@/components/atoms/Input.vue";
 import Switch from "@/components/atoms/Switch.vue";
 import Checkbox from "@/components/atoms/Checkbox.vue";

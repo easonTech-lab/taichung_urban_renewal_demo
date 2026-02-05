@@ -172,16 +172,15 @@
 
 <script setup lang="ts">
 import { ref, computed, watch } from "vue";
+import { useTablePagination } from "@/composables/useTablePagination";
 import Icon from "@/components/atoms/Icon.vue";
-import Table, { type TableColumn } from "@/components/atoms/Table.vue";
-import ButtonCTA from "@/components/atoms/ButtonCTA.vue";
-import Drawer from "@/components/atoms/Drawer.vue";
-import InputDropdown, { type InputDropdownItem } from "@/components/atoms/InputDropdown.vue";
 import Input from "@/components/atoms/Input.vue";
 import Toast from "@/components/atoms/Toast.vue";
-import { useTablePagination } from "@/composables/useTablePagination";
+import Drawer from "@/components/atoms/Drawer.vue";
+import ButtonCTA from "@/components/atoms/ButtonCTA.vue";
+import Table, { type TableColumn } from "@/components/atoms/Table.vue";
+import InputDropdown, { type InputDropdownItem } from "@/components/atoms/InputDropdown.vue";
 import type { DrawerMode, OfficerItem, OfficerTableRow } from "@/types/backend/caseManagement/common/caseDetail.d";
-
 const props = defineProps<{
   isAdminUser: boolean;
   caseInfo: {

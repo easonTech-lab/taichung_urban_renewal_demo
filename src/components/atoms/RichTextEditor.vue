@@ -347,20 +347,21 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onBeforeUnmount, watch, computed } from "vue";
+import { Extension } from "@tiptap/core";
 import { useEditor, EditorContent } from "@tiptap/vue-3";
-import StarterKit from "@tiptap/starter-kit";
-import Underline from "@tiptap/extension-underline";
+import { ref, onBeforeUnmount, watch, computed } from "vue";
+
 import Link from "@tiptap/extension-link";
 import Image from "@tiptap/extension-image";
+import Color from "@tiptap/extension-color";
+import StarterKit from "@tiptap/starter-kit";
+import Icon from "@/components/atoms/Icon.vue";
+import Highlight from "@tiptap/extension-highlight";
+import Underline from "@tiptap/extension-underline";
 import TextAlign from "@tiptap/extension-text-align";
 import TextStyle from "@tiptap/extension-text-style";
-import Color from "@tiptap/extension-color";
-import Highlight from "@tiptap/extension-highlight";
 import FontFamily from "@tiptap/extension-font-family";
 import Placeholder from "@tiptap/extension-placeholder";
-import { Extension } from "@tiptap/core";
-import Icon from "@/components/atoms/Icon.vue";
 
 // Custom FontSize extension
 const FontSize = Extension.create({

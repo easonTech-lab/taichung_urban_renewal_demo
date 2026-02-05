@@ -57,10 +57,10 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from "vue";
 import Icon from "@/components/atoms/Icon.vue";
 import Badge from "@/components/atoms/Badge.vue";
 import Stepper from "@/components/atoms/Stepper.vue";
-import { computed } from "vue";
 import type { ProgressStage } from "@/types/backend/caseManagement/common/caseDetail.d";
 
 type ColumnConfig = {

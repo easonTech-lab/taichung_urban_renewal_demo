@@ -69,13 +69,14 @@
 <script setup lang="ts">
 import { onMounted, ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
-import CaseProgressTable from "@/components/molecules/CaseProgressTable.vue";
 import type { StepperStep } from "@/components/atoms/Stepper.vue";
-import ButtonCTA from "@/components/atoms/ButtonCTA.vue";
-import Drawer from "@/components/atoms/Drawer.vue";
-import Icon from "@/components/atoms/Icon.vue";
-import ConfirmDeleteModal from "@/components/molecules/ConfirmDeleteModal.vue";
 import type { ProgressStage } from "@/types/backend/caseManagement/common/caseDetail.d";
+import Icon from "@/components/atoms/Icon.vue";
+import Drawer from "@/components/atoms/Drawer.vue";
+import ButtonCTA from "@/components/atoms/ButtonCTA.vue";
+import CaseProgressTable from "@/components/molecules/CaseProgressTable.vue";
+import ConfirmDeleteModal from "@/components/molecules/ConfirmDeleteModal.vue";
+
 
 const props = defineProps<{ isAdminUser: boolean }>();
 

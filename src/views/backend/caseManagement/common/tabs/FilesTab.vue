@@ -41,11 +41,11 @@
 
 <script setup lang="ts">
 import { ref, computed } from "vue";
-import Tabs, { type TabItem } from "@/components/atoms/Tabs.vue";
-import Dropdown, { type DropdownItem } from "@/components/atoms/Dropdown.vue";
-import Table, { type TableColumn } from "@/components/atoms/Table.vue";
-import Icon from "@/components/atoms/Icon.vue";
 import { useTablePagination } from "@/composables/useTablePagination";
+import Icon from "@/components/atoms/Icon.vue";
+import Tabs, { type TabItem } from "@/components/atoms/Tabs.vue";
+import Table, { type TableColumn } from "@/components/atoms/Table.vue";
+import Dropdown, { type DropdownItem } from "@/components/atoms/Dropdown.vue";
 import type { ProjectFile } from "@/types/backend/caseManagement/common/caseDetail.d";
 
 const props = defineProps<{ files: ProjectFile[] }>();

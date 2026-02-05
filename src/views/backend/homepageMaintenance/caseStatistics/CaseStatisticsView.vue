@@ -59,15 +59,15 @@
 <script setup lang="ts">
 import { ref, computed } from "vue";
 import { useRouter } from "vue-router";
+import { useTablePagination } from "@/composables/useTablePagination";
 import Tabs from "@/components/atoms/Tabs.vue";
 import Icon from "@/components/atoms/Icon.vue";
 import Badge from "@/components/atoms/Badge.vue";
-import ConfirmDeleteModal from "@/components/molecules/ConfirmDeleteModal.vue";
 import Toast from "@/components/atoms/Toast.vue";
 import ButtonCTA from "@/components/atoms/ButtonCTA.vue";
 import Breadcrumb from "@/components/atoms/Breadcrumb.vue";
+import ConfirmDeleteModal from "@/components/molecules/ConfirmDeleteModal.vue";
 import SidebarSection from "@/components/sections/backend/SidebarSection.vue";
-import { useTablePagination } from "@/composables/useTablePagination";
 import Table, { type TableColumn } from "@/components/atoms/Table.vue";
 import Dropdown, { type DropdownItem } from "@/components/atoms/Dropdown.vue";
 import type { CaseStatisticsItem } from "@/types/backend/homepageMaintenance/caseStatistics.d";

@@ -41,7 +41,15 @@
         </div>
         <div class="rounded-lg border border-gray-300 bg-white">
           <Empty v-if="filteredCases.length === 0" type="case-management" @button-click="handleEmptyStateAddCase" />
-          <Table v-else :columns="tableColumns" :rows="paginatedCases" :pagination="pagination" @page-change="handlePageChange">
+          <Table
+            v-else
+            :columns="tableColumns"
+            :rows="paginatedCases"
+            :pagination="pagination"
+            :row-clickable="true"
+            @page-change="handlePageChange"
+            @row-click="handleRowClick"
+          >
             <template #cell-caseStatus="{ row }">
               <Badge :variant="getStatusVariant(row.caseStatus)" :text="row.caseStatus" />
             </template>
@@ -54,7 +62,7 @@
 
 <script setup lang="ts">
 import { ref, computed } from "vue";
-import { useRoute } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import { useTablePagination } from "@/composables/useTablePagination";
 import Badge from "@/components/atoms/Badge.vue";
 import Empty from "@/components/atoms/Empty.vue";
@@ -66,6 +74,7 @@ import ButtonDropdown, { type ButtonDropdownItem } from "@/components/atoms/Butt
 import type { CaseItem } from "@/types/backend/caseManagement/dangerous/caseManagementDangerous.d";
 
 const route = useRoute();
+const router = useRouter();
 
 // 判斷是否為管理員模式（根據路由名稱）
 const isAdmin = computed(() => route.name === "case-management-dangerous-admin" || route.path.includes("-admin"));
@@ -251,5 +260,15 @@ const handleEmptyStateAddCase = () => {
   // Open the dropdown when clicking the empty state button
   // This will be handled by the ButtonDropdown component itself
   console.log("Empty state add case clicked");
+};
+
+const handleRowClick = (row: Record<string, any>) => {
+  router.push({
+    path: "/case-detail",
+    query: {
+      from: route.path,
+      caseType: "dangerous",
+    },
+  });
 };
 </script>

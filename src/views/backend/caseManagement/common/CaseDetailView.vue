@@ -79,18 +79,21 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, nextTick } from "vue";
-import SidebarSection from "@/components/sections/backend/SidebarSection.vue";
-import Breadcrumb from "@/components/atoms/Breadcrumb.vue";
+import { useRoute, useRouter } from "vue-router";
+import { ref, computed, nextTick, watch } from "vue";
 import Icon from "@/components/atoms/Icon.vue";
-import ButtonCTA from "@/components/atoms/ButtonCTA.vue";
 import Toast from "@/components/atoms/Toast.vue";
+import ButtonCTA from "@/components/atoms/ButtonCTA.vue";
+import Breadcrumb from "@/components/atoms/Breadcrumb.vue";
+import SidebarSection from "@/components/sections/backend/SidebarSection.vue";
 import ConfirmDeleteModal from "@/components/molecules/ConfirmDeleteModal.vue";
+import FilesTab from "@/views/backend/caseManagement/common/tabs/FilesTab.vue";
+import ProgressTab from "@/views/backend/caseManagement/common/tabs/ProgressTab.vue";
 import CaseInfoTab from "@/views/backend/caseManagement/common/tabs/CaseInfoTab.vue";
 import ComplaintsTab from "@/views/backend/caseManagement/common/tabs/ComplaintsTab.vue";
-import ProgressTab from "@/views/backend/caseManagement/common/tabs/ProgressTab.vue";
-import FilesTab from "@/views/backend/caseManagement/common/tabs/FilesTab.vue";
 import type { ComplaintRow, ComplaintSection, OfficerItem, OfficerTableRow, ProjectFile } from "@/types/backend/caseManagement/common/caseDetail.d";
+const route = useRoute();
+const router = useRouter();
 
 const tabs = computed(() => {
   if (isAdminUser.value) {
@@ -109,6 +112,13 @@ const tabs = computed(() => {
 });
 
 const activeTab = ref<string>("info");
+const validTabValues = computed(() => tabs.value.map((tab) => tab.value));
+const syncTabFromRoute = () => {
+  const queryTab = route.query?.tab as string | undefined;
+  if (queryTab && validTabValues.value.includes(queryTab)) {
+    activeTab.value = queryTab;
+  }
+};
 const activeTabIndex = computed(() => {
   const index = tabs.value.findIndex((tab) => tab.value === activeTab.value);
   return index === -1 ? 0 : index;
@@ -143,12 +153,35 @@ const getTabTextClass = (index: number): string => {
 };
 
 const handleTabClick = (index: number) => {
-  activeTab.value = tabs.value[index]?.value || "info";
+  const nextTab = tabs.value[index]?.value || "info";
+  activeTab.value = nextTab;
+  router.replace({
+    path: route.path,
+    query: {
+      ...route.query,
+      tab: nextTab,
+    },
+  });
 };
 
 const handleSidebarItemSelect = (itemName: string) => {
   console.log("Selected sidebar item:", itemName);
 };
+
+watch(
+  () => tabs.value,
+  () => {
+    syncTabFromRoute();
+  },
+  { immediate: true }
+);
+
+watch(
+  () => route.query?.tab,
+  () => {
+    syncTabFromRoute();
+  }
+);
 
 const caseInfoTabRef = ref<InstanceType<typeof CaseInfoTab> | null>(null);
 const confirmDeleteOpen = ref(false);

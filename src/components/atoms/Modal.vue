@@ -50,7 +50,6 @@
 
 <script setup lang="ts">
 import { computed, watch, onMounted, onUnmounted } from "vue";
-import Icon from "@/components/atoms/Icon.vue";
 import ButtonCTA from "@/components/atoms/ButtonCTA.vue";
 
 const props = withDefaults(

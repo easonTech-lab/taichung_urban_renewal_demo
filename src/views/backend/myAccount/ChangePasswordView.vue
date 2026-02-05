@@ -88,8 +88,8 @@ import Icon from "@/components/atoms/Icon.vue";
 import Modal from "@/components/atoms/Modal.vue";
 import Input from "@/components/atoms/Input.vue";
 import ButtonCTA from "@/components/atoms/ButtonCTA.vue";
-import SidebarSection from "@/components/sections/backend/SidebarSection.vue";
 import Breadcrumb from "@/components/atoms/Breadcrumb.vue";
+import SidebarSection from "@/components/sections/backend/SidebarSection.vue";
 const router = useRouter();
 
 // Form Data
