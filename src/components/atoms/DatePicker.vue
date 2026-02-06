@@ -1,31 +1,40 @@
 <template>
   <div :class="containerClass">
-    <input
-      :id="inputId"
-      ref="datePickerRef"
-      v-model="internalValue"
-      type="date"
-      :placeholder="placeholder"
-      :disabled="disabled"
-      :readonly="readonly"
-      :min="minDateString"
-      :max="maxDateString"
-      :class="inputClasses"
-      :aria-label="ariaLabel || placeholder"
-      @change="handleChange"
-      @focus="handleFocus"
-      @blur="handleBlur"
-      v-bind="$attrs"
-    />
+    <label v-if="label" :for="inputId" class="mb-2 block text-base font-medium text-gray-900">
+      {{ label }}
+    </label>
+    <div :class="displayClasses">
+      <span :class="displayTextClasses">{{ displayText }}</span>
+      <Icon name="calendar" :size="20" class="text-gray-600" aria-hidden="true" />
+      <input
+        :id="inputId"
+        ref="datePickerRef"
+        v-model="internalValue"
+        type="date"
+        :placeholder="placeholder"
+        :disabled="disabled"
+        :readonly="readonly"
+        :min="minDateString"
+        :max="maxDateString"
+        :class="inputClasses"
+        :aria-label="ariaLabel || placeholder"
+        @change="handleChange"
+        @focus="handleFocus"
+        @blur="handleBlur"
+        v-bind="$attrs"
+      />
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, computed, watch } from "vue";
+import Icon from "@/components/atoms/Icon.vue";
 
 const props = withDefaults(
   defineProps<{
     modelValue?: string | Date | null;
+    label?: string;
     placeholder?: string;
     disabled?: boolean;
     required?: boolean;
@@ -39,6 +48,7 @@ const props = withDefaults(
   }>(),
   {
     modelValue: null,
+    label: "",
     placeholder: "Select date",
     disabled: false,
     required: false,
@@ -114,9 +124,25 @@ watch(
 
 const inputClasses = computed(() => {
   const baseClasses =
-    "bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500";
+    "absolute inset-0 h-full w-full cursor-pointer opacity-0 [color:transparent] [background:transparent] focus:outline-none";
   const stateClasses = props.disabled ? "opacity-50 cursor-not-allowed" : "";
   return `${baseClasses} ${stateClasses} ${props.inputClass}`.trim();
+});
+
+const displayClasses = computed(() => {
+  const baseClasses =
+    "relative flex w-full items-center justify-between gap-3 rounded-lg border border-gray-300 bg-gray-50 px-3 py-2.5 text-sm text-gray-900 focus-within:border-blue-500 focus-within:ring-1 focus-within:ring-blue-500";
+  const stateClasses = props.disabled ? "opacity-50 cursor-not-allowed" : "";
+  return `${baseClasses} ${stateClasses}`.trim();
+});
+
+const displayText = computed(() => {
+  if (!internalValue.value) return props.placeholder;
+  return internalValue.value.replace(/-/g, "/");
+});
+
+const displayTextClasses = computed(() => {
+  return internalValue.value ? "text-sm text-gray-900" : "text-sm text-gray-400";
 });
 
 const handleChange = (event: Event) => {
@@ -126,6 +152,10 @@ const handleChange = (event: Event) => {
 };
 
 const handleFocus = (event: FocusEvent) => {
+  const input = datePickerRef.value;
+  if (input && "showPicker" in input) {
+    (input as HTMLInputElement & { showPicker?: () => void }).showPicker?.();
+  }
   emit("focus", event);
 };
 
@@ -133,3 +163,5 @@ const handleBlur = (event: FocusEvent) => {
   emit("blur", event);
 };
 </script>
+
+<style scoped></style>

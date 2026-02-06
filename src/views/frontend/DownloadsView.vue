@@ -9,7 +9,7 @@
         <div class="w-[160px]">
           <Dropdown :button-text="selectedCategory" placeholder="全部案件類別" :items="categoryItems" @item-click="handleCategoryChange" />
         </div>
-        <div class="w-[364px]">
+        <div class="w-[400px]">
           <SearchInput v-model="searchQuery" placeholder="搜尋" button-text="搜尋" input-variant="gray" container-class="mb-0" @submit="handleSearch" />
         </div>
       </div>

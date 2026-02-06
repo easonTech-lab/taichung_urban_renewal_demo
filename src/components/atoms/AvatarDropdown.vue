@@ -44,7 +44,7 @@
           >
             <Icon v-if="item.icon" :name="item.icon" :size="20" class="text-primary-600" aria-hidden="true" />
             <span class="flex-1">{{ item.label }}</span>
-            <Icon v-if="showChevron" name="chevronRight" :size="20" class="text-gray-400" aria-hidden="true" />
+            <Icon v-if="showChevron" name="arrowRight" :size="20" class="text-gray-400" aria-hidden="true" />
           </component>
         </li>
       </ul>

@@ -25,6 +25,7 @@
             :columns="tableColumns"
             :rows="paginatedMessages"
             :pagination="pagination"
+            row-key="title"
             :row-clickable="true"
             @row-click="handleRowClick"
             @page-change="handlePageChange"
@@ -35,7 +36,9 @@
             </template>
             <!-- Status -->
             <template #cell-status="{ row }">
-              <Switch :model-value="row.status" :show-text="true" on-text="上架" off-text="下架" @update:model-value="(value) => handleStatusChange(row, value)" />
+              <div @click.stop @mousedown.prevent>
+                <Switch :model-value="row.status" :show-text="true" on-text="上架" off-text="下架" @update:model-value="(value) => handleStatusChange(row, value)" />
+              </div>
             </template>
             <!-- Action -->
             <template #cell-action="{ row }">
@@ -262,6 +265,11 @@ const handleStatusChange = (row: Record<string, any>, value: boolean) => {
   const item = row as PublicMessageItem;
   item.status = value;
   console.log("Status changed for:", item, "New status:", value);
+  // 切換後該列可能被過濾掉，主動移除 focus 避免跳到下一列
+  requestAnimationFrame(() => {
+    const activeElement = document.activeElement as HTMLElement | null;
+    if (activeElement?.blur) activeElement.blur();
+  });
   // TODO: Implement status change logic
 };
 

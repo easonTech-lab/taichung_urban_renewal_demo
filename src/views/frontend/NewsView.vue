@@ -17,19 +17,17 @@
             @item-click="handleCategoryChange"
           />
         </div>
-        <div class="relative w-[364px]">
-          <div class="pointer-events-none absolute inset-y-0 left-0 z-10 flex items-center pl-4">
-            <Icon name="search" :size="16" class="text-gray-500" aria-hidden="true" />
-          </div>
-          <input
-            v-model="searchQuery"
-            type="text"
-            placeholder="搜尋"
-            class="block w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-3 pl-10 text-sm text-gray-900 shadow-sm transition-colors placeholder:text-gray-500 focus:border-primary-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary-500"
-            @keydown.enter="handleSearch"
-          />
-        </div>
-        <ButtonCTA variant="primary" @click="handleSearch" class="h-[40px] px-5 py-2.5"> 搜尋 </ButtonCTA>
+        <SearchInput
+          v-model="searchQuery"
+          placeholder="搜尋"
+          button-text="搜尋"
+          input-variant="gray"
+          icon-color="text-gray-500"
+          button-variant="primary"
+          container-class="w-[364px]"
+          :button-size="'mini'"
+          @submit="handleSearch"
+        />
       </div>
       <div v-if="filteredData.length === 0" class="flex items-center justify-center py-16">
         <Empty type="search" message="查無符合條件的公開消息" />
@@ -55,13 +53,12 @@
 import { ref, computed } from "vue";
 import { useRouter } from "vue-router";
 import { useTablePagination } from "@/composables/useTablePagination";
-import Icon from "@/components/atoms/Icon.vue";
 import Empty from "@/components/atoms/Empty.vue";
-import ButtonCTA from "@/components/atoms/ButtonCTA.vue";
 import Breadcrumb from "@/components/atoms/Breadcrumb.vue";
 import FooterSection from "@/components/sections/global/FooterSection.vue";
 import Table, { type TableColumn } from "@/components/atoms/Table.vue";
 import InputDropdown, { type InputDropdownItem } from "@/components/atoms/InputDropdown.vue";
+import SearchInput from "@/components/atoms/SearchInput.vue";
 import type { NewsItem } from "@/types/frontend/frontend.d";
 
 

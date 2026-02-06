@@ -1,6 +1,6 @@
 <template>
   <div class="min-h-screen bg-indigo-50">
-    <SidebarSection @item-select="handleSidebarItemSelect" />
+  <SidebarSection :backdrop-closable="!showUnsavedToast" @item-select="handleSidebarItemSelect" />
     <div class="flex flex-1 flex-col gap-10 p-4 sm:ml-[328px] sm:p-10">
       <div class="flex flex-col gap-6">
         <Breadcrumb />
@@ -71,10 +71,78 @@
               @item-click="handleAddFileOption"
             />
           </div>
-          <div class="py-6">
+          <div v-if="reviewFiles.length === 0" class="py-6">
             <Empty type="search" message="尚無審查檔案相關項目" :show-button="false" />
           </div>
-          <div class="flex justify-center pb-2">
+          <div v-else class="flex flex-col gap-4 pt-4">
+            <div v-for="file in reviewFiles" :key="file.id" class="rounded-lg border border-blue-500 px-5 py-8">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-5">
+                  <button class="flex items-center justify-center text-gray-800" @click="file.isExpanded = !file.isExpanded" aria-label="切換展開">
+                    <Icon :name="file.isExpanded ? 'chevronUp' : 'chevronDown'" :size="24" />
+                  </button>
+                  <p class="text-lg text-gray-900">{{ file.name }}</p>
+                </div>
+              <div class="flex items-center gap-4 text-primary-700">
+                <button class="flex items-center justify-center" aria-label="編輯項目">
+                  <Icon name="editOutline" :size="24" color="#1A56DB" />
+                </button>
+                <button class="flex items-center justify-center" aria-label="刪除項目" @click="openDeleteModal(file)">
+                  <Icon name="trashCan" :size="24" color="#1A56DB" />
+                </button>
+              </div>
+            </div>
+              <div v-if="file.isExpanded" class="mt-8 flex flex-col gap-10">
+                <div class="flex flex-col gap-5 px-5">
+                  <div class="flex flex-wrap gap-10">
+                    <div class="flex w-[150px] flex-col gap-1">
+                      <p class="text-base font-medium text-gray-500">上傳截止日</p>
+                      <p class="text-lg text-gray-900">{{ file.uploadDeadline }}</p>
+                    </div>
+                    <div class="flex flex-1 flex-col gap-1">
+                      <p class="text-base font-medium text-gray-500">權限設定</p>
+                      <div class="flex flex-wrap gap-5">
+                        <div class="flex items-center gap-1">
+                          <p class="text-lg text-gray-900">幹事瀏覽</p>
+                          <Switch v-model="file.staffVisible" :show-text="true" on-text="開啟" off-text="關閉" />
+                        </div>
+                        <div class="flex items-center gap-1">
+                          <p class="text-lg text-gray-900">申請端瀏覽</p>
+                          <Switch v-model="file.applicantVisible" :show-text="true" on-text="開啟" off-text="關閉" />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="flex flex-wrap gap-10">
+                    <div class="flex w-[150px] flex-col gap-1">
+                      <p class="text-base font-medium text-gray-500">發文日期</p>
+                      <p class="text-lg text-gray-900">{{ file.publishDate }}</p>
+                    </div>
+                    <div class="flex w-[150px] flex-col gap-1">
+                      <p class="text-base font-medium text-gray-500">收文日期</p>
+                      <button class="text-left text-lg text-blue-500 underline">新增</button>
+                    </div>
+                  </div>
+                </div>
+                <div class="h-px w-full bg-neutral-300"></div>
+                <div class="flex flex-col gap-5 px-10">
+                  <div v-for="item in file.uploadItems" :key="item.label" class="flex items-center justify-between px-5 py-3">
+                    <div class="flex items-center gap-5">
+                      <span
+                        class="rounded-md px-3 py-0.5 text-sm font-medium"
+                        :class="item.status === 'uploaded' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-900'"
+                      >
+                        {{ item.status === 'uploaded' ? '已上傳' : '未上傳' }}
+                      </span>
+                      <p class="text-lg text-gray-900">{{ item.label }}</p>
+                    </div>
+                    <button class="text-sm font-medium text-primary-700 underline">查看</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div v-if="reviewFiles.length === 0" class="flex justify-center pb-2">
             <ButtonDropdown
               button-text="新增項目"
               :items="addFileOptions"
@@ -118,7 +186,7 @@
       </div>
     </template>
   </Drawer>
-  <Drawer v-model="showAddItemDrawer" title="新增項目" width="xl">
+  <Drawer v-model="showAddItemDrawer" title="新增項目" width="xl" :static="showUnsavedToast">
     <template #default>
       <div class="flex flex-col gap-6">
         <Input v-model="addItemForm.name" label="項目名稱" placeholder="輸入項目名稱" size="lg" required />
@@ -130,7 +198,7 @@
           :items="addFileOptions"
           @item-click="handleCategorySelect"
         />
-        <div class="flex flex-col gap-4">
+        <div v-if="!isRevisionCategory" class="flex flex-col gap-4">
           <p class="text-base font-medium text-gray-900">申請端上傳項目設定</p>
           <div class="flex flex-col gap-3">
             <label v-for="item in uploadOptions" :key="item.value" class="inline-flex items-center gap-2 text-sm font-medium text-gray-900">
@@ -139,7 +207,7 @@
             </label>
           </div>
         </div>
-        <DatePicker v-model="addItemForm.deadline" label="上傳截止日期" placeholder="設定上傳截止日期" />
+        <DatePicker v-if="!isRevisionCategory" v-model="addItemForm.deadline" label="上傳截止日期" placeholder="設定上傳截止日期" containerClass="w-full" />
         <div class="flex flex-col gap-4">
           <p class="text-base font-medium text-[#1a1b1d]">權限設定</p>
           <div class="flex items-center gap-6">
@@ -153,20 +221,30 @@
             </div>
           </div>
         </div>
-        <div class="h-px w-full bg-gray-300"></div>
+        <div v-if="isRevisionCategory" class="h-px w-full bg-gray-300"></div>
+        <Input v-if="isRevisionCategory" v-model="addItemForm.documentNo" label="發文字號" placeholder="輸入發文字號" size="lg" required />
+        <DatePicker v-if="isRevisionCategory" v-model="addItemForm.publishDate" label="發文日期" placeholder="選擇發文日期" containerClass="w-full" />
+        <FileUpload v-if="isRevisionCategory" v-model="addItemForm.attachments" label="公文及修正意見上傳" :max-size="10" />
       </div>
     </template>
     <template #footer>
       <div class="flex w-full items-center justify-end gap-4">
         <ButtonCTA variant="outline" size="xl" class="w-[124px]" @click="handleCancelAddItem">取消</ButtonCTA>
-        <ButtonCTA variant="gray" size="xl" class="w-[124px]" :disabled="true">儲存</ButtonCTA>
+        <ButtonCTA variant="primary" size="xl" class="w-[124px]" :disabled="isAddItemSaveDisabled" @click="handleSaveAddItem">儲存</ButtonCTA>
       </div>
     </template>
   </Drawer>
-  <div class="fixed bottom-6 left-1/2 z-[90] w-[min(900px,calc(100vw-2rem))] -translate-x-1/2">
+  <div class="fixed bottom-6 z-[90]" :style="toastPositionStyle">
     <Toast v-model="showSaveToast" message="儲存成功" :show-actions="false" :show-close="false" :auto-close="true" />
   </div>
-  <div v-if="showUnsavedToast" class="fixed bottom-6 left-0 z-[90] w-full px-10">
+  <div class="fixed bottom-6 z-[90]" :style="toastPositionStyle">
+    <Toast v-model="showAddItemToast" message="已新增" :show-actions="false" :show-close="true" :auto-close="true">
+      <template #icon>
+        <Icon name="check" :size="24" class="text-gray-50" aria-hidden="true" />
+      </template>
+    </Toast>
+  </div>
+  <div class="fixed bottom-6 z-[90]" :style="toastPositionStyle">
     <Toast
       v-model="showUnsavedToast"
       message="有尚未儲存的修改"
@@ -179,6 +257,13 @@
       @secondary="handleExitEdit"
     />
   </div>
+  <ConfirmDeleteModal
+    v-model="showDeleteModal"
+    message="確認刪除此項目"
+    description="內容將完全刪除無法復原"
+    @confirm="handleConfirmDelete"
+    @cancel="handleCancelDelete"
+  />
 </template>
 <script setup lang="ts">
 import { useRoute } from "vue-router";
@@ -193,7 +278,9 @@ import Drawer from "@/components/atoms/Drawer.vue";
 import ButtonCTA from "@/components/atoms/ButtonCTA.vue";
 import Breadcrumb from "@/components/atoms/Breadcrumb.vue";
 import DatePicker from "@/components/atoms/DatePicker.vue";
+import ConfirmDeleteModal from "@/components/molecules/ConfirmDeleteModal.vue";
 import SidebarSection from "@/components/sections/backend/SidebarSection.vue";
+import FileUpload from "@/components/atoms/FileUpload.vue";
 import InputDropdown, { type InputDropdownItem } from "@/components/atoms/InputDropdown.vue";
 import ButtonDropdown, { type ButtonDropdownItem } from "@/components/atoms/ButtonDropdown.vue";
 const route = useRoute();
@@ -206,6 +293,7 @@ const savedStatus = ref("in-progress");
 const selectedStatus = ref("in-progress");
 const showSaveToast = ref(false);
 const showUnsavedToast = ref(false);
+const showAddItemToast = ref(false);
 const showEditResultDrawer = ref(false);
 const statusOptions = [
   { label: "未開始", value: "not-started" },
@@ -229,12 +317,42 @@ const addFileOptions: ButtonDropdownItem[] = [
   { label: "修正意見/會議記錄", value: "revision" },
 ];
 
+type ReviewFileItem = {
+  id: number;
+  name: string;
+  uploadDeadline: string;
+  staffVisible: boolean;
+  applicantVisible: boolean;
+  publishDate: string;
+  receiveDate?: string;
+  uploadItems: { label: string; status: "uploaded" | "pending" }[];
+  isExpanded: boolean;
+};
+
 const uploadOptions = [
   { label: "上傳公文", value: "upload-official" },
   { label: "上傳報告書", value: "upload-report" },
   { label: "上傳審查簡報", value: "upload-presentation" },
 ];
 
+const reviewFiles = ref<ReviewFileItem[]>([
+  {
+    id: 1,
+    name: "都市更新事業計畫書",
+    uploadDeadline: "114/10/20",
+    staffVisible: false,
+    applicantVisible: true,
+    publishDate: "-",
+    receiveDate: "",
+    uploadItems: [
+      { label: "報告書", status: "pending" },
+      { label: "公文", status: "pending" },
+    ],
+    isExpanded: true,
+  },
+]);
+const showDeleteModal = ref(false);
+const deleteTargetId = ref<number | null>(null);
 const showAddItemDrawer = ref(false);
 const addItemForm = ref({
   name: "",
@@ -243,6 +361,57 @@ const addItemForm = ref({
   deadline: "",
   staffVisible: false,
   applicantVisible: true,
+  documentNo: "",
+  publishDate: "",
+  attachments: [],
+});
+
+const isRevisionCategory = computed(() => addItemForm.value.category === "修正意見/會議記錄");
+const initialAddItemSnapshot = ref("");
+const isAddItemSaveDisabled = computed(() => {
+  if (!addItemForm.value.name.trim()) return true;
+  if (!addItemForm.value.category) return true;
+  if (isRevisionCategory.value) {
+    if (!addItemForm.value.documentNo.trim()) return true;
+    if (!addItemForm.value.publishDate) return true;
+    return addItemForm.value.attachments.length === 0;
+  }
+  if (!addItemForm.value.deadline) return true;
+  return addItemForm.value.uploadSelections.length === 0;
+});
+const getAddItemSnapshot = () =>
+  JSON.stringify({
+    name: addItemForm.value.name.trim(),
+    category: addItemForm.value.category,
+    uploadSelections: [...addItemForm.value.uploadSelections].sort(),
+    deadline: addItemForm.value.deadline ?? "",
+    staffVisible: addItemForm.value.staffVisible,
+    applicantVisible: addItemForm.value.applicantVisible,
+    documentNo: addItemForm.value.documentNo.trim(),
+    publishDate: addItemForm.value.publishDate ?? "",
+    attachmentsCount: addItemForm.value.attachments.length,
+  });
+const isAddItemDirty = computed(() => getAddItemSnapshot() !== initialAddItemSnapshot.value);
+
+const drawerWidthPx = 460;
+const toastPositionStyle = computed(() => {
+  if (!showAddItemDrawer.value) {
+    return {
+      left: "50%",
+      transform: "translateX(-50%)",
+      width: "min(900px, calc(100vw - 2rem))",
+      maxWidth: "min(900px, calc(100vw - 2rem))",
+      minWidth: "min(900px, calc(100vw - 2rem))",
+    };
+  }
+  const width = `min(900px, calc(100vw - ${drawerWidthPx}px - 2rem))`;
+  return {
+    left: `max(1rem, calc((100vw - ${drawerWidthPx}px) / 2))`,
+    transform: "translateX(-50%)",
+    width,
+    maxWidth: width,
+    minWidth: width,
+  };
 });
 
 const resetProgressItems = () => {
@@ -343,15 +512,95 @@ const handleCategorySelect = (item: InputDropdownItem) => {
 };
 
 const handleCancelAddItem = () => {
-  showUnsavedToast.value = true;
+  if (isAddItemDirty.value) {
+    showUnsavedToast.value = true;
+  } else {
+    showAddItemDrawer.value = false;
+  }
+};
+
+const formatDateDisplay = (value: string | Date | null | undefined) => {
+  if (!value) return "-";
+  if (value instanceof Date) {
+    if (isNaN(value.getTime())) return "-";
+    const year = value.getFullYear() - 1911;
+    const month = String(value.getMonth() + 1).padStart(2, "0");
+    const day = String(value.getDate()).padStart(2, "0");
+    return `${year}/${month}/${day}`;
+  }
+  return value.toString();
+};
+
+const handleSaveAddItem = () => {
+  const name = addItemForm.value.name.trim() || addItemForm.value.category;
+  const uploadItems = isRevisionCategory.value
+    ? [
+        { label: "公文", status: "pending" as const },
+        { label: "修正意見", status: "pending" as const },
+      ]
+    : uploadOptions
+        .filter((option) => addItemForm.value.uploadSelections.includes(option.value))
+        .map((option) => ({
+          label: option.label.replace("上傳", ""),
+          status: "pending" as const,
+        }));
+  reviewFiles.value = [
+    ...reviewFiles.value,
+    {
+      id: Date.now(),
+      name,
+      uploadDeadline: "114/10/20",
+      staffVisible: addItemForm.value.staffVisible,
+      applicantVisible: addItemForm.value.applicantVisible,
+      publishDate: formatDateDisplay(addItemForm.value.publishDate),
+      receiveDate: "",
+      uploadItems,
+      isExpanded: false,
+    },
+  ];
+  showAddItemDrawer.value = false;
+  showAddItemToast.value = true;
+  addItemForm.value = {
+    name: "",
+    category: "報告書/審查簡報",
+    uploadSelections: ["upload-official", "upload-report", "upload-presentation"],
+    deadline: "",
+    staffVisible: false,
+    applicantVisible: true,
+    documentNo: "",
+    publishDate: "",
+    attachments: [],
+  };
+  initialAddItemSnapshot.value = getAddItemSnapshot();
+};
+
+const openDeleteModal = (file: ReviewFileItem) => {
+  deleteTargetId.value = file.id;
+  showDeleteModal.value = true;
+};
+
+const handleConfirmDelete = () => {
+  if (deleteTargetId.value !== null) {
+    reviewFiles.value = reviewFiles.value.filter((item) => item.id !== deleteTargetId.value);
+  }
+  showDeleteModal.value = false;
+  deleteTargetId.value = null;
+};
+
+const handleCancelDelete = () => {
+  showDeleteModal.value = false;
+  deleteTargetId.value = null;
 };
 
 const handleTempSave = () => {
   showUnsavedToast.value = false;
+  showAddItemDrawer.value = false;
+  showSaveToast.value = true;
 };
 
 const handleExitEdit = () => {
   showUnsavedToast.value = false;
+  showAddItemDrawer.value = false;
 };
 
 watch(
@@ -362,6 +611,15 @@ watch(
     }
   },
   { immediate: true }
+);
+
+watch(
+  () => showAddItemDrawer.value,
+  (isOpen) => {
+    if (isOpen) {
+      initialAddItemSnapshot.value = getAddItemSnapshot();
+    }
+  }
 );
 
 syncFromStorage();

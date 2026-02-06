@@ -1,7 +1,7 @@
 <template>
   <div class="min-h-screen bg-indigo-50">
     <!-- Sidebar -->
-    <SidebarSection @item-select="handleSidebarItemSelect" />
+    <SidebarSection :backdrop-closable="!showUnsavedToast" @item-select="handleSidebarItemSelect" />
 
     <!-- Main Content -->
     <div class="flex flex-1 flex-col gap-10 p-4 sm:ml-[328px] sm:p-10">
@@ -41,6 +41,7 @@
           :officer-list="officerList"
           @save-officer-list="handleSaveOfficerList"
           @request-remove-officer="handleRequestRemoveOfficer"
+          @unsaved-toast="handleUnsavedToast"
         />
         <ComplaintsTab
           v-if="activeTab === 'complaints'"
@@ -167,6 +168,9 @@ const handleTabClick = (index: number) => {
 const handleSidebarItemSelect = (itemName: string) => {
   console.log("Selected sidebar item:", itemName);
 };
+const handleUnsavedToast = (visible: boolean) => {
+  showUnsavedToast.value = visible;
+};
 
 watch(
   () => tabs.value,
@@ -191,6 +195,7 @@ const confirmDeleteLabel = ref("刪除");
 const confirmDeleteAction = ref<(() => void) | null>(null);
 const showDeleteToast = ref(false);
 const deleteToastMessage = ref("檔案已刪除");
+const showUnsavedToast = ref(false);
 
 const caseInfo = ref({
   name: "臺中市東區行政段645地號等21筆土地 都市更新事業計畫及權利變換計畫案",

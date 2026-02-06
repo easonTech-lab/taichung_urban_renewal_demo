@@ -35,7 +35,7 @@
         </tr>
       </thead>
       <tbody>
-        <template v-for="(row, rowIndex) in sortedRows" :key="rowIndex">
+        <template v-for="(row, rowIndex) in sortedRows" :key="getRowKey(row, rowIndex)">
           <tr
             :class="[
               borderless ? '' : 'border-b border-gray-300',
@@ -155,11 +155,13 @@ const props = withDefaults(
     pagination?: TablePagination;
     rowClickable?: boolean; // 是否啟用整行點擊功能
     borderless?: boolean;
+    rowKey?: string | ((row: Record<string, any>, rowIndex: number) => string | number);
   }>(),
   {
     showCheckbox: false,
     rowClickable: false,
     borderless: false,
+    rowKey: undefined,
   }
 );
 
@@ -184,6 +186,16 @@ const isAllSelected = computed(() => {
 
 const isRowSelected = (rowIndex: number) => {
   return selectedRows.value.has(rowIndex);
+};
+
+const getRowKey = (row: Record<string, any>, rowIndex: number): string | number => {
+  if (typeof props.rowKey === "function") {
+    return props.rowKey(row, rowIndex);
+  }
+  if (typeof props.rowKey === "string" && row[props.rowKey] !== undefined) {
+    return row[props.rowKey] as string | number;
+  }
+  return rowIndex;
 };
 
 const handleSelectAll = (event: Event) => {

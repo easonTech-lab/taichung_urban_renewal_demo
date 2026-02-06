@@ -10,7 +10,7 @@
       <div class="relative flex-1">
         <!-- 搜尋圖標 -->
         <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4">
-          <Icon name="search" :size="16" :class="iconColor" aria-hidden="true" />
+          <Icon name="search" :size="iconSize" :class="iconColor" aria-hidden="true" />
         </div>
         <!-- 輸入框 -->
         <input
@@ -38,7 +38,16 @@
         </button>
       </div>
       <!-- 搜尋按鈕 -->
-      <ButtonCTA type="submit" :variant="buttonVariant" :class="buttonClass" :disabled="disabled" :aria-label="buttonAriaLabel || ariaLabel" @click="handleSubmit">
+      <ButtonCTA
+        type="submit"
+        :variant="buttonVariant"
+        :size="buttonSize"
+        class="!h-[44px] !min-w-[66px] !px-5"
+        :class="buttonClass"
+        :disabled="disabled"
+        :aria-label="buttonAriaLabel || ariaLabel"
+        @click="handleSubmit"
+      >
         {{ buttonText }}
       </ButtonCTA>
     </form>
@@ -63,7 +72,9 @@ const props = withDefaults(
     containerClass?: string;
     inputVariant?: "default" | "gray";
     iconColor?: string;
+    iconSize?: number;
     buttonVariant?: "primary" | "ghost" | "outline";
+    buttonSize?: "mini" | "xs" | "sm" | "base" | "l" | "xl";
     buttonClass?: string;
     ariaLabel?: string;
     buttonAriaLabel?: string;
@@ -81,7 +92,9 @@ const props = withDefaults(
     containerClass: "",
     inputVariant: "default",
     iconColor: "text-gray-500",
+    iconSize: 24,
     buttonVariant: "primary",
+    buttonSize: "mini",
     buttonClass: "",
     ariaLabel: "Search",
     buttonAriaLabel: "",

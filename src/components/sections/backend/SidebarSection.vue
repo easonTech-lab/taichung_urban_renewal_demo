@@ -54,6 +54,15 @@ import { useSidebarMenuConfig } from "@/composables/useSidebarMenuConfig";
 import Icon from "@/components/atoms/Icon.vue";
 import SidebarAccordion, { type SidebarSubItem } from "@/components/atoms/SidebarAccordion.vue";
 
+const props = withDefaults(
+  defineProps<{
+    backdropClosable?: boolean;
+  }>(),
+  {
+    backdropClosable: true,
+  }
+);
+
 // 根據身份選擇對應的選單配置
 const sidebarMenuConfig = computed(() => useSidebarMenuConfig(isAdmin.value));
 
@@ -93,6 +102,7 @@ const toggleSidebar = () => {
 
 // 關閉側邊欄
 const closeSidebar = () => {
+  if (!props.backdropClosable) return;
   isSidebarOpen.value = false;
 };
 

@@ -1,6 +1,6 @@
 <template>
   <div class="rounded-lg border border-gray-200 bg-white">
-    <div :class="['grid items-center border-b border-gray-200 bg-gray-50 text-sm font-medium text-gray-500', gridTemplateClass]">
+    <div :style="gridTemplateStyle" class="grid items-center border-b border-gray-200 bg-gray-50 text-sm font-medium text-gray-500">
       <div v-for="column in columns" :key="column.key" class="px-4">
         <span v-if="column.label">{{ column.label }}</span>
         <span v-else class="block h-[54px]"></span>
@@ -9,7 +9,7 @@
 
     <div class="relative">
       <div v-for="(stage, index) in progressStages" :key="`${stage.name}-${index}`" class="relative">
-        <div :class="['grid h-20 items-center', gridTemplateClass]">
+        <div :style="gridTemplateStyle" class="grid h-20 items-center">
           <div class="relative flex h-full items-center justify-center">
             <div
               v-if="index > 0"
@@ -39,7 +39,7 @@
         </div>
 
         <div v-if="stage.isExpanded && stage.subStages && stage.subStages.length > 0" class="bg-blue-50 py-6">
-          <div :class="['grid', gridTemplateClass]">
+          <div :style="gridTemplateStyle" class="grid">
             <div class="relative h-full">
               <div
                 v-if="index !== progressStages.length - 1"
@@ -78,8 +78,9 @@ const props = defineProps<{
   handleViewDetails: (index: number) => void;
 }>();
 
-const gridTemplateClass = computed(() => {
-  const template = props.columns.map((column) => `${column.width}fr`).join("_");
-  return `grid-cols-[${template}]`;
+const gridTemplateStyle = computed(() => {
+  return {
+    gridTemplateColumns: props.columns.map((column) => `${column.width}fr`).join(" "),
+  };
 });
 </script>

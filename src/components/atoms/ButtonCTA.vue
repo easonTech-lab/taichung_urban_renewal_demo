@@ -83,13 +83,13 @@ import { computed } from "vue";
 import Icon from "@/components/atoms/Icon.vue";
 
 type ColorVariant = "primary" | "dark" | "green" | "red" | "gray" | "white" | "alternative" | "alternativeDark" | "red-outline";
-type SizeVariant = "xs" | "sm" | "base" | "l" | "xl";
+type SizeVariant = "mini" | "xs" | "sm" | "base" | "l" | "xl";
 
 const props = withDefaults(
   defineProps<{
     href?: string;
     variant?: ColorVariant | "text" | "textPlain" | "ghost" | "outline" | "none";
-    size?: SizeVariant;
+  size?: SizeVariant;
     outline?: boolean;
     iconOnly?: boolean;
     leftIcon?: string;
@@ -111,6 +111,15 @@ const props = withDefaults(
 
 // Size configurations (design system)
 const sizeConfig = {
+  mini: {
+    height: "h-[52px]",
+    minWidth: "min-w-0",
+    paddingX: "px-5",
+    paddingY: "py-2.5",
+    text: "text-sm",
+    icon: 20,
+    iconOnlySize: "w-[52px] h-[52px]",
+  },
   xs: {
     height: "h-8",
     minWidth: "min-w-[136px]",

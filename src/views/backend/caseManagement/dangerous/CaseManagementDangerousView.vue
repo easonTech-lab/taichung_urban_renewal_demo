@@ -252,8 +252,12 @@ const handleStatusChange = (item: DropdownItem) => {
 
 const handleAddCaseOption = (item: ButtonDropdownItem, index: number) => {
   selectedAddCaseIndex.value = index;
-  console.log("Add case option selected:", item.value, item.label);
-  // TODO: Implement add case logic based on selected option
+  router.push({
+    name: "case-management-dangerous-add",
+    query: {
+      addType: item.value,
+    },
+  });
 };
 
 const handleEmptyStateAddCase = () => {

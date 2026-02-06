@@ -1,5 +1,5 @@
 <template>
-  <div class="flex items-center" :class="containerClass">
+  <div class="flex items-center gap-2" :class="containerClass">
     <input
       :id="inputId"
       :type="type"
@@ -46,7 +46,7 @@ const props = withDefaults(
     checked: false,
     containerClass: "",
     inputClass: "",
-    labelClass: "ms-2",
+    labelClass: "",
   }
 );
 

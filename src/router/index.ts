@@ -184,6 +184,35 @@ export const routes: RouteRecordRaw[] = [
     },
   },
   {
+    path: "/case-management/add/business-plan",
+    name: "case-management-add-business-plan",
+    component: () => import("@/views/backend/caseManagement/urbanRenewal/CaseManagementAddBusinessPlanView.vue"),
+    meta: {
+      breadcrumb: {
+        label: "內容頁",
+        parent: {
+          label: "都市更新案件",
+        },
+      },
+    },
+  },
+  {
+    path: "/case-management/add/review-table",
+    name: "case-management-add-review-table",
+    component: () => import("@/views/backend/caseManagement/urbanRenewal/CaseManagementReviewTableView.vue"),
+    meta: {
+      breadcrumb: {
+        label: "都市更新審議資料表",
+        parent: {
+          label: "都市更新案件",
+          parent: {
+            label: "我的案件",
+          },
+        },
+      },
+    },
+  },
+  {
     path: "/case-management-admin",
     name: "case-management-admin",
     component: () => import("@/views/backend/caseManagement/urbanRenewal/CaseManagementView.vue"), // 使用同一個組件
@@ -222,6 +251,44 @@ export const routes: RouteRecordRaw[] = [
         label: "危老重建案件",
         parent: {
           label: "我的案件",
+        },
+      },
+    },
+  },
+  {
+    path: "/case-management-dangerous/add",
+    name: "case-management-dangerous-add",
+    component: () => import("@/views/backend/caseManagement/dangerous/CaseManagementDangerousAddView.vue"),
+    meta: {
+      breadcrumb: {
+        label: "新增危老重建案件",
+        parent: {
+          label: "危老重建案件",
+          to: "/case-management-dangerous",
+          parent: {
+            label: "我的案件",
+          },
+        },
+      },
+    },
+  },
+  {
+    path: "/case-management-dangerous/add/application",
+    name: "case-management-dangerous-add-application",
+    component: () => import("@/views/backend/caseManagement/dangerous/CaseManagementDangerousApplicationView.vue"),
+    meta: {
+      breadcrumb: {
+        label: "危老申請書",
+        parent: {
+          label: "新增危老重建案件",
+          to: "/case-management-dangerous/add",
+          parent: {
+            label: "危老重建案件",
+            to: "/case-management-dangerous",
+            parent: {
+              label: "我的案件",
+            },
+          },
         },
       },
     },

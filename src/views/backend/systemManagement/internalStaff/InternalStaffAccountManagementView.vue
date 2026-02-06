@@ -33,7 +33,7 @@
             <ButtonCTA variant="primary" size="sm" @click="handleAddHandler">新增承辦</ButtonCTA>
           </div>
           <div class="rounded-lg border border-gray-300 bg-white">
-            <Table :columns="tableColumns" :rows="paginatedHandlers" :pagination="pagination" @page-change="handlePageChange">
+            <Table :columns="tableColumns" :rows="paginatedHandlers" :pagination="pagination" row-key="email" @page-change="handlePageChange">
               <template #cell-index="{ rowIndex }">
                 <p class="text-base text-gray-500">{{ (currentPage - 1) * pageSize + rowIndex + 1 }}</p>
               </template>
@@ -50,7 +50,9 @@
                 </div>
               </template>
               <template #cell-status="{ row }">
-                <Switch :model-value="row.status" :show-text="true" on-text="啟用" off-text="停權" @update:model-value="(value) => handleStatusChange(row, value)" />
+                <div @click.stop @mousedown.prevent>
+                  <Switch :model-value="row.status" :show-text="true" on-text="啟用" off-text="停權" @update:model-value="(value) => handleStatusChange(row, value)" />
+                </div>
               </template>
               <template #cell-action="{ row }">
                 <div class="flex items-center">

@@ -78,7 +78,7 @@
                   v-for="(question, questionIndex) in category.questions"
                   :key="questionIndex"
                   type="button"
-                  class="cursor-pointer rounded py-0 text-left text-lg font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                  class="cursor-pointer rounded py-0 text-left text-lg font-medium transition-colors focus:outline-none"
                   :class="activeQuestionId === question.id ? 'text-blue-500' : 'text-gray-600 hover:text-gray-900'"
                   :aria-label="`${question.title}，點擊查看詳細答案`"
                   :aria-current="activeQuestionId === question.id ? 'true' : undefined"
@@ -112,7 +112,7 @@
                       >
                         <button
                           type="button"
-                          class="flex w-full cursor-pointer items-center gap-2 rounded text-left focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                        class="flex w-full cursor-pointer items-center gap-2 rounded text-left focus:outline-none"
                           :aria-expanded="true"
                           :aria-controls="`question-${question.id}-content`"
                           :aria-label="`${question.title}，點擊收起`"
@@ -136,7 +136,7 @@
                       <button
                         v-else
                         type="button"
-                        class="flex w-full cursor-pointer items-center gap-2 rounded-lg p-5 text-left transition-colors hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                        class="flex w-full cursor-pointer items-center gap-2 rounded-lg p-5 text-left transition-colors hover:bg-gray-50 focus:outline-none"
                         :aria-expanded="false"
                         :aria-controls="`question-${question.id}-content`"
                         :aria-label="`${question.title}，點擊展開查看詳細答案`"
@@ -174,7 +174,7 @@
                   >
                     <button
                       type="button"
-                      class="flex w-full cursor-pointer items-center gap-2 rounded text-left focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                      class="flex w-full cursor-pointer items-center gap-2 rounded text-left focus:outline-none"
                       :aria-expanded="true"
                       :aria-controls="`question-${question.id}-content`"
                       :aria-label="`${question.title}，點擊收起`"
@@ -198,7 +198,7 @@
                   <button
                     v-else
                     type="button"
-                    class="flex w-full cursor-pointer items-center gap-2 rounded-lg p-5 text-left transition-colors hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                    class="flex w-full cursor-pointer items-center gap-2 rounded-lg p-5 text-left transition-colors hover:bg-gray-50 focus:outline-none"
                     :aria-expanded="false"
                     :aria-controls="`question-${question.id}-content`"
                     :aria-label="`${question.title}，點擊展開查看詳細答案`"

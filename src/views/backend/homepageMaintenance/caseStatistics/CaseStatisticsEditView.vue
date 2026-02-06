@@ -38,6 +38,20 @@
       </div>
     </div>
   </div>
+
+  <Modal v-model="showDuplicateModal" size="md" backdrop-class="bg-gray-600/80" :show-close-button="true" close-action="emit">
+    <template #body>
+      <div class="flex w-full flex-col items-center gap-4 px-6 py-5">
+        <div class="flex h-6 w-6 items-center justify-center rounded-full bg-gray-400 text-xs font-medium text-white">!</div>
+        <p class="text-center text-base font-normal leading-[1.5] text-gray-600">該年度的案件類別已存在，請重新確認內容</p>
+      </div>
+    </template>
+    <template #footer>
+      <div class="flex w-full items-center justify-center px-6 pb-6 pt-0">
+        <ButtonCTA variant="primary" size="xs" class="h-8 w-[120px]" @click="showDuplicateModal = false">確認</ButtonCTA>
+      </div>
+    </template>
+  </Modal>
 </template>
 
 <script setup lang="ts">
@@ -45,6 +59,7 @@ import { ref, computed, onMounted } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import Icon from "@/components/atoms/Icon.vue";
 import Input from "@/components/atoms/Input.vue";
+import Modal from "@/components/atoms/Modal.vue";
 import ButtonCTA from "@/components/atoms/ButtonCTA.vue";
 import Breadcrumb from "@/components/atoms/Breadcrumb.vue";
 import SidebarSection from "@/components/sections/backend/SidebarSection.vue";
@@ -67,6 +82,7 @@ const breadcrumbItems = [
 const annualCount = ref<CaseStatisticsFormData["annualCount"]>("");
 const yearValue = ref<CaseStatisticsFormData["year"]>("");
 const selectedCategory = ref<CaseStatisticsFormData["category"]>("");
+const showDuplicateModal = ref(false);
 const categoryOptions: InputDropdownItem[] = [
   { label: "都更案件", value: "都更案件" },
   { label: "危老案件", value: "危老案件" },
@@ -83,6 +99,15 @@ const caseData = ref({
   annualCount: "103",
 });
 
+const existingStatistics: CaseStatisticsFormData[] = [
+  { year: "114", category: "都更案件", annualCount: "103" },
+  { year: "114", category: "危老案件", annualCount: "55" },
+  { year: "113", category: "都更案件", annualCount: "98" },
+  { year: "113", category: "危老案件", annualCount: "22" },
+  { year: "112", category: "都更案件", annualCount: "75" },
+  { year: "112", category: "危老案件", annualCount: "22" },
+];
+
 // Event Handlers
 const handleSidebarItemSelect = (itemName: string) => {
   console.log("Selected sidebar item:", itemName);
@@ -93,6 +118,15 @@ const handleGoBack = () => {
 };
 
 const handleSave = () => {
+  if (!isEditMode.value) {
+    const hasDuplicate = existingStatistics.some(
+      (item) => item.category === selectedCategory.value && item.year === yearValue.value.trim()
+    );
+    if (hasDuplicate) {
+      showDuplicateModal.value = true;
+      return;
+    }
+  }
   // TODO: Implement save logic
   console.log("Saving:", {
     category: selectedCategory.value,

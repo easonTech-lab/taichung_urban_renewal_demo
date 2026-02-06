@@ -257,7 +257,15 @@ const handleStatusChange = (item: DropdownItem) => {
 const handleAddCaseOption = (item: ButtonDropdownItem, index: number) => {
   selectedAddCaseIndex.value = index;
   console.log("Add case option selected:", item.value, item.label);
-  // TODO: Implement add case logic based on selected option
+  if (!isAdmin.value) {
+    router.push({
+      path: "/case-management/add/business-plan",
+      query: {
+        caseType: "urban",
+        addType: item.value,
+      },
+    });
+  }
 };
 
 const handleEmptyStateAddCase = () => {

@@ -199,6 +199,7 @@ const props = defineProps<{
 const emit = defineEmits<{
   "save-officer-list": [items: OfficerItem[]];
   "request-remove-officer": [row: OfficerTableRow];
+  "unsaved-toast": [visible: boolean];
 }>();
 
 const isDrawerOpen = ref(false);
@@ -351,6 +352,13 @@ const handleEditSave = () => {
 const handleCloseToast = () => {
   showCancelToast.value = false;
 };
+
+watch(
+  () => showCancelToast.value,
+  (visible) => {
+    emit("unsaved-toast", visible);
+  }
+);
 
 const handleToastExit = () => {
   handleCloseToast();
