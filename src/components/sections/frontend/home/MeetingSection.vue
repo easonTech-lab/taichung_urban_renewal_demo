@@ -4,7 +4,7 @@
       <!-- Section Header -->
       <div class="mb-6 flex items-center justify-between">
         <h2 class="text-2xl font-bold text-primary-900">即將到來的審查會議</h2>
-        <router-link to="/meetings" class="flex items-center gap-1 text-sm font-normal text-gray-800 hover:text-primary-700">
+        <router-link to="/meetings" class="flex items-center gap-1 text-sm font-normal text-gray-800 hover:text-primary-700 focus:outline-none focus-visible:outline-none">
           <span>更多會議內容</span>
           <Icon name="arrowRightOutline" :size="20" color="#374151" class="h-5 w-5" aria-hidden="true" />
         </router-link>

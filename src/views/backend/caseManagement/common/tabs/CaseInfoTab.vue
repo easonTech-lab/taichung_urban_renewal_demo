@@ -154,6 +154,15 @@
     </template>
   </Drawer>
 
+  <ConfirmDeleteModal
+    v-model="showOfficerRemoveModal"
+    message="確認將該幹事從名單移除"
+    description=""
+    confirm-label="移除"
+    @confirm="handleConfirmOfficerRemove"
+    @cancel="handleCloseOfficerRemove"
+  />
+
   <div class="fixed bottom-6 z-[90]" :style="toastPositionStyle">
     <Toast
       v-model="showCancelToast"
@@ -180,6 +189,7 @@ import Drawer from "@/components/atoms/Drawer.vue";
 import ButtonCTA from "@/components/atoms/ButtonCTA.vue";
 import Table, { type TableColumn } from "@/components/atoms/Table.vue";
 import InputDropdown, { type InputDropdownItem } from "@/components/atoms/InputDropdown.vue";
+import ConfirmDeleteModal from "@/components/molecules/ConfirmDeleteModal.vue";
 import type { DrawerMode, OfficerItem, OfficerTableRow } from "@/types/backend/caseManagement/common/caseDetail.d";
 const props = defineProps<{
   isAdminUser: boolean;
@@ -203,6 +213,8 @@ const emit = defineEmits<{
 }>();
 
 const isDrawerOpen = ref(false);
+const showOfficerRemoveModal = ref(false);
+const pendingOfficerRemoveIndex = ref<number | null>(null);
 const drawerMode = ref<DrawerMode>("officerList");
 const drawerTitle = computed(() => (drawerMode.value === "officerList" ? "編輯幹事名單" : "編輯案件資訊"));
 const drawerWidth = ref<"sm" | "md" | "lg" | "xl">("xl");
@@ -315,7 +327,19 @@ const handleOfficerSelect = (index: number, item: InputDropdownItem) => {
 };
 
 const handleRemoveOfficer = (index: number) => {
-  localOfficerList.value[index].selectedOfficer = "";
+  pendingOfficerRemoveIndex.value = index;
+  showOfficerRemoveModal.value = true;
+};
+
+const handleConfirmOfficerRemove = () => {
+  if (pendingOfficerRemoveIndex.value === null) return;
+  localOfficerList.value[pendingOfficerRemoveIndex.value].selectedOfficer = "";
+  handleCloseOfficerRemove();
+};
+
+const handleCloseOfficerRemove = () => {
+  showOfficerRemoveModal.value = false;
+  pendingOfficerRemoveIndex.value = null;
 };
 
 const handleAddNewOfficer = () => {

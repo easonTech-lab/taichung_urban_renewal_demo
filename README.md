@@ -65,6 +65,41 @@ npm run build
 npm run preview
 ```
 
+## SIT 部署（192.168.0.180）
+
+### 前置條件
+
+- 180 主機已安裝 Docker（不需要 docker compose）
+- 專案在主機路徑 `/home/easonadmin/taichung_urban_renewal`
+- 對外服務路徑為 `http://192.168.0.180:5566/taichung_urban_renewal/`
+
+### 一鍵同步（本機）
+
+```bash
+npm run deploy:sit
+```
+
+### 180 主機建置與啟動
+
+```bash
+cd /home/easonadmin/taichung_urban_renewal
+docker build -t taichung_urban_renewal:latest .
+docker rm -f taichung_urban_renewal || true
+docker run -d --name taichung_urban_renewal -p 5566:5566 taichung_urban_renewal:latest
+```
+
+### 驗證
+
+```bash
+docker ps | grep taichung_urban_renewal
+ss -lntp | grep 5566
+```
+
+### 瀏覽器網址
+
+- `http://192.168.0.180:5566/`（會自動導向）
+- `http://192.168.0.180:5566/taichung_urban_renewal/`
+
 ### 程式碼格式化
 
 ```bash

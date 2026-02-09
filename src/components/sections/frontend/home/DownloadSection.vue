@@ -6,7 +6,7 @@
         <h2 class="text-2xl font-bold text-primary-900">下載專區</h2>
         <a
           href="/downloads"
-          class="flex items-center gap-1 text-sm font-normal text-gray-800 hover:text-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
+          class="flex items-center gap-1 text-sm font-normal text-gray-800 hover:text-primary-700 focus:outline-none focus-visible:outline-none"
           aria-label="查看更多下載內容"
         >
           <span>更多消息</span>

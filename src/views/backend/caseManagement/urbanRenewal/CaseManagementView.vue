@@ -55,14 +55,24 @@
         </div>
       </div>
     </div>
+
+    <div class="fixed bottom-6 left-1/2 z-[90] w-[min(900px,calc(100vw-2rem))] -translate-x-1/2">
+      <Toast v-model="showDeleteToast" message="刪除成功" :show-actions="false" :show-close="false" :auto-close="true">
+        <template #icon>
+          <Icon name="check" :size="24" class="text-gray-50" aria-hidden="true" />
+        </template>
+      </Toast>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from "vue";
+import { ref, computed, watch } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import { useTablePagination } from "@/composables/useTablePagination";
 import Badge from "@/components/atoms/Badge.vue";
+import Toast from "@/components/atoms/Toast.vue";
+import Icon from "@/components/atoms/Icon.vue";
 import Empty from "@/components/atoms/Empty.vue";
 import Breadcrumb from "@/components/atoms/Breadcrumb.vue";
 import SidebarSection from "@/components/sections/backend/SidebarSection.vue";
@@ -74,6 +84,7 @@ import type { CaseItem } from "@/types/backend/caseManagement/urbanRenewal/caseM
 
 const router = useRouter();
 const route = useRoute();
+const showDeleteToast = ref(false);
 
 // 判斷是否為管理員模式（根據路由名稱）
 const isAdmin = computed(() => route.name === "case-management-admin");
@@ -283,4 +294,20 @@ const handleRowClick = (row: Record<string, any>) => {
     },
   });
 };
+
+const clearToastQuery = () => {
+  const { toast, ...rest } = route.query as Record<string, any>;
+  router.replace({ query: rest });
+};
+
+watch(
+  () => route.query.toast,
+  (toast) => {
+    if (toast === "case-deleted") {
+      showDeleteToast.value = true;
+      clearToastQuery();
+    }
+  },
+  { immediate: true }
+);
 </script>

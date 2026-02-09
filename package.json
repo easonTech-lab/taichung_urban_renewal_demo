@@ -7,7 +7,7 @@
     "dev": "vite",
     "build": "vue-tsc -b && vite build",
     "preview": "vite preview",
-    "deploy:sit": "sh ./deploy_sit.sh",
+    "deploy:sit": "bash ./deploy_sit.sh",
     "build:sit": "npm run build",
     "package:sit": "npm run build:sit && rm -f taichung_urban_renewal-sit.zip && (cd dist && zip -qr ../taichung_urban_renewal-sit.zip .)",
     "deploy:sit:onekey": "sh -c 'npm run package:sit && ssh easonadmin@192.168.0.180 \"mkdir -p /home/easonadmin/taichung_urban_renewal\" && scp taichung_urban_renewal-sit.zip deploy_sit.sh easonadmin@192.168.0.180:/home/easonadmin/taichung_urban_renewal/ && ssh easonadmin@192.168.0.180 \"cd /home/easonadmin/taichung_urban_renewal && sh deploy_sit.sh\"'",

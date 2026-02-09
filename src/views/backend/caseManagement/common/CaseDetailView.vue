@@ -368,7 +368,14 @@ const handleDeleteCase = () => {
     description: "內容將完全刪除無法復原",
     confirmLabel: "刪除",
     onConfirm: () => {
-      // TODO: Implement delete case logic
+      const fromPath = route.query?.from as string | undefined;
+      const fallbackPath = isAdminUser.value ? "/case-management-admin" : "/case-management";
+      router.push({
+        path: fromPath || fallbackPath,
+        query: {
+          toast: "case-deleted",
+        },
+      });
     },
   });
 };

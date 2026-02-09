@@ -1,5 +1,5 @@
 <template>
-  <transition name="toast-slide">
+  <transition name="toast-slide" appear>
     <!-- SnackBar style -->
     <div v-if="modelValue" :id="id" role="status" class="flex h-16 w-full max-w-full items-center justify-between rounded-lg border border-gray-600 bg-gray-700 px-4 shadow-sm">
       <div class="flex items-center gap-4">

@@ -92,7 +92,7 @@ const props = withDefaults(
     containerClass: "",
     inputVariant: "default",
     iconColor: "text-gray-500",
-    iconSize: 24,
+    iconSize: 16,
     buttonVariant: "primary",
     buttonSize: "mini",
     buttonClass: "",

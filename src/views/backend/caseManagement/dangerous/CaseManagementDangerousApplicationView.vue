@@ -183,7 +183,40 @@ const districtOptions: InputDropdownItem[] = [];
 const landOwnerOptions: InputDropdownItem[] = [];
 const buildingOwnerOptions: InputDropdownItem[] = [];
 
-const formData = ref({
+type FormData = {
+  builderType: string;
+  designerName: string;
+  licenseNumber: string;
+  officeName: string;
+  businessScope: string;
+  officePhone: string;
+  officeFax: string;
+  officeAddress: string;
+  district: string;
+  section: string;
+  lotNumber: string;
+  siteArea: string;
+  siteLocation: string;
+  siteTotalArea: string;
+  siteLegalFAR: string;
+  siteDescription: string;
+  conditions: boolean[];
+  landOwner: string;
+  buildingOwner: string;
+  buildingAddress: string;
+  buildingUsage: string;
+  buildingStructure: string;
+  buildingFloors: string;
+  buildingFloorArea: string;
+  buildingHeight: string;
+  buildingUsageDetail: string;
+  designFAR: string;
+  psercbId: string;
+};
+
+type DropdownStringKey = Exclude<keyof FormData, "conditions">;
+
+const formData = ref<FormData>({
   builderType: "",
   designerName: "",
   licenseNumber: "",
@@ -218,7 +251,7 @@ const handleSidebarItemSelect = (itemName: string) => {
   console.log("Selected sidebar item:", itemName);
 };
 
-const handleDropdownChange = (key: keyof typeof formData.value, item: InputDropdownItem) => {
+const handleDropdownChange = (key: DropdownStringKey, item: InputDropdownItem) => {
   formData.value[key] = item.label;
 };
 </script>
