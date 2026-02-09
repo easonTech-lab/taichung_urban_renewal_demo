@@ -102,9 +102,9 @@
       </div>
 
       <div class="flex items-center justify-center gap-6">
-        <ButtonCTA variant="textPlain" size="xl" href="/case-management-dangerous">上一步</ButtonCTA>
+        <ButtonCTA variant="textPlain" size="xl" :to="{ path: '/case-management-dangerous' }">上一步</ButtonCTA>
         <ButtonCTA variant="outline" size="xl">暫存</ButtonCTA>
-        <ButtonCTA variant="primary" size="xl" href="/case-management-dangerous/add/application">下一步</ButtonCTA>
+        <ButtonCTA variant="primary" size="xl" :to="{ path: '/case-management-dangerous/add/application' }">下一步</ButtonCTA>
       </div>
       <input ref="renderInputRef" type="file" accept="image/*" multiple class="hidden" @change="handleImageUpload('render', $event)" />
       <input ref="demolitionInputRef" type="file" accept="image/*" multiple class="hidden" @change="handleImageUpload('demolition', $event)" />

@@ -450,12 +450,12 @@
       <div class="flex items-center justify-center gap-6">
         <template v-if="activeTab === 0">
           <ButtonCTA variant="outline" size="xl">暫存</ButtonCTA>
-          <ButtonCTA variant="primary" size="xl" href="/case-management/add/review-table">下一步</ButtonCTA>
+          <ButtonCTA variant="primary" size="xl" :to="{ path: '/case-management/add/review-table' }">下一步</ButtonCTA>
         </template>
         <template v-else>
           <ButtonCTA variant="textPlain" size="xl">上一步</ButtonCTA>
           <ButtonCTA variant="outline" size="xl">暫存</ButtonCTA>
-          <ButtonCTA variant="gray" size="xl" href="/case-management/add/review-table" :disabled="true">下一步</ButtonCTA>
+          <ButtonCTA variant="gray" size="xl" :to="{ path: '/case-management/add/review-table' }" :disabled="true">下一步</ButtonCTA>
         </template>
       </div>
       <input ref="renderInputRef" type="file" accept="image/*" multiple class="hidden" @change="handleImageUpload('render', $event)" />

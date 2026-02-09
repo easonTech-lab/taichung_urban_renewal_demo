@@ -28,8 +28,8 @@
         <button type="button" class="text-nowrap text-base font-normal leading-normal text-primary-600 hover:text-primary-700" @click="handleLogout">登出</button>
       </div>
       <div v-else-if="!isAuthPage" class="flex items-center gap-3 text-nowrap">
-        <ButtonCTA href="/login" variant="none" aria-label="登入系統">登入</ButtonCTA>
-        <ButtonCTA href="/register" variant="primary" aria-label="申請案件">案件申請</ButtonCTA>
+        <ButtonCTA :to="{ path: '/login' }" variant="none" aria-label="登入系統">登入</ButtonCTA>
+        <ButtonCTA :to="{ path: '/register' }" variant="primary" aria-label="申請案件">案件申請</ButtonCTA>
       </div>
     </div>
   </nav>

@@ -28,13 +28,13 @@
           <h2 class="mb-5 text-2xl font-semibold text-gray-900">電子領標專區</h2>
           <p class="mt-1 text-xl text-gray-500">前往查看 最新招標公告、招標結果查詢</p>
         </div>
-        <a
-          href="/e-services"
+        <RouterLink
+          to="/e-services"
           class="inline-flex items-center justify-center rounded-full bg-[#C3DDFD] p-2 text-white shadow-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
           aria-label="前往電子領標專區"
         >
           <Icon name="arrowRightOutline" :size="24" color="#1C64F2" class="h-6 w-6" :aria-label="`前往電子領標專區圖標`" />
-        </a>
+        </RouterLink>
       </div>
     </section>
   </div>

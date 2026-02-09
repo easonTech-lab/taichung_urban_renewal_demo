@@ -39,6 +39,17 @@ const emit = defineEmits<{
   "button-click": [];
 }>();
 
+const baseUrl = import.meta.env.BASE_URL || "/";
+
+const resolveAssetPath = (path: string) => {
+  if (/^(https?:)?\/\//.test(path) || path.startsWith("data:")) {
+    return path;
+  }
+  const normalizedBase = baseUrl.endsWith("/") ? baseUrl : `${baseUrl}/`;
+  const normalizedPath = path.startsWith("/") ? path.slice(1) : path;
+  return `${normalizedBase}${normalizedPath}`;
+};
+
 // 根據 type 自動決定是否顯示按鈕
 const shouldShowButton = computed(() => {
   if (props.showButton !== undefined) {
@@ -50,12 +61,12 @@ const shouldShowButton = computed(() => {
 // 根據 type 自動生成圖片路徑和預設訊息
 const imageSrc = computed(() => {
   if (props.imageSrc) {
-    return props.imageSrc;
+    return resolveAssetPath(props.imageSrc);
   }
   if (props.type === "case-management") {
-    return "/empty-case.png";
+    return resolveAssetPath("/empty-case.png");
   }
-  return `/empty-${props.type}.png`;
+  return resolveAssetPath(`/empty-${props.type}.png`);
 });
 
 const message = computed(() => {

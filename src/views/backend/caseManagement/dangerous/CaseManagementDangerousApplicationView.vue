@@ -153,7 +153,7 @@
       </div>
 
       <div class="flex items-center justify-center gap-6">
-        <ButtonCTA variant="textPlain" size="xl" href="/case-management-dangerous/add">上一步</ButtonCTA>
+        <ButtonCTA variant="textPlain" size="xl" :to="{ path: '/case-management-dangerous/add' }">上一步</ButtonCTA>
         <ButtonCTA variant="outline" size="xl">暫存</ButtonCTA>
         <ButtonCTA variant="gray" size="xl" :disabled="true">下一步</ButtonCTA>
       </div>

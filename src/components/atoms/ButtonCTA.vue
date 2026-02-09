@@ -1,8 +1,8 @@
 <template>
   <!-- Text Button Variant (with underline) -->
   <router-link
-    v-if="variant === 'text' && href && !disabled"
-    :to="href"
+    v-if="variant === 'text' && linkTarget && !disabled"
+    :to="linkTarget"
     class="inline-flex items-center gap-2 rounded-lg text-sm font-medium leading-normal text-primary-700 underline focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-600 focus-visible:ring-offset-2"
     :class="textButtonClasses"
     v-bind="$attrs"
@@ -25,8 +25,8 @@
   </button>
   <!-- Text Plain Button Variant (no underline) -->
   <router-link
-    v-else-if="variant === 'textPlain' && href && !disabled"
-    :to="href"
+    v-else-if="variant === 'textPlain' && linkTarget && !disabled"
+    :to="linkTarget"
     class="inline-flex items-center gap-1 rounded-lg text-sm font-medium leading-normal text-primary-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-600 focus-visible:ring-offset-2"
     :class="textButtonClasses"
     v-bind="$attrs"
@@ -49,8 +49,8 @@
   </button>
   <!-- Regular Button Variant -->
   <router-link
-    v-else-if="href && !disabled"
-    :to="href"
+    v-else-if="linkTarget && !disabled"
+    :to="linkTarget"
     class="flex items-center justify-center gap-1 rounded-lg font-medium leading-normal transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
     :class="[buttonClasses, sizeClasses, justifyClasses]"
     v-bind="$attrs"
@@ -80,6 +80,7 @@
 </template>
 <script setup lang="ts">
 import { computed } from "vue";
+import type { RouteLocationRaw } from "vue-router";
 import Icon from "@/components/atoms/Icon.vue";
 
 type ColorVariant = "primary" | "dark" | "green" | "red" | "gray" | "white" | "alternative" | "alternativeDark" | "red-outline";
@@ -88,6 +89,7 @@ type SizeVariant = "mini" | "xs" | "sm" | "base" | "l" | "xl";
 const props = withDefaults(
   defineProps<{
     href?: string;
+    to?: RouteLocationRaw;
     variant?: ColorVariant | "text" | "textPlain" | "ghost" | "outline" | "none";
   size?: SizeVariant;
     outline?: boolean;
@@ -169,6 +171,12 @@ const sizeConfig = {
 
 const iconSize = computed(() => {
   return sizeConfig[props.size].icon;
+});
+
+const linkTarget = computed<RouteLocationRaw | null>(() => {
+  if (props.to) return props.to;
+  if (props.href) return props.href;
+  return null;
 });
 
 

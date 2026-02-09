@@ -26,29 +26,29 @@
 
         <!-- 政策連結 -->
         <div class="flex items-center justify-center gap-2 md:justify-start">
-          <a
-            href="/privacy"
+          <RouterLink
+            to="/privacy"
             class="font-sans text-sm font-normal leading-[1.5] tracking-[1.4px] text-gray-600 hover:text-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
             aria-label="查看資訊安全政策"
           >
             資訊安全政策
-          </a>
+          </RouterLink>
           <span class="h-3 w-0 border-l border-gray-300" aria-hidden="true"></span>
-          <a
-            href="/security"
+          <RouterLink
+            to="/security"
             class="font-sans text-sm font-normal leading-[1.5] tracking-[1.4px] text-gray-600 hover:text-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
             aria-label="查看隱私權政策"
           >
             隱私權政策
-          </a>
+          </RouterLink>
           <span class="h-3 w-0 border-l border-gray-300" aria-hidden="true"></span>
-          <a
-            href="/open-data"
+          <RouterLink
+            to="/open-data"
             class="font-sans text-sm font-normal leading-[1.5] tracking-[1.4px] text-gray-600 hover:text-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
             aria-label="查看政府網站資料開放宣告"
           >
             政府網站資料開放宣告
-          </a>
+          </RouterLink>
         </div>
       </div>
 
