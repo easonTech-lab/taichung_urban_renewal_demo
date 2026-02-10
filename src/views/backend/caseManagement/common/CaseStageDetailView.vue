@@ -276,13 +276,14 @@ import Input from "@/components/atoms/Input.vue";
 import Switch from "@/components/atoms/Switch.vue";
 import Drawer from "@/components/atoms/Drawer.vue";
 import ButtonCTA from "@/components/atoms/ButtonCTA.vue";
+import FileUpload from "@/components/atoms/FileUpload.vue";
 import Breadcrumb from "@/components/atoms/Breadcrumb.vue";
 import DatePicker from "@/components/atoms/DatePicker.vue";
 import ConfirmDeleteModal from "@/components/molecules/ConfirmDeleteModal.vue";
 import SidebarSection from "@/components/sections/backend/SidebarSection.vue";
-import FileUpload from "@/components/atoms/FileUpload.vue";
 import InputDropdown, { type InputDropdownItem } from "@/components/atoms/InputDropdown.vue";
 import ButtonDropdown, { type ButtonDropdownItem } from "@/components/atoms/ButtonDropdown.vue";
+import type { ReviewFileItem } from "@/types/backend/caseManagement/common/CaseStageDetailView.d";
 const route = useRoute();
 const stageTitle = computed(() => (route.query?.stage as string | undefined) || "都更幹事會");
 const handleSidebarItemSelect = (itemName: string) => {
@@ -316,18 +317,6 @@ const addFileOptions: ButtonDropdownItem[] = [
   { label: "報告書/審查簡報", value: "report" },
   { label: "修正意見/會議記錄", value: "revision" },
 ];
-
-type ReviewFileItem = {
-  id: number;
-  name: string;
-  uploadDeadline: string;
-  staffVisible: boolean;
-  applicantVisible: boolean;
-  publishDate: string;
-  receiveDate?: string;
-  uploadItems: { label: string; status: "uploaded" | "pending" }[];
-  isExpanded: boolean;
-};
 
 const uploadOptions = [
   { label: "上傳公文", value: "upload-official" },

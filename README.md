@@ -79,6 +79,21 @@ npm run preview
 npm run deploy:sit
 ```
 
+### 連線到 180 主機（SSH）
+
+```bash
+ssh easonadmin@192.168.0.180
+```
+
+首次連線會詢問是否信任主機，輸入 `yes` 後再輸入密碼即可。
+
+常用連線後指令：
+
+```bash
+cd /home/easonadmin/taichung_urban_renewal
+docker ps
+```
+
 ### 180 主機建置與啟動
 
 ```bash

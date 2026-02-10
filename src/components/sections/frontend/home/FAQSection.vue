@@ -23,8 +23,8 @@
 </template>
 
 <script setup lang="ts">
-import FAQColumn from "@/components/molecules/FAQColumn.vue";
 import Icon from "@/components/atoms/Icon.vue";
+import FAQColumn from "@/components/molecules/FAQColumn.vue";
 interface FAQItem {
   title: string;
   questions: string[];

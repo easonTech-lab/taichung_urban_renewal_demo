@@ -233,7 +233,7 @@ const handleOfficerSelect = (index: number, item: InputDropdownItem) => {
 };
 
 const handleRemoveOfficer = (index: number) => {
-  officerList.value[index].selectedOfficer = "";
+  officerList.value.splice(index, 1);
 };
 
 const handleAddNewOfficer = () => {

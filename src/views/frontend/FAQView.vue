@@ -428,6 +428,7 @@ const selectQuestion = (questionId: string) => {
 
 const handleSearch = () => {
   const query = searchQuery.value.trim();
+  appliedSearchQuery.value = query;
   if (query) {
     // 有搜尋關鍵字時，預設所有結果都是收起的
     activeQuestionId.value = null;

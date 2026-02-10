@@ -48,7 +48,7 @@
 import Icon from "@/components/atoms/Icon.vue";
 import ButtonCTA from "@/components/atoms/ButtonCTA.vue";
 import Table, { type TableColumn } from "@/components/atoms/Table.vue";
-import type { ComplaintSection, ComplaintRow } from "@/types/backend/caseManagement/common/caseDetail.d";
+import type { ComplaintSection, ComplaintRow } from "@/types/backend/caseManagement/common/CaseDetailView.d";
 
 defineProps<{
   complaintSections: ComplaintSection[];

@@ -37,6 +37,6 @@
 </template>
 
 <script setup lang="ts">
-import DownloadItem from "@/components/molecules/DownloadItem.vue";
 import Icon from "@/components/atoms/Icon.vue";
+import DownloadItem from "@/components/molecules/DownloadItem.vue";
 </script>

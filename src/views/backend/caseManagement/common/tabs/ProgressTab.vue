@@ -70,7 +70,7 @@
 import { onMounted, ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import type { StepperStep } from "@/components/atoms/Stepper.vue";
-import type { ProgressStage } from "@/types/backend/caseManagement/common/caseDetail.d";
+import type { ProgressStage } from "@/types/backend/caseManagement/common/CaseDetailView.d";
 import Icon from "@/components/atoms/Icon.vue";
 import Drawer from "@/components/atoms/Drawer.vue";
 import ButtonCTA from "@/components/atoms/ButtonCTA.vue";

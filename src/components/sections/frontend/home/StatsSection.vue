@@ -41,6 +41,6 @@
 </template>
 
 <script setup lang="ts">
-import StatCard from "@/components/molecules/StatCard.vue";
 import Icon from "@/components/atoms/Icon.vue";
+import StatCard from "@/components/molecules/StatCard.vue";
 </script>

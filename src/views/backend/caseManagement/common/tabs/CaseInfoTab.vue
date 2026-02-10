@@ -177,6 +177,10 @@
       @close="handleCloseToast"
     />
   </div>
+
+  <div class="fixed bottom-6 z-[90]" :style="toastPositionStyle">
+    <Toast v-model="showSaveToast" message="儲存成功" :show-actions="false" :show-close="false" :auto-close="true" />
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -187,10 +191,10 @@ import Input from "@/components/atoms/Input.vue";
 import Toast from "@/components/atoms/Toast.vue";
 import Drawer from "@/components/atoms/Drawer.vue";
 import ButtonCTA from "@/components/atoms/ButtonCTA.vue";
+import ConfirmDeleteModal from "@/components/molecules/ConfirmDeleteModal.vue";
 import Table, { type TableColumn } from "@/components/atoms/Table.vue";
 import InputDropdown, { type InputDropdownItem } from "@/components/atoms/InputDropdown.vue";
-import ConfirmDeleteModal from "@/components/molecules/ConfirmDeleteModal.vue";
-import type { DrawerMode, OfficerItem, OfficerTableRow } from "@/types/backend/caseManagement/common/caseDetail.d";
+import type { DrawerMode, OfficerItem, OfficerTableRow } from "@/types/backend/caseManagement/common/CaseDetailView.d";
 const props = defineProps<{
   isAdminUser: boolean;
   caseInfo: {
@@ -273,6 +277,7 @@ const localOfficerList = ref<OfficerItem[]>(props.officerList.map((item) => ({ .
 const originalOfficerList = ref<OfficerItem[]>([]);
 const toastContext = ref<"officerList" | "editInfo">("editInfo");
 const showCancelToast = ref(false);
+const showSaveToast = ref(false);
 const hasOfficerChanges = computed(() => JSON.stringify(localOfficerList.value) !== JSON.stringify(originalOfficerList.value));
 
 const allAvailableOfficers: InputDropdownItem[] = [
@@ -333,7 +338,7 @@ const handleRemoveOfficer = (index: number) => {
 
 const handleConfirmOfficerRemove = () => {
   if (pendingOfficerRemoveIndex.value === null) return;
-  localOfficerList.value[pendingOfficerRemoveIndex.value].selectedOfficer = "";
+  localOfficerList.value.splice(pendingOfficerRemoveIndex.value, 1);
   handleCloseOfficerRemove();
 };
 
@@ -358,6 +363,8 @@ const handleCancel = () => {
 };
 
 const handleSave = () => {
+  handleCloseToast();
+  showSaveToast.value = true;
   emit("save-officer-list", localOfficerList.value.map((item) => ({ ...item })));
   originalOfficerList.value = localOfficerList.value.map((item) => ({ ...item }));
   isDrawerOpen.value = false;
@@ -369,6 +376,8 @@ const handleEditCancel = () => {
 };
 
 const handleEditSave = () => {
+  handleCloseToast();
+  showSaveToast.value = true;
   console.log("Save case info:", editForm.value);
   isDrawerOpen.value = false;
 };

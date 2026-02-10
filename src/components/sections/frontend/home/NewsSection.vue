@@ -39,8 +39,9 @@
 </template>
 
 <script setup lang="ts">
-import NewsItem from "@/components/molecules/NewsItem.vue";
 import Icon from "@/components/atoms/Icon.vue";
+import NewsItem from "@/components/molecules/NewsItem.vue";
+
 interface NewsItemData {
   category: string;
   title: string;

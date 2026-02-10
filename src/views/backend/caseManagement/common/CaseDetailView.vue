@@ -92,7 +92,7 @@ import FilesTab from "@/views/backend/caseManagement/common/tabs/FilesTab.vue";
 import ProgressTab from "@/views/backend/caseManagement/common/tabs/ProgressTab.vue";
 import CaseInfoTab from "@/views/backend/caseManagement/common/tabs/CaseInfoTab.vue";
 import ComplaintsTab from "@/views/backend/caseManagement/common/tabs/ComplaintsTab.vue";
-import type { ComplaintRow, ComplaintSection, OfficerItem, OfficerTableRow, ProjectFile } from "@/types/backend/caseManagement/common/caseDetail.d";
+import type { ComplaintRow, ComplaintSection, OfficerItem, OfficerTableRow, ProjectFile } from "@/types/backend/caseManagement/common/CaseDetailView.d";
 const route = useRoute();
 const router = useRouter();
 

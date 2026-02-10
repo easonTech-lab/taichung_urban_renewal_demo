@@ -17,9 +17,9 @@
         <div class="flex flex-col gap-6">
           <Tabs :items="tabItems" :model-value="activeTab" @tab-click="handleTabClick" />
           <div class="flex items-center gap-2">
-            <Dropdown :button-text="selectedStartYear" placeholder="選擇年度區間" :items="yearOptions" @item-click="handleStartYearChange" />
+            <Dropdown :button-text="selectedStartYear" placeholder="選擇年度區間" :items="startYearOptions" @item-click="handleStartYearChange" />
             <span class="text-xl font-normal leading-5 text-gray-500">-</span>
-            <Dropdown :button-text="selectedEndYear" placeholder="選擇年度區間" :items="yearOptions" @item-click="handleEndYearChange" />
+            <Dropdown :button-text="selectedEndYear" placeholder="選擇年度區間" :items="endYearOptions" @item-click="handleEndYearChange" />
           </div>
         </div>
         <div class="rounded-lg border border-gray-300 bg-white">
@@ -66,8 +66,8 @@ import Badge from "@/components/atoms/Badge.vue";
 import Toast from "@/components/atoms/Toast.vue";
 import ButtonCTA from "@/components/atoms/ButtonCTA.vue";
 import Breadcrumb from "@/components/atoms/Breadcrumb.vue";
-import ConfirmDeleteModal from "@/components/molecules/ConfirmDeleteModal.vue";
 import SidebarSection from "@/components/sections/backend/SidebarSection.vue";
+import ConfirmDeleteModal from "@/components/molecules/ConfirmDeleteModal.vue";
 import Table, { type TableColumn } from "@/components/atoms/Table.vue";
 import Dropdown, { type DropdownItem } from "@/components/atoms/Dropdown.vue";
 import type { CaseStatisticsItem } from "@/types/backend/homepageMaintenance/caseStatistics.d";
@@ -82,9 +82,10 @@ const tabItems = [
 
 const activeTab = ref<number>(0);
 
-// Year Options
+// Year Options (small to large)
+const currentRocYear = new Date().getFullYear() - 1911;
 const yearOptions: DropdownItem[] = Array.from({ length: 20 }, (_, i) => {
-  const year = 114 - i; // 從 114 開始往前推
+  const year = currentRocYear - 19 + i;
   return { label: year.toString(), value: year.toString() };
 });
 
@@ -103,6 +104,18 @@ const deleteToastStyle = {
   maxWidth: "min(1420px, calc(100vw - 2rem))",
   minWidth: "min(1420px, calc(100vw - 2rem))",
 };
+
+const startYearOptions = computed(() => {
+  if (!selectedEndYear.value) return yearOptions;
+  const endYear = parseInt(selectedEndYear.value, 10);
+  return yearOptions.filter((item) => parseInt(item.value, 10) <= endYear);
+});
+
+const endYearOptions = computed(() => {
+  if (!selectedStartYear.value) return yearOptions;
+  const startYear = parseInt(selectedStartYear.value, 10);
+  return yearOptions.filter((item) => parseInt(item.value, 10) >= startYear);
+});
 
 // Mock Data
 const allStatistics: CaseStatisticsItem[] = [
@@ -219,11 +232,17 @@ const handleTabClick = (index: number, item: any, event?: Event) => {
 
 const handleStartYearChange = (item: DropdownItem) => {
   selectedStartYear.value = item.label;
+  if (selectedEndYear.value && parseInt(selectedStartYear.value, 10) > parseInt(selectedEndYear.value, 10)) {
+    selectedEndYear.value = selectedStartYear.value;
+  }
   resetPage();
 };
 
 const handleEndYearChange = (item: DropdownItem) => {
   selectedEndYear.value = item.label;
+  if (selectedStartYear.value && parseInt(selectedStartYear.value, 10) > parseInt(selectedEndYear.value, 10)) {
+    selectedStartYear.value = selectedEndYear.value;
+  }
   resetPage();
 };
 

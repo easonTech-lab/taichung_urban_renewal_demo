@@ -46,7 +46,7 @@ import Icon from "@/components/atoms/Icon.vue";
 import Tabs, { type TabItem } from "@/components/atoms/Tabs.vue";
 import Table, { type TableColumn } from "@/components/atoms/Table.vue";
 import Dropdown, { type DropdownItem } from "@/components/atoms/Dropdown.vue";
-import type { ProjectFile } from "@/types/backend/caseManagement/common/caseDetail.d";
+import type { ProjectFile } from "@/types/backend/caseManagement/common/CaseDetailView.d";
 
 const props = defineProps<{ files: ProjectFile[] }>();
 

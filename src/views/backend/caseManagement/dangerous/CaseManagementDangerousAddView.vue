@@ -114,13 +114,12 @@
 
 <script setup lang="ts">
 import { ref } from "vue";
-import SidebarSection from "@/components/sections/backend/SidebarSection.vue";
-import Breadcrumb from "@/components/atoms/Breadcrumb.vue";
 import Input from "@/components/atoms/Input.vue";
 import ButtonCTA from "@/components/atoms/ButtonCTA.vue";
-import StageProgressBar from "@/components/molecules/StageProgressBar.vue";
+import Breadcrumb from "@/components/atoms/Breadcrumb.vue";
 import ImageCard from "@/components/molecules/ImageCard.vue";
-
+import StageProgressBar from "@/components/molecules/StageProgressBar.vue";
+import SidebarSection from "@/components/sections/backend/SidebarSection.vue";
 const breadcrumbItems = [
   { label: "首頁", to: "/" },
   { label: "我的案件", to: "/case-management" },

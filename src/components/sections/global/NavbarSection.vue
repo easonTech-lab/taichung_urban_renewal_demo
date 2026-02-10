@@ -27,21 +27,22 @@
         <div class="h-8 w-px bg-gray-200"></div>
         <button type="button" class="text-nowrap text-base font-normal leading-normal text-primary-600 hover:text-primary-700" @click="handleLogout">登出</button>
       </div>
-      <div v-else-if="!isAuthPage" class="flex items-center gap-3 text-nowrap">
-        <ButtonCTA :to="{ path: '/login' }" variant="none" aria-label="登入系統">登入</ButtonCTA>
-        <ButtonCTA :to="{ path: '/register' }" variant="primary" aria-label="申請案件">案件申請</ButtonCTA>
+      <div v-else-if="!isAuthPage" class="flex items-center gap-6 text-nowrap">
+        <ButtonCTA :to="{ path: '/login' }" variant="none" class="!h-auto !min-w-0 !px-0 !py-0" aria-label="登入系統">登入</ButtonCTA>
+        <ButtonCTA :to="{ path: '/register' }" variant="primary" size="mini" aria-label="申請案件">案件申請</ButtonCTA>
       </div>
     </div>
   </nav>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted, watch } from "vue";
 import { useRouter, useRoute } from "vue-router";
-import ButtonCTA from "@/components/atoms/ButtonCTA.vue";
-import AvatarDropdown, { type AvatarDropdownItem } from "@/components/atoms/AvatarDropdown.vue";
+import { ref, computed, onMounted, onUnmounted, watch } from "vue";
 import { useSidebarMenuConfig } from "@/composables/useSidebarMenuConfig";
 import * as routerModule from "@/router/index";
+import ButtonCTA from "@/components/atoms/ButtonCTA.vue";
+import AvatarDropdown, { type AvatarDropdownItem } from "@/components/atoms/AvatarDropdown.vue";
+
 
 const router = useRouter();
 const route = useRoute();
