@@ -185,6 +185,7 @@
 
 <script setup lang="ts">
 import { ref, computed, watch } from "vue";
+import { useRouter, useRoute } from "vue-router";
 import { useTablePagination } from "@/composables/useTablePagination";
 import Icon from "@/components/atoms/Icon.vue";
 import Input from "@/components/atoms/Input.vue";
@@ -251,9 +252,45 @@ const toastPositionStyle = computed(() => {
   };
 });
 
+const router = useRouter();
+const route = useRoute();
+
+const STORAGE_KEY_CASE_FOR_APPLICATION = "caseDetailForApplication";
+
 const handleCardClick = (cardType: string) => {
-  console.log("Card clicked:", cardType);
-  // TODO: Navigate to respective pages
+  if (cardType === "application-basic") {
+    try {
+      sessionStorage.setItem(STORAGE_KEY_CASE_FOR_APPLICATION, JSON.stringify(props.caseInfo));
+    } catch (_) {
+      // ignore storage errors
+    }
+    const isDangerous = route.query?.caseType === "dangerous";
+    const query = {
+      from: route.query?.from as string | undefined,
+      admin: route.query?.admin as string | undefined,
+    };
+    if (isDangerous) {
+      router.push({ path: "/case-management-dangerous/add/application", query });
+    } else {
+      router.push({ path: "/case-management/add/business-plan", query });
+    }
+    return;
+  }
+  if (cardType === "review-data") {
+    try {
+      sessionStorage.setItem(STORAGE_KEY_CASE_FOR_APPLICATION, JSON.stringify(props.caseInfo));
+    } catch (_) {}
+    const query = {
+      from: route.query?.from as string | undefined,
+      admin: route.query?.admin as string | undefined,
+    };
+    router.push({ path: "/case-management/add/review-table", query });
+    return;
+  }
+  if (cardType === "floor-area-ratio") {
+    console.log("Card clicked:", cardType);
+    // TODO: Navigate to 容積獎勵項目及額度 when route exists
+  }
 };
 
 const officerTableColumns: TableColumn[] = [

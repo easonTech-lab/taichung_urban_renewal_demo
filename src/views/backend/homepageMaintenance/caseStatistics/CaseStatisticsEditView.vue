@@ -133,8 +133,14 @@ const handleSave = () => {
     reportingYear: yearValue.value,
     annualCount: annualCount.value,
   });
-  // After saving, navigate back
-  router.push("/case-statistics");
+  // After saving, navigate back and trigger success toast on list page
+  router.push({
+    path: "/case-statistics",
+    query: {
+      toast: "success",
+      msg: isEditMode.value ? "儲存成功" : "新增成功",
+    },
+  });
 };
 
 const handleCategoryChange = (item: InputDropdownItem) => {

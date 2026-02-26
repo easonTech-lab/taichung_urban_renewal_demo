@@ -3,6 +3,7 @@
     <!-- 觸發按鈕 -->
     <button
       :id="buttonId"
+      ref="buttonRef"
       type="button"
       class="inline-flex items-center focus:outline-none focus:ring-2"
       :class="[buttonClasses, 'w-full justify-between']"
@@ -19,36 +20,39 @@
       <Icon name="chevronDown" :size="16" class="-me-0.5 ms-1.5 shrink-0 transition-transform" :class="isOpen ? 'rotate-180' : ''" aria-hidden="true" />
     </button>
 
-    <!-- 下拉選單 -->
-    <div
-      v-show="isOpen"
-      :id="dropdownId"
-      :class="['absolute z-10 mt-1 w-44 rounded-md border border-gray-200 bg-white shadow-lg', align === 'right' ? 'right-0' : 'left-0']"
-      role="menu"
-      :aria-labelledby="buttonId"
-    >
-      <ul class="max-h-60 overflow-y-auto py-1 text-sm text-gray-700">
-        <li v-for="(item, index) in items" :key="index" role="none">
-          <component
-            :is="item.to ? 'router-link' : item.href ? 'a' : 'button'"
-            :to="item.to"
-            :href="item.href || '#'"
-            :type="item.to || item.href ? undefined : 'button'"
-            class="inline-flex w-full items-center rounded px-4 py-2 text-sm text-gray-700 transition-colors hover:bg-gray-100 hover:text-gray-900 focus:bg-gray-100 focus:text-gray-900 focus:outline-none"
-            :class="item.class"
-            role="menuitem"
-            :aria-label="item.label"
-            @click="handleItemClick(item, index, $event)"
-            @keydown.enter="handleItemClick(item, index, $event)"
-            @keydown.space.prevent="handleItemClick(item, index, $event)"
-          >
-            <slot :name="`item-${index}`" :item="item" :index="index">
-              {{ item.label }}
-            </slot>
-          </component>
-        </li>
-      </ul>
-    </div>
+    <!-- 下拉選單：Teleport 到 body 避免被父層 overflow 裁切 -->
+    <Teleport to="body">
+      <div
+        v-show="isOpen"
+        :id="dropdownId"
+        class="fixed z-[9999] w-44 rounded-md border border-gray-200 bg-white shadow-lg"
+        role="menu"
+        :aria-labelledby="buttonId"
+        :style="menuStyle"
+      >
+        <ul class="max-h-60 overflow-y-auto py-1 text-sm text-gray-700">
+          <li v-for="(item, index) in items" :key="index" role="none">
+            <component
+              :is="item.to ? 'router-link' : item.href ? 'a' : 'button'"
+              :to="item.to"
+              :href="item.href || '#'"
+              :type="item.to || item.href ? undefined : 'button'"
+              class="inline-flex w-full items-center rounded px-4 py-2 text-sm text-gray-700 transition-colors hover:bg-gray-100 hover:text-gray-900 focus:bg-gray-100 focus:text-gray-900 focus:outline-none"
+              :class="item.class"
+              role="menuitem"
+              :aria-label="item.label"
+              @click="handleItemClick(item, index, $event)"
+              @keydown.enter="handleItemClick(item, index, $event)"
+              @keydown.space.prevent="handleItemClick(item, index, $event)"
+            >
+              <slot :name="`item-${index}`" :item="item" :index="index">
+                {{ item.label }}
+              </slot>
+            </component>
+          </li>
+        </ul>
+      </div>
+    </Teleport>
   </div>
 </template>
 
@@ -81,8 +85,23 @@ const props = withDefaults(
 const emit = defineEmits(["item-click", "toggle"]);
 
 const isOpen = ref(false);
-const buttonId = computed(() => `dropdown-button-${Math.random().toString(36).substring(2, 11)}`);
-const dropdownId = computed(() => `dropdown-${Math.random().toString(36).substring(2, 11)}`);
+const buttonRef = ref<HTMLElement | null>(null);
+const instanceId = `dropdown-${Math.random().toString(36).substring(2, 11)}`;
+const buttonId = `${instanceId}-button`;
+const dropdownId = `${instanceId}-menu`;
+
+const menuStyle = ref<Record<string, string>>({});
+
+const updateMenuPosition = () => {
+  if (!buttonRef.value) return;
+  const rect = buttonRef.value.getBoundingClientRect();
+  const gap = 4;
+  const leftPx = props.align === "right" ? rect.right - 176 : rect.left;
+  menuStyle.value = {
+    top: `${rect.bottom + gap}px`,
+    left: `${leftPx}px`,
+  };
+};
 
 const buttonClasses = computed(() => {
   return "bg-gray-50 border border-gray-300 text-gray-500 hover:bg-gray-100 focus:border-primary-500 focus:ring-primary-500 rounded-lg px-4 py-3 text-sm font-normal leading-[1.25]";
@@ -99,7 +118,9 @@ const buttonTextClasses = computed(() => {
 });
 
 const toggle = () => {
-  isOpen.value = !isOpen.value;
+  const willOpen = !isOpen.value;
+  if (willOpen) updateMenuPosition();
+  isOpen.value = willOpen;
   emit("toggle", isOpen.value);
 };
 
@@ -111,7 +132,6 @@ const close = () => {
 };
 
 const handleItemClick = (item: DropdownItem, index: number, event: Event) => {
-  // 如果是按鈕類型，阻止預設行為
   if (!item.to && !item.href) {
     event.preventDefault();
   }
@@ -121,19 +141,27 @@ const handleItemClick = (item: DropdownItem, index: number, event: Event) => {
 
 const handleClickOutside = (event: Event) => {
   const target = event.target as HTMLElement;
-  const dropdownElement = document.getElementById(dropdownId.value);
-  const buttonElement = document.getElementById(buttonId.value);
+  const dropdownElement = document.getElementById(dropdownId);
+  const buttonElement = document.getElementById(buttonId);
 
   if (isOpen.value && dropdownElement && buttonElement && !dropdownElement.contains(target) && !buttonElement.contains(target)) {
     close();
   }
 };
 
+const handleScrollOrResize = () => {
+  if (isOpen.value) close();
+};
+
 onMounted(() => {
   document.addEventListener("click", handleClickOutside);
+  window.addEventListener("scroll", handleScrollOrResize, true);
+  window.addEventListener("resize", handleScrollOrResize);
 });
 
 onUnmounted(() => {
   document.removeEventListener("click", handleClickOutside);
+  window.removeEventListener("scroll", handleScrollOrResize, true);
+  window.removeEventListener("resize", handleScrollOrResize);
 });
 </script>

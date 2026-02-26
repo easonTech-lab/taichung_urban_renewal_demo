@@ -5,10 +5,10 @@
       {{ label }}
       <span v-if="required" class="ml-1 text-xs leading-none text-red-500">*</span>
     </label>
-    <div class="flex w-full flex-col gap-2">
+    <div class="relative flex w-full flex-col gap-2">
       <!-- Upload Area -->
       <div
-        class="flex h-[228px] w-full flex-col items-center justify-center rounded-lg border-2 border-dashed bg-gray-50"
+        class="flex h-[228px] w-full max-w-[364px] flex-col items-center justify-center rounded-lg border-2 border-dashed bg-gray-50"
         :class="[isDragging ? 'border-primary-500 bg-primary-50' : 'border-gray-200']"
         @drop.prevent="handleDrop"
         @dragover.prevent="isDragging = true"
@@ -20,12 +20,27 @@
             <p class="text-sm font-semibold text-gray-500">點擊新增或拖曳檔案到此區塊</p>
             <p class="text-xs font-medium text-gray-500">檔案大小勿超過{{ maxSize }}MB</p>
           </div>
-          <!-- Upload Button -->
-          <ButtonCTA variant="primary" size="sm" left-icon="searchFile" @click="triggerFileInput"> 從電腦新增 </ButtonCTA>
+          <!-- 原生按鈕同步觸發 input.click()，相容性最佳 -->
+          <button
+            type="button"
+            class="inline-flex items-center justify-center gap-2 rounded-lg border border-primary-700 bg-transparent px-3 py-2 text-xs font-medium leading-[1.5] text-primary-700 transition-colors hover:bg-primary-50 focus:outline-none focus:ring-2 focus:ring-primary-600 focus:ring-offset-2"
+            @click="onSelectFileClick"
+          >
+            <Icon name="searchFile" :size="20" class="h-5 w-5 shrink-0" />
+            <span>從電腦新增</span>
+          </button>
         </div>
       </div>
-      <!-- Hidden File Input -->
-      <input :id="inputId" ref="fileInputRef" type="file" :accept="accept" :multiple="multiple" class="hidden" @change="handleFileChange" />
+      <input
+        ref="fileInputRef"
+        type="file"
+        :accept="accept"
+        :multiple="multiple"
+        class="absolute h-0 w-0 p-0 opacity-0"
+        tabindex="-1"
+        aria-hidden="true"
+        @change="handleFileChange"
+      />
 
       <!-- File List -->
       <div v-if="files.length > 0" class="flex flex-col gap-4">
@@ -46,7 +61,6 @@
 <script setup lang="ts">
 import { ref, computed } from "vue";
 import Icon from "@/components/atoms/Icon.vue";
-import ButtonCTA from "@/components/atoms/ButtonCTA.vue";
 
 const props = withDefaults(
   defineProps<{
@@ -65,17 +79,24 @@ const props = withDefaults(
     accept: "*",
     multiple: false,
     maxSize: 30,
-    showLabel: false,
+    showLabel: true,
     required: false,
     labelPosition: "vertical",
     containerClass: "",
   }
 );
 
+export type FileUploadErrorType = "size" | "format";
+
+export type FileUploadErrorPayload = {
+  type: FileUploadErrorType;
+  maxSize?: number;
+};
+
 const emit = defineEmits<{
   "update:modelValue": [files: File[]];
   "file-selected": [files: File[]];
-  "file-error": [error: string];
+  "file-error": [payload: FileUploadErrorPayload];
   "file-removed": [index: number];
 }>();
 
@@ -87,60 +108,110 @@ const files = computed({
 const fileInputRef = ref<HTMLInputElement | null>(null);
 const isDragging = ref(false);
 
-const inputId = computed(() => `file-upload-${Math.random().toString(36).substring(2, 11)}`);
-
 const maxSizeText = computed(() => {
   return `${props.maxSize}MB`;
 });
 
-const triggerFileInput = () => {
+const isAcceptValid = (file: File): boolean => {
+  if (!props.accept || props.accept === "*") return true;
+  const acceptList = props.accept.split(",").map((s) => s.trim().toLowerCase());
+  const name = file.name.toLowerCase();
+  const type = file.type.toLowerCase();
+  return acceptList.some((rule) => {
+    if (rule.startsWith(".")) return name.endsWith(rule);
+    if (rule.endsWith("/*")) return type.startsWith(rule.slice(0, -1));
+    return type === rule || name.endsWith(rule);
+  });
+};
+
+const maxSizeBytes = computed(() => props.maxSize * 1024 * 1024);
+
+/** 必須在使用者點擊的同一同步執行緒裡呼叫 input.click()，否則部分瀏覽器不會開選檔視窗 */
+const onSelectFileClick = () => {
   fileInputRef.value?.click();
 };
 
-const validateFile = (file: File): boolean => {
-  const maxSizeBytes = props.maxSize * 1024 * 1024; // Convert MB to bytes
-  if (file.size > maxSizeBytes) {
-    emit("file-error", `檔案大小超過限制（最大 ${props.maxSize}MB）`);
-    return false;
+const validateFile = (
+  file: File
+): { valid: true } | { valid: false; payload: FileUploadErrorPayload } => {
+  if (!isAcceptValid(file)) {
+    return { valid: false, payload: { type: "format" } };
   }
-  return true;
+  if (file.size > maxSizeBytes.value) {
+    return { valid: false, payload: { type: "size", maxSize: props.maxSize } };
+  }
+  return { valid: true };
 };
 
 const handleFileChange = (event: Event) => {
   const target = event.target as HTMLInputElement;
   const selectedFiles = target.files;
-  if (selectedFiles && selectedFiles.length > 0) {
-    const fileArray = Array.from(selectedFiles);
-    const validFiles = fileArray.filter(validateFile);
-    if (validFiles.length > 0) {
-      if (props.multiple) {
-        files.value = [...files.value, ...validFiles];
-      } else {
-        files.value = validFiles;
-      }
-      emit("file-selected", validFiles);
+  if (!selectedFiles || selectedFiles.length === 0) return;
+
+  const fileArray = Array.from(selectedFiles);
+  // 先清空 input，盡快釋放大檔案參考，避免卡住
+  if (fileInputRef.value) {
+    fileInputRef.value.value = "";
+  }
+
+  const validFiles: File[] = [];
+  const errorsToEmit: FileUploadErrorPayload[] = [];
+
+  for (const file of fileArray) {
+    const result = validateFile(file);
+    if (result.valid) {
+      validFiles.push(file);
+    } else {
+      errorsToEmit.push((result as { valid: false; payload: FileUploadErrorPayload }).payload);
     }
-    // Reset input so the same file can be selected again
-    if (fileInputRef.value) {
-      fileInputRef.value.value = "";
+  }
+
+  // 先檢查、先擋：有違規就立刻顯示警告，不加入任何檔案
+  if (errorsToEmit.length > 0) {
+    errorsToEmit.forEach((payload) => emit("file-error", payload));
+    return;
+  }
+
+  if (validFiles.length > 0) {
+    if (props.multiple) {
+      files.value = [...files.value, ...validFiles];
+    } else {
+      files.value = validFiles;
     }
+    emit("file-selected", validFiles);
   }
 };
 
 const handleDrop = (event: DragEvent) => {
   isDragging.value = false;
   const droppedFiles = event.dataTransfer?.files;
-  if (droppedFiles && droppedFiles.length > 0) {
-    const fileArray = Array.from(droppedFiles);
-    const validFiles = fileArray.filter(validateFile);
-    if (validFiles.length > 0) {
-      if (props.multiple) {
-        files.value = [...files.value, ...validFiles];
-      } else {
-        files.value = validFiles;
-      }
-      emit("file-selected", validFiles);
+  if (!droppedFiles || droppedFiles.length === 0) return;
+
+  const fileArray = Array.from(droppedFiles);
+  const validFiles: File[] = [];
+  const errorsToEmit: FileUploadErrorPayload[] = [];
+
+  for (const file of fileArray) {
+    const result = validateFile(file);
+    if (result.valid) {
+      validFiles.push(file);
+    } else {
+      errorsToEmit.push((result as { valid: false; payload: FileUploadErrorPayload }).payload);
     }
+  }
+
+  // 先檢查、先擋：有違規就立刻顯示警告，不加入任何檔案
+  if (errorsToEmit.length > 0) {
+    errorsToEmit.forEach((payload) => emit("file-error", payload));
+    return;
+  }
+  if (validFiles.length > 0) {
+    if (props.multiple) {
+      files.value = [...files.value, ...validFiles];
+    } else {
+      files.value = validFiles;
+    }
+    emit("file-selected", validFiles);
   }
 };
 

@@ -50,7 +50,11 @@
           @download="handleDownloadComplaint"
           @upload="handleUploadComplaint"
         />
-        <ProgressTab v-if="activeTab === 'progress'" :is-admin-user="isAdminUser" />
+        <ProgressTab
+          v-if="activeTab === 'progress'"
+          :is-admin-user="isAdminUser"
+          :case-officer-names="caseOfficerNames"
+        />
         <FilesTab
           v-if="activeTab === 'files'"
           :files="allFiles"
@@ -60,7 +64,7 @@
       </div>
     </div>
 
-    <div class="fixed bottom-6 left-1/2 z-[90] w-[min(900px,calc(100vw-2rem))] -translate-x-1/2">
+    <div class="fixed bottom-6 z-[90]" :style="deleteToastStyle">
       <Toast v-model="showDeleteToast" :message="deleteToastMessage" :show-actions="false" :show-close="false" :auto-close="true">
         <template #icon>
           <Icon name="check" :size="24" class="text-gray-50" aria-hidden="true" />
@@ -76,6 +80,31 @@
       @confirm="handleConfirmDelete"
       @cancel="handleCloseConfirmDelete"
     />
+
+    <!-- 人民陳情：隱藏檔案 input，點上傳檔案時直接開啟選檔 -->
+    <input
+      ref="complaintFileInputRef"
+      type="file"
+      multiple
+      class="sr-only"
+      aria-hidden="true"
+      tabindex="-1"
+      @change="handleComplaintFileInputChange"
+    />
+
+    <Modal v-model="showUploadComplaintWarning" size="md" backdrop-class="bg-gray-600/80" :show-close-button="true">
+      <template #body>
+        <div class="flex flex-col items-center gap-4 px-6 py-5">
+          <div class="flex h-6 w-6 items-center justify-center rounded-full bg-gray-400 text-xs font-medium text-white">!</div>
+          <p class="w-[311px] text-center text-base font-normal leading-[1.5] text-gray-600">{{ uploadComplaintWarningMessage }}</p>
+        </div>
+      </template>
+      <template #footer>
+        <div class="flex justify-center px-6 pb-6">
+          <ButtonCTA variant="primary" size="xs" @click="showUploadComplaintWarning = false">確認</ButtonCTA>
+        </div>
+      </template>
+    </Modal>
   </div>
 </template>
 
@@ -87,6 +116,7 @@ import Toast from "@/components/atoms/Toast.vue";
 import ButtonCTA from "@/components/atoms/ButtonCTA.vue";
 import Breadcrumb from "@/components/atoms/Breadcrumb.vue";
 import SidebarSection from "@/components/sections/backend/SidebarSection.vue";
+import Modal from "@/components/atoms/Modal.vue";
 import ConfirmDeleteModal from "@/components/molecules/ConfirmDeleteModal.vue";
 import FilesTab from "@/views/backend/caseManagement/common/tabs/FilesTab.vue";
 import ProgressTab from "@/views/backend/caseManagement/common/tabs/ProgressTab.vue";
@@ -196,6 +226,13 @@ const confirmDeleteAction = ref<(() => void) | null>(null);
 const showDeleteToast = ref(false);
 const deleteToastMessage = ref("檔案已刪除");
 const showUnsavedToast = ref(false);
+const deleteToastStyle = {
+  left: "50%",
+  transform: "translateX(-50%)",
+  width: "min(1420px, calc(100vw - 2rem))",
+  maxWidth: "min(1420px, calc(100vw - 2rem))",
+  minWidth: "min(1420px, calc(100vw - 2rem))",
+};
 
 const caseInfo = ref({
   name: "臺中市東區行政段645地號等21筆土地 都市更新事業計畫及權利變換計畫案",
@@ -239,6 +276,12 @@ const officerTableRows = ref<OfficerTableRow[]>([
     background: "國立臺北大學都市計劃研究所博士",
   },
 ]);
+
+const caseOfficerNames = computed(() => {
+  const fromList = officerList.value.map((o) => o.selectedOfficer).filter(Boolean).join("、");
+  if (fromList) return fromList;
+  return officerTableRows.value.map((r) => r.name).join("、");
+});
 
 const officerList = ref<OfficerItem[]>(
   Array.from({ length: 5 }, () => ({
@@ -410,8 +453,58 @@ const handleRequestDeleteComplaint = (row: ComplaintRow) => {
   });
 };
 
+const complaintFileInputRef = ref<HTMLInputElement | null>(null);
+const uploadTargetSection = ref<ComplaintSection | null>(null);
+const showUploadComplaintWarning = ref(false);
+const uploadComplaintWarningMessage = ref("");
+
+const COMPLAINT_FILE_MAX_SIZE_MB = 30;
+
+const formatUploadedAt = (date: Date): string => {
+  const y = date.getFullYear() - 1911;
+  const m = String(date.getMonth() + 1).padStart(2, "0");
+  const d = String(date.getDate()).padStart(2, "0");
+  const h = String(date.getHours()).padStart(2, "0");
+  const min = String(date.getMinutes()).padStart(2, "0");
+  return `${y}/${m}/${d} ${h}:${min}`;
+};
+
 const handleUploadComplaint = (section: ComplaintSection) => {
-  console.log("Upload complaint file for:", section.title);
+  uploadTargetSection.value = section;
+  complaintFileInputRef.value?.click();
+};
+
+const handleComplaintFileInputChange = (event: Event) => {
+  const input = event.target as HTMLInputElement;
+  const files = input.files;
+  if (!files || files.length === 0) {
+    input.value = "";
+    return;
+  }
+  const section = uploadTargetSection.value;
+  if (!section) {
+    input.value = "";
+    return;
+  }
+  const maxBytes = COMPLAINT_FILE_MAX_SIZE_MB * 1024 * 1024;
+  const now = formatUploadedAt(new Date());
+  let added = 0;
+  for (let i = 0; i < files.length; i++) {
+    const file = files[i];
+    if (file.size > maxBytes) {
+      uploadComplaintWarningMessage.value = `檔案大小需限 ${COMPLAINT_FILE_MAX_SIZE_MB}MB，請重新確認`;
+      showUploadComplaintWarning.value = true;
+      input.value = "";
+      return;
+    }
+    section.rows.push({ title: file.name, uploadedAt: now });
+    added++;
+  }
+  if (added > 0) {
+    deleteToastMessage.value = "已新增至表格";
+    showDeleteToast.value = true;
+  }
+  input.value = "";
 };
 
 const handleDownloadComplaint = (row: ComplaintRow) => {

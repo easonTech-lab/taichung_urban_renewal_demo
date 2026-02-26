@@ -54,20 +54,69 @@
               新增
             </ButtonCTA>
           </div>
-          <RichTextEditor v-model="formData.answer" label="回答(限200字)" placeholder="請輸入回答內容..." required :maxlength="200" />
+          <RichTextEditor
+            v-model="formData.answer"
+            label="回答(限200字)"
+            :show-label="true"
+            placeholder="請輸入回答內容..."
+            required
+            :maxlength="200"
+            :enforce-maxlength="false"
+            :error="isAnswerOverLimit"
+            :error-message="isAnswerOverLimit ? '回答限200字以內' : ''"
+          />
         </div>
       </div>
       <div class="flex items-center justify-center gap-4">
-        <ButtonCTA variant="outline" size="l" @click="handleSaveDraft">暫存</ButtonCTA>
-        <ButtonCTA variant="primary" size="l" :disabled="isPublishDisabled" @click="handlePublish">發布</ButtonCTA>
+        <template v-if="isEditMode">
+          <ButtonCTA variant="outline" size="l" @click="handleCancelEdit">取消</ButtonCTA>
+          <ButtonCTA variant="primary" size="l" :disabled="isPublishDisabled" @click="handlePublish">儲存</ButtonCTA>
+        </template>
+        <template v-else>
+          <ButtonCTA variant="outline" size="l" @click="handleSaveDraft">暫存</ButtonCTA>
+          <ButtonCTA variant="primary" size="l" :disabled="isPublishDisabled" @click="handlePublish">發布</ButtonCTA>
+        </template>
       </div>
     </div>
+
+    <Modal v-model="showUnsavedChangesModal" size="md" :static="false" :show-close-button="false" close-action="emit" backdrop-class="bg-gray-600/80">
+      <template #header>
+        <div class="flex w-full items-center justify-end px-4 pt-4">
+          <button
+            type="button"
+            class="flex h-6 w-6 items-center justify-center text-gray-400 hover:text-gray-500"
+            aria-label="關閉"
+            @click="showUnsavedChangesModal = false"
+          >
+            <Icon name="close" :size="20" aria-hidden="true" />
+          </button>
+        </div>
+      </template>
+      <template #body>
+        <div class="flex w-full flex-col items-center gap-4 px-6 py-5">
+          <div class="flex h-6 w-6 items-center justify-center rounded-full bg-gray-400 text-xl font-medium leading-none text-white">!</div>
+          <p class="w-[311px] text-center text-base font-normal leading-[1.5] text-gray-600">有尚未儲存的修改，離開前是否先儲存</p>
+        </div>
+      </template>
+      <template #footer>
+        <div class="flex w-full items-center justify-center gap-4 px-6 pb-6 pt-0">
+          <ButtonCTA variant="white" size="xs" class="h-8 w-[120px] border-gray-200 px-3 py-2 text-sm font-medium leading-[1.5] text-gray-800" @click="handleExitWithoutSaving">
+            退出編輯
+          </ButtonCTA>
+          <ButtonCTA variant="primary" size="xs" class="h-8 w-[120px] px-3 py-2 text-sm font-medium leading-[1.5]" :disabled="isPublishDisabled" @click="handleSaveFromUnsavedModal">
+            儲存修改
+          </ButtonCTA>
+        </div>
+      </template>
+    </Modal>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from "vue";
+import { useFormUnsavedCheck } from "@/composables/useFormUnsavedCheck";
 import { useRouter, useRoute } from "vue-router";
+import Modal from "@/components/atoms/Modal.vue";
 import Icon from "@/components/atoms/Icon.vue";
 import Input from "@/components/atoms/Input.vue";
 import Radio from "@/components/atoms/Radio.vue";
@@ -82,6 +131,7 @@ const router = useRouter();
 const route = useRoute();
 
 const isEditMode = computed(() => route.query.edit === "true");
+const showUnsavedChangesModal = ref(false);
 
 const formData = ref<FaqFormData>({
   title: "",
@@ -105,10 +155,13 @@ const categoryOptions = ref([
 const showNewCategory = ref(false);
 const newCategoryName = ref("");
 const isNewCategoryValid = computed(() => newCategoryName.value.trim().length > 0);
+const answerTextLength = computed(() => getPlainTextLength(formData.value.answer));
+const isAnswerOverLimit = computed(() => answerTextLength.value > 200);
 const isPublishDisabled = computed(() => {
   if (!formData.value.title.trim()) return true;
   if (!formData.value.category) return true;
-  return getPlainTextLength(formData.value.answer) === 0;
+  if (isAnswerOverLimit.value) return true;
+  return answerTextLength.value === 0;
 });
 
 const handleSidebarItemSelect = (itemName: string) => {
@@ -117,6 +170,37 @@ const handleSidebarItemSelect = (itemName: string) => {
 
 const handleGoBack = () => {
   router.back();
+};
+
+const buildFormSnapshot = () =>
+  JSON.stringify({
+    title: formData.value.title.trim(),
+    category: formData.value.category,
+    answer: formData.value.answer,
+  });
+
+const { hasUnsavedChanges, captureInitial } = useFormUnsavedCheck(buildFormSnapshot, isEditMode);
+
+const navigateToFAQList = () => {
+  router.push("/faq-management");
+};
+
+const handleCancelEdit = () => {
+  if (hasUnsavedChanges.value) {
+    showUnsavedChangesModal.value = true;
+    return;
+  }
+  navigateToFAQList();
+};
+
+const handleExitWithoutSaving = () => {
+  showUnsavedChangesModal.value = false;
+  navigateToFAQList();
+};
+
+const handleSaveFromUnsavedModal = () => {
+  showUnsavedChangesModal.value = false;
+  handlePublish();
 };
 
 const handleAddCategory = () => {
@@ -140,7 +224,7 @@ const handleSaveDraft = () => {
   // TODO: Implement save draft functionality
   console.log("暫存", formData.value);
   // Navigate back to FAQ management page
-  router.push("/faq-management");
+  navigateToFAQList();
 };
 
 const handlePublish = () => {
@@ -176,5 +260,6 @@ onMounted(() => {
   if (route.query.answer) {
     formData.value.answer = route.query.answer as string;
   }
+  captureInitial();
 });
 </script>

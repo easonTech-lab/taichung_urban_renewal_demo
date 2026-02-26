@@ -41,7 +41,7 @@
         </div>
 
         <!-- Accordion Content (Expandable) -->
-        <div v-if="accordionMode && isStepExpanded(index) && step.children" class="ml-4 mt-4 border-l-2 border-primary-600 border-l-[2px] pl-4">
+        <div v-if="accordionMode && isStepExpanded(index) && step.children" class="ml-4 mt-4 border-l-2 border-primary-600 pl-4">
           <slot :name="`content-${index}`" :step="step" :index="index">
             <div v-if="step.children && step.children.length > 0" class="space-y-4">
               <div v-for="(child, childIndex) in step.children" :key="childIndex" class="flex items-center gap-3">

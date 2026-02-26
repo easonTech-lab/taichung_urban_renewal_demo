@@ -127,34 +127,13 @@ const searchQuery = ref<string>("");
 const appliedSearchQuery = ref<string>(""); // 應用於過濾的搜尋關鍵字（點擊搜尋後才應用）
 const pageSize = computed(() => props.pageSize);
 
-// Table Columns
+// Table Columns（項次 5% / 文件名稱 42% / 案件類別 12% / 發布日期 12% / 動作 14%）
 const tableColumns: TableColumn[] = [
-  {
-    key: "index",
-    label: "項次",
-    headerClass: "w-[60px]",
-    cellClass: "w-[60px]",
-  },
-  {
-    key: "fileName",
-    label: "文件名稱",
-  },
-  {
-    key: "category",
-    label: "案件類別",
-    headerClass: "w-[200px]",
-    cellClass: "w-[200px]",
-  },
-  {
-    key: "publishDate",
-    label: "發布日期",
-    headerClass: "w-[140px]",
-    cellClass: "w-[140px]",
-  },
-  {
-    key: "action",
-    label: "動作",
-  },
+  { key: "index", label: "項次", width: "5%" },
+  { key: "fileName", label: "文件名稱", width: "42%" },
+  { key: "category", label: "案件類別", width: "12%" },
+  { key: "publishDate", label: "發布日期", width: "12%" },
+  { key: "action", label: "動作", width: "14%" },
 ];
 
 // 搜索資料

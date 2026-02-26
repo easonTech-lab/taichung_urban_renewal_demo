@@ -42,8 +42,9 @@
             </template>
             <!-- Action -->
             <template #cell-action="{ row }">
-              <div class="flex items-center gap-2">
+              <div class="flex items-center gap-4">
                 <ButtonCTA variant="textPlain" size="sm" @click.stop="handlePreview(row)">預覽</ButtonCTA>
+                <ButtonCTA variant="text" size="sm" icon-only left-icon="editOutline" @click.stop="handleEdit(row)" aria-label="編輯" />
                 <ButtonCTA variant="text" size="sm" icon-only left-icon="trashCan" @click.stop="handleDelete(row)" aria-label="刪除" />
               </div>
             </template>
@@ -164,41 +165,14 @@ const allMessages = ref<PublicMessageItem[]>([
   },
 ]);
 
-// Table Columns
+// Table Columns（比例：項次 5% / 公開消息 42% / 類別 11% / 發布日期 12% / 狀態 10% / 動作 20%）
 const tableColumns: TableColumn[] = [
-  {
-    key: "index",
-    label: "項次",
-    headerClass: "w-[60px]",
-    cellClass: "w-[60px]",
-  },
-  {
-    key: "title",
-    label: "公開消息",
-  },
-  {
-    key: "category",
-    label: "類別",
-    headerClass: "w-[173px]",
-    cellClass: "w-[173px]",
-  },
-  {
-    key: "publishDate",
-    label: "發布日期",
-    headerClass: "w-[140px]",
-    cellClass: "w-[140px]",
-    sortable: true,
-  },
-  {
-    key: "status",
-    label: "狀態",
-  },
-  {
-    key: "action",
-    label: "動作",
-    headerClass: "w-[96px]",
-    cellClass: "w-[96px]",
-  },
+  { key: "index", label: "項次", width: "5%" },
+  { key: "title", label: "公開消息", width: "42%" },
+  { key: "category", label: "類別", width: "11%" },
+  { key: "publishDate", label: "發布日期", width: "12%", sortable: true },
+  { key: "status", label: "狀態", width: "10%" },
+  { key: "action", label: "動作", width: "20%" },
 ];
 
 // Filtered Messages
@@ -249,6 +223,10 @@ const handleAddMessage = () => {
 };
 
 const handleRowClick = (row: Record<string, any>) => {
+  handleEdit(row);
+};
+
+const handleEdit = (row: Record<string, any>) => {
   const item = row as PublicMessageItem;
   router.push({
     path: "/public-message-management/add",
@@ -256,7 +234,7 @@ const handleRowClick = (row: Record<string, any>) => {
       edit: "true",
       title: item.title,
       category: item.category,
-      content: "",
+      content: (item as any).content ?? "",
     },
   });
 };

@@ -465,7 +465,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, computed, onMounted } from "vue";
 import Input from "@/components/atoms/Input.vue";
 import Radio from "@/components/atoms/Radio.vue";
 import Checkbox from "@/components/atoms/Checkbox.vue";
@@ -479,12 +479,15 @@ import Tabs, { type TabItem } from "@/components/atoms/Tabs.vue";
 import InputDropdown, { type InputDropdownItem } from "@/components/atoms/InputDropdown.vue";
 
 
-const breadcrumbItems = [
+/** 從案件詳情按鈕進入為編輯，從新增流程進入為新增 */
+const isFromCaseDetail = ref(false);
+
+const breadcrumbItems = computed(() => [
   { label: "首頁", to: "/" },
   { label: "案件管理", to: "/case-management" },
   { label: "都市更新案件", to: "/case-management" },
-  { label: "內容頁" },
-];
+  { label: isFromCaseDetail.value ? "編輯都更案件" : "新增都更案件" },
+]);
 
 const tabItems: TabItem[] = [{ label: "申請基本資料" }, { label: "公開基本資料" }];
 const activeTab = ref(0);
@@ -558,6 +561,50 @@ const publicForm = ref({
     "https://images.unsplash.com/photo-1503387762-592deb58ef4e?q=80&w=1200&auto=format&fit=crop",
   ],
   demolitionImages: [],
+});
+
+const STORAGE_KEY_CASE_FOR_APPLICATION = "caseDetailForApplication";
+
+/** 解析案件詳情頁傳入的申請日期（例：114/10/20）為 Date */
+function parseApplyDateFromCaseInfo(value: string): Date | null {
+  if (!value || typeof value !== "string") return null;
+  const m = value.trim().match(/^(\d+)\/(\d+)\/(\d+)$/);
+  if (!m) return null;
+  const rocYear = parseInt(m[1], 10);
+  const month = parseInt(m[2], 10) - 1;
+  const day = parseInt(m[3], 10);
+  const year = rocYear + 1911;
+  const d = new Date(year, month, day);
+  return isNaN(d.getTime()) ? null : d;
+}
+
+onMounted(() => {
+  try {
+    const raw = sessionStorage.getItem(STORAGE_KEY_CASE_FOR_APPLICATION);
+    if (!raw) return;
+    isFromCaseDetail.value = true;
+    const data = JSON.parse(raw) as {
+      name?: string;
+      number?: string;
+      applyDate?: string;
+      applicantName?: string;
+      phone?: string;
+      email?: string;
+      address?: string;
+    };
+    sessionStorage.removeItem(STORAGE_KEY_CASE_FOR_APPLICATION);
+    if (data.name) formData.value.caseName = data.name;
+    if (data.applyDate) {
+      const d = parseApplyDateFromCaseInfo(data.applyDate);
+      if (d) formData.value.applyDate = d;
+    }
+    if (data.applicantName) formData.value.applicantName = data.applicantName;
+    if (data.phone) formData.value.applicantPhone = data.phone;
+    if (data.address) formData.value.applicantAddress = data.address;
+    if (data.email) formData.value.applicantEmail = data.email;
+  } catch (_) {
+    // ignore
+  }
 });
 
 const handleSidebarItemSelect = (itemName: string) => {

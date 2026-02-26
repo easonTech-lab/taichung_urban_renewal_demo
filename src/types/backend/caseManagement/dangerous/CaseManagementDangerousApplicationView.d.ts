@@ -1,3 +1,33 @@
-// Mirror type file for corresponding Vue view.
-// Add view-specific type definitions here.
-export {};
+export interface DangerousApplicationFormData {
+  builderType: string;
+  designerName: string;
+  licenseNumber: string;
+  officeName: string;
+  businessScope: string;
+  officePhone: string;
+  officeFax: string;
+  officeAddress: string;
+  district: string;
+  lotNumber: string;
+  buildingLineDate: Date | null;
+  permitNumber: string;
+  legalCoverageRatio: string;
+  legalFAR: string;
+  totalSiteArea: string;
+  landUseZone: string;
+  siteOfficeAddress: string;
+  condition: string;
+  landOwner: string;
+  buildingOwner: string;
+  buildingAddress: string;
+  buildingConditionType: string;
+  actualUsage: string;
+  preRebuildBuildingCount: string;
+  preRebuildFloorCount: string;
+  preRebuildHouseholdCount: string;
+  postRebuildBuildingCount: string;
+  postRebuildFloorCount: string;
+  postRebuildHouseholdCount: string;
+  designFAR: string;
+  psercbId: string;
+}

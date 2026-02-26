@@ -32,39 +32,99 @@
               </div>
             </template>
             <template #cell-nameGender="{ row }">
-              <div class="flex h-20 flex-col items-start justify-center gap-1 px-4 py-4">
-                <p class="text-nowrap text-base font-normal leading-[1.5] text-gray-800">{{ row.name || "未選擇" }}</p>
-                <p v-if="row.gender" class="text-base font-normal leading-[1.5] text-gray-500">{{ row.gender }}</p>
+              <div class="flex h-20 min-w-0 flex-col items-start justify-center gap-1 px-4 py-4">
+                <p class="min-w-0 truncate text-base font-normal leading-[1.5] text-gray-800">{{ row.name || "未選擇" }}</p>
+                <p v-if="row.gender" class="min-w-0 truncate text-base font-normal leading-[1.5] text-gray-500">{{ row.gender }}</p>
               </div>
             </template>
             <template #cell-title="{ row }">
-              <div class="flex h-20 items-center p-4">
-                <p class="text-base font-normal leading-[1.5] text-gray-500">{{ row.title || "-" }}</p>
+              <div class="flex h-20 min-w-0 items-center p-4">
+                <p class="min-w-0 truncate text-base font-normal leading-[1.5] text-gray-500">{{ row.title || "-" }}</p>
               </div>
             </template>
             <template #cell-education="{ row }">
-              <div class="flex h-20 items-center p-4">
-                <p class="whitespace-pre-wrap text-base font-normal leading-[1.5] text-gray-500">{{ row.education || "-" }}</p>
+              <div class="flex min-w-0 items-center p-4">
+                <p class="line-clamp-3 min-w-0 text-base font-normal leading-[1.5] text-gray-500">
+                  {{ row.education || "-" }}
+                </p>
               </div>
             </template>
             <template #cell-action="{ row }">
-              <div class="flex h-20 items-center gap-4 px-4 py-4">
-                <Icon name="profileCard" :size="24" class="shrink-0" />
+              <div class="flex h-20 items-center gap-2 px-4 py-4" @click.stop @mousedown.stop>
                 <ButtonCTA
                   variant="textPlain"
                   size="base"
-                  class="text-nowrap p-0"
+                  icon-only
+                  left-icon="profileCard"
+                  class="shrink-0 p-0"
                   :class="row.name && row.name !== '未選擇' ? 'text-primary-600' : 'text-primary-300'"
-                  @click.stop="handleRemoveOfficerFromTable(row)"
-                >
-                  移除
-                </ButtonCTA>
+                  aria-label="查看委員資料"
+                  @click="handleOfficerProfileCard(row as OfficerData & { email?: string; phone?: string; address?: string })"
+                />
+                <ButtonCTA
+                  variant="text"
+                  size="sm"
+                  icon-only
+                  left-icon="trashCan"
+                  type="button"
+                  aria-label="移除幹事"
+                  @click="handleDeleteOfficer(row)"
+                />
               </div>
             </template>
           </Table>
         </div>
       </div>
     </div>
+    <Drawer v-model="isAddYearDrawerOpen" title="添加年度" width="xl" @close="handleAddYearDrawerClose">
+      <template #default>
+        <div class="flex flex-col">
+          <div
+            v-for="(year, index) in yearList"
+            :key="index"
+            class="flex flex-1 items-center justify-between gap-2 border-b border-gray-300 py-5"
+          >
+            <div class="flex min-w-0 flex-1 items-center gap-2">
+              <Icon name="barsOutline" :size="24" class="shrink-0 text-gray-500" aria-hidden="true" />
+              <Input
+                v-model="yearList[index]"
+                :show-label="false"
+                size="lg"
+                placeholder="請輸入年度"
+                container-class="min-w-0 flex-1"
+                :error="yearErrorMap.has(index)"
+                :error-message="getYearErrorMessage(index)"
+                clear-error-on-input
+                @clear-error="clearYearError(index)"
+              />
+            </div>
+            <ButtonCTA variant="textPlain" size="base" class="shrink-0 p-0 text-primary-600" @click="handleRemoveYear(index)">
+              移除
+            </ButtonCTA>
+          </div>
+          <div class="flex items-center justify-start border-b border-gray-300 py-5">
+            <ButtonCTA variant="outline" size="xl" class="w-full" left-icon="plus" @click="handleAddYear">
+              新增年度
+            </ButtonCTA>
+          </div>
+        </div>
+      </template>
+      <template #footer>
+        <div class="flex gap-4">
+          <ButtonCTA variant="outline" size="xl" class="w-[124px]" @click="handleAddYearCancel"> 取消 </ButtonCTA>
+          <ButtonCTA
+            variant="gray"
+            size="xl"
+            class="w-[124px]"
+            :disabled="hasYearErrors"
+            @click="handleAddYearSave"
+          >
+            儲存
+          </ButtonCTA>
+        </div>
+      </template>
+    </Drawer>
+
     <Drawer v-model="isDrawerOpen" title="幹事管理名單" width="xl" @close="handleDrawerClose">
       <template #default>
         <div class="flex flex-col gap-0">
@@ -98,11 +158,21 @@
         </div>
       </template>
     </Drawer>
+
+    <ConfirmDeleteModal
+      v-model="showDeleteModal"
+      message="確認移除幹事"
+      :description="deleteTarget ? `確定要移除「${deleteTarget.name}」嗎？` : '內容將完全刪除無法復原'"
+      confirm-label="確認"
+      @confirm="handleConfirmDeleteOfficer"
+      @cancel="handleCloseDeleteModal"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, computed } from "vue";
+import { useRouter } from "vue-router";
 import { useTablePagination } from "@/composables/useTablePagination";
 import Icon from "@/components/atoms/Icon.vue";
 import Empty from "@/components/atoms/Empty.vue";
@@ -112,29 +182,64 @@ import Breadcrumb from "@/components/atoms/Breadcrumb.vue";
 import SidebarSection from "@/components/sections/backend/SidebarSection.vue";
 import Tabs, { type TabItem } from "@/components/atoms/Tabs.vue";
 import Table, { type TableColumn } from "@/components/atoms/Table.vue";
+import Input from "@/components/atoms/Input.vue";
 import InputDropdown, { type InputDropdownItem } from "@/components/atoms/InputDropdown.vue";
+import ConfirmDeleteModal from "@/components/molecules/ConfirmDeleteModal.vue";
 import type { OfficerData, OfficerItem } from "@/types/backend/systemManagement/officerList/officerListManagement.d";
 
-// Tabs
-const tabItems: TabItem[] = [{ label: "115" }, { label: "114" }, { label: "113" }, { label: "添加年度" }];
+// Tabs（年度 + 添加年度，儲存後會更新）
+const tabItems = ref<TabItem[]>([{ label: "115" }, { label: "114" }, { label: "113" }, { label: "添加年度" }]);
 
 const activeTab = ref(0);
 
 // Drawer state
 const isDrawerOpen = ref(false);
+const isAddYearDrawerOpen = ref(false);
+
+// Delete modal state
+const showDeleteModal = ref(false);
+const deleteTarget = ref<OfficerData | null>(null);
+
+/** 添加年度側拉選單的年度列表（從現有 tab 帶入） */
+const yearList = ref<string[]>([]);
+
+/** 年度欄位驗證錯誤（儲存時觸發，輸入時重置） */
+const yearErrorMap = ref<Map<number, "format" | "duplicate">>(new Map());
+const hasYearErrors = computed(() => yearErrorMap.value.size > 0);
+const getYearErrorMessage = (index: number) => {
+  const type = yearErrorMap.value.get(index);
+  if (type === "format") return "限輸入阿拉伯數字";
+  if (type === "duplicate") return "輸入年度重複";
+  return undefined;
+};
+
+const openAddYearDrawer = () => {
+  yearList.value = tabItems.value.slice(0, -1).map((t) => t.label);
+  yearErrorMap.value = new Map();
+  isAddYearDrawerOpen.value = true;
+};
 
 // Table Columns
 const tableColumns: TableColumn[] = [
-  { key: "index", label: "項次" },
+  { key: "index", label: "項次", headerClass: "text-left", cellClass: "text-left min-w-[52px]" },
   { key: "nameGender", label: "委員姓名" },
   { key: "title", label: "現職" },
   { key: "education", label: "學經歷" },
-  { key: "action", label: "動作" },
+  { key: "action", label: "動作", cellClass: "min-w-[100px]" },
 ];
 
 // Mock Officer Data
 const allOfficers = ref<OfficerData[]>([
-  { index: 1, name: "張源明", gender: "男", title: "內政部地政司代理司長", education: "日本東京大學地震研究所 博士\n銘傳大學都市規劃與防災學 碩士" },
+  {
+    index: 1,
+    name: "張源明",
+    gender: "男",
+    title: "內政部地政司代理司長",
+    education: "日本東京大學地震研究所 博士\n銘傳大學都市規劃與防災學 碩士",
+    email: "tmcg01mb@gmail.com",
+    phone: "0922289911",
+    address: "臺中市西屯區文心路二段588號",
+  } as OfficerData & { email?: string; phone?: string; address?: string },
   {
     index: 2,
     name: "林珮君",
@@ -208,10 +313,26 @@ const handleSidebarItemSelect = (itemName: string) => {
 };
 
 const handleTabClick = (index: number) => {
+  if (index === tabItems.value.length - 1) {
+    // 點擊「添加年度」開啟側拉選單
+    openAddYearDrawer();
+    return;
+  }
   activeTab.value = index;
 };
 
+const populateOfficerListFromTable = () => {
+  if (allOfficers.value.length === 0) {
+    officerList.value = [{ selectedOfficer: "" }];
+  } else {
+    officerList.value = allOfficers.value.map((o) => ({
+      selectedOfficer: o.name && o.name !== "未選擇" ? o.name : "",
+    }));
+  }
+};
+
 const handleManageList = () => {
+  populateOfficerListFromTable();
   isDrawerOpen.value = true;
 };
 
@@ -221,6 +342,7 @@ const handleExportList = () => {
 };
 
 const handleAddOfficer = () => {
+  populateOfficerListFromTable();
   isDrawerOpen.value = true;
 };
 
@@ -254,9 +376,106 @@ const handleSave = () => {
   isDrawerOpen.value = false;
 };
 
-const handleRemoveOfficerFromTable = (row: Record<string, any>) => {
-  const officer = row as OfficerData;
-  console.log("Remove officer from table:", officer);
-  // TODO: Implement remove logic
+const handleDeleteOfficer = (row: Record<string, any>) => {
+  deleteTarget.value = row as OfficerData;
+  showDeleteModal.value = true;
+};
+
+const handleCloseDeleteModal = () => {
+  showDeleteModal.value = false;
+  deleteTarget.value = null;
+};
+
+const handleConfirmDeleteOfficer = () => {
+  if (deleteTarget.value) {
+    const index = allOfficers.value.findIndex((o) => o.index === deleteTarget.value?.index);
+    if (index !== -1) {
+      allOfficers.value.splice(index, 1);
+    }
+    // TODO: 調用 API 刪除資料
+    console.log("Removed officer:", deleteTarget.value);
+  }
+  handleCloseDeleteModal();
+};
+
+const router = useRouter();
+
+const handleOfficerProfileCard = (row: OfficerData & { email?: string; phone?: string; address?: string }) => {
+  router.push({
+    path: "/officer-list-management/edit",
+    state: {
+      officer: {
+        name: row.name || "",
+        gender: row.gender || "",
+        email: row.email ?? "",
+        phone: row.phone ?? "",
+        address: row.address ?? "",
+        title: row.title || "",
+        education: row.education || "",
+      },
+    },
+  });
+};
+
+// 添加年度 Drawer
+const handleAddYear = () => {
+  yearList.value.push("");
+};
+
+const handleRemoveYear = (index: number) => {
+  yearList.value.splice(index, 1);
+};
+
+const handleAddYearDrawerClose = () => {
+  yearErrorMap.value = new Map();
+  isAddYearDrawerOpen.value = false;
+};
+
+const handleAddYearCancel = () => {
+  isAddYearDrawerOpen.value = false;
+};
+
+/** 清除指定索引的年度錯誤（輸入時觸發） */
+const clearYearError = (index: number) => {
+  const next = new Map(yearErrorMap.value);
+  next.delete(index);
+  yearErrorMap.value = next;
+};
+
+/** 驗證年度：限輸入阿拉伯數字 */
+const validateYear = (value: string) => /^\d+$/.test(value.trim());
+
+const handleAddYearSave = () => {
+  const errorMap = new Map<number, "format" | "duplicate">();
+
+  // 1. 格式驗證
+  yearList.value.forEach((y, i) => {
+    if (!validateYear(y)) errorMap.set(i, "format");
+  });
+
+  // 2. 重複驗證（僅檢查格式正確的欄位）
+  const valueToIndices = new Map<string, number[]>();
+  yearList.value.forEach((y, i) => {
+    if (errorMap.has(i)) return;
+    const trimmed = y.trim();
+    if (!trimmed) return;
+    const list = valueToIndices.get(trimmed) ?? [];
+    list.push(i);
+    valueToIndices.set(trimmed, list);
+  });
+  valueToIndices.forEach((indices) => {
+    if (indices.length > 1) indices.forEach((i) => errorMap.set(i, "duplicate"));
+  });
+
+  if (errorMap.size > 0) {
+    yearErrorMap.value = errorMap;
+    return;
+  }
+
+  const validYears = yearList.value.map((y) => y.trim()).filter(Boolean);
+  tabItems.value = [...validYears.map((y) => ({ label: y })), { label: "添加年度" }];
+  activeTab.value = 0;
+  yearErrorMap.value = new Map();
+  isAddYearDrawerOpen.value = false;
 };
 </script>

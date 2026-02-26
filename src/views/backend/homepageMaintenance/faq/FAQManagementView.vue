@@ -33,8 +33,9 @@
               </div>
             </template>
             <template #cell-action="{ row }">
-              <div class="flex items-center gap-2">
+              <div class="flex items-center gap-4">
                 <ButtonCTA variant="textPlain" size="sm" @click.stop="handlePreview(row)"> 預覽 </ButtonCTA>
+                <ButtonCTA variant="text" size="sm" icon-only left-icon="editOutline" @click.stop="handleEdit(row)" aria-label="編輯" />
                 <ButtonCTA variant="text" size="sm" icon-only left-icon="trashCan" @click.stop="handleDelete(row)" aria-label="刪除" />
               </div>
             </template>
@@ -146,41 +147,14 @@ const allFAQs = ref<FaqItem[]>([
   },
 ]);
 
-// Table Columns
+// Table Columns（比例：項次 5% / 問題 35% / 類別 18% / 發布日期 12% / 狀態 10% / 動作 20%）
 const tableColumns: TableColumn[] = [
-  {
-    key: "index",
-    label: "項次",
-    headerClass: "w-[60px]",
-    cellClass: "w-[60px]",
-  },
-  {
-    key: "question",
-    label: "問題",
-  },
-  {
-    key: "category",
-    label: "類別",
-    headerClass: "w-[240px]",
-    cellClass: "w-[240px]",
-  },
-  {
-    key: "publishDate",
-    label: "發布日期",
-    headerClass: "w-[140px]",
-    cellClass: "w-[140px]",
-    sortable: true,
-  },
-  {
-    key: "status",
-    label: "狀態",
-  },
-  {
-    key: "action",
-    label: "動作",
-    headerClass: "w-[96px]",
-    cellClass: "w-[96px]",
-  },
+  { key: "index", label: "項次", width: "5%" },
+  { key: "question", label: "問題", width: "35%" },
+  { key: "category", label: "類別", width: "18%" },
+  { key: "publishDate", label: "發布日期", width: "12%", sortable: true },
+  { key: "status", label: "狀態", width: "10%" },
+  { key: "action", label: "動作", width: "20%" },
 ];
 
 // Filtered FAQs
@@ -245,6 +219,10 @@ const handlePreview = (row: Record<string, any>) => {
 };
 
 const handleRowClick = (row: Record<string, any>) => {
+  handleEdit(row);
+};
+
+const handleEdit = (row: Record<string, any>) => {
   const item = row as FaqItem;
   router.push({
     path: "/faq-management/add",

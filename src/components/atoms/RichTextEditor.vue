@@ -5,7 +5,7 @@
       {{ label }}
       <span v-if="required" class="absolute -right-2 -top-1 text-xs leading-none text-red-500">*</span>
     </label>
-    <div class="w-full rounded-lg border border-gray-300 bg-gray-50">
+    <div class="w-full rounded-lg border bg-gray-50" :class="editorContainerClasses">
       <!-- Toolbar -->
       <div class="border-b border-gray-300 p-2">
         <!-- First Row: Formatting Buttons -->
@@ -343,6 +343,7 @@
         <span class="text-xs text-gray-500" :class="{ 'text-red-500': characterCount > maxlength }"> {{ characterCount }}/{{ maxlength }} </span>
       </div>
     </div>
+    <p v-if="errorMessage" class="w-full text-base leading-6 text-red-600">{{ errorMessage }}</p>
   </div>
 </template>
 
@@ -418,17 +419,23 @@ const props = withDefaults(
     label?: string;
     showLabel?: boolean;
     required?: boolean;
+    error?: boolean;
+    errorMessage?: string;
     labelPosition?: "horizontal" | "vertical";
     containerClass?: string;
     maxlength?: number; // 最大字數限制
+    enforceMaxlength?: boolean; // 是否強制阻擋超過 maxlength
   }>(),
   {
     modelValue: "",
     placeholder: "開始輸入內容...",
     showLabel: false,
     required: false,
+    error: false,
+    errorMessage: "",
     labelPosition: "vertical",
     containerClass: "",
+    enforceMaxlength: true,
   }
 );
 
@@ -545,7 +552,7 @@ const editor = useEditor({
     const textLength = getPlainTextLength(html);
 
     // 如果有字數限制且超過限制，不更新值
-    if (props.maxlength && textLength > props.maxlength) {
+    if (props.enforceMaxlength && props.maxlength && textLength > props.maxlength) {
       // 恢復到之前的值
       const previousHTML = props.modelValue || "";
       editor.commands.setContent(previousHTML);
@@ -579,6 +586,13 @@ const getPlainTextLength = (html: string): number => {
 const characterCount = computed(() => {
   if (!editor.value) return 0;
   return getPlainTextLength(editor.value.getHTML());
+});
+
+const editorContainerClasses = computed(() => {
+  if (props.error || props.errorMessage) {
+    return "border-red-500";
+  }
+  return "border-gray-300";
 });
 
 // Methods

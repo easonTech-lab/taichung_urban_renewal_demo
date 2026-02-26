@@ -3,7 +3,11 @@
     class="relative overflow-x-auto rounded-lg bg-white shadow-sm"
     :class="borderless ? '' : 'border border-gray-300'"
   >
-    <table class="w-full table-auto text-left text-sm text-gray-900 rtl:text-right">
+    <table class="w-full table-fixed text-left text-sm text-gray-900 rtl:text-right">
+      <colgroup v-if="columns.some((c) => c.width)">
+        <col v-if="showCheckbox" />
+        <col v-for="(col, i) in columns" :key="i" :style="col.width ? { width: col.width } : undefined" />
+      </colgroup>
       <thead class="bg-gray-50 text-sm text-gray-500" :class="borderless ? '' : 'border-b border-gray-300'">
         <tr>
           <!-- Checkbox 欄位 -->
@@ -62,14 +66,18 @@
             <!-- 資料欄位 -->
             <template v-for="(column, colIndex) in columns" :key="colIndex">
               <th v-if="column.isRowHeader" :key="`th-${colIndex}`" scope="row" :class="getCellClass(column, true)">
-                <slot :name="`cell-${column.key}`" :row="row" :column="column" :rowIndex="rowIndex">
-                  {{ getCellValue(row, column) }}
-                </slot>
+                <div class="min-w-0 truncate">
+                  <slot :name="`cell-${column.key}`" :row="row" :column="column" :rowIndex="rowIndex">
+                    {{ getCellValue(row, column) }}
+                  </slot>
+                </div>
               </th>
               <td v-else :key="`td-${colIndex}`" :class="getCellClass(column)">
-                <slot :name="`cell-${column.key}`" :row="row" :column="column" :rowIndex="rowIndex">
-                  {{ getCellValue(row, column) }}
-                </slot>
+                <div class="min-w-0 truncate">
+                  <slot :name="`cell-${column.key}`" :row="row" :column="column" :rowIndex="rowIndex">
+                    {{ getCellValue(row, column) }}
+                  </slot>
+                </div>
               </td>
             </template>
           </tr>
@@ -139,6 +147,7 @@ export interface TableColumn {
   headerClass?: string; // 標題欄位的自訂 class
   cellClass?: string; // 資料欄位的自訂 class
   sortable?: boolean; // 是否可排序
+  width?: string; // 欄位寬度，如 "140px"、"20%"，用 col 鎖定（table-layout: fixed）
 }
 
 export interface TablePagination {

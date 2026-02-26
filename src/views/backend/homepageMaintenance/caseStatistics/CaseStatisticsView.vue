@@ -16,13 +16,27 @@
         </div>
         <div class="flex flex-col gap-6">
           <Tabs :items="tabItems" :model-value="activeTab" @tab-click="handleTabClick" />
-          <div class="flex items-center gap-2">
-            <Dropdown :button-text="selectedStartYear" placeholder="選擇年度區間" :items="startYearOptions" @item-click="handleStartYearChange" />
-            <span class="text-xl font-normal leading-5 text-gray-500">-</span>
-            <Dropdown :button-text="selectedEndYear" placeholder="選擇年度區間" :items="endYearOptions" @item-click="handleEndYearChange" />
+          <div class="relative z-10 flex flex-wrap items-center gap-3 pb-2">
+            <div class="flex items-center gap-2">
+              <Dropdown class="w-[168px]" :button-text="selectedStartYear" placeholder="選擇年度區間" :items="startYearOptions" @item-click="handleStartYearChange" />
+              <span class="text-xl font-normal leading-5 text-gray-500">-</span>
+              <Dropdown class="w-[168px]" :button-text="selectedEndYear" placeholder="選擇年度區間" :items="endYearOptions" @item-click="handleEndYearChange" />
+            </div>
+            <div class="flex items-center gap-3">
+              <ButtonCTA variant="primary" class="h-10 !min-w-0 px-5 py-2.5" @click="handleSearch">搜尋</ButtonCTA>
+              <button
+                v-if="showResetButton"
+                type="button"
+                class="text-sm font-medium leading-6 text-primary-700 hover:text-primary-800"
+                @click="handleResetFilters"
+              >
+                重設
+              </button>
+            </div>
           </div>
         </div>
-        <div class="rounded-lg border border-gray-300 bg-white">
+        <div class="overflow-x-auto">
+          <div class="min-w-[460px] rounded-lg border border-gray-300 bg-white">
           <Table :columns="tableColumns" :rows="paginatedStatistics" :pagination="pagination" @page-change="handlePageChange">
             <template #cell-growthRate="{ row }">
               <Badge :variant="getGrowthRateVariant(row.growthRate)" :text="row.growthRate" />
@@ -34,17 +48,12 @@
               </div>
             </template>
           </Table>
+          </div>
         </div>
       </div>
     </div>
 
-    <ConfirmDeleteModal
-      v-model="showDeleteModal"
-      message="確認刪除此項目"
-      description="內容將完全刪除無法復原"
-      @confirm="handleConfirmDelete"
-      @cancel="handleCloseDeleteModal"
-    />
+    <ConfirmDeleteModal v-model="showDeleteModal" message="確認刪除此項目" description="內容將完全刪除無法復原" @confirm="handleConfirmDelete" @cancel="handleCloseDeleteModal" />
 
     <div class="fixed bottom-6 z-[90]" :style="deleteToastStyle">
       <Toast v-model="showDeleteToast" :message="toastMessage" :show-actions="false" :show-close="false" :auto-close="true">
@@ -57,8 +66,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from "vue";
-import { useRouter } from "vue-router";
+import { ref, computed, onMounted, watch } from "vue";
+import { useRouter, useRoute } from "vue-router";
 import { useTablePagination } from "@/composables/useTablePagination";
 import Tabs from "@/components/atoms/Tabs.vue";
 import Icon from "@/components/atoms/Icon.vue";
@@ -72,6 +81,7 @@ import Table, { type TableColumn } from "@/components/atoms/Table.vue";
 import Dropdown, { type DropdownItem } from "@/components/atoms/Dropdown.vue";
 import type { CaseStatisticsItem } from "@/types/backend/homepageMaintenance/caseStatistics.d";
 const router = useRouter();
+const route = useRoute();
 
 // Tabs
 const tabItems = [
@@ -92,6 +102,8 @@ const yearOptions: DropdownItem[] = Array.from({ length: 20 }, (_, i) => {
 // State
 const selectedStartYear = ref<string>("");
 const selectedEndYear = ref<string>("");
+const appliedStartYear = ref<string>("");
+const appliedEndYear = ref<string>("");
 const pageSize = ref<number>(10);
 const showDeleteModal = ref(false);
 const pendingDeleteItem = ref<CaseStatisticsItem | null>(null);
@@ -115,6 +127,10 @@ const endYearOptions = computed(() => {
   if (!selectedStartYear.value) return yearOptions;
   const startYear = parseInt(selectedStartYear.value, 10);
   return yearOptions.filter((item) => parseInt(item.value, 10) >= startYear);
+});
+
+const showResetButton = computed(() => {
+  return Boolean(selectedStartYear.value || selectedEndYear.value);
 });
 
 // Mock Data
@@ -190,11 +206,11 @@ const filteredStatistics = computed(() => {
   }
 
   // Filter by year range
-  if (selectedStartYear.value) {
-    stats = stats.filter((item) => parseInt(item.year) >= parseInt(selectedStartYear.value));
+  if (appliedStartYear.value) {
+    stats = stats.filter((item) => parseInt(item.year) >= parseInt(appliedStartYear.value));
   }
-  if (selectedEndYear.value) {
-    stats = stats.filter((item) => parseInt(item.year) <= parseInt(selectedEndYear.value));
+  if (appliedEndYear.value) {
+    stats = stats.filter((item) => parseInt(item.year) <= parseInt(appliedEndYear.value));
   }
 
   return stats;
@@ -235,7 +251,6 @@ const handleStartYearChange = (item: DropdownItem) => {
   if (selectedEndYear.value && parseInt(selectedStartYear.value, 10) > parseInt(selectedEndYear.value, 10)) {
     selectedEndYear.value = selectedStartYear.value;
   }
-  resetPage();
 };
 
 const handleEndYearChange = (item: DropdownItem) => {
@@ -243,6 +258,19 @@ const handleEndYearChange = (item: DropdownItem) => {
   if (selectedStartYear.value && parseInt(selectedStartYear.value, 10) > parseInt(selectedEndYear.value, 10)) {
     selectedStartYear.value = selectedEndYear.value;
   }
+};
+
+const handleSearch = () => {
+  appliedStartYear.value = selectedStartYear.value;
+  appliedEndYear.value = selectedEndYear.value;
+  resetPage();
+};
+
+const handleResetFilters = () => {
+  selectedStartYear.value = "";
+  selectedEndYear.value = "";
+  appliedStartYear.value = "";
+  appliedEndYear.value = "";
   resetPage();
 };
 
@@ -279,6 +307,30 @@ const handleConfirmDelete = () => {
   // TODO: Implement delete logic
   console.log("Deleting:", pendingDeleteItem.value);
   handleCloseDeleteModal();
+  toastMessage.value = "刪除成功";
   showDeleteToast.value = true;
 };
+
+const maybeShowReturnToast = () => {
+  const toastType = route.query.toast as string | undefined;
+  if (toastType !== "success") return;
+
+  const msg = (route.query.msg as string | undefined) || "新增成功";
+  toastMessage.value = msg;
+  showDeleteToast.value = true;
+
+  router.replace({
+    path: route.path,
+    query: { ...route.query, toast: undefined, msg: undefined },
+  });
+};
+
+onMounted(maybeShowReturnToast);
+
+watch(
+  () => route.query.toast,
+  () => {
+    maybeShowReturnToast();
+  }
+);
 </script>

@@ -88,6 +88,43 @@ const getCaseStageDetailBreadcrumbItems = (route: any) => {
   ];
 };
 
+const getAddCaseStageBreadcrumbItems = (route: any) => {
+  const fromRoute = route.query?.from as string | undefined;
+  const isFromAdmin = fromRoute?.includes("-admin") || route.query?.admin === "true" || isAdminUser();
+  const isDangerous = fromRoute?.includes("dangerous") || route.query?.caseType === "dangerous";
+  const progressLink = {
+    label: "案件進度",
+    to: {
+      path: "/case-detail",
+      query: {
+        from: fromRoute,
+        admin: route.query?.admin,
+        caseType: route.query?.caseType,
+        tab: "progress",
+      },
+    },
+  };
+  if (isFromAdmin) {
+    return [
+      { label: "首頁", to: "/" },
+      { label: "案件管理" },
+      {
+        label: isDangerous ? "危老重建案件管理" : "都市更新案件管理",
+        to: isDangerous ? "/case-management-dangerous-admin" : "/case-management-admin",
+      },
+      progressLink,
+      { label: "新增案件階段" },
+    ];
+  }
+  return [
+    { label: "首頁", to: "/" },
+    { label: "我的案件" },
+    { label: isDangerous ? "危老重建案件" : "都市更新案件", to: isDangerous ? "/case-management-dangerous" : "/case-management" },
+    progressLink,
+    { label: "新增案件階段" },
+  ];
+};
+
 // 導出路由配置，供組件使用
 export const routes: RouteRecordRaw[] = [
   {
@@ -189,7 +226,7 @@ export const routes: RouteRecordRaw[] = [
     component: () => import("@/views/backend/caseManagement/urbanRenewal/CaseManagementAddBusinessPlanView.vue"),
     meta: {
       breadcrumb: {
-        label: "內容頁",
+        label: "編輯都更案件",
         parent: {
           label: "都市更新案件",
         },
@@ -202,7 +239,7 @@ export const routes: RouteRecordRaw[] = [
     component: () => import("@/views/backend/caseManagement/urbanRenewal/CaseManagementReviewTableView.vue"),
     meta: {
       breadcrumb: {
-        label: "都市更新審議資料表",
+        label: "編輯都更案件",
         parent: {
           label: "都市更新案件",
           parent: {
@@ -328,6 +365,14 @@ export const routes: RouteRecordRaw[] = [
     component: () => import("@/views/backend/caseManagement/common/CaseStageDetailView.vue"),
     meta: {
       breadcrumb: getCaseStageDetailBreadcrumbItems,
+    },
+  },
+  {
+    path: "/add-case-stage",
+    name: "add-case-stage",
+    component: () => import("@/views/backend/caseManagement/common/AddCaseStageView.vue"),
+    meta: {
+      breadcrumb: getAddCaseStageBreadcrumbItems,
     },
   },
   {
@@ -566,6 +611,20 @@ export const routes: RouteRecordRaw[] = [
         parent: {
           label: "內部人員帳號管理",
           path: "/internal-staff-account-management",
+        },
+      },
+    },
+  },
+  {
+    path: "/officer-list-management/edit",
+    name: "officer-list-management-edit",
+    component: () => import("@/views/backend/systemManagement/officerList/OfficerEditView.vue"),
+    meta: {
+      breadcrumb: {
+        label: "編輯幹事",
+        parent: {
+          label: "幹事名單管理",
+          path: "/officer-list-management",
         },
       },
     },

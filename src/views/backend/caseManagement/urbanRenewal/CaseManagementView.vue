@@ -163,36 +163,13 @@ const allCases: CaseItem[] = [
   },
 ];
 
-// Table Columns
+// Table Columns（比例：編號 12% / 名稱 46% / 類別 12% / 階段 15% / 狀態 15%）
 const tableColumns: TableColumn[] = [
-  {
-    key: "caseNumber",
-    label: "案件編號",
-    headerClass: "w-[196px]",
-    cellClass: "w-[196px]",
-  },
-  {
-    key: "caseName",
-    label: "案件名稱",
-    headerClass: "w-[375px]",
-    cellClass: "w-[375px]",
-  },
-  {
-    key: "caseCategory",
-    label: "案件類別",
-    headerClass: "w-[140px]",
-    cellClass: "w-[140px]",
-  },
-  {
-    key: "caseStage",
-    label: "案件階段",
-    headerClass: "w-[160px]",
-    cellClass: "w-[160px]",
-  },
-  {
-    key: "caseStatus",
-    label: "案件狀態",
-  },
+  { key: "caseNumber", label: "案件編號", width: "12%" },
+  { key: "caseName", label: "案件名稱", width: "46%" },
+  { key: "caseCategory", label: "案件類別", width: "12%" },
+  { key: "caseStage", label: "案件階段", width: "15%" },
+  { key: "caseStatus", label: "案件狀態", width: "15%" },
 ];
 
 // Filtered Cases

@@ -7,13 +7,14 @@
         <h1 class="text-3xl font-bold leading-[30px] text-gray-900">新增危老重建案件</h1>
       </div>
 
-      <div class="flex flex-col gap-4">
+      <div class="flex flex-col items-center gap-10">
         <StageProgressBar
+          class="w-full max-w-[1032px]"
           :steps="['公開基本資料', '危老申請書', '危老審查獎勵']"
           :active-index="1"
         />
 
-        <div class="flex flex-col gap-10 rounded-lg bg-white p-8 shadow-sm">
+        <div class="w-full max-w-[1032px] flex flex-col gap-10 rounded-lg bg-white p-8 shadow-sm">
           <div class="flex items-center gap-3">
             <div class="h-7 w-1 rounded bg-primary-600"></div>
             <h2 class="text-2xl font-medium text-gray-900">危老申請書</h2>
@@ -23,7 +24,7 @@
             <div class="flex flex-col gap-6 border-b border-gray-300 pb-6">
               <h3 class="text-xl font-bold text-blue-700">起造人資料</h3>
               <div class="flex flex-col gap-4">
-                <p class="text-lg font-medium text-gray-900">起造人（一）</p>
+                <p class="text-base font-normal text-gray-900">起造人（一）</p>
                 <div class="flex flex-col gap-4">
                   <InputDropdown
                     label="起造人類別"
@@ -43,14 +44,14 @@
 
             <div class="flex flex-col gap-6 border-b border-gray-300 pb-6">
               <h3 class="text-xl font-bold text-blue-700">規劃單位</h3>
-              <div class="grid w-[744px] grid-cols-[repeat(2,364px)] gap-6">
+              <div class="grid w-[752px] grid-cols-[repeat(2,364px)] gap-6">
                 <Input v-model="formData.designerName" label="設計人姓名" placeholder="請輸入設計人姓名" size="lg" required containerClass="w-[364px]" />
                 <Input v-model="formData.licenseNumber" label="開業證書字號" placeholder="請輸入開業證書字號" size="lg" required containerClass="w-[364px]" />
                 <Input v-model="formData.officeName" label="事務所名稱" placeholder="請輸入事務所名稱" size="lg" required containerClass="w-[364px]" />
                 <Input v-model="formData.businessScope" label="執行業務" placeholder="請輸入執行業務" size="lg" required containerClass="w-[364px]" />
                 <Input v-model="formData.officePhone" label="聯絡電話" placeholder="請輸入聯絡電話" size="lg" required containerClass="w-[364px]" />
                 <Input v-model="formData.officeFax" label="傳真" placeholder="請輸入傳真" size="lg" required containerClass="w-[364px]" />
-                <Input v-model="formData.officeAddress" label="事務所地址" placeholder="請輸入事務所地址" size="lg" required containerClass="w-[744px]" />
+                <Input v-model="formData.officeAddress" label="事務所地址" placeholder="請輸入事務所地址" size="lg" required containerClass="w-[752px]" />
               </div>
             </div>
 
@@ -66,12 +67,9 @@
                   container-class="w-[364px]"
                   @item-click="(item) => handleDropdownChange('district', item)"
                 />
-                <div class="grid w-[744px] grid-cols-[repeat(2,364px)] gap-6">
-                  <Input v-model="formData.section" label="地段" placeholder="請輸入地段" size="lg" required containerClass="w-[364px]" />
-                  <div class="flex flex-col gap-2 w-[364px]">
-                    <Input v-model="formData.lotNumber" label="地號" placeholder="請輸入地號" size="lg" required containerClass="w-[364px]" />
-                    <p class="text-base leading-tight text-gray-500">例：三村段20地號</p>
-                  </div>
+                <div class="flex flex-col gap-2 w-[752px]">
+                  <Input v-model="formData.lotNumber" label="地號" placeholder="請輸入地號" size="lg" required containerClass="w-[752px]" />
+                  <p class="text-base leading-tight text-gray-500">例：三村段20地號</p>
                 </div>
                 <ButtonCTA variant="outline" size="sm" leftIcon="plus" class="!min-w-0 w-fit">
                   新增其他筆
@@ -80,29 +78,41 @@
             </div>
 
             <div class="flex flex-col gap-6 border-b border-gray-300 pb-6">
-              <h3 class="text-xl font-bold text-blue-700">基地規模</h3>
-              <div class="grid w-[744px] grid-cols-[repeat(2,364px)] gap-6">
-                <Input v-model="formData.siteArea" label="建築基地面積（m²）" placeholder="請輸入建築基地面積" size="lg" required containerClass="w-[364px]" />
-                <Input v-model="formData.siteLocation" label="建築基地位置" placeholder="請輸入建築基地位置" size="lg" required containerClass="w-[364px]" />
-                <Input v-model="formData.siteTotalArea" label="建築基地合計（m²）" placeholder="請輸入建築基地合計" size="lg" required containerClass="w-[364px]" />
-                <Input v-model="formData.siteLegalFAR" label="法定容積率（％）" placeholder="請輸入法定容積率" size="lg" required containerClass="w-[364px]" />
-                <Input v-model="formData.siteDescription" label="建築基地說明" placeholder="請輸入建築基地說明" size="lg" required containerClass="w-[744px]" />
+              <h3 class="text-xl font-bold text-blue-700">基地概要</h3>
+              <div class="flex flex-wrap items-start gap-4">
+                <div class="flex w-[744px] items-end justify-between">
+                  <DatePicker v-model="formData.buildingLineDate" label="建築線指定" placeholder="請選擇日期" containerClass="w-[364px]" />
+                  <div class="flex w-[364px] flex-col gap-2">
+                    <p class="text-base font-medium text-gray-900">
+                      字號 <span class="text-red-500">*</span>
+                    </p>
+                    <Input v-model="formData.permitNumber" :show-label="false" placeholder="請輸入執照文號" size="lg" required containerClass="w-[364px]" />
+                  </div>
+                </div>
+                <Input v-model="formData.legalCoverageRatio" label="法定建蔽率（％）" size="lg" required :disabled="true" containerClass="w-[364px]" />
+                <Input v-model="formData.legalFAR" label="法定容積率" placeholder="請輸入法定容積率" size="lg" required containerClass="w-[364px]" />
+                <Input v-model="formData.totalSiteArea" label="基地面積合計（m²）" size="lg" required :disabled="true" containerClass="w-[364px]" />
+                <div class="flex flex-col gap-2 w-[364px]">
+                  <Input v-model="formData.landUseZone" label="土地使用分區" placeholder="請輸入土地使用分區" size="lg" required containerClass="w-[364px]" />
+                  <p class="text-base leading-tight text-gray-500">例：第三種住宅</p>
+                </div>
+                <Input v-model="formData.siteOfficeAddress" label="事務所地址" placeholder="請輸入事務所地址" size="lg" required containerClass="w-[752px]" />
               </div>
             </div>
 
             <div class="flex flex-col gap-6 border-b border-gray-300 pb-6">
               <h3 class="text-xl font-bold text-blue-700">符合條件</h3>
               <div class="flex flex-col gap-4">
-                <Checkbox v-model="formData.conditions[0]" label="符合條件一：建築物結構安全評估未達最低標準" />
-                <Checkbox v-model="formData.conditions[1]" label="符合條件二：耐震能力不足或不足以保障人員安全" />
-                <Checkbox v-model="formData.conditions[2]" label="符合條件三：經鑑定有危險之建築物" />
-                <Checkbox v-model="formData.conditions[3]" label="符合條件四：其他經主管機關認定之情形" />
+                <Radio v-model="formData.condition" name="dangerous-conditions" value="condition-1" label="符合條件一：建築物結構安全評估未達最低標準" />
+                <Radio v-model="formData.condition" name="dangerous-conditions" value="condition-2" label="符合條件二：耐震能力不足或不足以保障人員安全" />
+                <Radio v-model="formData.condition" name="dangerous-conditions" value="condition-3" label="符合條件三：經鑑定有危險之建築物" />
+                <Radio v-model="formData.condition" name="dangerous-conditions" value="condition-4" label="符合條件四：其他經主管機關認定之情形" />
               </div>
             </div>
 
             <div class="flex flex-col gap-6 border-b border-gray-300 pb-6">
               <h3 class="text-xl font-bold text-blue-700">土地及建築物所有權人</h3>
-              <div class="grid w-[744px] grid-cols-[repeat(2,364px)] gap-6">
+              <div class="grid w-[752px] grid-cols-[repeat(2,364px)] gap-6">
                 <InputDropdown
                   label="土地所有權人"
                   placeholder="請選擇土地所有權人"
@@ -127,17 +137,31 @@
             <div class="flex flex-col gap-6 border-b border-gray-300 pb-6">
               <h3 class="text-xl font-bold text-blue-700">建築物基本資料</h3>
               <div class="flex flex-col gap-6">
-                <Input v-model="formData.buildingAddress" label="建築物地址" placeholder="請輸入建築物地址" size="lg" required containerClass="w-[744px]" />
-                <div class="grid w-[744px] grid-cols-[repeat(2,364px)] gap-6">
-                  <Input v-model="formData.buildingStructure" label="建築物構造" placeholder="請輸入建築物構造" size="lg" required containerClass="w-[364px]" />
+                <Input v-model="formData.buildingAddress" label="建築地址" placeholder="請輸入建築地址" size="lg" required containerClass="w-[752px]" />
+                <div class="flex w-[752px] flex-wrap items-start gap-6">
                   <div class="flex flex-col gap-2 w-[364px]">
-                    <Input v-model="formData.buildingUsageDetail" label="實際使用情形" placeholder="請輸入實際使用情形" size="lg" required containerClass="w-[364px]" />
+                    <Input v-model="formData.buildingConditionType" label="建物狀況/類型" placeholder="請輸入建物狀況/類型" size="lg" required containerClass="w-[364px]" />
+                    <p class="text-base leading-tight text-gray-500">例：透天厝、住宅</p>
+                  </div>
+                  <div class="flex flex-col gap-2 w-[364px]">
+                    <Input v-model="formData.actualUsage" label="實際使用情形" placeholder="請輸入實際使用情形" size="lg" required containerClass="w-[364px]" />
                     <p class="text-base leading-tight text-gray-500">例：住宅、商業</p>
                   </div>
-                  <Input v-model="formData.buildingFloors" label="建築物樓層數（F）" placeholder="請輸入建築物樓層數" size="lg" required containerClass="w-[364px]" />
-                  <Input v-model="formData.buildingFloorArea" label="建築物樓地板面積（m²）" placeholder="請輸入建築物樓地板面積" size="lg" required containerClass="w-[364px]" />
-                  <Input v-model="formData.buildingHeight" label="建築物高度" placeholder="請輸入建築物高度" size="lg" required containerClass="w-[364px]" />
-                  <Input v-model="formData.buildingUsage" label="建築物用途" placeholder="請輸入建築物用途" size="lg" required containerClass="w-[364px]" />
+                </div>
+
+                <div class="flex w-[752px] flex-wrap items-start gap-6">
+                  <Input v-model="formData.preRebuildBuildingCount" label="重建前棟數" placeholder="請輸入重建前棟數" size="lg" required containerClass="w-[364px]" />
+                  <Input v-model="formData.preRebuildFloorCount" label="重建前樓層數" placeholder="請輸入重建前樓層數" size="lg" required containerClass="w-[364px]" />
+                  <Input v-model="formData.preRebuildHouseholdCount" label="重建前戶數" placeholder="請輸入重建前戶數" size="lg" required containerClass="w-[364px]" />
+                </div>
+
+                <div class="flex w-[752px] flex-wrap items-start gap-6">
+                  <Input v-model="formData.postRebuildBuildingCount" label="重建後棟數" placeholder="請輸入重建後棟數" size="lg" required containerClass="w-[364px]" />
+                  <Input v-model="formData.postRebuildFloorCount" label="重建後樓層數" placeholder="請輸入重建後樓層數" size="lg" required containerClass="w-[364px]" />
+                  <Input v-model="formData.postRebuildHouseholdCount" label="重建後戶數" placeholder="請輸入重建後戶數" size="lg" required containerClass="w-[364px]" />
+                </div>
+
+                <div class="flex w-[752px] flex-wrap items-start gap-6">
                   <Input v-model="formData.designFAR" label="設計容積率（％）" placeholder="請輸入設計容積率" size="lg" required containerClass="w-[364px]" />
                   <Input v-model="formData.psercbId" label="PSERCB初評案件編號" placeholder="請輸入PSERCB初評案件編號" size="lg" required containerClass="w-[364px]" />
                 </div>
@@ -152,7 +176,7 @@
         </div>
       </div>
 
-      <div class="flex items-center justify-center gap-6">
+      <div class="flex w-full max-w-[1032px] items-center justify-center gap-6">
         <ButtonCTA variant="textPlain" size="xl" :to="{ path: '/case-management-dangerous/add' }">上一步</ButtonCTA>
         <ButtonCTA variant="outline" size="xl">暫存</ButtonCTA>
         <ButtonCTA variant="gray" size="xl" :disabled="true">下一步</ButtonCTA>
@@ -162,14 +186,16 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, onMounted } from "vue";
 import Input from "@/components/atoms/Input.vue";
-import Checkbox from "@/components/atoms/Checkbox.vue";
+import Radio from "@/components/atoms/Radio.vue";
+import DatePicker from "@/components/atoms/DatePicker.vue";
 import ButtonCTA from "@/components/atoms/ButtonCTA.vue";
 import Breadcrumb from "@/components/atoms/Breadcrumb.vue";
 import StageProgressBar from "@/components/molecules/StageProgressBar.vue";
 import SidebarSection from "@/components/sections/backend/SidebarSection.vue";
 import InputDropdown, { type InputDropdownItem } from "@/components/atoms/InputDropdown.vue";
+import type { DangerousApplicationFormData } from "@/types/backend/caseManagement/dangerous/CaseManagementDangerousApplicationView.d";
 
 const breadcrumbItems = [
   { label: "首頁", to: "/" },
@@ -183,40 +209,9 @@ const districtOptions: InputDropdownItem[] = [];
 const landOwnerOptions: InputDropdownItem[] = [];
 const buildingOwnerOptions: InputDropdownItem[] = [];
 
-type FormData = {
-  builderType: string;
-  designerName: string;
-  licenseNumber: string;
-  officeName: string;
-  businessScope: string;
-  officePhone: string;
-  officeFax: string;
-  officeAddress: string;
-  district: string;
-  section: string;
-  lotNumber: string;
-  siteArea: string;
-  siteLocation: string;
-  siteTotalArea: string;
-  siteLegalFAR: string;
-  siteDescription: string;
-  conditions: boolean[];
-  landOwner: string;
-  buildingOwner: string;
-  buildingAddress: string;
-  buildingUsage: string;
-  buildingStructure: string;
-  buildingFloors: string;
-  buildingFloorArea: string;
-  buildingHeight: string;
-  buildingUsageDetail: string;
-  designFAR: string;
-  psercbId: string;
-};
+type DropdownStringKey = "builderType" | "district" | "landOwner" | "buildingOwner";
 
-type DropdownStringKey = Exclude<keyof FormData, "conditions">;
-
-const formData = ref<FormData>({
+const formData = ref<DangerousApplicationFormData>({
   builderType: "",
   designerName: "",
   licenseNumber: "",
@@ -226,25 +221,52 @@ const formData = ref<FormData>({
   officeFax: "",
   officeAddress: "",
   district: "",
-  section: "",
   lotNumber: "",
-  siteArea: "",
-  siteLocation: "",
-  siteTotalArea: "",
-  siteLegalFAR: "",
-  siteDescription: "",
-  conditions: [false, false, false, false],
+  buildingLineDate: null,
+  permitNumber: "",
+  legalCoverageRatio: "98.9",
+  legalFAR: "",
+  totalSiteArea: "2045.84",
+  landUseZone: "",
+  siteOfficeAddress: "",
+  condition: "",
   landOwner: "",
   buildingOwner: "",
   buildingAddress: "",
-  buildingUsage: "",
-  buildingStructure: "",
-  buildingFloors: "",
-  buildingFloorArea: "",
-  buildingHeight: "",
-  buildingUsageDetail: "",
+  buildingConditionType: "",
+  actualUsage: "",
+  preRebuildBuildingCount: "",
+  preRebuildFloorCount: "",
+  preRebuildHouseholdCount: "",
+  postRebuildBuildingCount: "",
+  postRebuildFloorCount: "",
+  postRebuildHouseholdCount: "",
   designFAR: "",
   psercbId: "",
+});
+
+const STORAGE_KEY_CASE_FOR_APPLICATION = "caseDetailForApplication";
+
+onMounted(() => {
+  try {
+    const raw = sessionStorage.getItem(STORAGE_KEY_CASE_FOR_APPLICATION);
+    if (!raw) return;
+    const data = JSON.parse(raw) as {
+      name?: string;
+      applicantName?: string;
+      phone?: string;
+      email?: string;
+      address?: string;
+    };
+    sessionStorage.removeItem(STORAGE_KEY_CASE_FOR_APPLICATION);
+    if (data.phone) formData.value.officePhone = data.phone;
+    if (data.address) {
+      formData.value.officeAddress = data.address;
+      formData.value.siteOfficeAddress = data.address;
+    }
+  } catch (_) {
+    // ignore
+  }
 });
 
 const handleSidebarItemSelect = (itemName: string) => {

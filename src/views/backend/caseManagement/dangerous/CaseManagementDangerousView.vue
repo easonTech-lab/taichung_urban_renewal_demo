@@ -72,9 +72,9 @@
 import { ref, computed, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useTablePagination } from "@/composables/useTablePagination";
-import Badge from "@/components/atoms/Badge.vue";
-import Toast from "@/components/atoms/Toast.vue";
 import Icon from "@/components/atoms/Icon.vue";
+import Toast from "@/components/atoms/Toast.vue";
+import Badge from "@/components/atoms/Badge.vue";
 import Empty from "@/components/atoms/Empty.vue";
 import Breadcrumb from "@/components/atoms/Breadcrumb.vue";
 import SidebarSection from "@/components/sections/backend/SidebarSection.vue";
@@ -183,36 +183,13 @@ const allCases: CaseItem[] = [
   },
 ];
 
-// Table Columns
+// Table Columns（比例：編號 8% / 名稱 50% / 類別 12% / 階段 15% / 狀態 15%）
 const tableColumns: TableColumn[] = [
-  {
-    key: "caseNumber",
-    label: "案件編號",
-    headerClass: "w-[196px]",
-    cellClass: "w-[196px] text-base text-gray-900",
-  },
-  {
-    key: "caseName",
-    label: "案件名稱",
-    headerClass: "w-[375px]",
-    cellClass: "w-[375px] text-base text-gray-900",
-  },
-  {
-    key: "caseCategory",
-    label: "案件類別",
-    headerClass: "w-[140px]",
-    cellClass: "w-[140px] text-base text-gray-500",
-  },
-  {
-    key: "caseStage",
-    label: "案件階段",
-    headerClass: "w-[160px]",
-    cellClass: "w-[160px] text-base text-gray-500",
-  },
-  {
-    key: "caseStatus",
-    label: "案件狀態",
-  },
+  { key: "caseNumber", label: "案件編號", width: "8%", cellClass: "text-base text-gray-900" },
+  { key: "caseName", label: "案件名稱", width: "50%", cellClass: "text-base text-gray-900" },
+  { key: "caseCategory", label: "案件類別", width: "12%", cellClass: "text-base text-gray-500" },
+  { key: "caseStage", label: "案件階段", width: "15%", cellClass: "text-base text-gray-500" },
+  { key: "caseStatus", label: "案件狀態", width: "15%" },
 ];
 
 // Filtered Cases

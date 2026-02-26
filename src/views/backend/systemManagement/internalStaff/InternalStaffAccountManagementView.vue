@@ -55,9 +55,9 @@
                 </div>
               </template>
               <template #cell-action="{ row }">
-                <div class="flex items-center">
+                <div class="flex items-center gap-2">
                   <ButtonCTA variant="text" size="sm" icon-only left-icon="pencil" @click.stop="handleEdit(row)" aria-label="編輯承辦帳號" />
-                  <ButtonCTA variant="textPlain" size="sm" @click.stop="handleRemove(row)" aria-label="移除承辦帳號"> 移除 </ButtonCTA>
+                  <ButtonCTA variant="text" size="sm" icon-only left-icon="trashCan" @click.stop="handleDelete(row)" aria-label="移除承辦帳號" />
                 </div>
               </template>
             </Table>
@@ -104,6 +104,15 @@
         </div>
       </template>
     </Drawer>
+
+    <ConfirmDeleteModal
+      v-model="showDeleteModal"
+      message="確認移除承辦帳號"
+      :description="deleteTarget ? `確定要移除「${deleteTarget.name}」的承辦帳號嗎？` : '內容將完全刪除無法復原'"
+      confirm-label="確認"
+      @confirm="handleConfirmDelete"
+      @cancel="handleCloseDeleteModal"
+    />
   </div>
 </template>
 
@@ -118,12 +127,15 @@ import ButtonCTA from "@/components/atoms/ButtonCTA.vue";
 import Breadcrumb from "@/components/atoms/Breadcrumb.vue";
 import SidebarSection from "@/components/sections/backend/SidebarSection.vue";
 import Table, { type TableColumn } from "@/components/atoms/Table.vue";
+import ConfirmDeleteModal from "@/components/molecules/ConfirmDeleteModal.vue";
 import type { HandlerAccount, Permission } from "@/types/backend/systemManagement/internalStaff/internalStaffAccountManagement.d";
 
 // State
 const router = useRouter();
 const pageSize = ref<number>(10);
 const showEditModal = ref<boolean>(false);
+const showDeleteModal = ref<boolean>(false);
+const deleteTarget = ref<HandlerAccount | null>(null);
 const editingHandler = ref<HandlerAccount | null>(null);
 const showChangeAccountDrawer = ref<boolean>(false);
 const selectedAccountEmail = ref<string>("");
@@ -374,15 +386,25 @@ const handleSaveEdit = () => {
   console.log("Saved handler account:", editForm.value);
 };
 
-const handleRemove = (row: Record<string, any>) => {
-  const item = row as HandlerAccount;
-  if (confirm(`確定要移除「${item.name}」的承辦帳號嗎？`)) {
-    const index = handlerAccounts.value.findIndex((account) => account.email === item.email);
+const handleDelete = (row: Record<string, any>) => {
+  deleteTarget.value = row as HandlerAccount;
+  showDeleteModal.value = true;
+};
+
+const handleCloseDeleteModal = () => {
+  showDeleteModal.value = false;
+  deleteTarget.value = null;
+};
+
+const handleConfirmDelete = () => {
+  if (deleteTarget.value) {
+    const index = handlerAccounts.value.findIndex((account) => account.email === deleteTarget.value?.email);
     if (index !== -1) {
       handlerAccounts.value.splice(index, 1);
     }
     // TODO: 調用 API 刪除資料
-    console.log("Removed handler account:", item);
+    console.log("Removed handler account:", deleteTarget.value);
   }
+  handleCloseDeleteModal();
 };
 </script>

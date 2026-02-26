@@ -140,31 +140,12 @@ const selectedCategoryText = ref<string>("全部類別");
 const searchQuery = ref<string>("");
 const appliedSearchQuery = ref<string>(""); // 應用於過濾的搜尋關鍵字（點擊搜尋後才應用）
 
-// Table Columns
+// Table Columns（項次 5% / 標題 55% / 類別 22% / 發布日期 18%）
 const tableColumns: TableColumn[] = [
-  {
-    key: "index",
-    label: "項次",
-    headerClass: "w-[60px]",
-    cellClass: "w-[60px]",
-  },
-  {
-    key: "title",
-    label: "標題",
-  },
-  {
-    key: "category",
-    label: "類別",
-    headerClass: "w-[200px]",
-    cellClass: "w-[200px]",
-  },
-  {
-    key: "publishDate",
-    label: "發布日期",
-    headerClass: "w-[140px]",
-    cellClass: "w-[140px]",
-    sortable: true,
-  },
+  { key: "index", label: "項次", width: "5%" },
+  { key: "title", label: "標題", width: "55%" },
+  { key: "category", label: "類別", width: "22%" },
+  { key: "publishDate", label: "發布日期", width: "18%", sortable: true },
 ];
 
 // Filtered Data

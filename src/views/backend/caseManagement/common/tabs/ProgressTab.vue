@@ -43,7 +43,15 @@
           <button class="px-3 py-4 text-base text-primary-600" @click="handleOpenRemoveStage(item)">移除</button>
         </div>
         <div class="pt-6">
-          <ButtonCTA variant="outline" size="xl" left-icon="plus" class="w-full">新增案件階段</ButtonCTA>
+          <ButtonCTA
+            variant="outline"
+            size="xl"
+            left-icon="plus"
+            class="w-full"
+            @click="handleAddCaseStage"
+          >
+            新增案件階段
+          </ButtonCTA>
         </div>
       </div>
     </template>
@@ -78,7 +86,11 @@ import CaseProgressTable from "@/components/molecules/CaseProgressTable.vue";
 import ConfirmDeleteModal from "@/components/molecules/ConfirmDeleteModal.vue";
 
 
-const props = defineProps<{ isAdminUser: boolean }>();
+const props = defineProps<{
+  isAdminUser: boolean;
+  /** 該案件的幹事名單（用於新增案件階段時帶入參與幹事） */
+  caseOfficerNames?: string;
+}>();
 
 const router = useRouter();
 const route = useRoute();
@@ -304,5 +316,18 @@ const handleViewDetails = (index: number) => {
       admin: props.isAdminUser ? "true" : undefined,
     },
   });
+};
+
+const handleAddCaseStage = () => {
+  showEditStageDrawer.value = false;
+  const query: Record<string, string | undefined> = {
+    from: (route.query?.from as string | undefined) || route.path,
+    admin: props.isAdminUser ? "true" : undefined,
+    caseType: route.query?.caseType as string | undefined,
+  };
+  if (props.caseOfficerNames) {
+    query.officers = encodeURIComponent(props.caseOfficerNames);
+  }
+  router.push({ path: "/add-case-stage", query });
 };
 </script>

@@ -463,7 +463,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, reactive } from "vue";
+import { computed, onMounted, reactive, ref } from "vue";
 import Input from "@/components/atoms/Input.vue";
 import Radio from "@/components/atoms/Radio.vue";
 import ButtonCTA from "@/components/atoms/ButtonCTA.vue";
@@ -471,13 +471,16 @@ import Breadcrumb from "@/components/atoms/Breadcrumb.vue";
 import StageProgressBar from "@/components/molecules/StageProgressBar.vue";
 import SidebarSection from "@/components/sections/backend/SidebarSection.vue";
 
-const breadcrumbItems = [
+/** 從案件詳情按鈕進入為編輯，從新增流程進入為新增 */
+const isFromCaseDetail = ref(false);
+
+const breadcrumbItems = computed(() => [
   { label: "首頁", to: "/" },
   { label: "我的案件", to: "/case-management" },
   { label: "都市更新案件", to: "/case-management" },
   { label: "新增都更案件", to: "/case-management/add/business-plan" },
-  { label: "都市更新審議資料表" },
-];
+  { label: isFromCaseDetail.value ? "編輯都更案件" : "新增都更案件" },
+]);
 
 const floorAreaFields = [
   { key: "industrialVolume", label: "工業使用容積（m²）", placeholder: "請輸入工業使用容積，無則填無" },
@@ -581,6 +584,21 @@ const formData = reactive<Record<string, any>>({
   executorAddress: "",
   executorPhone: "",
   executorFax: "",
+});
+
+const STORAGE_KEY_CASE_FOR_APPLICATION = "caseDetailForApplication";
+
+onMounted(() => {
+  try {
+    const raw = sessionStorage.getItem(STORAGE_KEY_CASE_FOR_APPLICATION);
+    if (!raw) return;
+    isFromCaseDetail.value = true;
+    const data = JSON.parse(raw) as { name?: string };
+    sessionStorage.removeItem(STORAGE_KEY_CASE_FOR_APPLICATION);
+    if (data.name) formData.caseName = data.name;
+  } catch (_) {
+    // ignore
+  }
 });
 
 const planningUnitLabels = ["一", "二", "三", "四", "五"];

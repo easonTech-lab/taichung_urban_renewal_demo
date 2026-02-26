@@ -183,34 +183,13 @@ const allData: MeetingItem[] = [
   },
 ];
 
-// Table Columns
+// Table Columns（項次 5% / 議程 40% / 案件階段 15% / 會議日期 15% / 動作 10%）
 const tableColumns: TableColumn[] = [
-  {
-    key: "index",
-    label: "項次",
-    headerClass: "w-[60px]",
-    cellClass: "w-[60px]",
-  },
-  {
-    key: "agenda",
-    label: "議程",
-  },
-  {
-    key: "stage",
-    label: "案件階段",
-    headerClass: "w-[200px]",
-    cellClass: "w-[200px]",
-  },
-  {
-    key: "date",
-    label: "會議日期",
-    headerClass: "w-[200px]",
-    cellClass: "w-[200px]",
-  },
-  {
-    key: "action",
-    label: "動作",
-  },
+  { key: "index", label: "項次", width: "5%" },
+  { key: "agenda", label: "議程", width: "40%" },
+  { key: "stage", label: "案件階段", width: "15%" },
+  { key: "date", label: "會議日期", width: "15%" },
+  { key: "action", label: "動作", width: "10%" },
 ];
 
 // Pagination
