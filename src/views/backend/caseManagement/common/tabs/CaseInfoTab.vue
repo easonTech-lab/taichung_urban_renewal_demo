@@ -43,7 +43,7 @@
           class="flex h-[66px] flex-1 items-center justify-between gap-5 rounded-lg border border-gray-400 bg-white p-5 transition-colors hover:bg-gray-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
           @click="handleCardClick('application-basic')"
         >
-          <span class="text-lg font-bold leading-[1.3] text-gray-500">申請基本資料</span>
+          <span class="text-lg font-bold leading-[1.3] text-gray-500">{{ isDangerous ? '公開基本資料' : '申請基本資料' }}</span>
           <div class="relative flex h-12 w-12 shrink-0 items-center justify-center">
             <div class="absolute inset-0 rounded-full bg-blue-100"></div>
             <Icon name="arrowRightOutline" :size="24" color="#1C64F2" class="relative z-10" />
@@ -54,7 +54,7 @@
           class="flex h-[66px] flex-1 items-center justify-between gap-5 rounded-lg border border-gray-400 bg-white p-5 transition-colors hover:bg-gray-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
           @click="handleCardClick('review-data')"
         >
-          <span class="text-lg font-bold leading-[1.3] text-gray-500">都市更新審議資料表</span>
+          <span class="text-lg font-bold leading-[1.3] text-gray-500">{{ isDangerous ? '危老審查獎勵' : '都市更新審議資料表' }}</span>
           <div class="relative flex h-12 w-12 shrink-0 items-center justify-center">
             <div class="absolute inset-0 rounded-full bg-blue-100"></div>
             <Icon name="arrowRightOutline" :size="24" color="#1C64F2" class="relative z-10" />
@@ -65,7 +65,7 @@
           class="flex h-[66px] flex-1 items-center justify-between gap-5 rounded-lg border border-gray-400 bg-white p-5 transition-colors hover:bg-gray-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
           @click="handleCardClick('floor-area-ratio')"
         >
-          <span class="text-lg font-bold leading-[1.3] text-gray-500">容積獎勵項目及額度</span>
+          <span class="text-lg font-bold leading-[1.3] text-gray-500">{{ isDangerous ? '危老審查獎勵' : '容積獎勵項目及額度' }}</span>
           <div class="relative flex h-12 w-12 shrink-0 items-center justify-center">
             <div class="absolute inset-0 rounded-full bg-blue-100"></div>
             <Icon name="arrowRightOutline" :size="24" color="#1C64F2" class="relative z-10" />
@@ -255,6 +255,8 @@ const toastPositionStyle = computed(() => {
 const router = useRouter();
 const route = useRoute();
 
+const isDangerous = computed(() => route.query?.caseType === "dangerous");
+
 const STORAGE_KEY_CASE_FOR_APPLICATION = "caseDetailForApplication";
 
 const handleCardClick = (cardType: string) => {
@@ -264,13 +266,13 @@ const handleCardClick = (cardType: string) => {
     } catch (_) {
       // ignore storage errors
     }
-    const isDangerous = route.query?.caseType === "dangerous";
     const query = {
       from: route.query?.from as string | undefined,
       admin: route.query?.admin as string | undefined,
+      caseType: route.query?.caseType as string | undefined,
     };
-    if (isDangerous) {
-      router.push({ path: "/case-management-dangerous/add/application", query });
+    if (isDangerous.value) {
+      router.push({ path: "/case-management-dangerous/add", query });
     } else {
       router.push({ path: "/case-management/add/business-plan", query });
     }
@@ -283,8 +285,13 @@ const handleCardClick = (cardType: string) => {
     const query = {
       from: route.query?.from as string | undefined,
       admin: route.query?.admin as string | undefined,
+      caseType: route.query?.caseType as string | undefined,
     };
-    router.push({ path: "/case-management/add/review-table", query });
+    if (isDangerous.value) {
+      router.push({ path: "/case-management-dangerous/add/application", query });
+    } else {
+      router.push({ path: "/case-management/add/review-table", query });
+    }
     return;
   }
   if (cardType === "floor-area-ratio") {

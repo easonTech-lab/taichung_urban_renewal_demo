@@ -52,7 +52,7 @@ import Icon from "@/components/atoms/Icon.vue";
 import Input from "@/components/atoms/Input.vue";
 import Textarea from "@/components/atoms/Textarea.vue";
 import ButtonCTA from "@/components/atoms/ButtonCTA.vue";
-import Breadcrumb from "@/components/atoms/Breadcrumb.vue";
+import Breadcrumb, { type BreadcrumbItem } from "@/components/atoms/Breadcrumb.vue";
 import SidebarSection from "@/components/sections/backend/SidebarSection.vue";
 
 const router = useRouter();

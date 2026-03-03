@@ -69,11 +69,13 @@ npm run preview
 
 ### 前置條件
 
-- 180 主機已安裝 Docker（不需要 docker compose）
+- 180 主機已安裝 Docker 與 Docker Compose
 - 專案在主機路徑 `/home/easonadmin/taichung_urban_renewal`
 - 對外服務路徑為 `http://192.168.0.180:5566/taichung_urban_renewal/`
 
-### 一鍵同步（本機）
+### 一鍵部署（推薦）
+
+在本機執行以下指令，會自動同步程式碼並於遠端重建 Docker 服務，**完成後無需再手動執行其他指令**：
 
 ```bash
 npm run deploy:sit
@@ -94,13 +96,15 @@ cd /home/easonadmin/taichung_urban_renewal
 docker ps
 ```
 
-### 180 主機建置與啟動
+### 180 主機手動建置與啟動（僅在未使用一鍵部署時）
+
+若你已 SSH 到 180 主機且需手動重建，可使用以下指令（**使用 `npm run deploy:sit` 時不需執行**）：
 
 ```bash
 cd /home/easonadmin/taichung_urban_renewal
-docker build -t taichung_urban_renewal:latest .
-docker rm -f taichung_urban_renewal || true
-docker run -d --name taichung_urban_renewal -p 5566:5566 taichung_urban_renewal:latest
+docker compose down
+docker compose build --no-cache
+docker compose up -d
 ```
 
 ### 驗證

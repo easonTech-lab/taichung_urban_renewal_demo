@@ -27,13 +27,13 @@
           <!-- 欄位標題 -->
           <th v-for="(column, index) in columns" :key="index" scope="col" :class="getHeaderClass(column, index)">
             <slot :name="`header-${column.key}`" :column="column" :index="index" :sortOrder="getSortOrder(column.key)">
-              <div v-if="column.sortable" class="flex items-center">
+              <div v-if="column.sortable" class="flex items-center" :class="(column.headerClass || '').includes('text-right') ? 'w-full justify-end' : ''">
                 {{ column.label }}
                 <a href="#" class="ml-1 flex items-center" @click.prevent="handleSort(column.key)">
                   <Icon name="sort" :size="16" class="h-4 w-4" :class="getSortIconClass(column.key)" />
                 </a>
               </div>
-              <span v-else>{{ column.label }}</span>
+              <span v-else class="block w-full" :class="(column.headerClass || '').includes('text-right') ? 'text-right' : ''">{{ column.label }}</span>
             </slot>
           </th>
         </tr>

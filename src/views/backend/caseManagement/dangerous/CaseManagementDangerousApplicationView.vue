@@ -4,17 +4,16 @@
     <div class="flex flex-1 flex-col gap-10 p-4 sm:ml-[328px] sm:p-10">
       <div class="flex flex-col gap-6">
         <Breadcrumb :items="breadcrumbItems" />
-        <h1 class="text-3xl font-bold leading-[30px] text-gray-900">新增危老重建案件</h1>
+        <h1 class="text-3xl font-bold leading-[30px] text-gray-900">{{ isFromCaseDetail ? '編輯危老重建案件' : '新增危老重建案件' }}</h1>
       </div>
 
-      <div class="flex flex-col items-center gap-10">
+      <div class="flex flex-col gap-4">
         <StageProgressBar
-          class="w-full max-w-[1032px]"
           :steps="['公開基本資料', '危老申請書', '危老審查獎勵']"
           :active-index="1"
         />
 
-        <div class="w-full max-w-[1032px] flex flex-col gap-10 rounded-lg bg-white p-8 shadow-sm">
+        <div class="flex flex-col gap-10 rounded-lg bg-white p-8 shadow-sm">
           <div class="flex items-center gap-3">
             <div class="h-7 w-1 rounded bg-primary-600"></div>
             <h2 class="text-2xl font-medium text-gray-900">危老申請書</h2>
@@ -32,10 +31,10 @@
                     :button-text="formData.builderType"
                     :items="builderTypeOptions"
                     required
-                    container-class="w-[364px]"
+                    containerClass="w-[364px]"
                     @item-click="(item) => handleDropdownChange('builderType', item)"
                   />
-                  <ButtonCTA variant="outline" size="sm" leftIcon="plus" class="!min-w-0 w-fit">
+                  <ButtonCTA variant="outline" size="sm" left-icon="plus" class="!min-w-0 w-fit">
                     新增起造人
                   </ButtonCTA>
                 </div>
@@ -44,14 +43,16 @@
 
             <div class="flex flex-col gap-6 border-b border-gray-300 pb-6">
               <h3 class="text-xl font-bold text-blue-700">規劃單位</h3>
-              <div class="grid w-[752px] grid-cols-[repeat(2,364px)] gap-6">
+              <div class="grid w-[744px] grid-cols-[repeat(2,364px)] gap-4">
                 <Input v-model="formData.designerName" label="設計人姓名" placeholder="請輸入設計人姓名" size="lg" required containerClass="w-[364px]" />
                 <Input v-model="formData.licenseNumber" label="開業證書字號" placeholder="請輸入開業證書字號" size="lg" required containerClass="w-[364px]" />
                 <Input v-model="formData.officeName" label="事務所名稱" placeholder="請輸入事務所名稱" size="lg" required containerClass="w-[364px]" />
                 <Input v-model="formData.businessScope" label="執行業務" placeholder="請輸入執行業務" size="lg" required containerClass="w-[364px]" />
                 <Input v-model="formData.officePhone" label="聯絡電話" placeholder="請輸入聯絡電話" size="lg" required containerClass="w-[364px]" />
                 <Input v-model="formData.officeFax" label="傳真" placeholder="請輸入傳真" size="lg" required containerClass="w-[364px]" />
-                <Input v-model="formData.officeAddress" label="事務所地址" placeholder="請輸入事務所地址" size="lg" required containerClass="w-[752px]" />
+                <div class="col-span-2">
+                  <Input v-model="formData.officeAddress" label="事務所地址" placeholder="請輸入事務所地址" size="lg" required containerClass="w-[744px]" />
+                </div>
               </div>
             </div>
 
@@ -64,14 +65,14 @@
                   :button-text="formData.district"
                   :items="districtOptions"
                   required
-                  container-class="w-[364px]"
+                  containerClass="w-[364px]"
                   @item-click="(item) => handleDropdownChange('district', item)"
                 />
-                <div class="flex flex-col gap-2 w-[752px]">
-                  <Input v-model="formData.lotNumber" label="地號" placeholder="請輸入地號" size="lg" required containerClass="w-[752px]" />
+                <div class="flex w-[744px] flex-col gap-2">
+                  <Input v-model="formData.lotNumber" label="地號" placeholder="請輸入地號" size="lg" required containerClass="w-[744px]" />
                   <p class="text-base leading-tight text-gray-500">例：三村段20地號</p>
                 </div>
-                <ButtonCTA variant="outline" size="sm" leftIcon="plus" class="!min-w-0 w-fit">
+                <ButtonCTA variant="outline" size="sm" left-icon="plus" class="!min-w-0 w-fit">
                   新增其他筆
                 </ButtonCTA>
               </div>
@@ -79,24 +80,24 @@
 
             <div class="flex flex-col gap-6 border-b border-gray-300 pb-6">
               <h3 class="text-xl font-bold text-blue-700">基地概要</h3>
-              <div class="flex flex-wrap items-start gap-4">
-                <div class="flex w-[744px] items-end justify-between">
-                  <DatePicker v-model="formData.buildingLineDate" label="建築線指定" placeholder="請選擇日期" containerClass="w-[364px]" />
-                  <div class="flex w-[364px] flex-col gap-2">
-                    <p class="text-base font-medium text-gray-900">
-                      字號 <span class="text-red-500">*</span>
-                    </p>
-                    <Input v-model="formData.permitNumber" :show-label="false" placeholder="請輸入執照文號" size="lg" required containerClass="w-[364px]" />
-                  </div>
+              <div class="grid w-[744px] grid-cols-[repeat(2,364px)] gap-4">
+                <DatePicker v-model="formData.buildingLineDate" label="建築線指定" placeholder="請選擇日期" containerClass="w-[364px]" />
+                <div class="flex flex-col gap-2">
+                  <p class="text-base font-medium text-gray-900">
+                    字號 <span class="text-red-500">*</span>
+                  </p>
+                  <Input v-model="formData.permitNumber" :show-label="false" placeholder="請輸入執照文號" size="lg" required containerClass="w-[364px]" />
                 </div>
                 <Input v-model="formData.legalCoverageRatio" label="法定建蔽率（％）" size="lg" required :disabled="true" containerClass="w-[364px]" />
                 <Input v-model="formData.legalFAR" label="法定容積率" placeholder="請輸入法定容積率" size="lg" required containerClass="w-[364px]" />
                 <Input v-model="formData.totalSiteArea" label="基地面積合計（m²）" size="lg" required :disabled="true" containerClass="w-[364px]" />
-                <div class="flex flex-col gap-2 w-[364px]">
+                <div class="flex flex-col gap-2">
                   <Input v-model="formData.landUseZone" label="土地使用分區" placeholder="請輸入土地使用分區" size="lg" required containerClass="w-[364px]" />
                   <p class="text-base leading-tight text-gray-500">例：第三種住宅</p>
                 </div>
-                <Input v-model="formData.siteOfficeAddress" label="事務所地址" placeholder="請輸入事務所地址" size="lg" required containerClass="w-[752px]" />
+                <div class="col-span-2">
+                  <Input v-model="formData.siteOfficeAddress" label="事務所地址" placeholder="請輸入事務所地址" size="lg" required containerClass="w-[744px]" />
+                </div>
               </div>
             </div>
 
@@ -112,14 +113,14 @@
 
             <div class="flex flex-col gap-6 border-b border-gray-300 pb-6">
               <h3 class="text-xl font-bold text-blue-700">土地及建築物所有權人</h3>
-              <div class="grid w-[752px] grid-cols-[repeat(2,364px)] gap-6">
+              <div class="grid w-[744px] grid-cols-[repeat(2,364px)] gap-4">
                 <InputDropdown
                   label="土地所有權人"
                   placeholder="請選擇土地所有權人"
                   :button-text="formData.landOwner"
                   :items="landOwnerOptions"
                   required
-                  container-class="w-[364px]"
+                  containerClass="w-[364px]"
                   @item-click="(item) => handleDropdownChange('landOwner', item)"
                 />
                 <InputDropdown
@@ -128,7 +129,7 @@
                   :button-text="formData.buildingOwner"
                   :items="buildingOwnerOptions"
                   required
-                  container-class="w-[364px]"
+                  containerClass="w-[364px]"
                   @item-click="(item) => handleDropdownChange('buildingOwner', item)"
                 />
               </div>
@@ -176,7 +177,7 @@
         </div>
       </div>
 
-      <div class="flex w-full max-w-[1032px] items-center justify-center gap-6">
+      <div class="flex items-center justify-center gap-6">
         <ButtonCTA variant="textPlain" size="xl" :to="{ path: '/case-management-dangerous/add' }">上一步</ButtonCTA>
         <ButtonCTA variant="outline" size="xl">暫存</ButtonCTA>
         <ButtonCTA variant="gray" size="xl" :disabled="true">下一步</ButtonCTA>
@@ -186,7 +187,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
+import { ref, computed, onMounted } from "vue";
 import Input from "@/components/atoms/Input.vue";
 import Radio from "@/components/atoms/Radio.vue";
 import DatePicker from "@/components/atoms/DatePicker.vue";
@@ -197,12 +198,14 @@ import SidebarSection from "@/components/sections/backend/SidebarSection.vue";
 import InputDropdown, { type InputDropdownItem } from "@/components/atoms/InputDropdown.vue";
 import type { DangerousApplicationFormData } from "@/types/backend/caseManagement/dangerous/CaseManagementDangerousApplicationView.d";
 
-const breadcrumbItems = [
+const isFromCaseDetail = ref(false);
+
+const breadcrumbItems = computed(() => [
   { label: "首頁", to: "/" },
   { label: "我的案件", to: "/case-management" },
   { label: "危老重建案件", to: "/case-management-dangerous" },
-  { label: "新增危老重建案件" },
-];
+  { label: isFromCaseDetail.value ? "編輯危老重建案件" : "新增危老重建案件" },
+]);
 
 const builderTypeOptions: InputDropdownItem[] = [{ label: "法人（公司行號）" }, { label: "自然人" }];
 const districtOptions: InputDropdownItem[] = [];
@@ -251,6 +254,7 @@ onMounted(() => {
   try {
     const raw = sessionStorage.getItem(STORAGE_KEY_CASE_FOR_APPLICATION);
     if (!raw) return;
+    isFromCaseDetail.value = true;
     const data = JSON.parse(raw) as {
       name?: string;
       applicantName?: string;

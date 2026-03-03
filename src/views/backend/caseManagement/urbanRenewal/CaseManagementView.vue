@@ -244,22 +244,23 @@ const handleStatusChange = (item: DropdownItem) => {
 
 const handleAddCaseOption = (item: ButtonDropdownItem, index: number) => {
   selectedAddCaseIndex.value = index;
-  console.log("Add case option selected:", item.value, item.label);
-  if (!isAdmin.value) {
-    router.push({
-      path: "/case-management/add/business-plan",
-      query: {
-        caseType: "urban",
-        addType: item.value,
-      },
-    });
-  }
+  router.push({
+    path: "/case-management/add/business-plan",
+    query: {
+      caseType: "urban",
+      addType: item.value,
+    },
+  });
 };
 
 const handleEmptyStateAddCase = () => {
-  // Open the dropdown when clicking the empty state button
-  // This will be handled by the ButtonDropdown component itself
-  console.log("Empty state add case clicked");
+  router.push({
+    path: "/case-management/add/business-plan",
+    query: {
+      caseType: "urban",
+      addType: "business-plan",
+    },
+  });
 };
 
 const handleRowClick = (row: Record<string, any>) => {

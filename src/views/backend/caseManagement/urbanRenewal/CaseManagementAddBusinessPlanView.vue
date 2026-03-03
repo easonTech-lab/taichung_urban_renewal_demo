@@ -4,7 +4,7 @@
     <div class="flex flex-1 flex-col gap-10 p-4 sm:ml-[328px] sm:p-10">
       <div class="flex flex-col gap-6">
         <Breadcrumb :items="breadcrumbItems" />
-        <h1 class="text-3xl font-bold leading-[30px] text-gray-900">新增都更案件</h1>
+        <h1 class="text-3xl font-bold leading-[30px] text-gray-900">{{ isFromCaseDetail ? '編輯都更案件' : '新增都更案件' }}</h1>
       </div>
 
       <div class="flex flex-col gap-4">

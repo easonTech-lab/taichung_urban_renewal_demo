@@ -152,6 +152,22 @@ const updateSelectedItem = () => {
       }
     }
   }
+  // 危老子路由（/case-management-dangerous/xxx）需對應危老 sidebar，包含 admin 從 /case-management-dangerous-admin 進來的情況
+  const isDangerousSubRoute =
+    route.path === "/case-management-dangerous" || route.path.startsWith("/case-management-dangerous/");
+  if (isDangerousSubRoute) {
+    const dangerousRoute = isAdmin.value ? "/case-management-dangerous-admin" : "/case-management-dangerous";
+    const dangerousLabel = isAdmin.value ? "危老重建案件管理" : "危老重建案件";
+    for (let i = 0; i < config.length; i++) {
+      const subItem = config[i].subItems.find((item) => item.route === dangerousRoute || item.value === dangerousLabel);
+      if (subItem) {
+        selectedItem.value = subItem.value;
+        expandedIndex.value = i;
+        return;
+      }
+    }
+  }
+
   for (let i = 0; i < config.length; i++) {
     const menuItem = config[i];
     // 先嘗試精確匹配
@@ -160,8 +176,10 @@ const updateSelectedItem = () => {
     if (!subItem) {
       subItem = menuItem.subItems.find((item) => {
         if (!item.route || item.route === "#") return false;
-        // 檢查當前路由是否以子項目的路由開頭
-        return route.path.startsWith(item.route);
+        // 檢查當前路由是否以子項目的路由開頭，且下一字元為 / 或結束（避免 /case-management 誤匹配 /case-management-dangerous）
+        const prefix = item.route;
+        if (!route.path.startsWith(prefix)) return false;
+        return route.path === prefix || route.path[prefix.length] === "/";
       });
     }
     if (subItem) {

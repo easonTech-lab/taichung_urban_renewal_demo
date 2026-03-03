@@ -47,8 +47,6 @@
                 :aria-controls="`category-${categoryIndex}-questions`"
                 :aria-label="`${category.title}，點擊${isCategoryOpen(categoryIndex) ? '收起' : '展開'}子問題列表`"
                 @click="selectCategory(categoryIndex)"
-                @keydown.enter="selectCategory(categoryIndex)"
-                @keydown.space.prevent="selectCategory(categoryIndex)"
               >
                 <p class="flex-1 text-xl font-medium" :class="isCategoryOpen(categoryIndex) ? 'text-blue-50' : 'text-gray-900'">
                   {{ category.title }}
@@ -77,14 +75,13 @@
                 <button
                   v-for="(question, questionIndex) in category.questions"
                   :key="questionIndex"
+                  :id="getQuestionNavId(categoryIndex, questionIndex)"
                   type="button"
                   class="cursor-pointer rounded py-0 text-left text-lg font-medium transition-colors focus:outline-none"
                   :class="activeQuestionId === question.id ? 'text-blue-500' : 'text-gray-600 hover:text-gray-900'"
                   :aria-label="`${question.title}，點擊查看詳細答案`"
                   :aria-current="activeQuestionId === question.id ? 'true' : undefined"
                   @click.stop="selectQuestion(question.id)"
-                  @keydown.enter.stop="selectQuestion(question.id)"
-                  @keydown.space.stop.prevent="selectQuestion(question.id)"
                 >
                   {{ question.title }}
                 </button>
@@ -117,8 +114,6 @@
                           :aria-controls="`question-${question.id}-content`"
                           :aria-label="`${question.title}，點擊收起`"
                           @click="selectQuestion(question.id)"
-                          @keydown.enter="selectQuestion(question.id)"
-                          @keydown.space.prevent="selectQuestion(question.id)"
                         >
                           <div class="relative size-6 shrink-0">
                             <div class="absolute inset-0 rounded-full bg-blue-200"></div>
@@ -141,8 +136,6 @@
                         :aria-controls="`question-${question.id}-content`"
                         :aria-label="`${question.title}，點擊展開查看詳細答案`"
                         @click="selectQuestion(question.id)"
-                        @keydown.enter="selectQuestion(question.id)"
-                        @keydown.space.prevent="selectQuestion(question.id)"
                       >
                         <div class="relative size-6 shrink-0">
                           <div class="absolute inset-0 rounded-full border-2 border-blue-500"></div>
@@ -179,8 +172,6 @@
                       :aria-controls="`question-${question.id}-content`"
                       :aria-label="`${question.title}，點擊收起`"
                       @click="selectQuestion(question.id)"
-                      @keydown.enter="selectQuestion(question.id)"
-                      @keydown.space.prevent="selectQuestion(question.id)"
                     >
                       <div class="relative size-6 shrink-0">
                         <div class="absolute inset-0 rounded-full bg-blue-200"></div>
@@ -203,8 +194,6 @@
                     :aria-controls="`question-${question.id}-content`"
                     :aria-label="`${question.title}，點擊展開查看詳細答案`"
                     @click="selectQuestion(question.id)"
-                    @keydown.enter="selectQuestion(question.id)"
-                    @keydown.space.prevent="selectQuestion(question.id)"
                   >
                     <div class="relative size-6 shrink-0">
                       <div class="absolute inset-0 rounded-full border-2 border-blue-500"></div>
@@ -228,7 +217,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from "vue";
+import { ref, computed, nextTick } from "vue";
 import Empty from "@/components/atoms/Empty.vue";
 import Breadcrumb from "@/components/atoms/Breadcrumb.vue";
 import SearchInput from "@/components/atoms/SearchInput.vue";
@@ -399,6 +388,10 @@ const stripHtmlTags = (html: string): string => {
   return tmp.textContent || tmp.innerText || "";
 };
 
+const getQuestionNavId = (categoryIndex: number, questionIndex: number) => {
+  return `faq-nav-question-${categoryIndex}-${questionIndex}`;
+};
+
 //點擊分類標題展開/收起
 const selectCategory = (index: number) => {
   const currentIndex = activeCategoryIndexes.value.indexOf(index);
@@ -412,6 +405,12 @@ const selectCategory = (index: number) => {
     // 自動選擇第一個問題
     if (faqCategories[index]?.questions.length > 0) {
       activeQuestionId.value = faqCategories[index].questions[0].id;
+      void nextTick(() => {
+        const firstQuestionButton = document.getElementById(getQuestionNavId(index, 0));
+        if (firstQuestionButton instanceof HTMLButtonElement) {
+          firstQuestionButton.focus();
+        }
+      });
     }
   }
 };

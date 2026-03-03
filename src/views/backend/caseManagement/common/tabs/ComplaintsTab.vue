@@ -76,7 +76,7 @@ const complaintTableColumns: TableColumn[] = [
   {
     key: "action",
     label: "動作",
-    headerClass: "w-[96px]",
+    width: "96px",
   },
 ];
 

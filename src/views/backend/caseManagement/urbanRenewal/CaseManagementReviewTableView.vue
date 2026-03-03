@@ -4,7 +4,7 @@
     <div class="flex flex-1 flex-col gap-10 p-4 sm:ml-[328px] sm:p-10">
       <div class="flex flex-col gap-6">
         <Breadcrumb :items="breadcrumbItems" />
-        <h1 class="text-3xl font-bold leading-[30px] text-gray-900">新增都更案件</h1>
+        <h1 class="text-3xl font-bold leading-[30px] text-gray-900">{{ isFromCaseDetail ? '編輯都更案件' : '新增都更案件' }}</h1>
       </div>
 
       <div class="flex flex-col gap-4">
@@ -474,13 +474,17 @@ import SidebarSection from "@/components/sections/backend/SidebarSection.vue";
 /** 從案件詳情按鈕進入為編輯，從新增流程進入為新增 */
 const isFromCaseDetail = ref(false);
 
-const breadcrumbItems = computed(() => [
-  { label: "首頁", to: "/" },
-  { label: "我的案件", to: "/case-management" },
-  { label: "都市更新案件", to: "/case-management" },
-  { label: "新增都更案件", to: "/case-management/add/business-plan" },
-  { label: isFromCaseDetail.value ? "編輯都更案件" : "新增都更案件" },
-]);
+const breadcrumbItems = computed(() => {
+  const base = [
+    { label: "首頁", to: "/" },
+    { label: "我的案件", to: "/case-management" },
+    { label: "都市更新案件", to: "/case-management" },
+  ];
+  if (isFromCaseDetail.value) {
+    return [...base, { label: "編輯都更案件" }];
+  }
+  return [...base, { label: "新增都更案件", to: "/case-management/add/business-plan" }, { label: "都市更新審議資料表" }];
+});
 
 const floorAreaFields = [
   { key: "industrialVolume", label: "工業使用容積（m²）", placeholder: "請輸入工業使用容積，無則填無" },
