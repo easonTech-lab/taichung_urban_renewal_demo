@@ -178,9 +178,15 @@
       </div>
 
       <div class="flex items-center justify-center gap-6">
-        <ButtonCTA variant="textPlain" size="xl" :to="{ path: '/case-management-dangerous/add' }">上一步</ButtonCTA>
-        <ButtonCTA variant="outline" size="xl">暫存</ButtonCTA>
-        <ButtonCTA variant="gray" size="xl" :disabled="true">下一步</ButtonCTA>
+        <template v-if="isFromCaseDetail">
+          <ButtonCTA variant="outline" size="xl" :to="{ path: '/case-management-dangerous' }">取消</ButtonCTA>
+          <ButtonCTA variant="primary" size="xl">儲存</ButtonCTA>
+        </template>
+        <template v-else>
+          <ButtonCTA variant="textPlain" size="xl" :to="{ path: '/case-management-dangerous/add' }">上一步</ButtonCTA>
+          <ButtonCTA variant="outline" size="xl">暫存</ButtonCTA>
+          <ButtonCTA variant="gray" size="xl" :disabled="true">下一步</ButtonCTA>
+        </template>
       </div>
     </div>
   </div>

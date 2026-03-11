@@ -37,19 +37,6 @@
           <FileUpload v-model="formData.files" label="檔案上傳" :max-size="10" multiple required @file-error="handleFileError" />
         </div>
       </div>
-      <Modal v-model="showUploadWarningModal" size="md" backdrop-class="bg-gray-600/80" :show-close-button="true" close-action="emit">
-        <template #body>
-          <div class="flex w-full flex-col items-center gap-4 px-6 py-5">
-            <div class="flex h-6 w-6 items-center justify-center rounded-full bg-gray-400 text-xs font-medium text-white">!</div>
-            <p class="w-[311px] text-center text-base font-normal leading-[1.5] text-gray-600">{{ uploadWarningMessage }}</p>
-          </div>
-        </template>
-        <template #footer>
-          <div class="flex w-full items-center justify-center px-6 pb-6 pt-0">
-            <ButtonCTA variant="primary" size="xs" class="h-8 min-w-[120px]" @click="showUploadWarningModal = false">確認</ButtonCTA>
-          </div>
-        </template>
-      </Modal>
       <div class="flex items-center justify-center gap-4">
         <template v-if="isEditMode">
           <ButtonCTA variant="outline" size="l" @click="handleCancelEdit">取消</ButtonCTA>
@@ -89,6 +76,19 @@
           <ButtonCTA variant="primary" size="xs" class="h-8 w-[120px] px-3 py-2 text-sm font-medium leading-[1.5]" :disabled="isPublishDisabled" @click="handleSaveFromUnsavedModal">
             儲存修改
           </ButtonCTA>
+        </div>
+      </template>
+    </Modal>
+    <Modal v-model="showUploadWarningModal" size="md" backdrop-class="bg-gray-600/80" :show-close-button="true" close-action="emit">
+      <template #body>
+        <div class="flex w-full flex-col items-center gap-4 px-6 py-5">
+          <div class="flex h-6 w-6 items-center justify-center rounded-full bg-gray-400 text-xs font-medium text-white">!</div>
+          <p class="w-[311px] text-center text-base font-normal leading-[1.5] text-gray-600">{{ uploadWarningMessage }}</p>
+        </div>
+      </template>
+      <template #footer>
+        <div class="flex w-full items-center justify-center px-6 pb-6 pt-0">
+          <ButtonCTA variant="primary" size="xs" class="h-8 min-w-[120px]" @click="showUploadWarningModal = false">確認</ButtonCTA>
         </div>
       </template>
     </Modal>

@@ -448,7 +448,11 @@
       </div>
 
       <div class="flex items-center justify-center gap-6">
-        <template v-if="activeTab === 0">
+        <template v-if="isFromCaseDetail">
+          <ButtonCTA variant="outline" size="xl" :to="{ path: '/case-management' }">取消</ButtonCTA>
+          <ButtonCTA variant="primary" size="xl">儲存</ButtonCTA>
+        </template>
+        <template v-else-if="activeTab === 0">
           <ButtonCTA variant="outline" size="xl">暫存</ButtonCTA>
           <ButtonCTA variant="primary" size="xl" :to="{ path: '/case-management/add/review-table' }">下一步</ButtonCTA>
         </template>

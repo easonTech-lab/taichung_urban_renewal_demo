@@ -52,7 +52,6 @@
         </div>
       </div>
     </div>
-
     <ConfirmDeleteModal
       v-model="showDeleteModal"
       message="確認刪除此項目"
@@ -60,7 +59,6 @@
       @confirm="handleConfirmDelete"
       @cancel="handleCloseDeleteModal"
     />
-
     <div class="fixed bottom-6 z-[90]" :style="toastStyle">
       <Toast v-model="showToast" :message="toastMessage" :show-actions="false" :show-close="false" :auto-close="true">
         <template #icon>

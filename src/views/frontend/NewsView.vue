@@ -55,10 +55,10 @@ import { useRouter } from "vue-router";
 import { useTablePagination } from "@/composables/useTablePagination";
 import Empty from "@/components/atoms/Empty.vue";
 import Breadcrumb from "@/components/atoms/Breadcrumb.vue";
+import SearchInput from "@/components/atoms/SearchInput.vue";
 import FooterSection from "@/components/sections/global/FooterSection.vue";
 import Table, { type TableColumn } from "@/components/atoms/Table.vue";
 import InputDropdown, { type InputDropdownItem } from "@/components/atoms/InputDropdown.vue";
-import SearchInput from "@/components/atoms/SearchInput.vue";
 import type { NewsItem } from "@/types/frontend/frontend.d";
 
 

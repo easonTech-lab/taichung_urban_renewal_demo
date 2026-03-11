@@ -16,11 +16,7 @@
             :error-message="errors.username"
             @clear-error="errors.username = ''"
           />
-          <div class="flex w-full items-center gap-2">
-            <input id="remember-me" type="checkbox" class="h-4 w-4 rounded border border-gray-300 bg-gray-50" />
-            <label for="remember-me" class="text-sm font-medium leading-[14px] text-gray-900">記住我</label>
-          </div>
-
+          <Checkbox v-model="formData.rememberMe" label="記住我" />
           <Input
             v-model="formData.password"
             label="密碼"
@@ -32,10 +28,11 @@
             :error-message="errors.password"
             @clear-error="errors.password = ''"
           />
-          <button type="button" class="w-full text-right text-sm font-normal text-primary-600 hover:underline" @click.prevent="handleForgotPassword">忘記密碼</button>
-
-          <div class="flex w-full items-end gap-4 flex-wrap justify-center">
-            <div class="flex-1 min-w-[150px]">
+          <div class="flex w-full justify-end">
+            <ButtonCTA type="button" variant="text" class="!min-w-0 !px-0 !py-0 font-normal" @click.prevent="handleForgotPassword">忘記密碼</ButtonCTA>
+          </div>
+          <div class="flex w-full flex-wrap items-end justify-center gap-4">
+            <div class="min-w-[150px] flex-1">
               <Input
                 v-model="formData.captcha"
                 label="驗證碼"
@@ -71,6 +68,7 @@ import { ref, computed } from "vue";
 import { useRouter } from "vue-router";
 import Input from "@/components/atoms/Input.vue";
 import ButtonCTA from "@/components/atoms/ButtonCTA.vue";
+import Checkbox from "@/components/atoms/Checkbox.vue";
 
 const router = useRouter();
 const captchaImageUrl = ref("https://via.placeholder.com/125x49?text=驗證碼");
@@ -85,6 +83,7 @@ const formData = ref({
   username: "",
   password: "",
   captcha: "",
+  rememberMe: false,
 });
 
 const errors = ref({

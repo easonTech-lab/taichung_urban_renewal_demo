@@ -15,19 +15,17 @@
           <h1 class="text-2xl font-medium leading-6 text-gray-900">忘記密碼</h1>
           <p class="text-base font-normal leading-[1.5] text-gray-500">發送設定連結至以下信箱</p>
         </div>
-        <div class="flex w-full flex-col gap-2">
-          <label class="block text-base font-medium text-gray-900">電子信箱</label>
-          <input
-            v-model="formData.email"
-            type="email"
-            placeholder="請輸入電子信箱"
-            required
-            class="h-[52px] w-full rounded-lg border border-gray-300 bg-gray-200 px-4 py-3.5 text-lg text-gray-700 placeholder:text-gray-700 focus:border-primary-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary-500"
-            :class="errors.email ? 'border-red-300 bg-red-50 focus:border-red-500 focus:ring-red-500' : ''"
-            @input="handleInput"
-          />
-          <p v-if="errors.email" class="mt-1 text-sm text-red-600">{{ errors.email }}</p>
-        </div>
+        <Input
+          v-model="formData.email"
+          label="電子信箱"
+          type="email"
+          placeholder="請輸入電子信箱"
+          required
+          size="lg"
+          :error="!!errors.email"
+          :error-message="errors.email"
+          @clear-error="errors.email = ''"
+        />
         <ButtonCTA :disabled="!isFormValid" variant="primary" type="button" class="h-[40px] w-full" @click="handleSubmit">發送</ButtonCTA>
       </div>
     </div>
@@ -60,6 +58,7 @@ import { useRouter } from "vue-router";
 import Icon from "@/components/atoms/Icon.vue";
 import Modal from "@/components/atoms/Modal.vue";
 import ButtonCTA from "@/components/atoms/ButtonCTA.vue";
+import Input from "@/components/atoms/Input.vue";
 
 const router = useRouter();
 
@@ -81,15 +80,6 @@ const isFormValid = computed(() => {
 const isValidEmail = (email: string): boolean => {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   return emailRegex.test(email);
-};
-
-const handleInput = (event: Event) => {
-  const target = event.target as HTMLInputElement;
-  formData.value.email = target.value;
-  // 清除錯誤
-  if (errors.value.email) {
-    errors.value.email = "";
-  }
 };
 
 const handleSubmit = () => {
