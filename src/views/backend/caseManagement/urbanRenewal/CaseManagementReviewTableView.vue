@@ -306,40 +306,40 @@
               <h3 class="text-xl font-bold text-blue-700">其他設施及情形</h3>
               <div class="flex flex-col gap-6">
                 <div v-for="field in facilityFields" :key="field.key" class="flex flex-col gap-4">
-                  <label class="relative inline-block text-base font-medium text-gray-900">
-                    {{ field.label }}
-                    <span class="absolute -right-2 -top-1 text-xs leading-none text-red-500">*</span>
-                  </label>
-                  <div class="flex flex-col gap-5">
-                    <Radio
-                      :model-value="formData[field.key]"
-                      value="yes"
-                      label="是"
-                      :name="field.key"
-                      label-class="text-sm font-medium text-gray-900"
-                      @update:model-value="(value) => handleRadioChange(field.key, value as string)"
-                    />
-                    <div v-if="formData[field.key] === 'yes'" class="grid w-[744px] grid-cols-[repeat(2,364px)] gap-4 pl-4">
-                      <template v-for="inputField in facilityDetailFields[field.key]" :key="inputField.key">
-                        <Input
-                          v-model="formData[inputField.key]"
-                          :label="inputField.label"
-                          :placeholder="inputField.placeholder"
-                          size="lg"
-                          required
-                          :containerClass="inputField.fullWidth ? 'w-[744px]' : 'w-[364px]'"
+                  <RadioGroup :label="field.label" required container-class="gap-5">
+                    <template #radios>
+                      <div class="flex flex-col gap-5">
+                        <Radio
+                          :model-value="formData[field.key]"
+                          value="yes"
+                          label="是"
+                          :name="field.key"
+                          label-class="text-sm font-medium text-gray-900"
+                          @update:model-value="(value) => handleRadioChange(field.key, value as string)"
                         />
-                      </template>
-                    </div>
-                    <Radio
-                      :model-value="formData[field.key]"
-                      value="no"
-                      label="否"
-                      :name="field.key"
-                      label-class="text-sm font-medium text-gray-900"
-                      @update:model-value="(value) => handleRadioChange(field.key, value as string)"
-                    />
-                  </div>
+                        <div v-if="formData[field.key] === 'yes'" class="grid w-[744px] grid-cols-[repeat(2,364px)] gap-4 pl-4">
+                          <template v-for="inputField in facilityDetailFields[field.key]" :key="inputField.key">
+                            <Input
+                              v-model="formData[inputField.key]"
+                              :label="inputField.label"
+                              :placeholder="inputField.placeholder"
+                              size="lg"
+                              required
+                              :containerClass="inputField.fullWidth ? 'w-[744px]' : 'w-[364px]'"
+                            />
+                          </template>
+                        </div>
+                        <Radio
+                          :model-value="formData[field.key]"
+                          value="no"
+                          label="否"
+                          :name="field.key"
+                          label-class="text-sm font-medium text-gray-900"
+                          @update:model-value="(value) => handleRadioChange(field.key, value as string)"
+                        />
+                      </div>
+                    </template>
+                  </RadioGroup>
                 </div>
               </div>
             </div>
@@ -472,6 +472,7 @@
 import { computed, onMounted, reactive, ref } from "vue";
 import Input from "@/components/atoms/Input.vue";
 import Radio from "@/components/atoms/Radio.vue";
+import RadioGroup from "@/components/atoms/RadioGroup.vue";
 import ButtonCTA from "@/components/atoms/ButtonCTA.vue";
 import Breadcrumb from "@/components/atoms/Breadcrumb.vue";
 import StageProgressBar from "@/components/molecules/StageProgressBar.vue";

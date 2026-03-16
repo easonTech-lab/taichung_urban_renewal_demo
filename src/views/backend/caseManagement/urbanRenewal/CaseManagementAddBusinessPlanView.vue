@@ -127,30 +127,28 @@
           <div class="flex flex-col gap-6 border-b border-gray-300 pb-6">
             <h3 class="text-xl font-bold text-blue-700">指標評估標準</h3>
             <div class="flex flex-col gap-4">
-              <div class="flex flex-col gap-4">
-                <label class="relative inline-block text-base font-medium text-gray-900">
-                  指標評估標準
-                  <span class="absolute -right-2 -top-1 text-xs leading-none text-red-500">*</span>
-                </label>
-                <div class="flex flex-col gap-5">
-                  <Radio
-                    :model-value="formData.indicatorVersion"
-                    value="107-05-08"
-                    label="107年5月8日版"
-                    name="indicator-version"
-                    label-class="text-sm font-medium text-gray-900"
-                    @update:model-value="(value) => handleRadioChange('indicatorVersion', value as string)"
-                  />
-                  <Radio
-                    :model-value="formData.indicatorVersion"
-                    value="114-09-17"
-                    label="114年9月17日版"
-                    name="indicator-version"
-                    label-class="text-sm font-medium text-gray-900"
-                    @update:model-value="(value) => handleRadioChange('indicatorVersion', value as string)"
-                  />
-                </div>
-              </div>
+              <RadioGroup label="指標評估標準" required container-class="gap-5">
+                <template #radios>
+                  <div class="flex flex-col gap-5">
+                    <Radio
+                      :model-value="formData.indicatorVersion"
+                      value="107-05-08"
+                      label="107年5月8日版"
+                      name="indicator-version"
+                      label-class="text-sm font-medium text-gray-900"
+                      @update:model-value="(value) => handleRadioChange('indicatorVersion', value as string)"
+                    />
+                    <Radio
+                      :model-value="formData.indicatorVersion"
+                      value="114-09-17"
+                      label="114年9月17日版"
+                      name="indicator-version"
+                      label-class="text-sm font-medium text-gray-900"
+                      @update:model-value="(value) => handleRadioChange('indicatorVersion', value as string)"
+                    />
+                  </div>
+                </template>
+              </RadioGroup>
 
               <div class="grid w-[744px] grid-cols-[repeat(2,364px)] gap-4">
                 <InputDropdown
@@ -204,161 +202,161 @@
               </div>
             </div>
             <div class="flex flex-col gap-4">
-              <label class="relative inline-block text-base font-medium text-gray-900">
-                範圍內是否涉及畸零地
-                <span class="absolute -right-2 -top-1 text-xs leading-none text-red-500">*</span>
-              </label>
-              <div class="flex flex-col gap-5">
-                <Radio
-                  :model-value="formData.oddLot"
-                  value="yes"
-                  label="是"
-                  name="odd-lot"
-                  label-class="text-sm font-medium text-gray-900"
-                  @update:model-value="(value) => handleRadioChange('oddLot', value as string)"
-                />
-                <Radio
-                  :model-value="formData.oddLot"
-                  value="no"
-                  label="否"
-                  name="odd-lot"
-                  label-class="text-sm font-medium text-gray-900"
-                  @update:model-value="(value) => handleRadioChange('oddLot', value as string)"
-                />
-              </div>
+              <RadioGroup label="範圍內是否涉及畸零地" required container-class="gap-5">
+                <template #radios>
+                  <div class="flex flex-col gap-5">
+                    <Radio
+                      :model-value="formData.oddLot"
+                      value="yes"
+                      label="是"
+                      name="odd-lot"
+                      label-class="text-sm font-medium text-gray-900"
+                      @update:model-value="(value) => handleRadioChange('oddLot', value as string)"
+                    />
+                    <Radio
+                      :model-value="formData.oddLot"
+                      value="no"
+                      label="否"
+                      name="odd-lot"
+                      label-class="text-sm font-medium text-gray-900"
+                      @update:model-value="(value) => handleRadioChange('oddLot', value as string)"
+                    />
+                  </div>
+                </template>
+              </RadioGroup>
             </div>
 
             <div class="flex flex-col gap-4">
-              <label class="relative inline-block text-base font-medium text-gray-900">
-                範圍內是否涉及歷史建築物或暫定歷史建築物或聚落
-                <span class="absolute -right-2 -top-1 text-xs leading-none text-red-500">*</span>
-              </label>
-              <div class="flex flex-col gap-5">
-                <Radio
-                  :model-value="formData.historicBuilding"
-                  value="yes"
-                  label="是"
-                  name="historic-building"
-                  label-class="text-sm font-medium text-gray-900"
-                  @update:model-value="(value) => handleRadioChange('historicBuilding', value as string)"
-                />
-                <Radio
-                  :model-value="formData.historicBuilding"
-                  value="no"
-                  label="否"
-                  name="historic-building"
-                  label-class="text-sm font-medium text-gray-900"
-                  @update:model-value="(value) => handleRadioChange('historicBuilding', value as string)"
-                />
-              </div>
+              <RadioGroup label="範圍內是否涉及歷史建築物或暫定歷史建築物或聚落" required container-class="gap-5">
+                <template #radios>
+                  <div class="flex flex-col gap-5">
+                    <Radio
+                      :model-value="formData.historicBuilding"
+                      value="yes"
+                      label="是"
+                      name="historic-building"
+                      label-class="text-sm font-medium text-gray-900"
+                      @update:model-value="(value) => handleRadioChange('historicBuilding', value as string)"
+                    />
+                    <Radio
+                      :model-value="formData.historicBuilding"
+                      value="no"
+                      label="否"
+                      name="historic-building"
+                      label-class="text-sm font-medium text-gray-900"
+                      @update:model-value="(value) => handleRadioChange('historicBuilding', value as string)"
+                    />
+                  </div>
+                </template>
+              </RadioGroup>
             </div>
 
             <div class="flex flex-col gap-4">
-              <label class="relative inline-block text-base font-medium text-gray-900">
-                範圍內是否涉及公有地
-                <span class="absolute -right-2 -top-1 text-xs leading-none text-red-500">*</span>
-              </label>
-              <div class="flex flex-col gap-5">
-                <div class="flex flex-col gap-2">
-                  <Radio
-                    :model-value="formData.publicLand"
-                    value="yes"
-                    label="是"
-                    name="public-land"
-                    label-class="text-sm font-medium text-gray-900"
-                    @update:model-value="(value) => handleRadioChange('publicLand', value as string)"
-                  />
-                  <Input
-                    v-if="formData.publicLand === 'yes'"
-                    v-model="formData.publicLandArea"
-                    label="面積"
-                    placeholder="請輸入涉及公有地面積（m²）"
-                    size="lg"
-                    required
-                    containerClass="w-full md:w-[364px]"
-                  />
-                </div>
-                <Radio
-                  :model-value="formData.publicLand"
-                  value="no"
-                  label="否"
-                  name="public-land"
-                  label-class="text-sm font-medium text-gray-900"
-                  @update:model-value="(value) => handleRadioChange('publicLand', value as string)"
-                />
-              </div>
+              <RadioGroup label="範圍內是否涉及公有地" required container-class="gap-5">
+                <template #radios>
+                  <div class="flex flex-col gap-5">
+                    <div class="flex flex-col gap-2">
+                      <Radio
+                        :model-value="formData.publicLand"
+                        value="yes"
+                        label="是"
+                        name="public-land"
+                        label-class="text-sm font-medium text-gray-900"
+                        @update:model-value="(value) => handleRadioChange('publicLand', value as string)"
+                      />
+                      <Input
+                        v-if="formData.publicLand === 'yes'"
+                        v-model="formData.publicLandArea"
+                        label="面積"
+                        placeholder="請輸入涉及公有地面積（m²）"
+                        size="lg"
+                        required
+                        containerClass="w-full md:w-[364px]"
+                      />
+                    </div>
+                    <Radio
+                      :model-value="formData.publicLand"
+                      value="no"
+                      label="否"
+                      name="public-land"
+                      label-class="text-sm font-medium text-gray-900"
+                      @update:model-value="(value) => handleRadioChange('publicLand', value as string)"
+                    />
+                  </div>
+                </template>
+              </RadioGroup>
             </div>
 
             <div class="flex flex-col gap-4">
-              <label class="relative inline-block text-base font-medium text-gray-900">
-                鄰接道路是否涉及未開闢道路
-                <span class="absolute -right-2 -top-1 text-xs leading-none text-red-500">*</span>
-              </label>
-              <div class="flex flex-col gap-5">
-                <div class="flex flex-col gap-2">
-                  <Radio
-                    :model-value="formData.unopenedRoad"
-                    value="yes"
-                    label="是"
-                    name="unopened-road"
-                    label-class="text-sm font-medium text-gray-900"
-                    @update:model-value="(value) => handleRadioChange('unopenedRoad', value as string)"
-                  />
-                  <Input
-                    v-if="formData.unopenedRoad === 'yes'"
-                    v-model="formData.unopenedRoadCount"
-                    label="面積"
-                    placeholder="請輸入數量/條"
-                    size="lg"
-                    required
-                    containerClass="w-full md:w-[364px]"
-                  />
-                </div>
-                <Radio
-                  :model-value="formData.unopenedRoad"
-                  value="no"
-                  label="否"
-                  name="unopened-road"
-                  label-class="text-sm font-medium text-gray-900"
-                  @update:model-value="(value) => handleRadioChange('unopenedRoad', value as string)"
-                />
-              </div>
+              <RadioGroup label="鄰接道路是否涉及未開闢道路" required container-class="gap-5">
+                <template #radios>
+                  <div class="flex flex-col gap-5">
+                    <div class="flex flex-col gap-2">
+                      <Radio
+                        :model-value="formData.unopenedRoad"
+                        value="yes"
+                        label="是"
+                        name="unopened-road"
+                        label-class="text-sm font-medium text-gray-900"
+                        @update:model-value="(value) => handleRadioChange('unopenedRoad', value as string)"
+                      />
+                      <Input
+                        v-if="formData.unopenedRoad === 'yes'"
+                        v-model="formData.unopenedRoadCount"
+                        label="面積"
+                        placeholder="請輸入數量/條"
+                        size="lg"
+                        required
+                        containerClass="w-full md:w-[364px]"
+                      />
+                    </div>
+                    <Radio
+                      :model-value="formData.unopenedRoad"
+                      value="no"
+                      label="否"
+                      name="unopened-road"
+                      label-class="text-sm font-medium text-gray-900"
+                      @update:model-value="(value) => handleRadioChange('unopenedRoad', value as string)"
+                    />
+                  </div>
+                </template>
+              </RadioGroup>
             </div>
 
             <div class="flex flex-col gap-4">
-              <label class="relative inline-block text-base font-medium text-gray-900">
-                鄰接道路是否涉及未達8公尺
-                <span class="absolute -right-2 -top-1 text-xs leading-none text-red-500">*</span>
-              </label>
-              <div class="flex flex-col gap-5">
-                <div class="flex flex-col gap-2">
-                  <Radio
-                    :model-value="formData.narrowRoad"
-                    value="yes"
-                    label="是，涉及未達8公尺"
-                    name="narrow-road"
-                    label-class="text-sm font-medium text-gray-900"
-                    @update:model-value="(value) => handleRadioChange('narrowRoad', value as string)"
-                  />
-                  <Input
-                    v-if="formData.narrowRoad === 'yes'"
-                    v-model="formData.narrowRoadLength"
-                    label="面積"
-                    placeholder="請輸入公尺/條"
-                    size="lg"
-                    required
-                    containerClass="w-full md:w-[364px]"
-                  />
-                </div>
-                <Radio
-                  :model-value="formData.narrowRoad"
-                  value="no"
-                  label="否，無涉及鄰接道路未達8公尺"
-                  name="narrow-road"
-                  label-class="text-sm font-medium text-gray-900"
-                  @update:model-value="(value) => handleRadioChange('narrowRoad', value as string)"
-                />
-              </div>
+              <RadioGroup label="鄰接道路是否涉及未達8公尺" required container-class="gap-5">
+                <template #radios>
+                  <div class="flex flex-col gap-5">
+                    <div class="flex flex-col gap-2">
+                      <Radio
+                        :model-value="formData.narrowRoad"
+                        value="yes"
+                        label="是，涉及未達8公尺"
+                        name="narrow-road"
+                        label-class="text-sm font-medium text-gray-900"
+                        @update:model-value="(value) => handleRadioChange('narrowRoad', value as string)"
+                      />
+                      <Input
+                        v-if="formData.narrowRoad === 'yes'"
+                        v-model="formData.narrowRoadLength"
+                        label="面積"
+                        placeholder="請輸入公尺/條"
+                        size="lg"
+                        required
+                        containerClass="w-full md:w-[364px]"
+                      />
+                    </div>
+                    <Radio
+                      :model-value="formData.narrowRoad"
+                      value="no"
+                      label="否，無涉及鄰接道路未達8公尺"
+                      name="narrow-road"
+                      label-class="text-sm font-medium text-gray-900"
+                      @update:model-value="(value) => handleRadioChange('narrowRoad', value as string)"
+                    />
+                  </div>
+                </template>
+              </RadioGroup>
             </div>
 
             <Input v-model="formData.note" label="備註" placeholder="請輸入備註" size="lg" required containerClass="w-full md:w-[364px]" />
@@ -472,6 +470,7 @@
 import { ref, computed, onMounted } from "vue";
 import Input from "@/components/atoms/Input.vue";
 import Radio from "@/components/atoms/Radio.vue";
+import RadioGroup from "@/components/atoms/RadioGroup.vue";
 import Checkbox from "@/components/atoms/Checkbox.vue";
 import ButtonCTA from "@/components/atoms/ButtonCTA.vue";
 import Breadcrumb from "@/components/atoms/Breadcrumb.vue";

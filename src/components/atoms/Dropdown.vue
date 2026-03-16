@@ -9,8 +9,10 @@
       :class="[buttonClasses, 'w-full justify-between']"
       :aria-expanded="isOpen"
       :aria-haspopup="true"
+      :aria-controls="dropdownId"
       @click="toggle"
-      @keydown.enter="toggle"
+      @keydown.enter.prevent="isOpen ? close() : openAndFocusItem(0)"
+      @keydown.down.prevent="openAndFocusItem(0)"
       @keydown.space.prevent="toggle"
       @keydown.esc="close"
     >
@@ -34,6 +36,7 @@
           <li v-for="(item, index) in items" :key="index" role="none">
             <component
               :is="item.to ? 'router-link' : item.href ? 'a' : 'button'"
+              :ref="(el) => setItemRef(el, index)"
               :to="item.to"
               :href="item.href || '#'"
               :type="item.to || item.href ? undefined : 'button'"
@@ -44,6 +47,11 @@
               @click="handleItemClick(item, index, $event)"
               @keydown.enter="handleItemClick(item, index, $event)"
               @keydown.space.prevent="handleItemClick(item, index, $event)"
+              @keydown.down.prevent="focusItem(index + 1)"
+              @keydown.up.prevent="focusItem(index - 1)"
+              @keydown.home.prevent="focusItem(0)"
+              @keydown.end.prevent="focusItem(items.length - 1)"
+              @keydown.esc.prevent="closeAndFocusButton"
             >
               <slot :name="`item-${index}`" :item="item" :index="index">
                 {{ item.label }}
@@ -57,7 +65,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted } from "vue";
+import { ref, computed, onMounted, onUnmounted, nextTick } from "vue";
 import Icon from "@/components/atoms/Icon.vue";
 
 export interface DropdownItem {
@@ -86,6 +94,7 @@ const emit = defineEmits(["item-click", "toggle"]);
 
 const isOpen = ref(false);
 const buttonRef = ref<HTMLElement | null>(null);
+const itemRefs = ref<HTMLElement[]>([]);
 const instanceId = `dropdown-${Math.random().toString(36).substring(2, 11)}`;
 const buttonId = `${instanceId}-button`;
 const dropdownId = `${instanceId}-menu`;
@@ -117,6 +126,29 @@ const buttonTextClasses = computed(() => {
   return isPlaceholder ? "text-gray-500" : "text-gray-900";
 });
 
+const setItemRef = (el: Element | null, index: number) => {
+  if (!el) return;
+  itemRefs.value[index] = el as HTMLElement;
+};
+
+const focusItem = (index: number) => {
+  const itemsCount = props.items.length;
+  if (itemsCount === 0) return;
+
+  const normalizedIndex = ((index % itemsCount) + itemsCount) % itemsCount;
+  itemRefs.value[normalizedIndex]?.focus();
+};
+
+const openAndFocusItem = async (index = 0) => {
+  if (!isOpen.value) {
+    updateMenuPosition();
+    isOpen.value = true;
+    emit("toggle", true);
+    await nextTick();
+  }
+  focusItem(index);
+};
+
 const toggle = () => {
   const willOpen = !isOpen.value;
   if (willOpen) updateMenuPosition();
@@ -129,6 +161,11 @@ const close = () => {
     isOpen.value = false;
     emit("toggle", false);
   }
+};
+
+const closeAndFocusButton = () => {
+  close();
+  buttonRef.value?.focus();
 };
 
 const handleItemClick = (item: DropdownItem, index: number, event: Event) => {

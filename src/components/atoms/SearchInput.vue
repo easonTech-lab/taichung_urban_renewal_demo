@@ -23,7 +23,6 @@
           class="block w-full rounded-lg border p-3 pl-10 pr-10 text-sm text-gray-900 shadow-sm transition-colors focus:border-primary-500 focus:ring-2 focus:ring-primary-500 [&::-webkit-search-cancel-button]:hidden [&::-webkit-search-decoration]:hidden"
           :class="inputClasses"
           @input="handleInput"
-          @keydown.enter="handleSubmit"
           v-bind="$attrs"
         />
         <!-- 清除按鈕（永遠顯示） -->
@@ -148,6 +147,8 @@ const handleSubmit = () => {
 const handleClear = () => {
   searchValue.value = "";
   emit("update:modelValue", "");
-  emit("input", "");
+  if (props.autoSearch) {
+    emit("input", "");
+  }
 };
 </script>

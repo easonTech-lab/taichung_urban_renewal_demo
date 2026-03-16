@@ -91,9 +91,9 @@
 
 <script setup lang="ts">
 import { useRoute, useRouter } from "vue-router";
+import Icon from "@/components/atoms/Icon.vue";
 import Breadcrumb from "@/components/atoms/Breadcrumb.vue";
 import FooterSection from "@/components/sections/global/FooterSection.vue";
-import Icon from "@/components/atoms/Icon.vue";
 const route = useRoute();
 const router = useRouter();
 const newsId = Number(route.params.id || 1);

@@ -29,7 +29,7 @@
             @clear-error="errors.password = ''"
           />
           <div class="flex w-full justify-end">
-            <ButtonCTA type="button" variant="text" class="!min-w-0 !px-0 !py-0 font-normal" @click.prevent="handleForgotPassword">忘記密碼</ButtonCTA>
+            <ButtonCTA type="button" variant="textPlain" class="!min-w-0 !px-0 !py-0 font-normal" @click.prevent="handleForgotPassword">忘記密碼</ButtonCTA>
           </div>
           <div class="flex w-full flex-wrap items-end justify-center gap-4">
             <div class="min-w-[150px] flex-1">
@@ -67,11 +67,12 @@
 import { ref, computed } from "vue";
 import { useRouter } from "vue-router";
 import Input from "@/components/atoms/Input.vue";
-import ButtonCTA from "@/components/atoms/ButtonCTA.vue";
 import Checkbox from "@/components/atoms/Checkbox.vue";
+import ButtonCTA from "@/components/atoms/ButtonCTA.vue";
 
 const router = useRouter();
 const captchaImageUrl = ref("https://via.placeholder.com/125x49?text=驗證碼");
+const mockCaptcha = "1234";
 
 // 假帳密資料
 const mockUsers = [
@@ -126,31 +127,44 @@ const handleLogin = () => {
     }
     return;
   }
-  // 驗證帳密
-  const user = mockUsers.find((u) => u.username === formData.value.username && u.password === formData.value.password);
-  if (user) {
-    // 登入成功，存儲用戶信息和角色
-    const isAdmin = user.username === "adm";
-    localStorage.setItem(
-      "userInfo",
-      JSON.stringify({
-        username: user.username,
-        role: isAdmin ? "admin" : "user",
-      })
-    );
-    // 觸發自定義事件，通知 Navbar 更新
-    window.dispatchEvent(new Event("login-status-changed"));
-    // user 帳號跳轉到案件管理頁面，adm 帳號跳轉到都市更新案件管理
-    if (user.username === "user") {
-      router.push("/case-management");
-    } else {
-      router.push("/case-management-admin");
-    }
+  const isCaptchaValid = formData.value.captcha.trim() === mockCaptcha;
+  const matchedUser = mockUsers.find((u) => u.username === formData.value.username);
+  const isPasswordValid = matchedUser?.password === formData.value.password;
+  let hasError = false;
+  if (!isCaptchaValid) {
+    console.error("登入失敗：驗證碼錯誤");
+    setError("captcha", "驗證碼錯誤，請再試一次");
+    hasError = true;
+  }
+  if (!matchedUser) {
+    console.error("登入失敗：帳號錯誤");
+    setError("username", "帳號錯誤，請再試一次");
+    hasError = true;
+  } else if (!isPasswordValid) {
+    console.error("登入失敗：密碼錯誤");
+    setError("password", "密碼錯誤，請再試一次");
+    hasError = true;
+  }
+  if (hasError) {
+    return;
+  }
+
+  // 登入成功，存儲用戶信息和角色
+  const isAdmin = matchedUser.username === "adm";
+  localStorage.setItem(
+    "userInfo",
+    JSON.stringify({
+      username: matchedUser.username,
+      role: isAdmin ? "admin" : "user",
+    })
+  );
+  // 觸發自定義事件，通知 Navbar 更新
+  window.dispatchEvent(new Event("login-status-changed"));
+  // user 帳號跳轉到案件管理頁面，adm 帳號跳轉到都市更新案件管理
+  if (matchedUser.username === "user") {
+    router.push("/case-management");
   } else {
-    // 登入失敗 - 顯示錯誤訊息
-    console.error("登入失敗：帳號或密碼錯誤");
-    setError("username", "帳號或密碼錯誤");
-    setError("password", "帳號或密碼錯誤");
+    router.push("/case-management-admin");
   }
 };
 

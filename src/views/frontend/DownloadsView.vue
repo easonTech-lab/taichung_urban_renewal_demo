@@ -17,7 +17,7 @@
         <Empty type="search" message="查無符合條件的檔案資料" />
       </div>
       <div v-else class="rounded-lg bg-white p-6 shadow-sm">
-        <Table :columns="tableColumns" :rows="paginatedRows" :pagination="pagination" @page-change="handlePageChange">
+        <Table :borderless="true" :columns="tableColumns" :rows="tableRows" :pagination="pagination" @page-change="handlePageChange">
           <!-- 項次欄位 -->
           <template #cell-index="{ rowIndex }">
             {{ (currentPage - 1) * pageSize + rowIndex + 1 }}
@@ -30,7 +30,7 @@
               @click="handleDownload(row)"
             >
               <span>下載檔案</span>
-              <Icon name="download" class="h-6 w-6" aria-hidden="true" />
+              <Icon name="download" class="h-6 w-6 pl-3" aria-hidden="true" />
             </button>
           </template>
         </Table>
@@ -132,7 +132,7 @@ const tableColumns: TableColumn[] = [
   { key: "index", label: "項次", width: "5%" },
   { key: "fileName", label: "文件名稱", width: "42%" },
   { key: "category", label: "案件類別", width: "12%" },
-  { key: "publishDate", label: "發布日期", width: "12%" },
+  { key: "publishDate", label: "發布日期", width: "12%", sortable: true },
   { key: "action", label: "動作", width: "14%" },
 ];
 
@@ -151,9 +151,12 @@ const filteredData = computed(() => {
   return data;
 });
 
-const { currentPage, paginatedRows, pagination, resetPage, handlePageChange: setPage } = useTablePagination({
-  rows: filteredData,
+const tableRows = computed(() => filteredData.value);
+
+const { currentPage, pagination, resetPage, handlePageChange: setPage } = useTablePagination({
+  rows: tableRows,
   pageSize,
+  slice: false,
 });
 
 // Handlers

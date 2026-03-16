@@ -29,9 +29,9 @@
             <slot :name="`header-${column.key}`" :column="column" :index="index" :sortOrder="getSortOrder(column.key)">
               <div v-if="column.sortable" class="flex items-center" :class="(column.headerClass || '').includes('text-right') ? 'w-full justify-end' : ''">
                 {{ column.label }}
-                <a href="#" class="ml-1 flex items-center" @click.prevent="handleSort(column.key)">
+                <button type="button" class="ml-1 flex items-center" :aria-label="`依${column.label}排序`" @click="handleSort(column.key)">
                   <Icon name="sort" :size="16" class="h-4 w-4" :class="getSortIconClass(column.key)" />
-                </a>
+                </button>
               </div>
               <span v-else class="block w-full" :class="(column.headerClass || '').includes('text-right') ? 'text-right' : ''">{{ column.label }}</span>
             </slot>
@@ -44,10 +44,14 @@
             :class="[
               borderless ? '' : 'border-b border-gray-300',
               'hover:bg-gray-50',
+              rowClickable ? 'focus:bg-gray-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-inset' : '',
               rowClickable ? 'cursor-pointer' : '',
               (row as any).isExpanded ? 'bg-blue-50' : 'bg-white',
             ]"
+            :tabindex="rowClickable ? 0 : undefined"
             @click="rowClickable && handleRowClick(row, rowIndex, $event)"
+            @keydown.enter.prevent="rowClickable && handleRowKeydown(row, rowIndex, $event)"
+            @keydown.space.prevent="rowClickable && handleRowKeydown(row, rowIndex, $event)"
           >
             <!-- Checkbox 欄位 -->
             <td v-if="showCheckbox" class="w-4 p-4">
@@ -97,39 +101,44 @@
       </span>
       <ul class="flex -space-x-px text-sm">
         <li>
-          <a
-            href="#"
-            class="flex h-9 items-center justify-center rounded-l-lg border border-gray-300 bg-gray-100 px-3 text-sm font-medium text-gray-900 hover:bg-gray-200 hover:text-gray-900 focus:outline-none"
-            @click.prevent="handlePageChange(pagination.currentPage - 1)"
+          <button
+            type="button"
+            class="flex h-9 items-center justify-center rounded-l-lg border border-gray-300 bg-gray-100 px-3 text-sm font-medium text-gray-900 hover:bg-gray-200 hover:text-gray-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-inset"
+            :disabled="pagination.currentPage <= 1"
+            :aria-label="'上一頁'"
+            @click="handlePageChange(pagination.currentPage - 1)"
           >
             <Icon name="arrowLeft" :size="16" class="h-4 w-4" />
-          </a>
+          </button>
         </li>
         <li v-for="page in paginationPages" :key="page">
-          <a
+          <button
             v-if="page !== '...'"
-            href="#"
+            type="button"
             :aria-current="page === pagination.currentPage ? 'page' : undefined"
             :class="[
-              'flex h-9 w-9 items-center justify-center border border-gray-300 text-sm font-medium focus:outline-none',
+              'flex h-9 w-9 items-center justify-center border border-gray-300 text-sm font-medium focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-inset',
               page === pagination.currentPage
                 ? 'bg-primary-100 text-primary-700 hover:bg-primary-200 hover:text-primary-800'
                 : 'bg-gray-100 text-gray-900 hover:bg-gray-200 hover:text-gray-900',
             ]"
-            @click.prevent="handlePageClick(page)"
+            :aria-label="`第${page}頁`"
+            @click="handlePageClick(page)"
           >
             {{ page }}
-          </a>
+          </button>
           <span v-else class="flex h-9 w-9 items-center justify-center border border-gray-300 bg-gray-100 text-sm font-medium text-gray-900"> ... </span>
         </li>
         <li>
-          <a
-            href="#"
-            class="flex h-9 items-center justify-center rounded-r-lg border border-gray-300 bg-gray-100 px-3 text-sm font-medium text-gray-900 hover:bg-gray-200 hover:text-gray-900 focus:outline-none"
-            @click.prevent="handlePageChange(pagination.currentPage + 1)"
+          <button
+            type="button"
+            class="flex h-9 items-center justify-center rounded-r-lg border border-gray-300 bg-gray-100 px-3 text-sm font-medium text-gray-900 hover:bg-gray-200 hover:text-gray-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-inset"
+            :disabled="pagination.currentPage >= Math.ceil(pagination.total / (pagination.pageSize || 10))"
+            :aria-label="'下一頁'"
+            @click="handlePageChange(pagination.currentPage + 1)"
           >
             <Icon name="arrowRight" :size="16" class="h-4 w-4" />
-          </a>
+          </button>
         </li>
       </ul>
     </nav>
@@ -295,10 +304,18 @@ const handlePageChange = (page: number) => {
 const handleRowClick = (row: Record<string, any>, rowIndex: number, event: MouseEvent) => {
   // 如果點擊的是 checkbox 或 checkbox 內的元素，不觸發行點擊
   const target = event.target as HTMLElement;
-  if (target.closest('input[type="checkbox"]') || target.closest("label")) {
+  if (target.closest('input[type="checkbox"]') || target.closest("label") || target.closest("button") || target.closest("a")) {
     return;
   }
   emit("row-click", row, rowIndex, event);
+};
+
+const handleRowKeydown = (row: Record<string, any>, rowIndex: number, event: KeyboardEvent) => {
+  const target = event.target as HTMLElement;
+  if (target.closest("button") || target.closest("a") || target.closest("input") || target.closest("select") || target.closest("textarea")) {
+    return;
+  }
+  emit("row-click", row, rowIndex, event as unknown as MouseEvent);
 };
 
 // 排序相關邏輯

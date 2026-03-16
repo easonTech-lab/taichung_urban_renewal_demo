@@ -117,7 +117,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from "vue";
+import { ref } from "vue";
 import { useRouter } from "vue-router";
 import { useTablePagination } from "@/composables/useTablePagination";
 import Radio from "@/components/atoms/Radio.vue";
@@ -128,7 +128,7 @@ import Breadcrumb from "@/components/atoms/Breadcrumb.vue";
 import SidebarSection from "@/components/sections/backend/SidebarSection.vue";
 import Table, { type TableColumn } from "@/components/atoms/Table.vue";
 import ConfirmDeleteModal from "@/components/molecules/ConfirmDeleteModal.vue";
-import type { HandlerAccount, Permission } from "@/types/backend/systemManagement/internalStaff/internalStaffAccountManagement.d";
+import type { HandlerAccount } from "@/types/backend/systemManagement/internalStaff/internalStaffAccountManagement.d";
 
 // State
 const router = useRouter();

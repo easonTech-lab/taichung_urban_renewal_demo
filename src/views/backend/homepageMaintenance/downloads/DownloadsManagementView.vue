@@ -50,13 +50,7 @@
       </div>
     </div>
 
-    <ConfirmDeleteModal
-      v-model="showDeleteModal"
-      message="確認刪除此項目"
-      description="內容將完全刪除無法復原"
-      @confirm="handleConfirmDelete"
-      @cancel="handleCloseDeleteModal"
-    />
+    <ConfirmDeleteModal v-model="showDeleteModal" message="確認刪除此項目" description="內容將完全刪除無法復原" @confirm="handleConfirmDelete" @cancel="handleCloseDeleteModal" />
 
     <div class="fixed bottom-6 z-[90]" :style="deleteToastStyle">
       <Toast v-model="showDeleteToast" :message="toastMessage" :show-actions="false" :show-close="false" :auto-close="true">
@@ -83,11 +77,7 @@ import SidebarSection from "@/components/sections/backend/SidebarSection.vue";
 import ConfirmDeleteModal from "@/components/molecules/ConfirmDeleteModal.vue";
 import Table, { type TableColumn } from "@/components/atoms/Table.vue";
 
-
-
 import type { DownloadItem } from "@/types/backend/homepageMaintenance/downloadsManagement.d";
-
-
 
 // Tabs
 const tabItems = [{ label: "全部" }, { label: "已上架" }, { label: "暫存中" }, { label: "已下架" }];
@@ -203,7 +193,13 @@ const filteredDownloads = computed(() => {
   return downloads;
 });
 
-const { currentPage, paginatedRows: paginatedDownloads, pagination, handlePageChange, resetPage } = useTablePagination({
+const {
+  currentPage,
+  paginatedRows: paginatedDownloads,
+  pagination,
+  handlePageChange,
+  resetPage,
+} = useTablePagination({
   rows: filteredDownloads,
   pageSize,
   slice: false,

@@ -33,7 +33,7 @@
         <Empty type="search" message="查無符合條件的公開消息" />
       </div>
       <div v-else class="rounded-lg bg-white p-6 shadow-sm">
-        <Table :columns="tableColumns" :rows="paginatedRows" :pagination="pagination" row-clickable @page-change="handlePageChange" @row-click="handleRowClick">
+        <Table :borderless="true" :columns="tableColumns" :rows="paginatedRows" :pagination="pagination" row-clickable @page-change="handlePageChange" @row-click="handleRowClick">
           <template #cell-index="{ rowIndex }">
             {{ (currentPage - 1) * pageSize + rowIndex + 1 }}
           </template>

@@ -56,9 +56,9 @@
 import { ref, computed } from "vue";
 import { useRouter } from "vue-router";
 import Icon from "@/components/atoms/Icon.vue";
+import Input from "@/components/atoms/Input.vue";
 import Modal from "@/components/atoms/Modal.vue";
 import ButtonCTA from "@/components/atoms/ButtonCTA.vue";
-import Input from "@/components/atoms/Input.vue";
 
 const router = useRouter();
 

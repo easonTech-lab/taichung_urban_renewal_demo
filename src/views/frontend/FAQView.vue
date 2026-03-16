@@ -47,6 +47,7 @@
                 :aria-controls="`category-${categoryIndex}-questions`"
                 :aria-label="`${category.title}，點擊${isCategoryOpen(categoryIndex) ? '收起' : '展開'}子問題列表`"
                 @click="selectCategory(categoryIndex)"
+                @keydown.tab.exact.prevent="handleCategoryTab(categoryIndex)"
               >
                 <p class="flex-1 text-xl font-medium" :class="isCategoryOpen(categoryIndex) ? 'text-blue-50' : 'text-gray-900'">
                   {{ category.title }}
@@ -71,6 +72,7 @@
                 class="flex flex-col gap-4 pl-10"
                 role="region"
                 :aria-label="`${category.title}的子問題列表`"
+                :aria-hidden="!isCategoryOpen(categoryIndex)"
               >
                 <button
                   v-for="(question, questionIndex) in category.questions"
@@ -81,7 +83,9 @@
                   :class="activeQuestionId === question.id ? 'text-blue-500' : 'text-gray-600 hover:text-gray-900'"
                   :aria-label="`${question.title}，點擊查看詳細答案`"
                   :aria-current="activeQuestionId === question.id ? 'true' : undefined"
+                  :tabindex="isCategoryOpen(categoryIndex) ? 0 : -1"
                   @click.stop="selectQuestion(question.id)"
+                  @focus="focusQuestion(question.id)"
                 >
                   {{ question.title }}
                 </button>
@@ -101,52 +105,46 @@
                   <div class="flex flex-col gap-6">
                     <template v-for="question in categoryGroup.questions" :key="question.id">
                       <div
-                        v-if="activeQuestionId === question.id"
-                        :id="`question-${question.id}-content`"
-                        class="flex flex-col items-start gap-6 rounded-lg bg-white p-5"
-                        role="region"
-                        :aria-label="`${question.title}的詳細答案`"
+                        class="rounded-lg transition-colors"
+                        :class="activeQuestionId === question.id ? 'bg-white p-5' : 'hover:bg-gray-50'"
                       >
                         <button
                           type="button"
-                        class="flex w-full cursor-pointer items-center gap-2 rounded text-left focus:outline-none"
-                          :aria-expanded="true"
+                          class="flex w-full cursor-pointer items-center gap-2 rounded text-left focus:outline-none"
+                          :aria-expanded="activeQuestionId === question.id"
                           :aria-controls="`question-${question.id}-content`"
-                          :aria-label="`${question.title}，點擊收起`"
+                          :aria-label="`${question.title}，點擊${activeQuestionId === question.id ? '收起' : '展開'}查看詳細答案`"
                           @click="selectQuestion(question.id)"
                         >
                           <div class="relative size-6 shrink-0">
-                            <div class="absolute inset-0 rounded-full bg-blue-200"></div>
-                            <div class="absolute inset-1 flex items-center justify-center rounded-full bg-blue-500">
-                              <svg class="h-4 w-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4" />
-                              </svg>
-                            </div>
+                            <template v-if="activeQuestionId === question.id">
+                              <div class="absolute inset-0 rounded-full bg-blue-200"></div>
+                              <div class="absolute inset-1 flex items-center justify-center rounded-full bg-blue-500">
+                                <svg class="h-4 w-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4" />
+                                </svg>
+                              </div>
+                            </template>
+                            <template v-else>
+                              <div class="absolute inset-0 rounded-full border-2 border-blue-500"></div>
+                              <div class="absolute inset-1 flex items-center justify-center rounded-full bg-white">
+                                <svg class="h-4 w-4 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                                </svg>
+                              </div>
+                            </template>
                           </div>
                           <p class="text-xl font-medium text-gray-900">{{ question.title }}</p>
                         </button>
-                        <div class="pl-8 text-base leading-loose text-gray-800" v-html="question.content"></div>
+                        <div
+                          v-if="activeQuestionId === question.id"
+                          :id="`question-${question.id}-content`"
+                          class="pl-8 pt-6 text-base leading-loose text-gray-800"
+                          role="region"
+                          :aria-label="`${question.title}的詳細答案`"
+                          v-html="question.content"
+                        ></div>
                       </div>
-                      <!-- 收起的問題（只顯示標題） -->
-                      <button
-                        v-else
-                        type="button"
-                        class="flex w-full cursor-pointer items-center gap-2 rounded-lg p-5 text-left transition-colors hover:bg-gray-50 focus:outline-none"
-                        :aria-expanded="false"
-                        :aria-controls="`question-${question.id}-content`"
-                        :aria-label="`${question.title}，點擊展開查看詳細答案`"
-                        @click="selectQuestion(question.id)"
-                      >
-                        <div class="relative size-6 shrink-0">
-                          <div class="absolute inset-0 rounded-full border-2 border-blue-500"></div>
-                          <div class="absolute inset-1 flex items-center justify-center rounded-full bg-white">
-                            <svg class="h-4 w-4 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-                            </svg>
-                          </div>
-                        </div>
-                        <p class="text-xl font-medium text-gray-900">{{ question.title }}</p>
-                      </button>
                     </template>
                   </div>
                 </div>
@@ -157,54 +155,47 @@
               <h2 v-show="activeCategory" class="text-2xl font-bold leading-normal tracking-[-0.24px] text-gray-900">{{ activeCategory?.title || "" }}</h2>
               <div v-if="currentQuestions.length > 0" class="flex flex-col gap-6">
                 <template v-for="(question, index) in currentQuestions" :key="question.id">
-                  <!-- 展開的問題（顯示詳細內容） -->
                   <div
-                    v-if="activeQuestionId === question.id"
-                    :id="`question-${question.id}-content`"
-                    class="flex flex-col items-start gap-6 rounded-lg bg-white p-5"
-                    role="region"
-                    :aria-label="`${question.title}的詳細答案`"
+                    class="rounded-lg transition-colors"
+                    :class="activeQuestionId === question.id ? 'bg-white p-5' : 'hover:bg-gray-50'"
                   >
                     <button
                       type="button"
                       class="flex w-full cursor-pointer items-center gap-2 rounded text-left focus:outline-none"
-                      :aria-expanded="true"
+                      :aria-expanded="activeQuestionId === question.id"
                       :aria-controls="`question-${question.id}-content`"
-                      :aria-label="`${question.title}，點擊收起`"
+                      :aria-label="`${question.title}，點擊${activeQuestionId === question.id ? '收起' : '展開'}查看詳細答案`"
                       @click="selectQuestion(question.id)"
                     >
                       <div class="relative size-6 shrink-0">
-                        <div class="absolute inset-0 rounded-full bg-blue-200"></div>
-                        <div class="absolute inset-1 flex items-center justify-center rounded-full bg-blue-500">
-                          <svg class="h-4 w-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4" />
-                          </svg>
-                        </div>
+                        <template v-if="activeQuestionId === question.id">
+                          <div class="absolute inset-0 rounded-full bg-blue-200"></div>
+                          <div class="absolute inset-1 flex items-center justify-center rounded-full bg-blue-500">
+                            <svg class="h-4 w-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4" />
+                            </svg>
+                          </div>
+                        </template>
+                        <template v-else>
+                          <div class="absolute inset-0 rounded-full border-2 border-blue-500"></div>
+                          <div class="absolute inset-1 flex items-center justify-center rounded-full bg-white">
+                            <svg class="h-4 w-4 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                            </svg>
+                          </div>
+                        </template>
                       </div>
                       <p class="text-xl font-medium text-gray-900">{{ question.title }}</p>
                     </button>
-                    <div class="pl-8 text-base leading-loose text-gray-800" v-html="question.content"></div>
+                    <div
+                      v-if="activeQuestionId === question.id"
+                      :id="`question-${question.id}-content`"
+                      class="pl-8 pt-6 text-base leading-loose text-gray-800"
+                      role="region"
+                      :aria-label="`${question.title}的詳細答案`"
+                      v-html="question.content"
+                    ></div>
                   </div>
-                  <!-- 收起的問題（只顯示標題） -->
-                  <button
-                    v-else
-                    type="button"
-                    class="flex w-full cursor-pointer items-center gap-2 rounded-lg p-5 text-left transition-colors hover:bg-gray-50 focus:outline-none"
-                    :aria-expanded="false"
-                    :aria-controls="`question-${question.id}-content`"
-                    :aria-label="`${question.title}，點擊展開查看詳細答案`"
-                    @click="selectQuestion(question.id)"
-                  >
-                    <div class="relative size-6 shrink-0">
-                      <div class="absolute inset-0 rounded-full border-2 border-blue-500"></div>
-                      <div class="absolute inset-1 flex items-center justify-center rounded-full bg-white">
-                        <svg class="h-4 w-4 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-                        </svg>
-                      </div>
-                    </div>
-                    <p class="text-xl font-medium text-gray-900">{{ question.title }}</p>
-                  </button>
                 </template>
               </div>
             </template>
@@ -392,6 +383,13 @@ const getQuestionNavId = (categoryIndex: number, questionIndex: number) => {
   return `faq-nav-question-${categoryIndex}-${questionIndex}`;
 };
 
+const focusFirstQuestionButton = (categoryIndex: number) => {
+  const firstQuestionButton = document.getElementById(getQuestionNavId(categoryIndex, 0));
+  if (firstQuestionButton instanceof HTMLButtonElement) {
+    firstQuestionButton.focus();
+  }
+};
+
 //點擊分類標題展開/收起
 const selectCategory = (index: number) => {
   const currentIndex = activeCategoryIndexes.value.indexOf(index);
@@ -406,13 +404,19 @@ const selectCategory = (index: number) => {
     if (faqCategories[index]?.questions.length > 0) {
       activeQuestionId.value = faqCategories[index].questions[0].id;
       void nextTick(() => {
-        const firstQuestionButton = document.getElementById(getQuestionNavId(index, 0));
-        if (firstQuestionButton instanceof HTMLButtonElement) {
-          firstQuestionButton.focus();
-        }
+        focusFirstQuestionButton(index);
       });
     }
   }
+};
+
+const handleCategoryTab = (index: number) => {
+  if (!isCategoryOpen(index)) {
+    return;
+  }
+  void nextTick(() => {
+    focusFirstQuestionButton(index);
+  });
 };
 
 //點擊問題標題展開/收起
@@ -421,6 +425,12 @@ const selectQuestion = (questionId: string) => {
   if (activeQuestionId.value === questionId) {
     activeQuestionId.value = null;
   } else {
+    activeQuestionId.value = questionId;
+  }
+};
+
+const focusQuestion = (questionId: string) => {
+  if (activeQuestionId.value !== questionId) {
     activeQuestionId.value = questionId;
   }
 };
@@ -439,4 +449,5 @@ const handleSearch = () => {
     }
   }
 };
+
 </script>

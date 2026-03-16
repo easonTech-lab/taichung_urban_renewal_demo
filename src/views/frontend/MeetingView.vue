@@ -17,14 +17,14 @@
             :container-class="'flex gap-2 items-center'"
             @range-change="handleDateRangeChange"
           />
-          <ButtonCTA variant="primary" @click="handleSearch" class="h-[40px] px-5 py-2.5"> 搜尋 </ButtonCTA>
+          <ButtonCTA :size="'mini'" variant="primary" @click="handleSearch" class="h-[40px] px-5 py-2.5"> 搜尋 </ButtonCTA>
         </div>
       </div>
       <div v-if="filteredDataAll.length === 0" class="flex items-center justify-center py-16">
         <Empty type="search" message="查無符合條件的會議資料" />
       </div>
       <div v-else class="rounded-lg bg-white p-6 shadow-sm">
-        <Table :columns="tableColumns" :rows="filteredData" :pagination="pagination" @page-change="handlePageChange">
+        <Table :borderless="true" :columns="tableColumns" :rows="filteredData" :pagination="pagination" @page-change="handlePageChange">
           <template #cell-index="{ rowIndex }">
             <p class="font-sans text-base font-normal text-[#6b7280]">
               {{ rowIndex + 1 + (pagination.currentPage - 1) * pagination.pageSize }}
