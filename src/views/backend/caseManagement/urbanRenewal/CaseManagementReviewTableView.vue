@@ -454,8 +454,8 @@
 
         <div class="flex justify-center gap-6">
           <template v-if="isFromCaseDetail">
-            <ButtonCTA variant="outline" size="xl" :to="{ path: '/case-management' }">取消</ButtonCTA>
-            <ButtonCTA variant="primary" size="xl">儲存</ButtonCTA>
+            <ButtonCTA variant="outline" size="xl" :to="cancelTarget">取消</ButtonCTA>
+            <ButtonCTA variant="primary" size="xl" :disabled="!hasReviewTableChanges">儲存</ButtonCTA>
           </template>
           <template v-else>
             <ButtonCTA variant="text" size="xl" :to="{ path: '/case-management/add/business-plan' }">上一步</ButtonCTA>
@@ -470,6 +470,8 @@
 
 <script setup lang="ts">
 import { computed, onMounted, reactive, ref } from "vue";
+import { useRoute } from "vue-router";
+import { useFormUnsavedCheck } from "@/composables/useFormUnsavedCheck";
 import Input from "@/components/atoms/Input.vue";
 import Radio from "@/components/atoms/Radio.vue";
 import RadioGroup from "@/components/atoms/RadioGroup.vue";
@@ -480,6 +482,14 @@ import SidebarSection from "@/components/sections/backend/SidebarSection.vue";
 
 /** 從案件詳情按鈕進入為編輯，從新增流程進入為新增 */
 const isFromCaseDetail = ref(false);
+const route = useRoute();
+const cancelTarget = computed(() => {
+  const returnTo = route.query?.returnTo;
+  if (typeof returnTo === "string" && returnTo.trim()) {
+    return returnTo;
+  }
+  return { path: "/case-management" };
+});
 
 const breadcrumbItems = computed(() => {
   const base = [
@@ -599,16 +609,29 @@ const formData = reactive<Record<string, any>>({
 
 const STORAGE_KEY_CASE_FOR_APPLICATION = "caseDetailForApplication";
 
+const buildReviewTableSnapshot = () =>
+  JSON.stringify({
+    formData,
+    planningUnits,
+  });
+
+const { hasUnsavedChanges: hasReviewTableChanges, captureInitial: captureReviewTableInitial } = useFormUnsavedCheck(buildReviewTableSnapshot, isFromCaseDetail);
+
 onMounted(() => {
   try {
     const raw = sessionStorage.getItem(STORAGE_KEY_CASE_FOR_APPLICATION);
-    if (!raw) return;
-    isFromCaseDetail.value = true;
-    const data = JSON.parse(raw) as { name?: string };
-    sessionStorage.removeItem(STORAGE_KEY_CASE_FOR_APPLICATION);
-    if (data.name) formData.caseName = data.name;
+    if (raw) {
+      isFromCaseDetail.value = true;
+      const data = JSON.parse(raw) as { name?: string };
+      sessionStorage.removeItem(STORAGE_KEY_CASE_FOR_APPLICATION);
+      if (data.name) formData.caseName = data.name;
+    }
   } catch (_) {
     // ignore
+  } finally {
+    if (isFromCaseDetail.value) {
+      captureReviewTableInitial();
+    }
   }
 });
 

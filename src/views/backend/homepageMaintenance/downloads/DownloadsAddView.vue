@@ -215,7 +215,13 @@ const handleFileError = (payload: { type: "size" | "format"; maxSize?: number })
 const handleSaveDraft = () => {
   // TODO: Implement save draft functionality
   console.log("暫存", formData.value);
-  navigateToDownloadsList();
+  router.push({
+    path: "/downloads-management",
+    query: {
+      toast: "success",
+      msg: "暫存成功",
+    },
+  });
 };
 
 const handlePublish = () => {

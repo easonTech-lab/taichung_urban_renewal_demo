@@ -447,8 +447,8 @@
 
       <div class="flex items-center justify-center gap-6">
         <template v-if="isFromCaseDetail">
-          <ButtonCTA variant="outline" size="xl" :to="{ path: '/case-management' }">取消</ButtonCTA>
-          <ButtonCTA variant="primary" size="xl">儲存</ButtonCTA>
+          <ButtonCTA variant="outline" size="xl" :to="cancelTarget">取消</ButtonCTA>
+          <ButtonCTA variant="primary" size="xl" :disabled="!hasBusinessPlanChanges">儲存</ButtonCTA>
         </template>
         <template v-else-if="activeTab === 0">
           <ButtonCTA variant="outline" size="xl">暫存</ButtonCTA>
@@ -468,6 +468,8 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from "vue";
+import { useRoute } from "vue-router";
+import { useFormUnsavedCheck } from "@/composables/useFormUnsavedCheck";
 import Input from "@/components/atoms/Input.vue";
 import Radio from "@/components/atoms/Radio.vue";
 import RadioGroup from "@/components/atoms/RadioGroup.vue";
@@ -484,6 +486,14 @@ import InputDropdown, { type InputDropdownItem } from "@/components/atoms/InputD
 
 /** 從案件詳情按鈕進入為編輯，從新增流程進入為新增 */
 const isFromCaseDetail = ref(false);
+const route = useRoute();
+const cancelTarget = computed(() => {
+  const returnTo = route.query?.returnTo;
+  if (typeof returnTo === "string" && returnTo.trim()) {
+    return returnTo;
+  }
+  return { path: "/case-management" };
+});
 
 const breadcrumbItems = computed(() => [
   { label: "首頁", to: "/" },
@@ -568,6 +578,14 @@ const publicForm = ref({
 
 const STORAGE_KEY_CASE_FOR_APPLICATION = "caseDetailForApplication";
 
+const buildBusinessPlanSnapshot = () =>
+  JSON.stringify({
+    formData: formData.value,
+    publicForm: publicForm.value,
+  });
+
+const { hasUnsavedChanges: hasBusinessPlanChanges, captureInitial: captureBusinessPlanInitial } = useFormUnsavedCheck(buildBusinessPlanSnapshot, isFromCaseDetail);
+
 /** 解析案件詳情頁傳入的申請日期（例：114/10/20）為 Date */
 function parseApplyDateFromCaseInfo(value: string): Date | null {
   if (!value || typeof value !== "string") return null;
@@ -584,29 +602,34 @@ function parseApplyDateFromCaseInfo(value: string): Date | null {
 onMounted(() => {
   try {
     const raw = sessionStorage.getItem(STORAGE_KEY_CASE_FOR_APPLICATION);
-    if (!raw) return;
-    isFromCaseDetail.value = true;
-    const data = JSON.parse(raw) as {
-      name?: string;
-      number?: string;
-      applyDate?: string;
-      applicantName?: string;
-      phone?: string;
-      email?: string;
-      address?: string;
-    };
-    sessionStorage.removeItem(STORAGE_KEY_CASE_FOR_APPLICATION);
-    if (data.name) formData.value.caseName = data.name;
-    if (data.applyDate) {
-      const d = parseApplyDateFromCaseInfo(data.applyDate);
-      if (d) formData.value.applyDate = d;
+    if (raw) {
+      isFromCaseDetail.value = true;
+      const data = JSON.parse(raw) as {
+        name?: string;
+        number?: string;
+        applyDate?: string;
+        applicantName?: string;
+        phone?: string;
+        email?: string;
+        address?: string;
+      };
+      sessionStorage.removeItem(STORAGE_KEY_CASE_FOR_APPLICATION);
+      if (data.name) formData.value.caseName = data.name;
+      if (data.applyDate) {
+        const d = parseApplyDateFromCaseInfo(data.applyDate);
+        if (d) formData.value.applyDate = d;
+      }
+      if (data.applicantName) formData.value.applicantName = data.applicantName;
+      if (data.phone) formData.value.applicantPhone = data.phone;
+      if (data.address) formData.value.applicantAddress = data.address;
+      if (data.email) formData.value.applicantEmail = data.email;
     }
-    if (data.applicantName) formData.value.applicantName = data.applicantName;
-    if (data.phone) formData.value.applicantPhone = data.phone;
-    if (data.address) formData.value.applicantAddress = data.address;
-    if (data.email) formData.value.applicantEmail = data.email;
   } catch (_) {
     // ignore
+  } finally {
+    if (isFromCaseDetail.value) {
+      captureBusinessPlanInitial();
+    }
   }
 });
 

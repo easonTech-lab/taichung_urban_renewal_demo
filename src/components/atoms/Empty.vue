@@ -3,7 +3,7 @@
     <div class="relative h-[220px] w-[220px] shrink-0">
       <img :src="imageSrc" :alt="altText" class="h-full w-full object-contain" />
     </div>
-    <p class="text-center text-sm font-semibold leading-[1.5] text-gray-500">{{ message }}</p>
+    <p v-if="message !== ''" class="text-center text-sm font-semibold leading-[1.5] text-gray-500">{{ message }}</p>
     <ButtonCTA v-if="shouldShowButton" variant="outline" size="sm" left-icon="plus" type="button" @click="handleButtonClick">
       {{ buttonText }}
     </ButtonCTA>
@@ -64,13 +64,16 @@ const imageSrc = computed(() => {
     return resolveAssetPath(props.imageSrc);
   }
   if (props.type === "case-management") {
+    return resolveAssetPath("/empty-case-two.png");
+  }
+  if (props.type === "case") {
     return resolveAssetPath("/empty-case.png");
   }
   return resolveAssetPath(`/empty-${props.type}.png`);
 });
 
 const message = computed(() => {
-  if (props.message) {
+  if (props.message !== undefined) {
     return props.message;
   }
   if (props.type === "search") {
@@ -96,7 +99,7 @@ const altText = computed(() => {
 });
 
 const buttonText = computed(() => {
-  if (props.buttonText) {
+  if (props.buttonText !== undefined) {
     return props.buttonText;
   }
   return "新增案件";

@@ -223,8 +223,13 @@ const handleCreateCategory = () => {
 const handleSaveDraft = () => {
   // TODO: Implement save draft functionality
   console.log("暫存", formData.value);
-  // Navigate back to FAQ management page
-  navigateToFAQList();
+  router.push({
+    path: "/faq-management",
+    query: {
+      toast: "success",
+      msg: "暫存成功",
+    },
+  });
 };
 
 const handlePublish = () => {

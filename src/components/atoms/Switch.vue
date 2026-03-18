@@ -6,12 +6,12 @@
         {{ label }}
         <span v-if="required" class="absolute -right-2 -top-1 text-xs leading-none text-red-500">*</span>
       </label>
-      <label :class="['inline-flex cursor-pointer items-center', disabled && 'cursor-not-allowed opacity-50']">
+      <label :class="['inline-flex shrink-0 cursor-pointer items-center', disabled && 'cursor-not-allowed opacity-50']">
         <input :id="switchId" type="checkbox" :checked="modelValue" :disabled="disabled" class="peer sr-only" @change="handleChange" v-bind="$attrs" />
         <!-- Switch with Text -->
         <div
           :class="[
-            'relative h-6 w-[60px] rounded-full transition-colors duration-200',
+            'relative h-6 w-[60px] min-w-[60px] shrink-0 rounded-full transition-colors duration-200',
             'peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-200',
             modelValue ? 'bg-green-400' : 'bg-gray-400',
             disabled && 'cursor-not-allowed opacity-50',
@@ -40,12 +40,12 @@
           {{ label }}
           <span v-if="required" class="absolute -right-2 -top-1 text-xs leading-none text-red-500">*</span>
         </label>
-        <label :class="['inline-flex cursor-pointer items-center', disabled && 'cursor-not-allowed opacity-50']">
+        <label :class="['inline-flex shrink-0 cursor-pointer items-center', disabled && 'cursor-not-allowed opacity-50']">
           <input :id="switchId" type="checkbox" :checked="modelValue" :disabled="disabled" class="peer sr-only" @change="handleChange" v-bind="$attrs" />
           <!-- Switch with Text -->
           <div
             :class="[
-              'relative h-6 w-[60px] rounded-full transition-colors duration-200',
+              'relative h-6 w-[60px] min-w-[60px] shrink-0 rounded-full transition-colors duration-200',
               'peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-200',
               modelValue ? 'bg-green-400' : 'bg-gray-400',
               disabled && 'cursor-not-allowed opacity-50',

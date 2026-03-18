@@ -15,42 +15,52 @@
             </div>
             <p class="pl-4 text-xl font-normal leading-5 text-gray-400">在此管理幹事名單及資訊</p>
           </div>
-          <div class="flex gap-3">
+          <div v-if="hasAnyOfficers" class="flex gap-3">
             <ButtonCTA variant="outline" size="sm" left-icon="manage" @click="handleManageList"> 管理名單 </ButtonCTA>
             <ButtonCTA variant="outline" size="sm" right-icon="download" @click="handleExportList"> 匯出名單 </ButtonCTA>
           </div>
         </div>
-        <Tabs :items="tabItems" :model-value="activeTab" @tab-click="handleTabClick" />
-        <div v-if="allOfficers.length === 0" class="flex flex-col items-center justify-center py-20">
-          <Empty type="case" message="尚未導入審查幹事名單" button-text="添加幹事" :show-button="true" @button-click="handleAddOfficer" />
+        <Tabs v-if="hasAnyOfficers" :items="tabItems" :model-value="activeTab" @tab-click="handleTabClick" />
+        <div v-if="allOfficers.length === 0" class="flex flex-col items-center justify-center py-8">
+          <Empty
+            class="!h-auto !gap-6 py-6"
+            type="case"
+            message=""
+            button-text="添加幹事"
+            :show-button="true"
+            @button-click="handleAddOfficer"
+          />
         </div>
         <div v-else class="flex flex-col gap-0">
-          <Table :columns="tableColumns" :rows="paginatedOfficers" :pagination="pagination" @page-change="handlePageChange">
+          <Table :columns="tableColumns" :rows="paginatedOfficers" :pagination="pagination" min-width="984px" @page-change="handlePageChange">
             <template #cell-index="{ row }">
-              <div class="flex h-20 items-center justify-center p-4">
-                <p class="text-base font-normal leading-[1.5] text-gray-500">{{ row.index }}</p>
+              <div class="flex h-20 items-center justify-start px-4 py-4">
+                <p class="text-sm font-normal leading-6 text-gray-500">{{ row.index }}</p>
               </div>
             </template>
             <template #cell-nameGender="{ row }">
-              <div class="flex h-20 min-w-0 flex-col items-start justify-center gap-1 px-4 py-4">
-                <p class="min-w-0 truncate text-base font-normal leading-[1.5] text-gray-800">{{ row.name || "未選擇" }}</p>
-                <p v-if="row.gender" class="min-w-0 truncate text-base font-normal leading-[1.5] text-gray-500">{{ row.gender }}</p>
+              <div class="flex h-20 min-w-0 flex-col items-start justify-center gap-0.5">
+                <p class="min-w-0 truncate text-sm font-normal leading-6 text-gray-800">{{ row.name || "未選擇" }}</p>
+                <p v-if="row.gender" class="min-w-0 truncate text-sm font-normal leading-6 text-gray-500">{{ row.gender }}</p>
               </div>
             </template>
             <template #cell-title="{ row }">
-              <div class="flex h-20 min-w-0 items-center p-4">
-                <p class="min-w-0 truncate text-base font-normal leading-[1.5] text-gray-500">{{ row.title || "-" }}</p>
+              <div class="flex h-20 min-w-0 items-center">
+                <p class="line-clamp-2 min-w-0 text-sm font-normal leading-6 text-gray-500">{{ row.title || "-" }}</p>
               </div>
             </template>
             <template #cell-education="{ row }">
-              <div class="flex min-w-0 items-center p-4">
-                <p class="line-clamp-3 min-w-0 text-base font-normal leading-[1.5] text-gray-500">
-                  {{ row.education || "-" }}
-                </p>
+              <div class="flex min-w-0 px-4 py-4">
+                <ul v-if="row.education?.length" class="min-w-0 list-disc space-y-0 pl-4 text-sm font-normal leading-5 text-gray-500">
+                  <li v-for="(item, index) in row.education" :key="`${row.index}-education-${index}`" class="min-w-0 break-words">
+                    {{ item }}
+                  </li>
+                </ul>
+                <p v-else class="text-sm font-normal leading-6 text-gray-500">-</p>
               </div>
             </template>
             <template #cell-action="{ row }">
-              <div class="flex h-20 items-center gap-2 px-4 py-4" @click.stop @mousedown.stop>
+              <div class="flex h-20 items-center justify-center gap-4 px-4 py-4" @click.stop @mousedown.stop>
                 <ButtonCTA
                   variant="textPlain"
                   size="base"
@@ -167,6 +177,14 @@
       @confirm="handleConfirmDeleteOfficer"
       @cancel="handleCloseDeleteModal"
     />
+
+    <div v-if="showToast" class="fixed bottom-6 left-1/2 z-[90] w-[min(1420px,calc(100vw-2rem))] -translate-x-1/2">
+      <Toast v-model="showToast" :message="toastMessage" :show-actions="false" :show-close="false" :auto-close="true">
+        <template #icon>
+          <Icon name="check" :size="24" class="text-gray-50" aria-hidden="true" />
+        </template>
+      </Toast>
+    </div>
   </div>
 </template>
 
@@ -177,6 +195,7 @@ import { useTablePagination } from "@/composables/useTablePagination";
 import Icon from "@/components/atoms/Icon.vue";
 import Empty from "@/components/atoms/Empty.vue";
 import Drawer from "@/components/atoms/Drawer.vue";
+import Toast from "@/components/atoms/Toast.vue";
 import ButtonCTA from "@/components/atoms/ButtonCTA.vue";
 import Breadcrumb from "@/components/atoms/Breadcrumb.vue";
 import SidebarSection from "@/components/sections/backend/SidebarSection.vue";
@@ -191,10 +210,13 @@ import type { OfficerData, OfficerItem } from "@/types/backend/systemManagement/
 const tabItems = ref<TabItem[]>([{ label: "115" }, { label: "114" }, { label: "113" }, { label: "添加年度" }]);
 
 const activeTab = ref(0);
+const hasAnyOfficers = computed(() => allOfficers.value.length > 0);
 
 // Drawer state
 const isDrawerOpen = ref(false);
 const isAddYearDrawerOpen = ref(false);
+const showToast = ref(false);
+const toastMessage = ref("儲存成功");
 
 // Delete modal state
 const showDeleteModal = ref(false);
@@ -221,11 +243,11 @@ const openAddYearDrawer = () => {
 
 // Table Columns
 const tableColumns: TableColumn[] = [
-  { key: "index", label: "項次", headerClass: "text-left", cellClass: "text-left min-w-[52px]" },
-  { key: "nameGender", label: "委員姓名" },
-  { key: "title", label: "現職" },
-  { key: "education", label: "學經歷" },
-  { key: "action", label: "動作", cellClass: "min-w-[100px]" },
+  { key: "index", label: "項次", width: "60px", headerClass: "px-4 py-4 text-left text-sm font-medium text-gray-500", cellClass: "p-0 align-middle" },
+  { key: "nameGender", label: "委員姓名", width: "120px", headerClass: "px-4 py-4 text-left text-sm font-medium text-gray-500", cellClass: "px-4 py-4 align-middle" },
+  { key: "title", label: "現職", width: "196px", headerClass: "px-4 py-4 text-left text-sm font-medium text-gray-500", cellClass: "px-4 py-4 align-middle" },
+  { key: "education", label: "學經歷", headerClass: "px-4 py-4 text-left text-sm font-medium text-gray-500", cellClass: "p-0 align-middle" },
+  { key: "action", label: "動作", width: "96px", headerClass: "px-4 py-4 text-left text-sm font-medium text-gray-500", cellClass: "p-0 align-middle" },
 ];
 
 // Mock Officer Data
@@ -235,7 +257,7 @@ const allOfficers = ref<OfficerData[]>([
     name: "張源明",
     gender: "男",
     title: "內政部地政司代理司長",
-    education: "日本東京大學地震研究所 博士\n銘傳大學都市規劃與防災學 碩士",
+    education: ["日本東京大學地震研究所 博士", "銘傳大學都市規劃與防災學 碩士"],
     email: "tmcg01mb@gmail.com",
     phone: "0922289911",
     address: "臺中市西屯區文心路二段588號",
@@ -245,44 +267,44 @@ const allOfficers = ref<OfficerData[]>([
     name: "林珮君",
     gender: "男",
     title: "專家委員",
-    education: "元智大學化學工程學系\n美國奧克拉荷馬州州立大學環境工程碩士、總統府副秘書長、行政院秘書長、臺中縣副縣長、臺北市政府環境保護局局長",
+    education: ["元智大學化學工程學系", "美國奧克拉荷馬州州立大學環境工程碩士", "總統府副秘書長", "行政院秘書長", "臺中縣副縣長", "臺北市政府環境保護局局長"],
   },
   {
     index: 3,
     name: "郭依佳",
     gender: "男",
     title: "專家委員",
-    education: "元智大學化學工程學系\n美國奧克拉荷馬州州立大學環境工程碩士、總統府副秘書長、行政院秘書長、臺中縣副縣長、臺北市政府環境保護局局長",
+    education: ["元智大學化學工程學系", "美國奧克拉荷馬州州立大學環境工程碩士", "總統府副秘書長", "行政院秘書長", "臺中縣副縣長", "臺北市政府環境保護局局長"],
   },
   {
     index: 4,
     name: "朱秀秋",
     gender: "男",
     title: "專家委員",
-    education: "元智大學化學工程學系\n美國奧克拉荷馬州州立大學環境工程碩士、總統府副秘書長、行政院秘書長、臺中縣副縣長、臺北市政府環境保護局局長",
+    education: ["元智大學化學工程學系", "美國奧克拉荷馬州州立大學環境工程碩士", "總統府副秘書長", "行政院秘書長", "臺中縣副縣長", "臺北市政府環境保護局局長"],
   },
-  { index: 5, name: "朱秀秋", gender: "男", title: "中山大學公共事務管理研究所教授兼管理學院副院長", education: "美國北卡羅萊納州立大學景觀規劃博士" },
-  { index: 6, name: "朱秀秋", gender: "男", title: "中山大學公共事務管理研究所教授兼管理學院副院長", education: "美國北卡羅萊納州立大學景觀規劃博士" },
-  { index: 7, name: "朱秀秋", gender: "男", title: "中山大學公共事務管理研究所教授兼管理學院副院長", education: "美國北卡羅萊納州立大學景觀規劃博士" },
-  { index: 8, name: "朱秀秋", gender: "男", title: "中山大學公共事務管理研究所教授兼管理學院副院長", education: "美國北卡羅萊納州立大學景觀規劃博士" },
-  { index: 9, name: "朱秀秋", gender: "男", title: "中山大學公共事務管理研究所教授兼管理學院副院長", education: "美國北卡羅萊納州立大學景觀規劃博士" },
-  { index: 10, name: "朱秀秋", gender: "男", title: "中山大學公共事務管理研究所教授兼管理學院副院長", education: "美國北卡羅萊納州立大學景觀規劃博士" },
-  { index: 11, name: "未選擇", gender: "男", title: "-", education: "-" },
-  { index: 12, name: "未選擇", gender: "男", title: "-", education: "-" },
-  { index: 13, name: "未選擇", gender: "男", title: "-", education: "-" },
-  { index: 14, name: "未選擇", gender: "男", title: "-", education: "-" },
-  { index: 15, name: "未選擇", gender: "男", title: "-", education: "-" },
-  { index: 16, name: "未選擇", gender: "男", title: "-", education: "-" },
-  { index: 17, name: "未選擇", gender: "男", title: "-", education: "-" },
-  { index: 18, name: "未選擇", gender: "男", title: "-", education: "-" },
-  { index: 19, name: "未選擇", gender: "男", title: "-", education: "-" },
-  { index: 20, name: "未選擇", gender: "男", title: "-", education: "-" },
+  { index: 5, name: "朱秀秋", gender: "男", title: "中山大學公共事務管理研究所教授兼管理學院副院長", education: ["美國北卡羅萊納州立大學景觀規劃博士"] },
+  { index: 6, name: "朱秀秋", gender: "男", title: "中山大學公共事務管理研究所教授兼管理學院副院長", education: ["美國北卡羅萊納州立大學景觀規劃博士"] },
+  { index: 7, name: "朱秀秋", gender: "男", title: "中山大學公共事務管理研究所教授兼管理學院副院長", education: ["美國北卡羅萊納州立大學景觀規劃博士"] },
+  { index: 8, name: "朱秀秋", gender: "男", title: "中山大學公共事務管理研究所教授兼管理學院副院長", education: ["美國北卡羅萊納州立大學景觀規劃博士"] },
+  { index: 9, name: "朱秀秋", gender: "男", title: "中山大學公共事務管理研究所教授兼管理學院副院長", education: ["美國北卡羅萊納州立大學景觀規劃博士"] },
+  { index: 10, name: "朱秀秋", gender: "男", title: "中山大學公共事務管理研究所教授兼管理學院副院長", education: ["美國北卡羅萊納州立大學景觀規劃博士"] },
+  { index: 11, name: "未選擇", gender: "男", title: "-", education: [] },
+  { index: 12, name: "未選擇", gender: "男", title: "-", education: [] },
+  { index: 13, name: "未選擇", gender: "男", title: "-", education: [] },
+  { index: 14, name: "未選擇", gender: "男", title: "-", education: [] },
+  { index: 15, name: "未選擇", gender: "男", title: "-", education: [] },
+  { index: 16, name: "未選擇", gender: "男", title: "-", education: [] },
+  { index: 17, name: "未選擇", gender: "男", title: "-", education: [] },
+  { index: 18, name: "未選擇", gender: "男", title: "-", education: [] },
+  { index: 19, name: "未選擇", gender: "男", title: "-", education: [] },
+  { index: 20, name: "未選擇", gender: "男", title: "-", education: [] },
 ]);
 
 const { paginatedRows: paginatedOfficers, pagination, handlePageChange } = useTablePagination({
   rows: allOfficers,
   pageSize: 10,
-  total: 1000,
+  total: computed(() => allOfficers.value.length),
 });
 
 // Officer List (20 items default)
@@ -374,6 +396,8 @@ const handleSave = () => {
   console.log("Save officer list:", officerList.value);
   // TODO: Implement save logic
   isDrawerOpen.value = false;
+  toastMessage.value = "儲存成功";
+  showToast.value = true;
 };
 
 const handleDeleteOfficer = (row: Record<string, any>) => {
@@ -399,20 +423,26 @@ const handleConfirmDeleteOfficer = () => {
 };
 
 const router = useRouter();
+const OFFICER_EDIT_STORAGE_KEY = "officer-edit-data";
 
 const handleOfficerProfileCard = (row: OfficerData & { email?: string; phone?: string; address?: string }) => {
+  const officer = {
+    name: row.name || "",
+    gender: row.gender || "",
+    email: row.email ?? "",
+    phone: row.phone ?? "",
+    address: row.address ?? "",
+    title: row.title || "",
+    education: row.education ?? [],
+  };
+  sessionStorage.setItem(OFFICER_EDIT_STORAGE_KEY, JSON.stringify(officer));
   router.push({
     path: "/officer-list-management/edit",
+    query: {
+      officer: encodeURIComponent(JSON.stringify(officer)),
+    },
     state: {
-      officer: {
-        name: row.name || "",
-        gender: row.gender || "",
-        email: row.email ?? "",
-        phone: row.phone ?? "",
-        address: row.address ?? "",
-        title: row.title || "",
-        education: row.education || "",
-      },
+      officer,
     },
   });
 };

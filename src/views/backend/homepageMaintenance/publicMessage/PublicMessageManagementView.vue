@@ -12,16 +12,14 @@
             <div class="h-7 w-1 rounded bg-primary-600"></div>
             <h2 class="text-2xl font-medium leading-6 text-gray-900">公開消息列表</h2>
           </div>
-          <ButtonCTA variant="outline" size="sm" left-icon="plus" @click="handleAddMessage"> 新增公開消息 </ButtonCTA>
+          <ButtonCTA v-if="hasAnyMessages" variant="outline" size="sm" left-icon="plus" @click="handleAddMessage"> 新增公開消息 </ButtonCTA>
         </div>
-        <div class="flex flex-col gap-4">
-          <Tabs :items="tabItems" :model-value="activeTab" @tab-click="handleTabClick" />
-        </div>
-        <div class="w-[160px]">
+        <div v-if="hasAnyMessages" class="w-[160px]">
           <Dropdown :button-text="selectedCategory" placeholder="全部類別" :items="categoryOptions" @item-click="handleCategoryChange" />
         </div>
-        <div class="rounded-lg border border-gray-300 bg-white">
+        <div v-if="hasAnyMessages" class="rounded-lg border border-gray-300 bg-white">
           <Table
+            v-if="filteredMessages.length > 0"
             :columns="tableColumns"
             :rows="paginatedMessages"
             :pagination="pagination"
@@ -37,18 +35,22 @@
             <!-- Status -->
             <template #cell-status="{ row }">
               <div @click.stop @mousedown.prevent>
-                <Switch :model-value="row.status" :show-text="true" on-text="上架" off-text="下架" @update:model-value="(value) => handleStatusChange(row, value)" />
+                <Badge v-if="row.tabStatus === 'draft'" variant="gray" text="暫存中" />
+                <Switch v-else :model-value="row.status" :show-text="true" on-text="上架" off-text="下架" @update:model-value="(value) => handleStatusChange(row, value)" />
               </div>
             </template>
             <!-- Action -->
             <template #cell-action="{ row }">
               <div class="flex items-center gap-4">
-                <ButtonCTA variant="textPlain" size="sm" @click.stop="handlePreview(row)">預覽</ButtonCTA>
                 <ButtonCTA variant="text" size="sm" icon-only left-icon="editOutline" @click.stop="handleEdit(row)" aria-label="編輯" />
                 <ButtonCTA variant="text" size="sm" icon-only left-icon="trashCan" @click.stop="handleDelete(row)" aria-label="刪除" />
               </div>
             </template>
           </Table>
+          <Empty v-else type="search" :show-button="false" class="py-12" />
+        </div>
+        <div v-else class="rounded-lg border border-gray-300 bg-white">
+          <Empty type="case-management" message="尚未新增公開消息" button-text="新增公開消息" @button-click="handleAddMessage" />
         </div>
       </div>
     </div>
@@ -74,20 +76,17 @@ import { useRouter, useRoute } from "vue-router";
 import { ref, computed, onMounted, watch } from "vue";
 import { useTablePagination } from "@/composables/useTablePagination";
 import Icon from "@/components/atoms/Icon.vue";
-import Tabs from "@/components/atoms/Tabs.vue";
+import Badge from "@/components/atoms/Badge.vue";
 import Toast from "@/components/atoms/Toast.vue";
 import Switch from "@/components/atoms/Switch.vue";
 import Dropdown from "@/components/atoms/Dropdown.vue";
 import ButtonCTA from "@/components/atoms/ButtonCTA.vue";
+import Empty from "@/components/atoms/Empty.vue";
 import Breadcrumb from "@/components/atoms/Breadcrumb.vue";
 import SidebarSection from "@/components/sections/backend/SidebarSection.vue";
 import ConfirmDeleteModal from "@/components/molecules/ConfirmDeleteModal.vue";
 import Table, { type TableColumn } from "@/components/atoms/Table.vue";
 import type { PublicMessageItem } from "@/types/backend/homepageMaintenance/publicMessageManagement.d";
-
-// Tabs
-const tabItems = [{ label: "全部" }, { label: "已上架" }, { label: "暫存中" }, { label: "已下架" }];
-const activeTab = ref<number>(0);
 
 // State
 const pageSize = ref<number>(10);
@@ -119,6 +118,14 @@ const handleCategoryChange = (item: { label: string; value?: string }) => {
 
 // Mock Data (使用 ref 使其響應式)
 const allMessages = ref<PublicMessageItem[]>([
+  {
+    title: "臺中市都市更新相關推動成果公告",
+    category: "",
+    publishDate: "",
+    status: false,
+    tabStatus: "draft",
+    isExpanded: true,
+  },
   {
     title: "本處辦理「114年度老屋新用計畫2.0」潭子區老屋第2次進駐者徵選，入選結果公告。",
     category: "最新消息",
@@ -163,6 +170,8 @@ const allMessages = ref<PublicMessageItem[]>([
   },
 ]);
 
+const hasAnyMessages = computed(() => allMessages.value.length > 0);
+
 // Table Columns（比例：項次 5% / 公開消息 42% / 類別 11% / 發布日期 12% / 狀態 10% / 動作 20%）
 const tableColumns: TableColumn[] = [
   { key: "index", label: "項次", width: "5%" },
@@ -182,18 +191,6 @@ const filteredMessages = computed(() => {
     messages = messages.filter((item) => item.category === selectedCategory.value);
   }
 
-  // Filter by tab
-  if (activeTab.value === 1) {
-    // 已上架
-    messages = messages.filter((item) => item.status === true);
-  } else if (activeTab.value === 2) {
-    // 暫存中
-    messages = messages.filter((item) => item.tabStatus === "draft");
-  } else if (activeTab.value === 3) {
-    // 已下架
-    messages = messages.filter((item) => item.status === false && item.tabStatus === "unpublished");
-  }
-
   return messages;
 });
 
@@ -206,11 +203,6 @@ const { currentPage, paginatedRows: paginatedMessages, pagination, handlePageCha
 // Event Handlers
 const handleSidebarItemSelect = (itemName: string) => {
   console.log("Selected sidebar item:", itemName);
-};
-
-const handleTabClick = (index: number, item: any, event?: Event) => {
-  activeTab.value = index;
-  resetPage();
 };
 
 const router = useRouter();
@@ -247,12 +239,6 @@ const handleStatusChange = (row: Record<string, any>, value: boolean) => {
     if (activeElement?.blur) activeElement.blur();
   });
   // TODO: Implement status change logic
-};
-
-const handlePreview = (row: Record<string, any>) => {
-  const item = row as PublicMessageItem;
-  console.log("Preview clicked for:", item);
-  // TODO: Implement preview logic
 };
 
 const handleDelete = (row: Record<string, any>) => {

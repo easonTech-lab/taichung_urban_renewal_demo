@@ -1,5 +1,5 @@
 <template>
-  <span class="inline-flex items-center justify-center rounded-md px-3 py-0.5 text-center text-sm font-medium leading-normal" :class="badgeClasses">
+  <span class="inline-flex items-center justify-center whitespace-nowrap rounded-md px-3 py-0.5 text-center text-sm font-medium leading-normal" :class="badgeClasses">
     <slot>{{ text }}</slot>
   </span>
 </template>

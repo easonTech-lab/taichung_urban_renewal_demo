@@ -28,11 +28,11 @@
           <div class="flex items-center justify-between">
             <div class="flex flex-col gap-4">
               <p class="text-base font-medium text-gray-800">承辦帳號</p>
-              <p class="text-base text-gray-600">已邀請 {{ handlerAccounts.length }} 位</p>
+              <p v-if="hasAnyHandlers" class="text-base text-gray-600">已邀請 {{ handlerAccounts.length }} 位</p>
             </div>
-            <ButtonCTA variant="primary" size="sm" @click="handleAddHandler">新增承辦</ButtonCTA>
+            <ButtonCTA v-if="hasAnyHandlers" variant="primary" size="sm" @click="handleAddHandler">新增承辦</ButtonCTA>
           </div>
-          <div class="rounded-lg border border-gray-300 bg-white">
+          <div v-if="hasAnyHandlers" class="rounded-lg border border-gray-300 bg-white">
             <Table :columns="tableColumns" :rows="paginatedHandlers" :pagination="pagination" row-key="email" @page-change="handlePageChange">
               <template #cell-index="{ rowIndex }">
                 <p class="text-base text-gray-500">{{ (currentPage - 1) * pageSize + rowIndex + 1 }}</p>
@@ -62,6 +62,9 @@
               </template>
             </Table>
           </div>
+          <div v-else class="flex flex-col items-center justify-center rounded-lg border border-gray-300 bg-white py-8">
+            <Empty class="!h-auto !gap-6 py-6" type="case" message="" button-text="新增承辦" :show-button="true" @button-click="handleAddHandler" />
+          </div>
         </div>
       </div>
     </div>
@@ -78,7 +81,7 @@
         <div class="border-t border-gray-300"></div>
         <div class="flex flex-col gap-4 pt-6">
           <p class="text-base font-medium text-gray-900">更換最高權限帳號</p>
-          <div class="flex flex-col gap-6">
+          <div v-if="hasAvailableAccounts" class="flex flex-col gap-6">
             <Radio
               v-for="account in availableAccounts"
               :key="account.email"
@@ -95,12 +98,15 @@
               </div>
             </Radio>
           </div>
+          <div v-else class="flex items-center justify-center rounded-lg border border-gray-300 bg-white py-8">
+            <Empty class="!h-auto !gap-6 py-6" type="case" message="尚無可更換帳號" :show-button="false" />
+          </div>
         </div>
       </div>
       <template #footer>
         <div class="flex w-full justify-end gap-4">
           <ButtonCTA variant="outline" size="xl" class="w-[124px]" @click="handleCancelChangeAccount">取消</ButtonCTA>
-          <ButtonCTA variant="gray" size="xl" class="w-[124px]" @click="handleSaveChangeAccount">儲存</ButtonCTA>
+          <ButtonCTA variant="gray" size="xl" class="w-[124px]" :disabled="!hasAvailableAccounts" @click="handleSaveChangeAccount">儲存</ButtonCTA>
         </div>
       </template>
     </Drawer>
@@ -117,9 +123,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { computed, ref } from "vue";
 import { useRouter } from "vue-router";
 import { useTablePagination } from "@/composables/useTablePagination";
+import Empty from "@/components/atoms/Empty.vue";
 import Radio from "@/components/atoms/Radio.vue";
 import Drawer from "@/components/atoms/Drawer.vue";
 import Switch from "@/components/atoms/Switch.vue";
@@ -163,6 +170,7 @@ const currentAdminAccount = ref<{
 });
 
 // Available Accounts for Selection
+/*
 const availableAccounts = ref<Array<{ name: string; email: string }>>([
   {
     name: "陳傑瑞",
@@ -177,8 +185,12 @@ const availableAccounts = ref<Array<{ name: string; email: string }>>([
     email: "321xyz@taichung.gov.tw",
   },
 ]);
+*/
+const availableAccounts = ref<Array<{ name: string; email: string }>>([]);
+const hasAvailableAccounts = computed(() => availableAccounts.value.length > 0);
 
 // Mock Data
+/*
 const handlerAccounts = ref<HandlerAccount[]>([
   {
     name: "陳傑瑞",
@@ -257,6 +269,9 @@ const handlerAccounts = ref<HandlerAccount[]>([
     status: false,
   },
 ]);
+*/
+const handlerAccounts = ref<HandlerAccount[]>([]);
+const hasAnyHandlers = computed(() => handlerAccounts.value.length > 0);
 
 // Table Columns
 const tableColumns: TableColumn[] = [

@@ -3,7 +3,7 @@
     class="relative overflow-x-auto rounded-lg bg-white shadow-sm"
     :class="borderless ? '' : 'border border-gray-300'"
   >
-    <table class="w-full table-fixed text-left text-sm text-gray-900 rtl:text-right">
+    <table class="w-full table-fixed text-left text-sm text-gray-900 rtl:text-right" :style="{ minWidth: resolvedMinWidth }">
       <colgroup v-if="columns.some((c) => c.width)">
         <col v-if="showCheckbox" />
         <col v-for="(col, i) in columns" :key="i" :style="col.width ? { width: col.width } : undefined" />
@@ -70,18 +70,18 @@
             <!-- 資料欄位 -->
             <template v-for="(column, colIndex) in columns" :key="colIndex">
               <th v-if="column.isRowHeader" :key="`th-${colIndex}`" scope="row" :class="getCellClass(column, true)">
-                <div class="min-w-0 truncate">
-                  <slot :name="`cell-${column.key}`" :row="row" :column="column" :rowIndex="rowIndex">
+                <slot :name="`cell-${column.key}`" :row="row" :column="column" :rowIndex="rowIndex">
+                  <div class="min-w-0 truncate">
                     {{ getCellValue(row, column) }}
-                  </slot>
-                </div>
+                  </div>
+                </slot>
               </th>
               <td v-else :key="`td-${colIndex}`" :class="getCellClass(column)">
-                <div class="min-w-0 truncate">
-                  <slot :name="`cell-${column.key}`" :row="row" :column="column" :rowIndex="rowIndex">
+                <slot :name="`cell-${column.key}`" :row="row" :column="column" :rowIndex="rowIndex">
+                  <div class="min-w-0 truncate">
                     {{ getCellValue(row, column) }}
-                  </slot>
-                </div>
+                  </div>
+                </slot>
               </td>
             </template>
           </tr>
@@ -174,12 +174,14 @@ const props = withDefaults(
     rowClickable?: boolean; // 是否啟用整行點擊功能
     borderless?: boolean;
     rowKey?: string | ((row: Record<string, any>, rowIndex: number) => string | number);
+    minWidth?: string | number;
   }>(),
   {
     showCheckbox: false,
     rowClickable: false,
     borderless: false,
     rowKey: undefined,
+    minWidth: undefined,
   }
 );
 
@@ -192,6 +194,17 @@ const emit = defineEmits<{
 
 const tableId = computed(() => Math.random().toString(36).substring(2, 11));
 const selectedRows = ref<Set<number>>(new Set());
+const resolvedMinWidth = computed(() => {
+  if (typeof props.minWidth === "number") {
+    return `${props.minWidth}px`;
+  }
+  if (typeof props.minWidth === "string" && props.minWidth.trim()) {
+    return props.minWidth;
+  }
+  // 讓後台表格在欄位開始擠壓之前就先出現橫向卷軸
+  const columnCount = props.columns.length + (props.showCheckbox ? 1 : 0);
+  return `${Math.max(500, columnCount * 140)}px`;
+});
 
 // 排序狀態（內部管理）
 const sortBy = ref<string>("");

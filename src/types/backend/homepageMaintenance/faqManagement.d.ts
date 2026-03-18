@@ -5,6 +5,7 @@ export interface FaqItem {
   publishDate: string;
   status: boolean;
   tabStatus: "all" | "published" | "draft" | "unpublished";
+  isExpanded?: boolean;
 }
 
 export interface FaqFormData {

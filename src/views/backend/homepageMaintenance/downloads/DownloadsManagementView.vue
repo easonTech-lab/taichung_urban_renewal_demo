@@ -12,16 +12,14 @@
             <div class="h-7 w-1 rounded bg-primary-600"></div>
             <h2 class="text-2xl font-medium leading-6 text-gray-900">下載專區列表</h2>
           </div>
-          <ButtonCTA variant="outline" size="sm" left-icon="plus" @click="handleAddDownload"> 新增資料下載 </ButtonCTA>
+          <ButtonCTA v-if="hasAnyDownloads" variant="outline" size="sm" left-icon="plus" @click="handleAddDownload"> 新增資料下載 </ButtonCTA>
         </div>
-        <div class="flex flex-col gap-4">
-          <Tabs :items="tabItems" :model-value="activeTab" @tab-click="handleTabClick" />
-        </div>
-        <div class="w-[160px]">
+        <div v-if="hasAnyDownloads" class="w-[160px]">
           <Dropdown :button-text="selectedCategory" placeholder="全部案件類別" :items="categoryOptions" @item-click="handleCategoryChange" />
         </div>
-        <div class="rounded-lg border border-gray-300 bg-white">
+        <div v-if="hasAnyDownloads" class="rounded-lg border border-gray-300 bg-white">
           <Table
+            v-if="filteredDownloads.length > 0"
             :columns="tableColumns"
             :rows="paginatedDownloads"
             :pagination="pagination"
@@ -40,12 +38,15 @@
             </template>
             <template #cell-action="{ row }">
               <div class="flex items-center gap-4">
-                <ButtonCTA variant="textPlain" size="sm" @click.stop="handlePreview(row)">預覽</ButtonCTA>
                 <ButtonCTA variant="text" size="sm" icon-only left-icon="editOutline" @click.stop="handleEdit(row)" aria-label="編輯" />
                 <ButtonCTA variant="text" size="sm" icon-only left-icon="trashCan" @click.stop="handleDelete(row)" aria-label="刪除" />
               </div>
             </template>
           </Table>
+          <Empty v-else type="search" :show-button="false" class="py-12" />
+        </div>
+        <div v-else class="rounded-lg border border-gray-300 bg-white">
+          <Empty type="case-management" message="尚未新增資料下載" button-text="新增資料下載" @button-click="handleAddDownload" />
         </div>
       </div>
     </div>
@@ -66,23 +67,18 @@
 import { useRouter, useRoute } from "vue-router";
 import { ref, computed, watch, onMounted } from "vue";
 import { useTablePagination } from "@/composables/useTablePagination";
-import Tabs from "@/components/atoms/Tabs.vue";
 import Icon from "@/components/atoms/Icon.vue";
 import Toast from "@/components/atoms/Toast.vue";
 import Switch from "@/components/atoms/Switch.vue";
 import Dropdown from "@/components/atoms/Dropdown.vue";
 import ButtonCTA from "@/components/atoms/ButtonCTA.vue";
+import Empty from "@/components/atoms/Empty.vue";
 import Breadcrumb from "@/components/atoms/Breadcrumb.vue";
 import SidebarSection from "@/components/sections/backend/SidebarSection.vue";
 import ConfirmDeleteModal from "@/components/molecules/ConfirmDeleteModal.vue";
 import Table, { type TableColumn } from "@/components/atoms/Table.vue";
 
 import type { DownloadItem } from "@/types/backend/homepageMaintenance/downloadsManagement.d";
-
-// Tabs
-const tabItems = [{ label: "全部" }, { label: "已上架" }, { label: "暫存中" }, { label: "已下架" }];
-
-const activeTab = ref<number>(0);
 
 // State
 const pageSize = ref<number>(10);
@@ -159,6 +155,8 @@ const allDownloads = ref<DownloadItem[]>([
   },
 ]);
 
+const hasAnyDownloads = computed(() => allDownloads.value.length > 0);
+
 // Table Columns（比例：項次 5% / 檔案名稱 35% / 案件類別 18% / 發布日期 12% / 狀態 10% / 動作 20%）
 const tableColumns: TableColumn[] = [
   { key: "index", label: "項次", width: "5%" },
@@ -176,18 +174,6 @@ const filteredDownloads = computed(() => {
   // Filter by category
   if (selectedCategory.value) {
     downloads = downloads.filter((item) => item.category === selectedCategory.value);
-  }
-
-  // Filter by tab
-  if (activeTab.value === 1) {
-    // 已上架
-    downloads = downloads.filter((item) => item.status === true);
-  } else if (activeTab.value === 2) {
-    // 暫存中
-    downloads = downloads.filter((item) => item.tabStatus === "draft");
-  } else if (activeTab.value === 3) {
-    // 已下架
-    downloads = downloads.filter((item) => item.status === false && item.tabStatus === "unpublished");
   }
 
   return downloads;
@@ -210,11 +196,6 @@ const handleSidebarItemSelect = (itemName: string) => {
   console.log("Selected sidebar item:", itemName);
 };
 
-const handleTabClick = (index: number, item: any, event?: Event) => {
-  activeTab.value = index;
-  resetPage();
-};
-
 const router = useRouter();
 const route = useRoute();
 
@@ -232,12 +213,6 @@ const handleStatusChange = (row: Record<string, any>, value: boolean) => {
     if (activeElement?.blur) activeElement.blur();
   });
   // TODO: Implement status change logic
-};
-
-const handlePreview = (row: Record<string, any>) => {
-  const item = row as DownloadItem;
-  console.log("Preview clicked for:", item);
-  // TODO: Implement preview logic
 };
 
 const handleDelete = (row: Record<string, any>) => {

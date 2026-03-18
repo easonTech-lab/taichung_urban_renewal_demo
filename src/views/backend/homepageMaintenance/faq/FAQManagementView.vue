@@ -12,13 +12,11 @@
             <div class="h-7 w-1 rounded bg-primary-600"></div>
             <h2 class="text-2xl font-medium leading-6 text-gray-900">常見問題列表</h2>
           </div>
-          <ButtonCTA variant="outline" size="sm" left-icon="plus" @click="handleAddQuestion"> 新增問題 </ButtonCTA>
+          <ButtonCTA v-if="hasAnyFAQs" variant="outline" size="sm" left-icon="plus" @click="handleAddQuestion"> 新增問題 </ButtonCTA>
         </div>
-        <div class="flex flex-col gap-4">
-          <Tabs :items="tabItems" :model-value="activeTab" @tab-click="handleTabClick" />
-        </div>
-        <div class="rounded-lg border border-gray-300 bg-white">
+        <div v-if="hasAnyFAQs" class="rounded-lg border border-gray-300 bg-white">
           <Table
+            v-if="filteredFAQs.length > 0"
             :columns="tableColumns"
             :rows="paginatedFAQs"
             :pagination="pagination"
@@ -27,19 +25,26 @@
             @row-click="handleRowClick"
             @page-change="handlePageChange"
           >
+            <template #cell-index="{ row, rowIndex }">
+              <p class="text-base text-gray-500">{{ (pagination.currentPage - 1) * pageSize + rowIndex + 1 }}</p>
+            </template>
             <template #cell-status="{ row }">
               <div @click.stop @mousedown.prevent>
-                <Switch :model-value="row.status" :show-text="true" on-text="上架" off-text="下架" @update:model-value="(value) => handleStatusChange(row, value)" />
+                <Badge v-if="row.tabStatus === 'draft'" variant="gray" text="暫存中" />
+                <Switch v-else :model-value="row.status" :show-text="true" on-text="上架" off-text="下架" @update:model-value="(value) => handleStatusChange(row, value)" />
               </div>
             </template>
             <template #cell-action="{ row }">
               <div class="flex items-center gap-4">
-                <ButtonCTA variant="textPlain" size="sm" @click.stop="handlePreview(row)"> 預覽 </ButtonCTA>
                 <ButtonCTA variant="text" size="sm" icon-only left-icon="editOutline" @click.stop="handleEdit(row)" aria-label="編輯" />
                 <ButtonCTA variant="text" size="sm" icon-only left-icon="trashCan" @click.stop="handleDelete(row)" aria-label="刪除" />
               </div>
             </template>
           </Table>
+          <Empty v-else type="search" :show-button="false" class="py-12" />
+        </div>
+        <div v-else class="rounded-lg border border-gray-300 bg-white">
+          <Empty type="case-management" message="尚未新增常見問題" button-text="新增問題" @button-click="handleAddQuestion" />
         </div>
       </div>
     </div>
@@ -67,21 +72,17 @@
 import { useRouter, useRoute } from "vue-router";
 import { ref, computed, onMounted, watch } from "vue";
 import { useTablePagination } from "@/composables/useTablePagination";
-import Tabs from "@/components/atoms/Tabs.vue";
 import Icon from "@/components/atoms/Icon.vue";
+import Badge from "@/components/atoms/Badge.vue";
 import Toast from "@/components/atoms/Toast.vue";
 import Switch from "@/components/atoms/Switch.vue";
 import ButtonCTA from "@/components/atoms/ButtonCTA.vue";
+import Empty from "@/components/atoms/Empty.vue";
 import Breadcrumb from "@/components/atoms/Breadcrumb.vue";
 import SidebarSection from "@/components/sections/backend/SidebarSection.vue";
 import ConfirmDeleteModal from "@/components/molecules/ConfirmDeleteModal.vue";
 import Table, { type TableColumn } from "@/components/atoms/Table.vue";
 import type { FaqItem } from "@/types/backend/homepageMaintenance/faqManagement.d";
-
-// Tabs
-const tabItems = [{ label: "全部" }, { label: "已上架" }, { label: "暫存中" }, { label: "已下架" }];
-
-const activeTab = ref<number>(0);
 
 // State
 const pageSize = ref<number>(10);
@@ -100,13 +101,22 @@ const allFAQs = ref<FaqItem[]>([
   {
     index: 1,
     question: "都更、危老、整建維護差在哪？",
+    category: "",
+    publishDate: "",
+    status: false,
+    tabStatus: "draft",
+    isExpanded: true,
+  },
+  {
+    index: 2,
+    question: "都更、危老、整建維護差在哪？",
     category: "我適合哪種重建方式？",
     publishDate: "114/11/09",
     status: true,
     tabStatus: "published",
   },
   {
-    index: 2,
+    index: 3,
     question: "房子幾歲了才算老？該選哪一種方式？",
     category: "我適合哪種重建方式？",
     publishDate: "114/10/30",
@@ -114,7 +124,7 @@ const allFAQs = ref<FaqItem[]>([
     tabStatus: "unpublished",
   },
   {
-    index: 3,
+    index: 4,
     question: "需要準備什麼資料、文件？",
     category: "要怎麼申請？需要準備什麼？",
     publishDate: "114/10/30",
@@ -122,7 +132,7 @@ const allFAQs = ref<FaqItem[]>([
     tabStatus: "unpublished",
   },
   {
-    index: 4,
+    index: 5,
     question: "同意比例要多少才可以啟動？",
     category: "要怎麼申請？需要準備什麼？",
     publishDate: "114/10/12",
@@ -130,7 +140,7 @@ const allFAQs = ref<FaqItem[]>([
     tabStatus: "unpublished",
   },
   {
-    index: 5,
+    index: 6,
     question: "危老可以拿到多少容積獎勵？",
     category: "有什麼補助或政府協助？",
     publishDate: "114/10/12",
@@ -138,7 +148,7 @@ const allFAQs = ref<FaqItem[]>([
     tabStatus: "unpublished",
   },
   {
-    index: 6,
+    index: 7,
     question: "有沒有免費顧問或推動師可協助？",
     category: "有什麼補助或政府協助？",
     publishDate: "114/10/12",
@@ -146,6 +156,8 @@ const allFAQs = ref<FaqItem[]>([
     tabStatus: "unpublished",
   },
 ]);
+
+const hasAnyFAQs = computed(() => allFAQs.value.length > 0);
 
 // Table Columns（比例：項次 5% / 問題 35% / 類別 18% / 發布日期 12% / 狀態 10% / 動作 20%）
 const tableColumns: TableColumn[] = [
@@ -159,21 +171,7 @@ const tableColumns: TableColumn[] = [
 
 // Filtered FAQs
 const filteredFAQs = computed(() => {
-  let faqs = [...allFAQs.value];
-
-  // Filter by tab
-  if (activeTab.value === 1) {
-    // 已上架
-    faqs = faqs.filter((item) => item.status === true);
-  } else if (activeTab.value === 2) {
-    // 暫存中
-    faqs = faqs.filter((item) => item.tabStatus === "draft");
-  } else if (activeTab.value === 3) {
-    // 已下架
-    faqs = faqs.filter((item) => item.status === false && item.tabStatus === "unpublished");
-  }
-
-  return faqs;
+  return [...allFAQs.value];
 });
 
 const { paginatedRows: paginatedFAQs, pagination, handlePageChange, resetPage } = useTablePagination({
@@ -184,11 +182,6 @@ const { paginatedRows: paginatedFAQs, pagination, handlePageChange, resetPage } 
 // Event Handlers
 const handleSidebarItemSelect = (itemName: string) => {
   console.log("Selected sidebar item:", itemName);
-};
-
-const handleTabClick = (index: number, item: any, event?: Event) => {
-  activeTab.value = index;
-  resetPage();
 };
 
 const router = useRouter();
@@ -210,12 +203,6 @@ const handleStatusChange = (row: Record<string, any>, value: boolean) => {
     if (activeElement?.blur) activeElement.blur();
   });
   // TODO: Implement status change logic
-};
-
-const handlePreview = (row: Record<string, any>) => {
-  const item = row as FaqItem;
-  console.log("Preview clicked for:", item);
-  // TODO: Implement preview logic
 };
 
 const handleRowClick = (row: Record<string, any>) => {

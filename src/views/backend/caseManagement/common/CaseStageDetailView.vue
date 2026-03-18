@@ -268,6 +268,7 @@
 <script setup lang="ts">
 import { useRoute } from "vue-router";
 import { computed, ref, watch } from "vue";
+import { useFormUnsavedCheck } from "@/composables/useFormUnsavedCheck";
 import Icon from "@/components/atoms/Icon.vue";
 import Empty from "@/components/atoms/Empty.vue";
 import Radio from "@/components/atoms/Radio.vue";
@@ -324,6 +325,7 @@ const uploadOptions = [
   { label: "上傳審查簡報", value: "upload-presentation" },
 ];
 
+/*
 const reviewFiles = ref<ReviewFileItem[]>([
   {
     id: 1,
@@ -340,6 +342,8 @@ const reviewFiles = ref<ReviewFileItem[]>([
     isExpanded: true,
   },
 ]);
+*/
+const reviewFiles = ref<ReviewFileItem[]>([]);
 const showDeleteModal = ref(false);
 const deleteTargetId = ref<number | null>(null);
 const showAddItemDrawer = ref(false);
@@ -356,7 +360,6 @@ const addItemForm = ref({
 });
 
 const isRevisionCategory = computed(() => addItemForm.value.category === "修正意見/會議記錄");
-const initialAddItemSnapshot = ref("");
 const isAddItemSaveDisabled = computed(() => {
   if (!addItemForm.value.name.trim()) return true;
   if (!addItemForm.value.category) return true;
@@ -380,7 +383,7 @@ const getAddItemSnapshot = () =>
     publishDate: addItemForm.value.publishDate ?? "",
     attachmentsCount: addItemForm.value.attachments.length,
   });
-const isAddItemDirty = computed(() => getAddItemSnapshot() !== initialAddItemSnapshot.value);
+const { hasUnsavedChanges: isAddItemDirty, captureInitial: captureAddItemInitial } = useFormUnsavedCheck(getAddItemSnapshot);
 
 const drawerWidthPx = 460;
 const toastPositionStyle = computed(() => {
@@ -560,7 +563,7 @@ const handleSaveAddItem = () => {
     publishDate: "",
     attachments: [],
   };
-  initialAddItemSnapshot.value = getAddItemSnapshot();
+  captureAddItemInitial();
 };
 
 const openDeleteModal = (file: ReviewFileItem) => {
@@ -606,7 +609,7 @@ watch(
   () => showAddItemDrawer.value,
   (isOpen) => {
     if (isOpen) {
-      initialAddItemSnapshot.value = getAddItemSnapshot();
+      captureAddItemInitial();
     }
   }
 );

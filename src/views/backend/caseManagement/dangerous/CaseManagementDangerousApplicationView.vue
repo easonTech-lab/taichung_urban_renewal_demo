@@ -179,7 +179,7 @@
 
       <div class="flex items-center justify-center gap-6">
         <template v-if="isFromCaseDetail">
-          <ButtonCTA variant="outline" size="xl" :to="{ path: '/case-management-dangerous' }">取消</ButtonCTA>
+          <ButtonCTA variant="outline" size="xl" :to="cancelTarget">取消</ButtonCTA>
           <ButtonCTA variant="primary" size="xl">儲存</ButtonCTA>
         </template>
         <template v-else>
@@ -193,7 +193,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from "vue";
+import { computed, onMounted, ref } from "vue";
+import { useRoute } from "vue-router";
 import Input from "@/components/atoms/Input.vue";
 import Radio from "@/components/atoms/Radio.vue";
 import DatePicker from "@/components/atoms/DatePicker.vue";
@@ -205,6 +206,14 @@ import InputDropdown, { type InputDropdownItem } from "@/components/atoms/InputD
 import type { DangerousApplicationFormData } from "@/types/backend/caseManagement/dangerous/CaseManagementDangerousApplicationView.d";
 
 const isFromCaseDetail = ref(false);
+const route = useRoute();
+const cancelTarget = computed(() => {
+  const returnTo = route.query?.returnTo;
+  if (typeof returnTo === "string" && returnTo.trim()) {
+    return returnTo;
+  }
+  return { path: "/case-management-dangerous" };
+});
 
 const breadcrumbItems = computed(() => [
   { label: "首頁", to: "/" },

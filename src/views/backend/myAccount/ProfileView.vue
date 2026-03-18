@@ -89,7 +89,6 @@
           </div>
         </div>
         <div class="flex justify-center gap-4">
-          <ButtonCTA variant="outline" size="xl" class="w-[124px]" @click="handleCancel"> 取消 </ButtonCTA>
           <ButtonCTA variant="gray" size="xl" class="w-[124px]" @click="handleSave"> {{ isAdmin ? "儲存變更" : "儲存" }} </ButtonCTA>
         </div>
       </div>
@@ -178,11 +177,6 @@ const handleDivisionSelect = (item: any) => {
 
 const handleChangePassword = () => {
   router.push("/change-password");
-};
-
-const handleCancel = () => {
-  // 返回上一頁或重置表單
-  router.back();
 };
 
 const handleSave = () => {

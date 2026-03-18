@@ -14,10 +14,11 @@
             <div class="flex flex-col gap-2">
               <div class="flex items-center gap-3">
                 <div class="h-7 w-1 rounded bg-primary-600"></div>
-                <h2 class="text-2xl font-medium leading-6 text-gray-900">{{ isAdmin ? "案件列表" : "危老重建案件" }}</h2>
+                <h2 class="text-2xl font-medium leading-6 text-gray-900">{{ hasAnyCases ? (isAdmin ? "案件列表" : "危老重建案件") : "危老重建案件" }}</h2>
               </div>
             </div>
             <ButtonDropdown
+              v-if="hasAnyCases"
               button-text="新增案件"
               :items="addCaseOptions"
               button-variant="outline"
@@ -30,7 +31,7 @@
               @item-click="handleAddCaseOption"
             />
           </div>
-          <div class="flex items-center gap-4">
+          <div v-if="hasAnyCases" class="flex items-center gap-4">
             <div class="w-40">
               <Dropdown :button-text="selectedStage" placeholder="全部案件階段" :items="stageOptions" @item-click="handleStageChange" />
             </div>
@@ -40,7 +41,8 @@
           </div>
         </div>
         <div class="rounded-lg border border-gray-300 bg-white">
-          <Empty v-if="filteredCases.length === 0" type="case-management" @button-click="handleEmptyStateAddCase" />
+          <Empty v-if="!hasAnyCases" type="case-management" message="尚無危老重建案件" @button-click="handleEmptyStateAddCase" />
+          <Empty v-else-if="filteredCases.length === 0" type="search" :show-button="false" class="py-12" />
           <Table
             v-else
             :columns="tableColumns"
@@ -193,6 +195,8 @@ const tableColumns: TableColumn[] = [
 ];
 
 // Filtered Cases
+const hasAnyCases = computed(() => allCases.length > 0);
+
 const filteredCases = computed(() => {
   let cases = [...allCases];
 
@@ -249,9 +253,12 @@ const handleAddCaseOption = (item: ButtonDropdownItem, index: number) => {
 };
 
 const handleEmptyStateAddCase = () => {
-  // Open the dropdown when clicking the empty state button
-  // This will be handled by the ButtonDropdown component itself
-  console.log("Empty state add case clicked");
+  router.push({
+    name: "case-management-dangerous-add",
+    query: {
+      addType: "general-case",
+    },
+  });
 };
 
 const handleRowClick = (row: Record<string, any>) => {

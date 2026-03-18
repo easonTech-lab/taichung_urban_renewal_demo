@@ -9,15 +9,8 @@
       <div class="flex flex-col gap-6">
         <Breadcrumb />
         <div class="flex items-center justify-between gap-6">
-          <div class="flex items-center gap-3">
-            <h1 class="max-w-[400px] truncate text-3xl font-bold leading-[30px] text-gray-900">擬訂臺中市豐原區三村段三小段20地號(等)3筆土地重建計畫案</h1>
-            <div
-              class="flex h-10 w-10 cursor-pointer items-center justify-center rounded-full border border-primary-500 bg-white hover:bg-gray-50"
-              @click="handleOpenOfficerDrawer"
-              title="編輯幹事名單"
-            >
-              <Icon name="pencil" :size="24" color="#1C64F2" class="m-auto" />
-            </div>
+          <div class="min-w-0 flex-1">
+            <h1 class="truncate text-3xl font-bold leading-[30px] text-gray-900">擬訂臺中市豐原區三村段三小段20地號(等)3筆土地重建計畫案</h1>
           </div>
           <ButtonCTA v-if="isAdminUser" variant="red-outline" size="l" class="flex items-center gap-2 !min-w-0" @click="handleDeleteCase">刪除案件</ButtonCTA>
         </div>
@@ -244,6 +237,7 @@ const caseInfo = ref({
   address: "台中市文心路二段588號",
 });
 
+/*
 const officerTableRows = ref<OfficerTableRow[]>([
   {
     name: "張泓明",
@@ -276,6 +270,8 @@ const officerTableRows = ref<OfficerTableRow[]>([
     background: "國立臺北大學都市計劃研究所博士",
   },
 ]);
+*/
+const officerTableRows = ref<OfficerTableRow[]>([]);
 
 const caseOfficerNames = computed(() => {
   const fromList = officerList.value.map((o) => o.selectedOfficer).filter(Boolean).join("、");
@@ -343,6 +339,7 @@ const complaintSections = ref<ComplaintSection[]>([
   },
 ]);
 
+/*
 const allFiles = ref<ProjectFile[]>([
   {
     fileName: "小組審查文件.pdf",
@@ -393,6 +390,8 @@ const allFiles = ref<ProjectFile[]>([
     fileSize: "107 KB",
   },
 ]);
+*/
+const allFiles = ref<ProjectFile[]>([]);
 
 const handleOpenOfficerDrawer = () => {
   if (activeTab.value !== "info") {

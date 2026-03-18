@@ -3,7 +3,7 @@ export interface OfficerData {
   name: string;
   gender: string;
   title: string;
-  education: string;
+  education: string[];
 }
 
 export interface OfficerItem {

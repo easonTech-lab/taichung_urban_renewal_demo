@@ -33,7 +33,20 @@
             </div>
             <Input v-model="form.address" label="聯絡地址" size="lg" container-class="w-full" />
             <Input v-model="form.title" label="現職" size="lg" container-class="w-full" />
-            <Textarea v-model="form.education" label="學經歷" size="lg" :rows="3" container-class="w-full" />
+            <div class="flex flex-col gap-4">
+              <Input
+                v-for="(education, index) in educationList"
+                :key="`education-${index}`"
+                v-model="educationList[index]"
+                :label="index === 0 ? '學經歷' : undefined"
+                :show-label="index === 0"
+                size="lg"
+                container-class="w-full"
+              />
+              <div>
+                <ButtonCTA variant="outline" size="xs" left-icon="plus" class="min-w-0 px-3" @click="handleAddEducation"> 新增學經歷 </ButtonCTA>
+              </div>
+            </div>
           </div>
         </div>
         <div class="flex justify-center gap-4">
@@ -47,15 +60,15 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from "vue";
-import { useRouter } from "vue-router";
+import { useRouter, useRoute } from "vue-router";
 import Icon from "@/components/atoms/Icon.vue";
 import Input from "@/components/atoms/Input.vue";
-import Textarea from "@/components/atoms/Textarea.vue";
 import ButtonCTA from "@/components/atoms/ButtonCTA.vue";
 import Breadcrumb, { type BreadcrumbItem } from "@/components/atoms/Breadcrumb.vue";
 import SidebarSection from "@/components/sections/backend/SidebarSection.vue";
 
 const router = useRouter();
+const route = useRoute();
 
 const breadcrumbItems = computed<BreadcrumbItem[]>(() => [
   { label: "首頁", to: "/" },
@@ -64,22 +77,69 @@ const breadcrumbItems = computed<BreadcrumbItem[]>(() => [
   { label: "編輯幹事" },
 ]);
 
+const OFFICER_EDIT_STORAGE_KEY = "officer-edit-data";
+
+const getStringValue = (value: string | string[] | undefined) => {
+  return typeof value === "string" ? value : "";
+};
+
 const officerFromState = () => {
-  const state = history.state as { officer?: Record<string, string> } | null;
+  const state = history.state as { officer?: Record<string, string | string[]> } | null;
   const o = state?.officer;
   if (!o || typeof o !== "object") return null;
   return {
-    name: o.name ?? "",
-    gender: o.gender ?? "",
-    email: o.email ?? "",
-    phone: o.phone ?? "",
-    address: o.address ?? "",
-    title: o.title ?? "",
-    education: o.education ?? "",
+    name: getStringValue(o.name),
+    gender: getStringValue(o.gender),
+    email: getStringValue(o.email),
+    phone: getStringValue(o.phone),
+    address: getStringValue(o.address),
+    title: getStringValue(o.title),
+    education: Array.isArray(o.education) ? o.education : [],
   };
 };
 
-const initialData = officerFromState();
+const officerFromQuery = () => {
+  const raw = route.query.officer;
+  const queryValue = typeof raw === "string" ? raw : Array.isArray(raw) ? raw[0] : "";
+  if (!queryValue) return null;
+
+  try {
+    const officer = JSON.parse(decodeURIComponent(queryValue)) as Record<string, string | string[]>;
+    return {
+      name: getStringValue(officer.name),
+      gender: getStringValue(officer.gender),
+      email: getStringValue(officer.email),
+      phone: getStringValue(officer.phone),
+      address: getStringValue(officer.address),
+      title: getStringValue(officer.title),
+      education: Array.isArray(officer.education) ? officer.education : [],
+    };
+  } catch {
+    return null;
+  }
+};
+
+const officerFromStorage = () => {
+  const raw = sessionStorage.getItem(OFFICER_EDIT_STORAGE_KEY);
+  if (!raw) return null;
+
+  try {
+    const officer = JSON.parse(raw) as Record<string, string | string[]>;
+    return {
+      name: getStringValue(officer.name),
+      gender: getStringValue(officer.gender),
+      email: getStringValue(officer.email),
+      phone: getStringValue(officer.phone),
+      address: getStringValue(officer.address),
+      title: getStringValue(officer.title),
+      education: Array.isArray(officer.education) ? officer.education : [],
+    };
+  } catch {
+    return null;
+  }
+};
+
+const initialData = officerFromQuery() ?? officerFromState() ?? officerFromStorage();
 const form = ref(
   initialData ?? {
     name: "",
@@ -88,9 +148,16 @@ const form = ref(
     phone: "",
     address: "",
     title: "",
-    education: "",
+    education: [],
   }
 );
+
+const buildEducationList = (value: string[]) => {
+  const items = value.map((item) => item.trim()).filter(Boolean);
+  return items.length > 0 ? items : [""];
+};
+
+const educationList = ref<string[]>(buildEducationList(form.value.education));
 
 const handleSidebarItemSelect = (itemName: string) => {
   console.log("Selected sidebar item:", itemName);
@@ -104,8 +171,13 @@ const handleCancel = () => {
   router.push("/officer-list-management");
 };
 
+const handleAddEducation = () => {
+  educationList.value.push("");
+};
+
 const handleSave = () => {
   // TODO: API 儲存
+  form.value.education = educationList.value.map((item) => item.trim()).filter(Boolean);
   console.log("Save officer:", form.value);
   router.push("/officer-list-management");
 };
@@ -113,6 +185,8 @@ const handleSave = () => {
 onMounted(() => {
   if (!initialData) {
     router.replace("/officer-list-management");
+    return;
   }
+  sessionStorage.removeItem(OFFICER_EDIT_STORAGE_KEY);
 });
 </script>

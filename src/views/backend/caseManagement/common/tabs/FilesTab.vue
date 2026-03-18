@@ -6,16 +6,16 @@
         <h2 class="text-2xl font-medium leading-6 text-gray-900">專案檔案</h2>
       </div>
 
-      <div class="mt-6 flex flex-col gap-4">
-        <Tabs :items="fileTabItems" :model-value="activeFileTab" @tab-click="handleFileTabClick" />
+      <div v-if="hasAnyFiles" class="mt-6 flex flex-col gap-4">
         <div class="flex flex-wrap items-center gap-3">
           <Dropdown :button-text="selectedFileStage" placeholder="全部案件階段" :items="fileStageOptions" @item-click="handleFileStageChange" />
           <Dropdown :button-text="selectedFileCategory" placeholder="檔案類別" :items="fileCategoryOptions" @item-click="handleFileCategoryChange" />
         </div>
       </div>
 
-      <div class="mt-6">
+      <div v-if="hasAnyFiles" class="mt-6">
         <Table
+          v-if="filteredFiles.length > 0"
           :columns="fileTableColumns"
           :rows="paginatedFiles"
           :pagination="filePagination"
@@ -34,7 +34,9 @@
             </div>
           </template>
         </Table>
+        <Empty v-else type="search" :show-button="false" class="py-12" />
       </div>
+      <Empty v-else type="case-management" :show-button="false" message="尚無專案檔案" class="pt-6" />
     </div>
   </div>
 </template>
@@ -45,17 +47,18 @@ import { useTablePagination } from "@/composables/useTablePagination";
 import Icon from "@/components/atoms/Icon.vue";
 import Tabs, { type TabItem } from "@/components/atoms/Tabs.vue";
 import Table, { type TableColumn } from "@/components/atoms/Table.vue";
+import Empty from "@/components/atoms/Empty.vue";
 import Dropdown, { type DropdownItem } from "@/components/atoms/Dropdown.vue";
 import type { ProjectFile } from "@/types/backend/caseManagement/common/CaseDetailView.d";
 
 const props = defineProps<{ files: ProjectFile[] }>();
+const hasAnyFiles = computed(() => props.files.length > 0);
 
 const emit = defineEmits<{
   download: [file: ProjectFile];
   "request-delete": [file: ProjectFile];
 }>();
 
-const fileTabItems: TabItem[] = [{ label: "全部" }, { label: "申請人" }, { label: "幹事" }, { label: "承辦" }];
 const activeFileTab = ref(0);
 
 const selectedFileStage = ref<string>("全部案件階段");
@@ -117,10 +120,6 @@ const filePageSize = ref(10);
 
 const filteredFiles = computed(() => {
   let files = [...props.files];
-  const activeUploader = fileTabItems[activeFileTab.value]?.label;
-  if (activeUploader && activeUploader !== "全部") {
-    files = files.filter((file) => file.uploaderType === activeUploader);
-  }
   if (selectedFileStage.value && selectedFileStage.value !== "全部案件階段") {
     files = files.filter((file) => file.caseStage === selectedFileStage.value);
   }

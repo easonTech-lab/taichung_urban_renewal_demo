@@ -1,12 +1,13 @@
 <template>
   <div class="flex flex-col gap-6">
-    <div v-for="(section, index) in complaintSections" :key="`${section.title}-${index}`" class="rounded-lg bg-white p-6 shadow-sm">
+    <div v-for="(section, index) in sectionsToRender" :key="`${section.title}-${index}`" class="rounded-lg bg-white p-6 shadow-sm">
       <div class="flex items-center justify-between gap-6">
         <div class="flex items-center gap-3">
           <div class="h-7 w-1 rounded bg-primary-600"></div>
           <h2 class="text-2xl font-medium leading-6 text-gray-900">{{ section.title }}</h2>
         </div>
         <ButtonCTA
+          v-if="section.rows.length > 0"
           variant="outline"
           size="xs"
           left-icon="plus"
@@ -16,7 +17,7 @@
           上傳檔案
         </ButtonCTA>
       </div>
-      <div class="mt-6">
+      <div v-if="section.rows.length > 0" class="mt-6">
         <Table :columns="complaintTableColumns" :rows="section.rows" :show-checkbox="false" :borderless="true" class="shadow-none">
           <template #cell-title="{ row }">
             <p class="line-clamp-2 text-base text-gray-800">
@@ -40,17 +41,27 @@
           </template>
         </Table>
       </div>
+      <div v-else class="mt-6">
+        <Empty
+          type="case-management"
+          :message="getEmptyMessage(section.title)"
+          button-text="上傳檔案"
+          @button-click="handleComplaintUpload(section)"
+        />
+      </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
+import { computed } from "vue";
 import Icon from "@/components/atoms/Icon.vue";
+import Empty from "@/components/atoms/Empty.vue";
 import ButtonCTA from "@/components/atoms/ButtonCTA.vue";
 import Table, { type TableColumn } from "@/components/atoms/Table.vue";
 import type { ComplaintSection, ComplaintRow } from "@/types/backend/caseManagement/common/CaseDetailView.d";
 
-defineProps<{
+const props = defineProps<{
   complaintSections: ComplaintSection[];
 }>();
 
@@ -80,8 +91,25 @@ const complaintTableColumns: TableColumn[] = [
   },
 ];
 
+const defaultComplaintSections: ComplaintSection[] = [
+  { title: "書面受理資料", rows: [] },
+  { title: "委員會審議紀錄", rows: [] },
+  { title: "人民或團體陳情意見綜理表", rows: [] },
+];
+
+const sectionsToRender = computed(() => {
+  if (props.complaintSections.length > 0) {
+    return props.complaintSections;
+  }
+  return defaultComplaintSections;
+});
+
 const handleComplaintUpload = (section: ComplaintSection) => {
   emit("upload", section);
+};
+
+const getEmptyMessage = (sectionTitle: string) => {
+  return `尚無${sectionTitle}`;
 };
 
 const handleComplaintDownload = (row: ComplaintRow) => {

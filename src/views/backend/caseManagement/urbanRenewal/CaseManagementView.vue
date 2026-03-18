@@ -12,11 +12,12 @@
             <div class="flex flex-col gap-2">
               <div class="flex items-center gap-3">
                 <div class="h-7 w-1 rounded bg-primary-600"></div>
-                <h2 class="text-2xl font-medium leading-6 text-gray-900">{{ isAdmin ? "案件列表" : "都市更新案件列表" }}</h2>
+                <h2 class="text-2xl font-medium leading-6 text-gray-900">{{ hasAnyCases ? (isAdmin ? "案件列表" : "都市更新案件列表") : "都市更新案件" }}</h2>
               </div>
-              <p v-if="isAdmin" class="pl-4 text-xl font-normal leading-5 text-gray-400">都市更新案件列表</p>
+              <p v-if="isAdmin && hasAnyCases" class="pl-4 text-xl font-normal leading-5 text-gray-400">都市更新案件列表</p>
             </div>
             <ButtonDropdown
+              v-if="hasAnyCases"
               button-text="新增案件"
               :items="addCaseOptions"
               button-variant="outline"
@@ -29,7 +30,7 @@
               @item-click="handleAddCaseOption"
             />
           </div>
-          <div class="flex items-center gap-4">
+          <div v-if="hasAnyCases" class="flex items-center gap-4">
             <div class="w-[160px]">
               <CheckboxDropdown
                 v-model="selectedStages"
@@ -46,7 +47,8 @@
           </div>
         </div>
         <div class="rounded-lg border border-gray-300 bg-white">
-          <Empty v-if="filteredCases.length === 0" type="case-management" @button-click="handleEmptyStateAddCase" />
+          <Empty v-if="!hasAnyCases" type="case-management" message="尚無都市更新案件" @button-click="handleEmptyStateAddCase" />
+          <Empty v-else-if="filteredCases.length === 0" type="search" :show-button="false" class="py-12" />
           <Table v-else :columns="tableColumns" :rows="paginatedCases" :pagination="pagination" :row-clickable="true" @page-change="handlePageChange" @row-click="handleRowClick">
             <template #cell-caseStatus="{ row }">
               <Badge :variant="getStatusVariant(row.caseStatus)" :text="row.caseStatus" />
@@ -173,6 +175,8 @@ const tableColumns: TableColumn[] = [
 ];
 
 // Filtered Cases
+const hasAnyCases = computed(() => allCases.length > 0);
+
 const filteredCases = computed(() => {
   if (selectedStages.value.length === 0) {
     return [];

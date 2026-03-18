@@ -7,9 +7,9 @@
       </div>
 
       <div class="flex flex-wrap gap-10">
-        <div class="flex min-w-[840px] flex-col gap-2 pl-5">
+        <div class="flex min-w-0 w-full flex-col gap-2 pl-5 xl:min-w-[840px]">
           <p class="text-base font-medium text-gray-500">案件名稱</p>
-          <p class="text-lg text-gray-900">{{ caseInfo.name }}</p>
+          <p class="break-words whitespace-normal text-lg text-gray-900">{{ caseInfo.name }}</p>
         </div>
         <div class="flex min-w-[280px] flex-col gap-2 pl-5">
           <p class="text-base font-medium text-gray-500">案件編號</p>
@@ -31,16 +31,16 @@
           <p class="text-base font-medium text-gray-500">E-mail</p>
           <p class="text-lg text-gray-900">{{ caseInfo.email }}</p>
         </div>
-        <div class="flex min-w-[840px] flex-col gap-2 pl-5">
+        <div class="flex min-w-0 w-full flex-col gap-2 pl-5 xl:min-w-[840px]">
           <p class="text-base font-medium text-gray-500">聯絡地址</p>
-          <p class="text-lg text-gray-900">{{ caseInfo.address }}</p>
+          <p class="break-words whitespace-normal text-lg text-gray-900">{{ caseInfo.address }}</p>
         </div>
       </div>
 
-      <div class="flex gap-5">
+      <div class="flex flex-col gap-5 xl:flex-row">
         <button
           type="button"
-          class="flex h-[66px] flex-1 items-center justify-between gap-5 rounded-lg border border-gray-400 bg-white p-5 transition-colors hover:bg-gray-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
+          class="flex min-h-[66px] flex-1 items-center justify-between gap-5 rounded-lg border border-gray-400 bg-white p-5 transition-colors hover:bg-gray-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
           @click="handleCardClick('application-basic')"
         >
           <span class="text-lg font-bold leading-[1.3] text-gray-500">{{ isDangerous ? '公開基本資料' : '申請基本資料' }}</span>
@@ -51,7 +51,7 @@
         </button>
         <button
           type="button"
-          class="flex h-[66px] flex-1 items-center justify-between gap-5 rounded-lg border border-gray-400 bg-white p-5 transition-colors hover:bg-gray-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
+          class="flex min-h-[66px] flex-1 items-center justify-between gap-5 rounded-lg border border-gray-400 bg-white p-5 transition-colors hover:bg-gray-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
           @click="handleCardClick('review-data')"
         >
           <span class="text-lg font-bold leading-[1.3] text-gray-500">{{ isDangerous ? '危老審查獎勵' : '都市更新審議資料表' }}</span>
@@ -62,7 +62,7 @@
         </button>
         <button
           type="button"
-          class="flex h-[66px] flex-1 items-center justify-between gap-5 rounded-lg border border-gray-400 bg-white p-5 transition-colors hover:bg-gray-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
+          class="flex min-h-[66px] flex-1 items-center justify-between gap-5 rounded-lg border border-gray-400 bg-white p-5 transition-colors hover:bg-gray-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
           @click="handleCardClick('floor-area-ratio')"
         >
           <span class="text-lg font-bold leading-[1.3] text-gray-500">{{ isDangerous ? '危老審查獎勵' : '容積獎勵項目及額度' }}</span>
@@ -80,13 +80,13 @@
           <div class="h-7 w-1 rounded bg-primary-600"></div>
           <h2 class="text-2xl font-medium leading-6 text-gray-900">審查幹事列表</h2>
         </div>
-        <div class="flex items-center gap-3">
+        <div v-if="hasOfficerRows" class="flex items-center gap-3">
           <ButtonCTA variant="outline" size="sm" left-icon="secretary" class="h-9 !min-w-0 px-3 py-2 text-sm" @click="handleImportOfficerList">管理名單</ButtonCTA>
           <ButtonCTA variant="outline" size="sm" left-icon="download" class="h-9 !min-w-0 px-3 py-2 text-sm" @click="handleExportOfficerList">匯出名單</ButtonCTA>
         </div>
       </div>
 
-      <div class="rounded-lg border border-gray-300 bg-white">
+      <div v-if="hasOfficerRows" class="rounded-lg border border-gray-300 bg-white">
         <Table :columns="officerTableColumns" :rows="paginatedOfficerRows" :pagination="officerPagination" @page-change="handleOfficerPageChange">
           <template #cell-index="{ rowIndex }">
             <p class="text-base text-gray-500">{{ rowIndex + 1 }}</p>
@@ -105,6 +105,15 @@
           </template>
         </Table>
       </div>
+      <Empty
+        v-else
+        class="!h-auto !gap-6 py-6"
+        type="case"
+        message="尚未導入審查幹事名單"
+        button-text="導入幹事名單"
+        :show-button="true"
+        @button-click="handleImportOfficerList"
+      />
     </div>
   </div>
 
@@ -187,11 +196,13 @@
 import { ref, computed, watch } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import { useTablePagination } from "@/composables/useTablePagination";
+import { useFormUnsavedCheck } from "@/composables/useFormUnsavedCheck";
 import Icon from "@/components/atoms/Icon.vue";
 import Input from "@/components/atoms/Input.vue";
 import Toast from "@/components/atoms/Toast.vue";
 import Drawer from "@/components/atoms/Drawer.vue";
 import ButtonCTA from "@/components/atoms/ButtonCTA.vue";
+import Empty from "@/components/atoms/Empty.vue";
 import ConfirmDeleteModal from "@/components/molecules/ConfirmDeleteModal.vue";
 import Table, { type TableColumn } from "@/components/atoms/Table.vue";
 import InputDropdown, { type InputDropdownItem } from "@/components/atoms/InputDropdown.vue";
@@ -270,6 +281,7 @@ const handleCardClick = (cardType: string) => {
       from: route.query?.from as string | undefined,
       admin: route.query?.admin as string | undefined,
       caseType: route.query?.caseType as string | undefined,
+      returnTo: route.fullPath,
     };
     if (isDangerous.value) {
       router.push({ path: "/case-management-dangerous/add", query });
@@ -286,6 +298,7 @@ const handleCardClick = (cardType: string) => {
       from: route.query?.from as string | undefined,
       admin: route.query?.admin as string | undefined,
       caseType: route.query?.caseType as string | undefined,
+      returnTo: route.fullPath,
     };
     if (isDangerous.value) {
       router.push({ path: "/case-management-dangerous/add/application", query });
@@ -316,13 +329,20 @@ const {
   rows: computed(() => props.officerTableRows),
   pageSize: 10,
 });
+const hasOfficerRows = computed(() => props.officerTableRows.length > 0);
 
 const localOfficerList = ref<OfficerItem[]>(props.officerList.map((item) => ({ ...item })));
-const originalOfficerList = ref<OfficerItem[]>([]);
 const toastContext = ref<"officerList" | "editInfo">("editInfo");
 const showCancelToast = ref(false);
 const showSaveToast = ref(false);
-const hasOfficerChanges = computed(() => JSON.stringify(localOfficerList.value) !== JSON.stringify(originalOfficerList.value));
+const normalizeOfficerList = (items: OfficerItem[]) =>
+  items
+    .map((item) => ({
+      selectedOfficer: item.selectedOfficer.trim(),
+    }))
+    .filter((item) => item.selectedOfficer !== "");
+const buildOfficerListSnapshot = () => JSON.stringify(normalizeOfficerList(localOfficerList.value));
+const { hasUnsavedChanges: hasOfficerChanges, captureInitial: captureOfficerListInitial } = useFormUnsavedCheck(buildOfficerListSnapshot);
 
 const allAvailableOfficers: InputDropdownItem[] = [
   { label: "陳傑瑞" },
@@ -350,7 +370,7 @@ const getAvailableOfficersForIndex = (index: number) => {
 const openOfficerListDrawer = () => {
   drawerMode.value = "officerList";
   localOfficerList.value = props.officerList.map((item) => ({ ...item }));
-  originalOfficerList.value = localOfficerList.value.map((item) => ({ ...item }));
+  captureOfficerListInitial();
   isDrawerOpen.value = true;
 };
 
@@ -358,7 +378,7 @@ const handleImportOfficerList = () => {
   localOfficerList.value = props.officerTableRows.map((row) => ({
     selectedOfficer: row.name,
   }));
-  originalOfficerList.value = localOfficerList.value.map((item) => ({ ...item }));
+  captureOfficerListInitial();
   drawerMode.value = "officerList";
   isDrawerOpen.value = true;
 };
@@ -410,7 +430,7 @@ const handleSave = () => {
   handleCloseToast();
   showSaveToast.value = true;
   emit("save-officer-list", localOfficerList.value.map((item) => ({ ...item })));
-  originalOfficerList.value = localOfficerList.value.map((item) => ({ ...item }));
+  captureOfficerListInitial();
   isDrawerOpen.value = false;
 };
 

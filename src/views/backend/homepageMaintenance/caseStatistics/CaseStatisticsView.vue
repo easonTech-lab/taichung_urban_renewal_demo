@@ -12,9 +12,9 @@
             <div class="h-7 w-1 rounded bg-primary-600"></div>
             <h2 class="text-2xl font-medium leading-6 text-gray-900">歷年案件統計</h2>
           </div>
-          <ButtonCTA variant="outline" size="sm" left-icon="plus" @click="handleAddYear"> 新增年度 </ButtonCTA>
+          <ButtonCTA v-if="hasAnyStatistics" variant="outline" size="sm" left-icon="plus" @click="handleAddYear"> 新增年度 </ButtonCTA>
         </div>
-        <div class="flex flex-col gap-6">
+        <div v-if="hasAnyStatistics" class="flex flex-col gap-6">
           <Tabs :items="tabItems" :model-value="activeTab" @tab-click="handleTabClick" />
           <div class="relative z-10 flex flex-wrap items-center gap-3 pb-2">
             <div class="flex items-center gap-2">
@@ -35,9 +35,9 @@
             </div>
           </div>
         </div>
-        <div class="overflow-x-auto">
+        <div v-if="hasAnyStatistics" class="overflow-x-auto">
           <div class="min-w-[460px] rounded-lg border border-gray-300 bg-white">
-          <Table :columns="tableColumns" :rows="paginatedStatistics" :pagination="pagination" @page-change="handlePageChange">
+          <Table v-if="filteredStatistics.length > 0" :columns="tableColumns" :rows="paginatedStatistics" :pagination="pagination" @page-change="handlePageChange">
             <template #cell-growthRate="{ row }">
               <Badge :variant="getGrowthRateVariant(row.growthRate)" :text="row.growthRate" />
             </template>
@@ -48,7 +48,11 @@
               </div>
             </template>
           </Table>
+          <Empty v-else type="search" :show-button="false" class="py-12" />
           </div>
+        </div>
+        <div v-else class="rounded-lg border border-gray-300 bg-white">
+          <Empty type="case-management" message="尚未新增統計" button-text="新增統計" @button-click="handleAddYear" />
         </div>
       </div>
     </div>
@@ -74,6 +78,7 @@ import Icon from "@/components/atoms/Icon.vue";
 import Badge from "@/components/atoms/Badge.vue";
 import Toast from "@/components/atoms/Toast.vue";
 import ButtonCTA from "@/components/atoms/ButtonCTA.vue";
+import Empty from "@/components/atoms/Empty.vue";
 import Breadcrumb from "@/components/atoms/Breadcrumb.vue";
 import SidebarSection from "@/components/sections/backend/SidebarSection.vue";
 import ConfirmDeleteModal from "@/components/molecules/ConfirmDeleteModal.vue";
@@ -146,6 +151,8 @@ const allStatistics: CaseStatisticsItem[] = [
   { index: 9, year: "112", caseCategory: "危老案件", annualCount: 22, cumulativeCount: 22, growthRate: "持平" },
   { index: 10, year: "112", caseCategory: "危老案件", annualCount: 22, cumulativeCount: 22, growthRate: "持平" },
 ];
+
+const hasAnyStatistics = computed(() => allStatistics.length > 0);
 
 // Table Columns
 const tableColumns: TableColumn[] = [
