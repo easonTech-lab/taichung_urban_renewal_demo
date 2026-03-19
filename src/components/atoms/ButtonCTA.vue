@@ -190,7 +190,7 @@ const sizeClasses = computed(() => {
 
 const textButtonClasses = computed(() => {
   if (props.disabled) {
-    return "opacity-50 cursor-not-allowed";
+    return "cursor-not-allowed text-gray-500";
   }
   return "hover:text-primary-800";
 });
@@ -257,9 +257,9 @@ const getDisabledClasses = () => {
   if (props.variant === "none") {
     return "bg-transparent text-gray-500";
   }
-  if (props.outline) {
-    return "border-gray-500 text-white bg-gray-500";
+  if (props.variant === "gray") {
+    return props.outline ? "border-gray-500 bg-gray-500 text-white" : "bg-gray-500 text-white";
   }
-  return "bg-gray-500 text-white";
+  return "border-gray-500 bg-gray-500 text-white";
 };
 </script>

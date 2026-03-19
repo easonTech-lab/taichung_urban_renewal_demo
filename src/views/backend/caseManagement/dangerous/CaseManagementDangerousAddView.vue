@@ -102,10 +102,43 @@
       </div>
 
       <div class="flex items-center justify-center gap-6">
-        <ButtonCTA variant="textPlain" size="xl" :to="{ path: '/case-management-dangerous' }">上一步</ButtonCTA>
-        <ButtonCTA variant="outline" size="xl">暫存</ButtonCTA>
-        <ButtonCTA variant="primary" size="xl" :to="{ path: '/case-management-dangerous/add/application' }">下一步</ButtonCTA>
+        <ButtonCTA variant="outline" size="xl" @click="handleDraft">暫存</ButtonCTA>
+        <ButtonCTA
+          :variant="canGoNextToApplication ? 'primary' : 'gray'"
+          size="xl"
+          :to="canGoNextToApplication ? { path: '/case-management-dangerous/add/application' } : undefined"
+          :disabled="!canGoNextToApplication"
+        >
+          下一步
+        </ButtonCTA>
       </div>
+      <Modal v-model="showDraftNameWarningModal" size="md" :static="false" :show-close-button="false" close-action="emit" backdrop-class="bg-gray-600/80">
+        <template #header>
+          <div class="flex w-full items-center justify-end px-4 pt-4">
+            <button
+              type="button"
+              class="flex h-6 w-6 items-center justify-center text-gray-400 hover:text-gray-500"
+              aria-label="關閉"
+              @click="showDraftNameWarningModal = false"
+            >
+              <Icon name="close" :size="20" aria-hidden="true" />
+            </button>
+          </div>
+        </template>
+        <template #body>
+          <div class="flex w-full flex-col items-center gap-4 px-6 py-5">
+            <div class="flex h-[42px] w-[42px] items-center justify-center rounded-full bg-gray-400 text-[28px] font-medium leading-none text-white">!</div>
+            <p class="w-[311px] text-center text-base font-normal leading-[1.5] text-gray-600">請先填寫案件名稱，才能暫存案件</p>
+          </div>
+        </template>
+        <template #footer>
+          <div class="flex w-full items-center justify-center px-6 pb-6 pt-0">
+            <ButtonCTA variant="primary" size="xs" class="h-[37px] w-[120px] px-3 py-2 text-sm font-medium leading-[1.5]" @click="showDraftNameWarningModal = false">
+              確認
+            </ButtonCTA>
+          </div>
+        </template>
+      </Modal>
       <input ref="renderInputRef" type="file" accept="image/*" multiple class="hidden" @change="handleImageUpload('render', $event)" />
       <input ref="demolitionInputRef" type="file" accept="image/*" multiple class="hidden" @change="handleImageUpload('demolition', $event)" />
     </div>
@@ -113,8 +146,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { computed, ref } from "vue";
+import { useRouter } from "vue-router";
+import Icon from "@/components/atoms/Icon.vue";
 import Input from "@/components/atoms/Input.vue";
+import Modal from "@/components/atoms/Modal.vue";
 import ButtonCTA from "@/components/atoms/ButtonCTA.vue";
 import Breadcrumb from "@/components/atoms/Breadcrumb.vue";
 import ImageCard from "@/components/molecules/ImageCard.vue";
@@ -126,6 +162,7 @@ const breadcrumbItems = [
   { label: "危老重建案件", to: "/case-management-dangerous" },
   { label: "新增危老重建案件" },
 ];
+const router = useRouter();
 
 const formData = ref({
   caseName: "",
@@ -146,12 +183,51 @@ const formData = ref({
   renderImages: [] as string[],
   demolitionImages: [] as string[],
 });
+const showDraftNameWarningModal = ref(false);
+const hasTextValue = (value: string) => value.trim() !== "";
+const canGoNextToApplication = computed(() => {
+  if (!hasTextValue(formData.value.caseName)) {
+    return false;
+  }
+
+  const hasValidBaseLandEntries = formData.value.baseLandEntries.length > 0 &&
+    formData.value.baseLandEntries.every((entry) =>
+      [entry.zone, entry.legalCoverage, entry.baseArea, entry.actualCoverage].every(hasTextValue)
+    );
+
+  if (!hasValidBaseLandEntries) {
+    return false;
+  }
+
+  return [
+    formData.value.totalFloorArea,
+    formData.value.buildingFloors,
+    formData.value.actualFAR,
+    formData.value.buildingHeight,
+    formData.value.carParking,
+    formData.value.motorParking,
+  ].every(hasTextValue);
+});
 
 const renderInputRef = ref<HTMLInputElement | null>(null);
 const demolitionInputRef = ref<HTMLInputElement | null>(null);
 
 const handleSidebarItemSelect = (itemName: string) => {
   console.log("Selected sidebar item:", itemName);
+};
+
+const handleDraft = () => {
+  if (!hasTextValue(formData.value.caseName)) {
+    showDraftNameWarningModal.value = true;
+    return;
+  }
+  console.log("Draft dangerous case:", formData.value);
+  router.push({
+    name: "case-management-dangerous",
+    query: {
+      toast: "draft-success",
+    },
+  });
 };
 
 const addBaseLandEntry = () => {

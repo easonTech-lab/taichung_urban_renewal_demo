@@ -34,7 +34,7 @@
       </div>
       <div class="flex items-center justify-center gap-4">
         <ButtonCTA variant="outline" size="xl" @click="handleGoBack"> 取消 </ButtonCTA>
-        <ButtonCTA variant="primary" size="xl" :disabled="isSaveDisabled" @click="handleSave"> 儲存 </ButtonCTA>
+        <ButtonCTA :variant="canSave ? 'primary' : 'gray'" size="xl" :disabled="!canSave" @click="handleSave"> 儲存 </ButtonCTA>
       </div>
     </div>
   </div>
@@ -57,6 +57,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from "vue";
 import { useRouter, useRoute } from "vue-router";
+import { useFormUnsavedCheck } from "@/composables/useFormUnsavedCheck";
 import Icon from "@/components/atoms/Icon.vue";
 import Input from "@/components/atoms/Input.vue";
 import Modal from "@/components/atoms/Modal.vue";
@@ -91,6 +92,14 @@ const categoryOptions: InputDropdownItem[] = [
 const isSaveDisabled = computed(() => {
   return !selectedCategory.value || !yearValue.value.trim() || !annualCount.value.trim();
 });
+const buildFormSnapshot = () =>
+  JSON.stringify({
+    category: selectedCategory.value.trim(),
+    year: yearValue.value.trim(),
+    annualCount: annualCount.value.trim(),
+  });
+const { hasUnsavedChanges, captureInitial } = useFormUnsavedCheck(buildFormSnapshot);
+const canSave = computed(() => !isSaveDisabled.value && hasUnsavedChanges.value);
 
 // Case Data (從路由參數或查詢參數獲取)
 const caseData = ref({
@@ -141,6 +150,7 @@ const handleSave = () => {
       msg: isEditMode.value ? "儲存成功" : "新增成功",
     },
   });
+  captureInitial();
 };
 
 const handleCategoryChange = (item: InputDropdownItem) => {
@@ -170,5 +180,6 @@ onMounted(() => {
     yearValue.value = "";
     annualCount.value = "";
   }
+  captureInitial();
 });
 </script>

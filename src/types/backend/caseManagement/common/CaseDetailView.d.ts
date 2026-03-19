@@ -15,6 +15,7 @@ export interface ProgressStage {
 export type DrawerMode = "officerList" | "editInfo";
 
 export interface ComplaintRow {
+  id: string;
   title: string;
   uploadedAt: string;
 }

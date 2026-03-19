@@ -451,15 +451,48 @@
           <ButtonCTA variant="primary" size="xl" :disabled="!hasBusinessPlanChanges">儲存</ButtonCTA>
         </template>
         <template v-else-if="activeTab === 0">
-          <ButtonCTA variant="outline" size="xl">暫存</ButtonCTA>
-          <ButtonCTA variant="primary" size="xl" :to="{ path: '/case-management/add/review-table' }">下一步</ButtonCTA>
+          <ButtonCTA variant="outline" size="xl" @click="handleDraft">暫存</ButtonCTA>
+          <ButtonCTA
+            :variant="canGoNextToReviewTable ? 'primary' : 'gray'"
+            size="xl"
+            :to="canGoNextToReviewTable ? { path: '/case-management/add/review-table' } : undefined"
+            :disabled="!canGoNextToReviewTable"
+          >
+            下一步
+          </ButtonCTA>
         </template>
         <template v-else>
-          <ButtonCTA variant="textPlain" size="xl">上一步</ButtonCTA>
-          <ButtonCTA variant="outline" size="xl">暫存</ButtonCTA>
+          <ButtonCTA variant="outline" size="xl" @click="handleDraft">暫存</ButtonCTA>
           <ButtonCTA variant="gray" size="xl" :to="{ path: '/case-management/add/review-table' }" :disabled="true">下一步</ButtonCTA>
         </template>
       </div>
+      <Modal v-model="showDraftNameWarningModal" size="md" :static="false" :show-close-button="false" close-action="emit" backdrop-class="bg-gray-600/80">
+        <template #header>
+          <div class="flex w-full items-center justify-end px-4 pt-4">
+            <button
+              type="button"
+              class="flex h-6 w-6 items-center justify-center text-gray-400 hover:text-gray-500"
+              aria-label="關閉"
+              @click="showDraftNameWarningModal = false"
+            >
+              <Icon name="close" :size="20" aria-hidden="true" />
+            </button>
+          </div>
+        </template>
+        <template #body>
+          <div class="flex w-full flex-col items-center gap-4 px-6 py-5">
+            <div class="flex h-[42px] w-[42px] items-center justify-center rounded-full bg-gray-400 text-[28px] font-medium leading-none text-white">!</div>
+            <p class="w-[311px] text-center text-base font-normal leading-[1.5] text-gray-600">請先填寫案件名稱，才能暫存案件</p>
+          </div>
+        </template>
+        <template #footer>
+          <div class="flex w-full items-center justify-center px-6 pb-6 pt-0">
+            <ButtonCTA variant="primary" size="xs" class="h-[37px] w-[120px] px-3 py-2 text-sm font-medium leading-[1.5]" @click="showDraftNameWarningModal = false">
+              確認
+            </ButtonCTA>
+          </div>
+        </template>
+      </Modal>
       <input ref="renderInputRef" type="file" accept="image/*" multiple class="hidden" @change="handleImageUpload('render', $event)" />
       <input ref="demolitionInputRef" type="file" accept="image/*" multiple class="hidden" @change="handleImageUpload('demolition', $event)" />
     </div>
@@ -468,9 +501,11 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from "vue";
-import { useRoute } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import { useFormUnsavedCheck } from "@/composables/useFormUnsavedCheck";
+import Icon from "@/components/atoms/Icon.vue";
 import Input from "@/components/atoms/Input.vue";
+import Modal from "@/components/atoms/Modal.vue";
 import Radio from "@/components/atoms/Radio.vue";
 import RadioGroup from "@/components/atoms/RadioGroup.vue";
 import Checkbox from "@/components/atoms/Checkbox.vue";
@@ -487,6 +522,7 @@ import InputDropdown, { type InputDropdownItem } from "@/components/atoms/InputD
 /** 從案件詳情按鈕進入為編輯，從新增流程進入為新增 */
 const isFromCaseDetail = ref(false);
 const route = useRoute();
+const router = useRouter();
 const cancelTarget = computed(() => {
   const returnTo = route.query?.returnTo;
   if (typeof returnTo === "string" && returnTo.trim()) {
@@ -504,6 +540,7 @@ const breadcrumbItems = computed(() => [
 
 const tabItems: TabItem[] = [{ label: "申請基本資料" }, { label: "公開基本資料" }];
 const activeTab = ref(0);
+const showDraftNameWarningModal = ref(false);
 
 const ordinanceOptions: InputDropdownItem[] = [];
 const indicatorStandardOptions: InputDropdownItem[] = [];
@@ -585,6 +622,71 @@ const buildBusinessPlanSnapshot = () =>
   });
 
 const { hasUnsavedChanges: hasBusinessPlanChanges, captureInitial: captureBusinessPlanInitial } = useFormUnsavedCheck(buildBusinessPlanSnapshot, isFromCaseDetail);
+const hasTextValue = (value: string) => value.trim() !== "";
+const canGoNextToReviewTable = computed(() => {
+  const requiredTextFields = [
+    formData.value.caseName,
+    formData.value.applicantName,
+    formData.value.applicantId,
+    formData.value.applicantPhone,
+    formData.value.applicantAddress,
+    formData.value.applicantEmail,
+    formData.value.entrustedUnit,
+    formData.value.entrustedId,
+    formData.value.entrustedPhone,
+    formData.value.entrustedAddress,
+    formData.value.entrustedEmail,
+    formData.value.unitLocation,
+    formData.value.unitScope,
+    formData.value.unitArea,
+    formData.value.landUseZone,
+    formData.value.landOwners,
+    formData.value.legalBuildingOwners,
+    formData.value.legalBuildingCount,
+    formData.value.illegalBuildingCount,
+    formData.value.legalBuildingArea,
+    formData.value.illegalBuildingArea,
+    formData.value.ordinance,
+    formData.value.indicatorVersion,
+    formData.value.indicatorStandard1,
+    formData.value.indicatorStandard2,
+    formData.value.indicatorStandard3,
+    formData.value.neighborConsentRate,
+    formData.value.internalConsentRate,
+    formData.value.oddLot,
+    formData.value.historicBuilding,
+    formData.value.publicLand,
+    formData.value.unopenedRoad,
+    formData.value.narrowRoad,
+    formData.value.note,
+  ];
+
+  if (!formData.value.applyDate || !formData.value.hearingDate) {
+    return false;
+  }
+
+  if (!requiredTextFields.every(hasTextValue)) {
+    return false;
+  }
+
+  if (formData.value.publicLand === "yes" && !hasTextValue(formData.value.publicLandArea)) {
+    return false;
+  }
+
+  if (formData.value.unopenedRoad === "yes" && !hasTextValue(formData.value.unopenedRoadCount)) {
+    return false;
+  }
+
+  if (formData.value.narrowRoad === "yes" && !hasTextValue(formData.value.narrowRoadLength)) {
+    return false;
+  }
+
+  return true;
+});
+const canDraftCurrentTab = computed(() => {
+  const caseName = activeTab.value === 0 ? formData.value.caseName : publicForm.value.caseName;
+  return hasTextValue(caseName);
+});
 
 /** 解析案件詳情頁傳入的申請日期（例：114/10/20）為 Date */
 function parseApplyDateFromCaseInfo(value: string): Date | null {
@@ -635,6 +737,20 @@ onMounted(() => {
 
 const handleSidebarItemSelect = (itemName: string) => {
   console.log("Selected sidebar item:", itemName);
+};
+
+const handleDraft = () => {
+  if (!canDraftCurrentTab.value) {
+    showDraftNameWarningModal.value = true;
+    return;
+  }
+  console.log("Draft business plan:", activeTab.value === 0 ? formData.value : publicForm.value);
+  router.push({
+    path: "/case-management",
+    query: {
+      toast: "draft-success",
+    },
+  });
 };
 
 type StringFieldKey = {

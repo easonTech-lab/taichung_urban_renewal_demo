@@ -180,7 +180,7 @@
       <div class="flex items-center justify-center gap-6">
         <template v-if="isFromCaseDetail">
           <ButtonCTA variant="outline" size="xl" :to="cancelTarget">取消</ButtonCTA>
-          <ButtonCTA variant="primary" size="xl">儲存</ButtonCTA>
+          <ButtonCTA :variant="hasDangerousApplicationChanges ? 'primary' : 'gray'" size="xl" :disabled="!hasDangerousApplicationChanges">儲存</ButtonCTA>
         </template>
         <template v-else>
           <ButtonCTA variant="textPlain" size="xl" :to="{ path: '/case-management-dangerous/add' }">上一步</ButtonCTA>
@@ -195,6 +195,7 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from "vue";
 import { useRoute } from "vue-router";
+import { useFormUnsavedCheck } from "@/composables/useFormUnsavedCheck";
 import Input from "@/components/atoms/Input.vue";
 import Radio from "@/components/atoms/Radio.vue";
 import DatePicker from "@/components/atoms/DatePicker.vue";
@@ -262,6 +263,42 @@ const formData = ref<DangerousApplicationFormData>({
   designFAR: "",
   psercbId: "",
 });
+const buildDangerousApplicationSnapshot = () =>
+  JSON.stringify({
+    ...formData.value,
+    builderType: formData.value.builderType.trim(),
+    designerName: formData.value.designerName.trim(),
+    licenseNumber: formData.value.licenseNumber.trim(),
+    officeName: formData.value.officeName.trim(),
+    businessScope: formData.value.businessScope.trim(),
+    officePhone: formData.value.officePhone.trim(),
+    officeFax: formData.value.officeFax.trim(),
+    officeAddress: formData.value.officeAddress.trim(),
+    district: formData.value.district.trim(),
+    lotNumber: formData.value.lotNumber.trim(),
+    permitNumber: formData.value.permitNumber.trim(),
+    legalCoverageRatio: formData.value.legalCoverageRatio.trim(),
+    legalFAR: formData.value.legalFAR.trim(),
+    totalSiteArea: formData.value.totalSiteArea.trim(),
+    landUseZone: formData.value.landUseZone.trim(),
+    siteOfficeAddress: formData.value.siteOfficeAddress.trim(),
+    condition: formData.value.condition.trim(),
+    landOwner: formData.value.landOwner.trim(),
+    buildingOwner: formData.value.buildingOwner.trim(),
+    buildingAddress: formData.value.buildingAddress.trim(),
+    buildingConditionType: formData.value.buildingConditionType.trim(),
+    actualUsage: formData.value.actualUsage.trim(),
+    preRebuildBuildingCount: formData.value.preRebuildBuildingCount.trim(),
+    preRebuildFloorCount: formData.value.preRebuildFloorCount.trim(),
+    preRebuildHouseholdCount: formData.value.preRebuildHouseholdCount.trim(),
+    postRebuildBuildingCount: formData.value.postRebuildBuildingCount.trim(),
+    postRebuildFloorCount: formData.value.postRebuildFloorCount.trim(),
+    postRebuildHouseholdCount: formData.value.postRebuildHouseholdCount.trim(),
+    designFAR: formData.value.designFAR.trim(),
+    psercbId: formData.value.psercbId.trim(),
+    buildingLineDate: formData.value.buildingLineDate ? new Date(formData.value.buildingLineDate).toISOString() : null,
+  });
+const { hasUnsavedChanges: hasDangerousApplicationChanges, captureInitial: captureDangerousApplicationInitial } = useFormUnsavedCheck(buildDangerousApplicationSnapshot, isFromCaseDetail);
 
 const STORAGE_KEY_CASE_FOR_APPLICATION = "caseDetailForApplication";
 
@@ -286,6 +323,7 @@ onMounted(() => {
   } catch (_) {
     // ignore
   }
+  captureDangerousApplicationInitial();
 });
 
 const handleSidebarItemSelect = (itemName: string) => {

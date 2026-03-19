@@ -59,7 +59,7 @@ const props = withDefaults(
     backdropClosable?: boolean;
   }>(),
   {
-    backdropClosable: true,
+    backdropClosable: false,
   }
 );
 

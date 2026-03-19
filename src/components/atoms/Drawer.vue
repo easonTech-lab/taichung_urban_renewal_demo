@@ -59,6 +59,7 @@ const props = withDefaults(
     showCloseButton?: boolean; // 是否顯示關閉按鈕
     closeButtonAriaLabel?: string; // 關閉按鈕的 aria-label
     closeIcon?: string; // 關閉按鈕的圖標名稱
+    closeAction?: "model" | "emit"; // 關閉時直接更新 model 或僅發出 close 事件
     static?: boolean; // 是否為靜態 Drawer（點擊 backdrop 不關閉）
     width?: "sm" | "md" | "lg" | "xl"; // Drawer 寬度
   }>(),
@@ -67,6 +68,7 @@ const props = withDefaults(
     showCloseButton: true,
     closeButtonAriaLabel: "關閉選單",
     closeIcon: "close",
+    closeAction: "model",
     static: false,
     logoAlt: "Logo",
     width: "md",
@@ -94,7 +96,9 @@ const widthClasses = computed(() => {
 
 // 處理關閉
 const handleClose = () => {
-  emit("update:modelValue", false);
+  if (props.closeAction === "model") {
+    emit("update:modelValue", false);
+  }
   emit("close");
 };
 

@@ -9,88 +9,100 @@
           <h1 class="text-3xl font-bold leading-[30px] text-gray-900">{{ isEditMode ? "編輯承辦帳號" : "新增承辦帳號" }}</h1>
         </div>
       </div>
-      <div class="flex flex-col gap-10 rounded-lg bg-white p-6 shadow-sm">
-        <div class="flex flex-col gap-2">
-          <div class="flex items-center gap-3">
-            <div class="h-7 w-1 rounded bg-primary-600"></div>
-            <h2 class="text-2xl font-medium leading-6 text-gray-900">標題</h2>
-          </div>
-        </div>
-        <div class="flex flex-col gap-6">
-          <Input v-model="formData.name" label="承辦姓名" placeholder="請輸入承辦姓名" size="lg" required container-class="w-[364px]" />
-          <Input
-            v-model="formData.email"
-            label="公務信箱"
-            :placeholder="isEditMode ? '' : '請輸入公務信箱'"
-            size="lg"
-            required
-            :disabled="isEditMode"
-            container-class="w-[364px]"
-          />
-          <InputDropdown
-            label="科室"
-            :button-text="formData.department"
-            placeholder="選擇科室別"
-            :items="departmentOptions"
-            required
-            container-class="w-[364px]"
-            @item-click="handleDepartmentSelect"
-          />
-          <InputDropdown
-            label="組別"
-            :button-text="formData.group"
-            placeholder="請選擇組別"
-            :items="groupOptions"
-            required
-            container-class="w-[364px]"
-            @item-click="handleGroupSelect"
-          />
+      <div class="flex flex-col gap-6">
+        <div class="flex flex-col gap-10 rounded-lg bg-white p-6 shadow-sm">
           <div class="flex flex-col gap-2">
-            <div class="flex items-start gap-2">
-              <label class="text-base font-medium text-gray-900">權限管理</label>
-              <span class="pt-1 text-xs leading-none text-red-500">*</span>
+            <div class="flex items-center gap-3">
+              <div class="h-7 w-1 rounded bg-primary-600"></div>
+              <h2 class="text-2xl font-medium leading-6 text-gray-900">{{ isEditMode ? "編輯承辦帳號" : "新增承辦帳號" }}</h2>
             </div>
-            <div class="flex w-[922px] flex-col gap-6 rounded-lg border border-gray-300 p-6">
-              <div class="flex flex-col gap-4">
-                <div class="flex items-center justify-between">
-                  <Checkbox
-                    v-model="selectAllPermissions"
-                    :indeterminate="isIndeterminate"
-                    label="開通所有權限"
-                    label-class="text-sm font-medium"
-                    @update:model-value="handleSelectAllPermissions"
-                  />
-                </div>
-                <div class="h-px bg-gray-300"></div>
+          </div>
+          <div class="flex flex-col gap-6">
+            <Input v-model="formData.name" label="承辦姓名" placeholder="請輸入承辦姓名" size="lg" required container-class="w-[364px]" />
+            <Input
+              v-model="formData.email"
+              label="公務信箱"
+              :placeholder="isEditMode ? '' : '請輸入公務信箱'"
+              size="lg"
+              required
+              :disabled="isEditMode"
+              container-class="w-[364px]"
+            />
+            <InputDropdown
+              label="科室"
+              :button-text="formData.department"
+              placeholder="選擇科室別"
+              :items="departmentOptions"
+              required
+              container-class="w-[364px]"
+              @item-click="handleDepartmentSelect"
+            />
+            <InputDropdown
+              label="組別"
+              :button-text="formData.group"
+              placeholder="請選擇組別"
+              :items="groupOptions"
+              required
+              container-class="w-[364px]"
+              @item-click="handleGroupSelect"
+            />
+            <div class="flex flex-col gap-2">
+              <div class="flex items-start gap-2">
+                <label class="text-base font-medium text-gray-900">權限管理</label>
+                <span class="pt-1 text-xs leading-none text-red-500">*</span>
               </div>
-              <div class="flex flex-col gap-4">
-                <div v-for="permissionGroup in permissionGroups" :key="permissionGroup.key" class="flex flex-col gap-4">
-                  <p class="text-base font-medium text-gray-800">{{ permissionGroup.title }}</p>
-                  <div class="flex flex-col gap-4">
+              <div class="flex w-[922px] flex-col gap-6 rounded-lg border border-gray-300 p-6">
+                <div class="flex flex-col gap-4">
+                  <div class="flex items-center justify-between">
                     <Checkbox
-                      v-for="(func, index) in permissionGroup.functions"
-                      :key="`${permissionGroup.key}-${index}`"
-                      :model-value="(formData.permissions as any)[permissionGroup.key][func.key]"
-                      @update:model-value="
-                        (value: boolean) => {
-                          (formData.permissions as any)[permissionGroup.key][func.key] = value;
-                        }
-                      "
-                      :label="func.label"
+                      v-model="selectAllPermissions"
+                      :indeterminate="isIndeterminate"
+                      label="開通所有權限"
                       label-class="text-sm font-medium"
+                      @update:model-value="handleSelectAllPermissions"
                     />
+                  </div>
+                  <div class="h-px bg-gray-300"></div>
+                </div>
+                <div class="flex flex-col gap-4">
+                  <div v-for="permissionGroup in permissionGroups" :key="permissionGroup.key" class="flex flex-col gap-4">
+                    <p class="text-base font-medium text-gray-800">{{ permissionGroup.title }}</p>
+                    <div class="flex flex-col gap-4">
+                      <Checkbox
+                        v-for="(func, index) in permissionGroup.functions"
+                        :key="`${permissionGroup.key}-${index}`"
+                        :model-value="(formData.permissions as any)[permissionGroup.key][func.key]"
+                        @update:model-value="
+                          (value: boolean) => {
+                            (formData.permissions as any)[permissionGroup.key][func.key] = value;
+                          }
+                        "
+                        :label="func.label"
+                        label-class="text-sm font-medium"
+                      />
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
+            <Input v-model="formData.supervisorEmail" label="授權主管信箱" placeholder="請輸入授權主管信箱" size="lg" required container-class="w-[364px]" />
+            <div class="h-px w-[958px] bg-gray-300"></div>
+            <Switch v-model="formData.status" label="帳號狀態" show-text on-text="啟用" off-text="停權" required label-position="horizontal" />
           </div>
-          <Input v-model="formData.supervisorEmail" label="授權主管信箱" placeholder="請輸入授權主管信箱" size="lg" required container-class="w-[364px]" />
-          <div class="h-px w-[958px] bg-gray-300"></div>
-          <Switch v-model="formData.status" label="帳號狀態" show-text on-text="上架" off-text="下架" required label-position="horizontal" />
         </div>
-        <div class="flex gap-4">
-          <ButtonCTA variant="outline" size="xl" @click="handleSaveDraft">暫存</ButtonCTA>
-          <ButtonCTA variant="gray" size="xl" @click="handleSave">{{ isEditMode ? "儲存" : "建立" }}</ButtonCTA>
+        <div class="flex justify-center gap-4">
+          <ButtonCTA variant="outline" size="xl" class="w-[124px]" @click="handleCancel">
+            取消
+          </ButtonCTA>
+          <ButtonCTA
+            :variant="canSubmit ? 'primary' : 'gray'"
+            size="xl"
+            class="w-[124px]"
+            :disabled="!canSubmit"
+            @click="handleSave"
+          >
+            {{ isEditMode ? "儲存" : "建立" }}
+          </ButtonCTA>
         </div>
       </div>
     </div>
@@ -100,6 +112,7 @@
 <script setup lang="ts">
 import { useRouter, useRoute } from "vue-router";
 import { ref, watch, computed, onMounted } from "vue";
+import { useFormUnsavedCheck } from "@/composables/useFormUnsavedCheck";
 import Input from "@/components/atoms/Input.vue";
 import Switch from "@/components/atoms/Switch.vue";
 import Checkbox from "@/components/atoms/Checkbox.vue";
@@ -189,6 +202,31 @@ const groupOptions = [
   { label: "申請者" },
 ];
 
+const buildFormSnapshot = () =>
+  JSON.stringify({
+    name: formData.value.name.trim(),
+    email: formData.value.email.trim(),
+    department: formData.value.department.trim(),
+    group: formData.value.group.trim(),
+    permissions: formData.value.permissions,
+    supervisorEmail: formData.value.supervisorEmail.trim(),
+    status: formData.value.status,
+  });
+const { hasUnsavedChanges: hasFormChanges, captureInitial: captureFormInitial } = useFormUnsavedCheck(buildFormSnapshot);
+const hasAnyPermissionSelected = computed(() =>
+  permissionGroups.some((group) => group.functions.some((func) => (formData.value.permissions as any)[group.key][func.key]))
+);
+const hasRequiredFields = computed(
+  () =>
+    formData.value.name.trim() !== "" &&
+    formData.value.email.trim() !== "" &&
+    formData.value.department.trim() !== "" &&
+    formData.value.group.trim() !== "" &&
+    formData.value.supervisorEmail.trim() !== "" &&
+    hasAnyPermissionSelected.value
+);
+const canSubmit = computed(() => hasFormChanges.value && hasRequiredFields.value);
+
 // Event Handlers
 const handleSidebarItemSelect = (itemName: string) => {
   console.log("Selected sidebar item:", itemName);
@@ -249,9 +287,8 @@ watch(
   { deep: true }
 );
 
-const handleSaveDraft = () => {
-  console.log("Save draft:", formData.value);
-  // TODO: Implement save draft logic
+const handleCancel = () => {
+  router.back();
 };
 
 // Mock data for editing (實際應該從 API 或 store 獲取)
@@ -388,6 +425,7 @@ const loadEditData = () => {
       };
       selectAllPermissions.value = false;
       isIndeterminate.value = false;
+      captureFormInitial();
     }
     return;
   }
@@ -419,6 +457,7 @@ const loadEditData = () => {
     const someSelected = allPermissions.some((p) => p === true) && !allSelected;
     selectAllPermissions.value = allSelected;
     isIndeterminate.value = someSelected;
+    captureFormInitial();
   } else {
     console.warn(`Account not found for email: ${email}`);
   }
@@ -441,7 +480,13 @@ onMounted(() => {
 const handleCreate = () => {
   console.log("Create account:", formData.value);
   // TODO: Implement create logic
-  router.push("/internal-staff-account-management");
+  router.push({
+    path: "/internal-staff-account-management",
+    query: {
+      toast: "success",
+      message: "新增成功",
+    },
+  });
 };
 
 const handleSave = () => {
@@ -450,7 +495,10 @@ const handleSave = () => {
     // TODO: Implement update logic
   } else {
     handleCreate();
+    captureFormInitial();
+    return;
   }
+  captureFormInitial();
   router.push("/internal-staff-account-management");
 };
 </script>

@@ -40,7 +40,12 @@
             </template>
             <template #cell-nameGender="{ row }">
               <div class="flex h-20 min-w-0 flex-col items-start justify-center gap-0.5">
-                <p class="min-w-0 truncate text-sm font-normal leading-6 text-gray-800">{{ row.name || "未選擇" }}</p>
+                <p
+                  class="min-w-0 truncate text-sm font-normal leading-6"
+                  :class="row.isPlaceholder ? 'text-gray-500' : 'text-gray-800'"
+                >
+                  {{ row.name || "未選擇" }}
+                </p>
                 <p v-if="row.gender" class="min-w-0 truncate text-sm font-normal leading-6 text-gray-500">{{ row.gender }}</p>
               </div>
             </template>
@@ -61,25 +66,24 @@
             </template>
             <template #cell-action="{ row }">
               <div class="flex h-20 items-center justify-center gap-4 px-4 py-4" @click.stop @mousedown.stop>
-                <ButtonCTA
-                  variant="textPlain"
-                  size="base"
-                  icon-only
-                  left-icon="profileCard"
-                  class="shrink-0 p-0"
-                  :class="row.name && row.name !== '未選擇' ? 'text-primary-600' : 'text-primary-300'"
-                  aria-label="查看委員資料"
-                  @click="handleOfficerProfileCard(row as OfficerData & { email?: string; phone?: string; address?: string })"
-                />
-                <ButtonCTA
-                  variant="text"
-                  size="sm"
-                  icon-only
-                  left-icon="trashCan"
-                  type="button"
-                  aria-label="移除幹事"
-                  @click="handleDeleteOfficer(row)"
-                />
+                <button type="button" class="flex shrink-0 items-center justify-center p-0" aria-label="查看委員資料" @click="handleOfficerProfileCard(row as OfficerData & { email?: string; phone?: string; address?: string })">
+                  <Icon
+                    name="profileCard"
+                    :size="24"
+                    :color="row.isPlaceholder ? '#A4CAFE' : '#1C64F2'"
+                    :fill="row.isPlaceholder ? '#A4CAFE' : '#1C64F2'"
+                    aria-hidden="true"
+                  />
+                </button>
+                <button type="button" class="flex shrink-0 items-center justify-center p-0" aria-label="移除幹事" @click="handleDeleteOfficer(row)">
+                  <Icon
+                    name="trashCan"
+                    :size="24"
+                    :color="row.isPlaceholder ? '#A4CAFE' : '#1C64F2'"
+                    :fill="row.isPlaceholder ? '#A4CAFE' : '#1C64F2'"
+                    aria-hidden="true"
+                  />
+                </button>
               </div>
             </template>
           </Table>
@@ -97,15 +101,14 @@
             <div class="flex min-w-0 flex-1 items-center gap-2">
               <Icon name="barsOutline" :size="24" class="shrink-0 text-gray-500" aria-hidden="true" />
               <Input
-                v-model="yearList[index]"
+                :model-value="yearList[index]"
                 :show-label="false"
                 size="lg"
                 placeholder="請輸入年度"
                 container-class="min-w-0 flex-1"
                 :error="yearErrorMap.has(index)"
                 :error-message="getYearErrorMessage(index)"
-                clear-error-on-input
-                @clear-error="clearYearError(index)"
+                @update:model-value="(value) => handleYearInput(index, value)"
               />
             </div>
             <ButtonCTA variant="textPlain" size="base" class="shrink-0 p-0 text-primary-600" @click="handleRemoveYear(index)">
@@ -123,10 +126,10 @@
         <div class="flex gap-4">
           <ButtonCTA variant="outline" size="xl" class="w-[124px]" @click="handleAddYearCancel"> 取消 </ButtonCTA>
           <ButtonCTA
-            variant="gray"
+            :variant="canSaveYears ? 'primary' : 'gray'"
             size="xl"
             class="w-[124px]"
-            :disabled="hasYearErrors"
+            :disabled="!canSaveYears"
             @click="handleAddYearSave"
           >
             儲存
@@ -135,7 +138,7 @@
       </template>
     </Drawer>
 
-    <Drawer v-model="isDrawerOpen" title="幹事管理名單" width="xl" @close="handleDrawerClose">
+    <Drawer v-model="isDrawerOpen" title="幹事管理名單" width="xl" close-action="emit" @close="handleDrawerClose">
       <template #default>
         <div class="flex flex-col gap-0">
           <div v-for="(officer, index) in officerList" :key="index" class="flex items-center justify-between border-b border-gray-300 py-5">
@@ -164,10 +167,49 @@
       <template #footer>
         <div class="flex gap-4">
           <ButtonCTA variant="outline" size="xl" class="w-[124px]" @click="handleCancel"> 取消 </ButtonCTA>
-          <ButtonCTA variant="primary" size="xl" class="w-[124px]" @click="handleSave"> 儲存 </ButtonCTA>
+          <ButtonCTA
+            :variant="hasOfficerListChanges ? 'primary' : 'gray'"
+            size="xl"
+            class="w-[124px]"
+            :disabled="!hasOfficerListChanges"
+            @click="handleSave"
+          >
+            儲存
+          </ButtonCTA>
         </div>
       </template>
     </Drawer>
+
+    <Modal v-model="showUnsavedChangesModal" size="md" :static="false" :show-close-button="false" close-action="emit" backdrop-class="bg-gray-600/80">
+      <template #header>
+        <div class="flex w-full items-center justify-end px-4 pt-4">
+          <button
+            type="button"
+            class="flex h-6 w-6 items-center justify-center text-gray-400 hover:text-gray-500"
+            aria-label="關閉"
+            @click="showUnsavedChangesModal = false"
+          >
+            <Icon name="close" :size="20" aria-hidden="true" />
+          </button>
+        </div>
+      </template>
+      <template #body>
+        <div class="flex w-full flex-col items-center gap-4 px-6 py-5">
+          <div class="flex h-6 w-6 items-center justify-center rounded-full bg-gray-400 text-xl font-medium leading-none text-white">!</div>
+          <p class="w-[311px] text-center text-base font-normal leading-[1.5] text-gray-600">有尚未儲存的修改，離開前是否先儲存</p>
+        </div>
+      </template>
+      <template #footer>
+        <div class="flex w-full items-center justify-center gap-4 px-6 pb-6 pt-0">
+          <ButtonCTA variant="white" size="xs" class="h-8 w-[120px] border-gray-200 px-3 py-2 text-sm font-medium leading-[1.5] text-gray-800" @click="handleExitWithoutSaving">
+            退出編輯
+          </ButtonCTA>
+          <ButtonCTA variant="primary" size="xs" class="h-8 w-[120px] px-3 py-2 text-sm font-medium leading-[1.5]" @click="handleSaveFromUnsavedModal">
+            儲存修改
+          </ButtonCTA>
+        </div>
+      </template>
+    </Modal>
 
     <ConfirmDeleteModal
       v-model="showDeleteModal"
@@ -191,10 +233,12 @@
 <script setup lang="ts">
 import { ref, computed } from "vue";
 import { useRouter } from "vue-router";
+import { useFormUnsavedCheck } from "@/composables/useFormUnsavedCheck";
 import { useTablePagination } from "@/composables/useTablePagination";
 import Icon from "@/components/atoms/Icon.vue";
 import Empty from "@/components/atoms/Empty.vue";
 import Drawer from "@/components/atoms/Drawer.vue";
+import Modal from "@/components/atoms/Modal.vue";
 import Toast from "@/components/atoms/Toast.vue";
 import ButtonCTA from "@/components/atoms/ButtonCTA.vue";
 import Breadcrumb from "@/components/atoms/Breadcrumb.vue";
@@ -217,6 +261,7 @@ const isDrawerOpen = ref(false);
 const isAddYearDrawerOpen = ref(false);
 const showToast = ref(false);
 const toastMessage = ref("儲存成功");
+const showUnsavedChangesModal = ref(false);
 
 // Delete modal state
 const showDeleteModal = ref(false);
@@ -228,6 +273,7 @@ const yearList = ref<string[]>([]);
 /** 年度欄位驗證錯誤（儲存時觸發，輸入時重置） */
 const yearErrorMap = ref<Map<number, "format" | "duplicate">>(new Map());
 const hasYearErrors = computed(() => yearErrorMap.value.size > 0);
+const initialYearSnapshot = ref("");
 const getYearErrorMessage = (index: number) => {
   const type = yearErrorMap.value.get(index);
   if (type === "format") return "限輸入阿拉伯數字";
@@ -235,19 +281,27 @@ const getYearErrorMessage = (index: number) => {
   return undefined;
 };
 
+const normalizeYearList = (list: string[]) => list.map((year) => year.trim()).filter(Boolean);
+const buildYearSnapshot = () => JSON.stringify(normalizeYearList(yearList.value));
+const hasYearChanges = computed(() => buildYearSnapshot() !== initialYearSnapshot.value);
+const canSaveYears = computed(() => hasYearChanges.value && !hasYearErrors.value);
+
 const openAddYearDrawer = () => {
   yearList.value = tabItems.value.slice(0, -1).map((t) => t.label);
-  yearErrorMap.value = new Map();
+  syncYearErrors();
+  initialYearSnapshot.value = buildYearSnapshot();
   isAddYearDrawerOpen.value = true;
 };
 
+const TOTAL_OFFICER_SLOTS = 20;
+
 // Table Columns
 const tableColumns: TableColumn[] = [
-  { key: "index", label: "項次", width: "60px", headerClass: "px-4 py-4 text-left text-sm font-medium text-gray-500", cellClass: "p-0 align-middle" },
-  { key: "nameGender", label: "委員姓名", width: "120px", headerClass: "px-4 py-4 text-left text-sm font-medium text-gray-500", cellClass: "px-4 py-4 align-middle" },
-  { key: "title", label: "現職", width: "196px", headerClass: "px-4 py-4 text-left text-sm font-medium text-gray-500", cellClass: "px-4 py-4 align-middle" },
-  { key: "education", label: "學經歷", headerClass: "px-4 py-4 text-left text-sm font-medium text-gray-500", cellClass: "p-0 align-middle" },
-  { key: "action", label: "動作", width: "96px", headerClass: "px-4 py-4 text-left text-sm font-medium text-gray-500", cellClass: "p-0 align-middle" },
+  { key: "index", label: "項次", width: "6%", headerClass: "px-4 py-4 text-left text-sm font-medium text-gray-500", cellClass: "p-0 align-middle" },
+  { key: "nameGender", label: "委員姓名", width: "12%", headerClass: "px-4 py-4 text-left text-sm font-medium text-gray-500", cellClass: "px-4 py-4 align-middle" },
+  { key: "title", label: "現職", width: "20%", headerClass: "px-4 py-4 text-left text-sm font-medium text-gray-500", cellClass: "px-4 py-4 align-middle" },
+  { key: "education", label: "學經歷", width: "52%", headerClass: "px-4 py-4 text-left text-sm font-medium text-gray-500", cellClass: "p-0 align-middle" },
+  { key: "action", label: "動作", width: "10%", headerClass: "px-4 py-4 text-left text-sm font-medium text-gray-500", cellClass: "p-0 align-middle" },
 ];
 
 // Mock Officer Data
@@ -289,22 +343,27 @@ const allOfficers = ref<OfficerData[]>([
   { index: 8, name: "朱秀秋", gender: "男", title: "中山大學公共事務管理研究所教授兼管理學院副院長", education: ["美國北卡羅萊納州立大學景觀規劃博士"] },
   { index: 9, name: "朱秀秋", gender: "男", title: "中山大學公共事務管理研究所教授兼管理學院副院長", education: ["美國北卡羅萊納州立大學景觀規劃博士"] },
   { index: 10, name: "朱秀秋", gender: "男", title: "中山大學公共事務管理研究所教授兼管理學院副院長", education: ["美國北卡羅萊納州立大學景觀規劃博士"] },
-  { index: 11, name: "未選擇", gender: "男", title: "-", education: [] },
-  { index: 12, name: "未選擇", gender: "男", title: "-", education: [] },
-  { index: 13, name: "未選擇", gender: "男", title: "-", education: [] },
-  { index: 14, name: "未選擇", gender: "男", title: "-", education: [] },
-  { index: 15, name: "未選擇", gender: "男", title: "-", education: [] },
-  { index: 16, name: "未選擇", gender: "男", title: "-", education: [] },
-  { index: 17, name: "未選擇", gender: "男", title: "-", education: [] },
-  { index: 18, name: "未選擇", gender: "男", title: "-", education: [] },
-  { index: 19, name: "未選擇", gender: "男", title: "-", education: [] },
-  { index: 20, name: "未選擇", gender: "男", title: "-", education: [] },
 ]);
+const officerTableRows = ref(
+  Array.from({ length: TOTAL_OFFICER_SLOTS }, (_, index) => {
+    const officer = allOfficers.value[index];
+    if (officer) return { ...officer, isPlaceholder: false };
+    return {
+      index: index + 1,
+      name: "未選擇",
+      gender: "",
+      title: "-",
+      education: [],
+      isPlaceholder: true,
+    };
+  })
+);
 
 const { paginatedRows: paginatedOfficers, pagination, handlePageChange } = useTablePagination({
-  rows: allOfficers,
+  rows: officerTableRows,
   pageSize: 10,
-  total: computed(() => allOfficers.value.length),
+  total: computed(() => officerTableRows.value.length),
+  slice: false,
 });
 
 // Officer List (20 items default)
@@ -319,15 +378,28 @@ const allAvailableOfficers: InputDropdownItem[] = [{ label: "陳傑瑞" }, { lab
 
 // Computed: Filter out already selected officers
 const availableOfficers = computed(() => {
-  const selectedOfficers = officerList.value.map((o) => o.selectedOfficer).filter((o) => o !== "");
+  const selectedOfficers = officerList.value.map((o) => o.selectedOfficer).filter((o) => o !== "" && o !== "未選擇");
   return allAvailableOfficers.filter((officer) => !selectedOfficers.includes(officer.label));
 });
 
 // Get available officers for a specific index (excluding the current selection)
 const getAvailableOfficersForIndex = (index: number) => {
-  const selectedOfficers = officerList.value.map((o, i) => (i !== index ? o.selectedOfficer : "")).filter((o) => o !== "");
+  const selectedOfficers = officerList.value
+    .map((o, i) => (i !== index ? o.selectedOfficer : ""))
+    .filter((o) => o !== "" && o !== "未選擇");
   return allAvailableOfficers.filter((officer) => !selectedOfficers.includes(officer.label));
 };
+
+const normalizeOfficerList = (list: OfficerItem[]) => {
+  return list
+    .map((item) => ({
+      selectedOfficer: item.selectedOfficer.trim(),
+    }))
+    .filter((item) => item.selectedOfficer !== "" && item.selectedOfficer !== "未選擇");
+};
+
+const buildOfficerListSnapshot = () => JSON.stringify(normalizeOfficerList(officerList.value));
+const { hasUnsavedChanges: hasOfficerListChanges, captureInitial: captureOfficerListInitial } = useFormUnsavedCheck(buildOfficerListSnapshot);
 
 // Event Handlers
 const handleSidebarItemSelect = (itemName: string) => {
@@ -344,13 +416,10 @@ const handleTabClick = (index: number) => {
 };
 
 const populateOfficerListFromTable = () => {
-  if (allOfficers.value.length === 0) {
-    officerList.value = [{ selectedOfficer: "" }];
-  } else {
-    officerList.value = allOfficers.value.map((o) => ({
-      selectedOfficer: o.name && o.name !== "未選擇" ? o.name : "",
-    }));
-  }
+  officerList.value = Array.from({ length: TOTAL_OFFICER_SLOTS }, (_, index) => ({
+    selectedOfficer: allOfficers.value[index]?.name ?? "未選擇",
+  }));
+  captureOfficerListInitial();
 };
 
 const handleManageList = () => {
@@ -369,6 +438,10 @@ const handleAddOfficer = () => {
 };
 
 const handleDrawerClose = () => {
+  if (hasOfficerListChanges.value) {
+    showUnsavedChangesModal.value = true;
+    return;
+  }
   isDrawerOpen.value = false;
 };
 
@@ -388,19 +461,34 @@ const handleAddNewOfficer = () => {
 };
 
 const handleCancel = () => {
+  if (hasOfficerListChanges.value) {
+    showUnsavedChangesModal.value = true;
+    return;
+  }
   isDrawerOpen.value = false;
-  // TODO: Reset form if needed
 };
 
 const handleSave = () => {
   console.log("Save officer list:", officerList.value);
   // TODO: Implement save logic
+  captureOfficerListInitial();
   isDrawerOpen.value = false;
   toastMessage.value = "儲存成功";
   showToast.value = true;
 };
 
+const handleExitWithoutSaving = () => {
+  showUnsavedChangesModal.value = false;
+  isDrawerOpen.value = false;
+};
+
+const handleSaveFromUnsavedModal = () => {
+  showUnsavedChangesModal.value = false;
+  handleSave();
+};
+
 const handleDeleteOfficer = (row: Record<string, any>) => {
+  if (row.isPlaceholder) return;
   deleteTarget.value = row as OfficerData;
   showDeleteModal.value = true;
 };
@@ -426,6 +514,9 @@ const router = useRouter();
 const OFFICER_EDIT_STORAGE_KEY = "officer-edit-data";
 
 const handleOfficerProfileCard = (row: OfficerData & { email?: string; phone?: string; address?: string }) => {
+  if ((row as OfficerData & { isPlaceholder?: boolean }).isPlaceholder) return;
+  // TODO: 後續串接後端後，改為帶 officer id 進編輯頁並由編輯頁重新取資料。
+  // 目前因尚未有後端 API，暫以 sessionStorage 傳遞 mock 編輯資料。
   const officer = {
     name: row.name || "",
     gender: row.gender || "",
@@ -436,24 +527,18 @@ const handleOfficerProfileCard = (row: OfficerData & { email?: string; phone?: s
     education: row.education ?? [],
   };
   sessionStorage.setItem(OFFICER_EDIT_STORAGE_KEY, JSON.stringify(officer));
-  router.push({
-    path: "/officer-list-management/edit",
-    query: {
-      officer: encodeURIComponent(JSON.stringify(officer)),
-    },
-    state: {
-      officer,
-    },
-  });
+  router.push("/officer-list-management/edit");
 };
 
 // 添加年度 Drawer
 const handleAddYear = () => {
   yearList.value.push("");
+  syncYearErrors();
 };
 
 const handleRemoveYear = (index: number) => {
   yearList.value.splice(index, 1);
+  syncYearErrors();
 };
 
 const handleAddYearDrawerClose = () => {
@@ -465,40 +550,47 @@ const handleAddYearCancel = () => {
   isAddYearDrawerOpen.value = false;
 };
 
-/** 清除指定索引的年度錯誤（輸入時觸發） */
-const clearYearError = (index: number) => {
-  const next = new Map(yearErrorMap.value);
-  next.delete(index);
-  yearErrorMap.value = next;
-};
-
 /** 驗證年度：限輸入阿拉伯數字 */
 const validateYear = (value: string) => /^\d+$/.test(value.trim());
 
-const handleAddYearSave = () => {
+const syncYearErrors = () => {
   const errorMap = new Map<number, "format" | "duplicate">();
 
-  // 1. 格式驗證
-  yearList.value.forEach((y, i) => {
-    if (!validateYear(y)) errorMap.set(i, "format");
-  });
-
-  // 2. 重複驗證（僅檢查格式正確的欄位）
-  const valueToIndices = new Map<string, number[]>();
-  yearList.value.forEach((y, i) => {
-    if (errorMap.has(i)) return;
-    const trimmed = y.trim();
+  yearList.value.forEach((year, index) => {
+    const trimmed = year.trim();
     if (!trimmed) return;
-    const list = valueToIndices.get(trimmed) ?? [];
-    list.push(i);
-    valueToIndices.set(trimmed, list);
-  });
-  valueToIndices.forEach((indices) => {
-    if (indices.length > 1) indices.forEach((i) => errorMap.set(i, "duplicate"));
+    if (!validateYear(trimmed)) {
+      errorMap.set(index, "format");
+    }
   });
 
-  if (errorMap.size > 0) {
-    yearErrorMap.value = errorMap;
+  const valueToIndices = new Map<string, number[]>();
+  yearList.value.forEach((year, index) => {
+    if (errorMap.has(index)) return;
+    const trimmed = year.trim();
+    if (!trimmed) return;
+    const indices = valueToIndices.get(trimmed) ?? [];
+    indices.push(index);
+    valueToIndices.set(trimmed, indices);
+  });
+
+  valueToIndices.forEach((indices) => {
+    if (indices.length > 1) {
+      indices.forEach((index) => errorMap.set(index, "duplicate"));
+    }
+  });
+
+  yearErrorMap.value = errorMap;
+};
+
+const handleYearInput = (index: number, value: string) => {
+  yearList.value[index] = value;
+  syncYearErrors();
+};
+
+const handleAddYearSave = () => {
+  syncYearErrors();
+  if (yearErrorMap.value.size > 0) {
     return;
   }
 
@@ -506,6 +598,7 @@ const handleAddYearSave = () => {
   tabItems.value = [...validYears.map((y) => ({ label: y })), { label: "添加年度" }];
   activeTab.value = 0;
   yearErrorMap.value = new Map();
+  initialYearSnapshot.value = buildYearSnapshot();
   isAddYearDrawerOpen.value = false;
 };
 </script>

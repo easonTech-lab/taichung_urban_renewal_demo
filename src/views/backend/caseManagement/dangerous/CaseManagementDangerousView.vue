@@ -61,7 +61,7 @@
     </div>
 
     <div class="fixed bottom-6 left-1/2 z-[90] w-[min(900px,calc(100vw-2rem))] -translate-x-1/2">
-      <Toast v-model="showDeleteToast" message="刪除成功" :show-actions="false" :show-close="false" :auto-close="true">
+      <Toast v-model="showDeleteToast" :message="toastMessage" :show-actions="false" :show-close="false" :auto-close="true">
         <template #icon>
           <Icon name="check" :size="24" class="text-gray-50" aria-hidden="true" />
         </template>
@@ -88,6 +88,7 @@ import type { CaseItem } from "@/types/backend/caseManagement/dangerous/caseMana
 const route = useRoute();
 const router = useRouter();
 const showDeleteToast = ref(false);
+const toastMessage = ref("刪除成功");
 
 // 判斷是否為管理員模式（根據路由名稱）
 const isAdmin = computed(() => route.name === "case-management-dangerous-admin" || route.path.includes("-admin"));
@@ -280,6 +281,12 @@ watch(
   () => route.query.toast,
   (toast) => {
     if (toast === "case-deleted") {
+      toastMessage.value = "刪除成功";
+      showDeleteToast.value = true;
+      clearToastQuery();
+    }
+    if (toast === "draft-success") {
+      toastMessage.value = "暫存成功";
       showDeleteToast.value = true;
       clearToastQuery();
     }

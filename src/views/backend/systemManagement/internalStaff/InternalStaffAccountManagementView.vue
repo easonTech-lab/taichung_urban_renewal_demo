@@ -106,7 +106,15 @@
       <template #footer>
         <div class="flex w-full justify-end gap-4">
           <ButtonCTA variant="outline" size="xl" class="w-[124px]" @click="handleCancelChangeAccount">取消</ButtonCTA>
-          <ButtonCTA variant="gray" size="xl" class="w-[124px]" :disabled="!hasAvailableAccounts" @click="handleSaveChangeAccount">儲存</ButtonCTA>
+          <ButtonCTA
+            :variant="canSaveAdminAccount ? 'primary' : 'gray'"
+            size="xl"
+            class="w-[124px]"
+            :disabled="!canSaveAdminAccount"
+            @click="handleSaveChangeAccount"
+          >
+            儲存
+          </ButtonCTA>
         </div>
       </template>
     </Drawer>
@@ -119,17 +127,60 @@
       @confirm="handleConfirmDelete"
       @cancel="handleCloseDeleteModal"
     />
+
+    <Modal v-model="showCannotDeleteAdminModal" size="md" :static="false" :show-close-button="false" close-action="emit" backdrop-class="bg-gray-600/80">
+      <template #header>
+        <div class="flex w-full items-center justify-end px-4 pt-4">
+          <button
+            type="button"
+            class="flex h-6 w-6 items-center justify-center text-gray-400 hover:text-gray-500"
+            aria-label="關閉"
+            @click="showCannotDeleteAdminModal = false"
+          >
+            <Icon name="close" :size="20" aria-hidden="true" />
+          </button>
+        </div>
+      </template>
+      <template #body>
+        <div class="flex w-full flex-col items-center gap-4 px-6 py-5">
+          <div class="flex h-[42px] w-[42px] items-center justify-center rounded-full bg-gray-400 text-[28px] font-medium leading-none text-white">!</div>
+          <div class="w-[311px] text-center text-base font-normal leading-[1.5] text-gray-600">
+            <p>無法移除最高權限帳號人員</p>
+            <p>請先更換最高權限，再進行移除</p>
+          </div>
+        </div>
+      </template>
+      <template #footer>
+        <div class="flex w-full items-center justify-center px-6 pb-6 pt-0">
+          <ButtonCTA variant="primary" size="xs" class="h-[37px] w-[120px] px-3 py-2 text-sm font-medium leading-[1.5]" @click="showCannotDeleteAdminModal = false">
+            確認
+          </ButtonCTA>
+        </div>
+      </template>
+    </Modal>
+
+    <div v-if="showToast" class="fixed bottom-6 left-1/2 z-[90] w-[min(1420px,calc(100vw-2rem))] -translate-x-1/2">
+      <Toast v-model="showToast" :message="toastMessage" :show-actions="false" :show-close="true" :auto-close="true">
+        <template #icon>
+          <Icon name="check" :size="24" class="text-gray-50" aria-hidden="true" />
+        </template>
+      </Toast>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from "vue";
-import { useRouter } from "vue-router";
+import { computed, onMounted, ref } from "vue";
+import { useRoute, useRouter } from "vue-router";
+import { useFormUnsavedCheck } from "@/composables/useFormUnsavedCheck";
 import { useTablePagination } from "@/composables/useTablePagination";
+import Icon from "@/components/atoms/Icon.vue";
 import Empty from "@/components/atoms/Empty.vue";
+import Modal from "@/components/atoms/Modal.vue";
 import Radio from "@/components/atoms/Radio.vue";
 import Drawer from "@/components/atoms/Drawer.vue";
 import Switch from "@/components/atoms/Switch.vue";
+import Toast from "@/components/atoms/Toast.vue";
 import ButtonCTA from "@/components/atoms/ButtonCTA.vue";
 import Breadcrumb from "@/components/atoms/Breadcrumb.vue";
 import SidebarSection from "@/components/sections/backend/SidebarSection.vue";
@@ -139,9 +190,13 @@ import type { HandlerAccount } from "@/types/backend/systemManagement/internalSt
 
 // State
 const router = useRouter();
+const route = useRoute();
 const pageSize = ref<number>(10);
 const showEditModal = ref<boolean>(false);
 const showDeleteModal = ref<boolean>(false);
+const showCannotDeleteAdminModal = ref<boolean>(false);
+const showToast = ref<boolean>(false);
+const toastMessage = ref("儲存成功");
 const deleteTarget = ref<HandlerAccount | null>(null);
 const editingHandler = ref<HandlerAccount | null>(null);
 const showChangeAccountDrawer = ref<boolean>(false);
@@ -170,7 +225,6 @@ const currentAdminAccount = ref<{
 });
 
 // Available Accounts for Selection
-/*
 const availableAccounts = ref<Array<{ name: string; email: string }>>([
   {
     name: "陳傑瑞",
@@ -185,12 +239,12 @@ const availableAccounts = ref<Array<{ name: string; email: string }>>([
     email: "321xyz@taichung.gov.tw",
   },
 ]);
-*/
-const availableAccounts = ref<Array<{ name: string; email: string }>>([]);
 const hasAvailableAccounts = computed(() => availableAccounts.value.length > 0);
+const buildAdminAccountSnapshot = () => JSON.stringify({ email: selectedAccountEmail.value.trim() });
+const { hasUnsavedChanges: hasAdminAccountChanges, captureInitial: captureAdminAccountInitial } = useFormUnsavedCheck(buildAdminAccountSnapshot);
+const canSaveAdminAccount = computed(() => hasAvailableAccounts.value && hasAdminAccountChanges.value);
 
 // Mock Data
-/*
 const handlerAccounts = ref<HandlerAccount[]>([
   {
     name: "陳傑瑞",
@@ -269,8 +323,6 @@ const handlerAccounts = ref<HandlerAccount[]>([
     status: false,
   },
 ]);
-*/
-const handlerAccounts = ref<HandlerAccount[]>([]);
 const hasAnyHandlers = computed(() => handlerAccounts.value.length > 0);
 
 // Table Columns
@@ -332,6 +384,7 @@ const handleSidebarItemSelect = (itemName: string) => {
 
 const handleChangeAccount = () => {
   selectedAccountEmail.value = currentAdminAccount.value.email;
+  captureAdminAccountInitial();
   showChangeAccountDrawer.value = true;
 };
 
@@ -350,8 +403,11 @@ const handleSaveChangeAccount = () => {
     // TODO: 調用 API 更新最高權限帳號
     console.log("Changed admin account to:", selectedAccount);
   }
+  captureAdminAccountInitial();
   showChangeAccountDrawer.value = false;
   selectedAccountEmail.value = "";
+  toastMessage.value = "儲存成功";
+  showToast.value = true;
 };
 
 const handleAddHandler = () => {
@@ -402,7 +458,12 @@ const handleSaveEdit = () => {
 };
 
 const handleDelete = (row: Record<string, any>) => {
-  deleteTarget.value = row as HandlerAccount;
+  const item = row as HandlerAccount;
+  if (item.email === currentAdminAccount.value.email) {
+    showCannotDeleteAdminModal.value = true;
+    return;
+  }
+  deleteTarget.value = item;
   showDeleteModal.value = true;
 };
 
@@ -416,10 +477,32 @@ const handleConfirmDelete = () => {
     const index = handlerAccounts.value.findIndex((account) => account.email === deleteTarget.value?.email);
     if (index !== -1) {
       handlerAccounts.value.splice(index, 1);
+      toastMessage.value = "已刪除";
+      showToast.value = true;
     }
     // TODO: 調用 API 刪除資料
     console.log("Removed handler account:", deleteTarget.value);
   }
   handleCloseDeleteModal();
 };
+
+const handleRouteToast = () => {
+  if (route.query.toast !== "success") return;
+
+  const message = typeof route.query.message === "string" && route.query.message.trim() ? route.query.message : "新增成功";
+  toastMessage.value = message;
+  showToast.value = true;
+
+  const nextQuery = { ...route.query };
+  delete nextQuery.toast;
+  delete nextQuery.message;
+  router.replace({
+    path: route.path,
+    query: nextQuery,
+  });
+};
+
+onMounted(() => {
+  handleRouteToast();
+});
 </script>

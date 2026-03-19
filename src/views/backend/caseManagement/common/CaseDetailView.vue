@@ -237,7 +237,6 @@ const caseInfo = ref({
   address: "台中市文心路二段588號",
 });
 
-/*
 const officerTableRows = ref<OfficerTableRow[]>([
   {
     name: "張泓明",
@@ -270,8 +269,6 @@ const officerTableRows = ref<OfficerTableRow[]>([
     background: "國立臺北大學都市計劃研究所博士",
   },
 ]);
-*/
-const officerTableRows = ref<OfficerTableRow[]>([]);
 
 const caseOfficerNames = computed(() => {
   const fromList = officerList.value.map((o) => o.selectedOfficer).filter(Boolean).join("、");
@@ -290,14 +287,17 @@ const complaintSections = ref<ComplaintSection[]>([
     title: "書面受理資料",
     rows: [
       {
+        id: "written-1",
         title: "台中市行政段645地號等21筆土地 都市更新事業計畫及權利變換計畫案-第一次專案意見回饋",
         uploadedAt: "114/10/12 17:50",
       },
       {
+        id: "written-2",
         title: "台中市捷運路線地區申請開發許可細部計畫案",
         uploadedAt: "114/10/12 17:50",
       },
       {
+        id: "written-3",
         title: "變更部分細部土地使用分區管制計畫",
         uploadedAt: "114/10/12 17:50",
       },
@@ -307,14 +307,17 @@ const complaintSections = ref<ComplaintSection[]>([
     title: "委員會審議紀錄",
     rows: [
       {
+        id: "committee-1",
         title: "台中市行政段645地號等21筆土地 都市更新事業計畫及權利變換計畫案-第一次專案意見回饋",
         uploadedAt: "114/10/12 17:50",
       },
       {
+        id: "committee-2",
         title: "台中市捷運路線地區申請開發許可細部計畫案",
         uploadedAt: "114/10/12 17:50",
       },
       {
+        id: "committee-3",
         title: "變更部分細部土地使用分區管制計畫",
         uploadedAt: "114/10/12 17:50",
       },
@@ -324,14 +327,17 @@ const complaintSections = ref<ComplaintSection[]>([
     title: "人民或團體陳情意見紀錄表",
     rows: [
       {
+        id: "petition-1",
         title: "台中市行政段645地號等21筆土地 都市更新事業計畫及權利變換計畫案-第一次專案意見回饋",
         uploadedAt: "114/10/12 17:50",
       },
       {
+        id: "petition-2",
         title: "台中市捷運路線地區申請開發許可細部計畫案",
         uploadedAt: "114/10/12 17:50",
       },
       {
+        id: "petition-3",
         title: "變更部分細部土地使用分區管制計畫",
         uploadedAt: "114/10/12 17:50",
       },
@@ -339,7 +345,6 @@ const complaintSections = ref<ComplaintSection[]>([
   },
 ]);
 
-/*
 const allFiles = ref<ProjectFile[]>([
   {
     fileName: "小組審查文件.pdf",
@@ -390,8 +395,6 @@ const allFiles = ref<ProjectFile[]>([
     fileSize: "107 KB",
   },
 ]);
-*/
-const allFiles = ref<ProjectFile[]>([]);
 
 const handleOpenOfficerDrawer = () => {
   if (activeTab.value !== "info") {
@@ -433,6 +436,8 @@ const handleRequestRemoveOfficer = (row: OfficerTableRow) => {
     confirmLabel: "移除",
     onConfirm: () => {
       officerTableRows.value = officerTableRows.value.filter((item) => item.name !== row.name);
+      deleteToastMessage.value = "已刪除";
+      showDeleteToast.value = true;
     },
   });
 };
@@ -444,7 +449,7 @@ const handleRequestDeleteComplaint = (row: ComplaintRow) => {
     confirmLabel: "刪除",
     onConfirm: () => {
       complaintSections.value.forEach((section) => {
-        section.rows = section.rows.filter((item) => item.title !== row.title);
+        section.rows = section.rows.filter((item) => item.id !== row.id);
       });
       deleteToastMessage.value = "檔案已刪除";
       showDeleteToast.value = true;
@@ -496,7 +501,11 @@ const handleComplaintFileInputChange = (event: Event) => {
       input.value = "";
       return;
     }
-    section.rows.push({ title: file.name, uploadedAt: now });
+    section.rows.push({
+      id: `${section.title}-${Date.now()}-${i}`,
+      title: file.name,
+      uploadedAt: now,
+    });
     added++;
   }
   if (added > 0) {

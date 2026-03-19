@@ -117,7 +117,7 @@
     </div>
   </div>
 
-  <Drawer v-model="isDrawerOpen" :title="drawerTitle" :width="drawerWidth" @close="handleDrawerClose">
+  <Drawer v-model="isDrawerOpen" :title="drawerTitle" :width="drawerWidth" close-action="emit" @close="handleDrawerClose">
     <template #default>
       <div v-if="drawerMode === 'officerList'" class="flex flex-col gap-0">
         <div v-for="(officer, index) in localOfficerList" :key="index" class="flex items-center justify-between border-b border-gray-300 py-5">
@@ -172,6 +172,37 @@
     @cancel="handleCloseOfficerRemove"
   />
 
+  <Modal v-model="showOfficerUnsavedModal" size="md" :static="false" :show-close-button="false" close-action="emit" backdrop-class="bg-gray-600/80">
+    <template #header>
+      <div class="flex w-full items-center justify-end px-4 pt-4">
+        <button
+          type="button"
+          class="flex h-6 w-6 items-center justify-center text-gray-400 hover:text-gray-500"
+          aria-label="關閉"
+          @click="showOfficerUnsavedModal = false"
+        >
+          <Icon name="close" :size="20" aria-hidden="true" />
+        </button>
+      </div>
+    </template>
+    <template #body>
+      <div class="flex w-full flex-col items-center gap-4 px-6 py-5">
+        <div class="flex h-[42px] w-[42px] items-center justify-center rounded-full bg-gray-400 text-[28px] font-medium leading-none text-white">!</div>
+        <p class="w-[311px] text-center text-base font-normal leading-[1.5] text-gray-600">有尚未儲存的修改，離開前是否先儲存</p>
+      </div>
+    </template>
+    <template #footer>
+      <div class="flex w-full items-center justify-center gap-4 px-6 pb-6 pt-0">
+        <ButtonCTA variant="outline" size="xs" class="h-8 w-[120px] px-3 py-2 text-sm font-medium leading-[1.5]" @click="handleOfficerModalExit">
+          退出編輯
+        </ButtonCTA>
+        <ButtonCTA variant="primary" size="xs" class="h-8 w-[120px] px-3 py-2 text-sm font-medium leading-[1.5]" @click="handleOfficerModalSave">
+          儲存修改
+        </ButtonCTA>
+      </div>
+    </template>
+  </Modal>
+
   <div class="fixed bottom-6 z-[90]" :style="toastPositionStyle">
     <Toast
       v-model="showCancelToast"
@@ -188,7 +219,11 @@
   </div>
 
   <div class="fixed bottom-6 z-[90]" :style="toastPositionStyle">
-    <Toast v-model="showSaveToast" message="儲存成功" :show-actions="false" :show-close="false" :auto-close="true" />
+    <Toast v-model="showDrawerDeleteToast" message="已刪除" :show-actions="false" :show-close="true" :auto-close="true" />
+  </div>
+
+  <div class="fixed bottom-6 z-[90]" :style="saveToastPositionStyle">
+    <Toast v-model="showSaveToast" message="儲存成功" :show-actions="false" :show-close="true" :auto-close="true" />
   </div>
 </template>
 
@@ -201,6 +236,7 @@ import Icon from "@/components/atoms/Icon.vue";
 import Input from "@/components/atoms/Input.vue";
 import Toast from "@/components/atoms/Toast.vue";
 import Drawer from "@/components/atoms/Drawer.vue";
+import Modal from "@/components/atoms/Modal.vue";
 import ButtonCTA from "@/components/atoms/ButtonCTA.vue";
 import Empty from "@/components/atoms/Empty.vue";
 import ConfirmDeleteModal from "@/components/molecules/ConfirmDeleteModal.vue";
@@ -262,6 +298,13 @@ const toastPositionStyle = computed(() => {
     minWidth: width,
   };
 });
+const saveToastPositionStyle = {
+  left: "50%",
+  transform: "translateX(-50%)",
+  width: "min(1420px, calc(100vw - 2rem))",
+  maxWidth: "min(1420px, calc(100vw - 2rem))",
+  minWidth: "min(1420px, calc(100vw - 2rem))",
+};
 
 const router = useRouter();
 const route = useRoute();
@@ -314,11 +357,11 @@ const handleCardClick = (cardType: string) => {
 };
 
 const officerTableColumns: TableColumn[] = [
-  { key: "index", label: "項次", headerClass: "w-[60px]", cellClass: "w-[60px]" },
-  { key: "name", label: "委員姓名", headerClass: "w-[140px]", cellClass: "w-[140px]" },
-  { key: "title", label: "現職", headerClass: "w-[220px]", cellClass: "w-[220px]" },
-  { key: "background", label: "學經歷" },
-  { key: "action", label: "動作", headerClass: "w-[120px]", cellClass: "w-[120px]" },
+  { key: "index", label: "項次", width: "6%", headerClass: "px-4 py-4 text-left text-sm font-medium text-gray-500", cellClass: "p-0 align-middle" },
+  { key: "name", label: "委員姓名", width: "12%", headerClass: "px-4 py-4 text-left text-sm font-medium text-gray-500", cellClass: "px-4 py-4 align-middle" },
+  { key: "title", label: "現職", width: "20%", headerClass: "px-4 py-4 text-left text-sm font-medium text-gray-500", cellClass: "px-4 py-4 align-middle" },
+  { key: "background", label: "學經歷", width: "52%", headerClass: "px-4 py-4 text-left text-sm font-medium text-gray-500", cellClass: "px-4 py-4 align-middle" },
+  { key: "action", label: "動作", width: "10%", headerClass: "px-4 py-4 text-left text-sm font-medium text-gray-500", cellClass: "px-4 py-4 align-middle" },
 ];
 
 const {
@@ -334,6 +377,8 @@ const hasOfficerRows = computed(() => props.officerTableRows.length > 0);
 const localOfficerList = ref<OfficerItem[]>(props.officerList.map((item) => ({ ...item })));
 const toastContext = ref<"officerList" | "editInfo">("editInfo");
 const showCancelToast = ref(false);
+const showOfficerUnsavedModal = ref(false);
+const showDrawerDeleteToast = ref(false);
 const showSaveToast = ref(false);
 const normalizeOfficerList = (items: OfficerItem[]) =>
   items
@@ -388,6 +433,14 @@ const handleExportOfficerList = () => {
 };
 
 const handleDrawerClose = () => {
+  if (drawerMode.value === "officerList") {
+    if (hasOfficerChanges.value) {
+      showOfficerUnsavedModal.value = true;
+      return;
+    }
+    isDrawerOpen.value = false;
+    return;
+  }
   isDrawerOpen.value = false;
 };
 
@@ -403,6 +456,7 @@ const handleRemoveOfficer = (index: number) => {
 const handleConfirmOfficerRemove = () => {
   if (pendingOfficerRemoveIndex.value === null) return;
   localOfficerList.value.splice(pendingOfficerRemoveIndex.value, 1);
+  showDrawerDeleteToast.value = true;
   handleCloseOfficerRemove();
 };
 
@@ -419,8 +473,7 @@ const handleAddNewOfficer = () => {
 
 const handleCancel = () => {
   if (hasOfficerChanges.value) {
-    toastContext.value = "officerList";
-    showCancelToast.value = true;
+    showOfficerUnsavedModal.value = true;
     return;
   }
   isDrawerOpen.value = false;
@@ -451,11 +504,21 @@ const handleCloseToast = () => {
 };
 
 watch(
-  () => showCancelToast.value,
+  () => showCancelToast.value || showOfficerUnsavedModal.value,
   (visible) => {
     emit("unsaved-toast", visible);
   }
 );
+
+const handleOfficerModalExit = () => {
+  showOfficerUnsavedModal.value = false;
+  isDrawerOpen.value = false;
+};
+
+const handleOfficerModalSave = () => {
+  showOfficerUnsavedModal.value = false;
+  handleSave();
+};
 
 const handleToastExit = () => {
   handleCloseToast();
@@ -472,7 +535,26 @@ const handleToastDraft = () => {
 };
 
 const handleOfficerProfile = (row: OfficerTableRow) => {
-  console.log("Open officer profile:", row);
+  sessionStorage.setItem(
+    "officer-edit-data",
+    JSON.stringify({
+      name: row.name,
+      gender: row.gender,
+      title: row.title,
+      education: row.background
+        .split(/[；;]/)
+        .map((item) => item.trim())
+        .filter(Boolean),
+    })
+  );
+
+  router.push({
+    path: "/officer-list-management/edit",
+    query: {
+      mode: "view",
+      returnTo: route.fullPath,
+    },
+  });
 };
 
 const handleOfficerRemove = (row: OfficerTableRow) => {

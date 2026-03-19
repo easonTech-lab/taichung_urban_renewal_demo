@@ -11,7 +11,7 @@
         size="xs"
         left-icon="editOutline"
         class="!h-9 !min-w-[96px] px-3 py-2 text-sm"
-        @click="showEditStageDrawer = true"
+        @click="handleOpenEditStageDrawer"
       >
         編輯階段
       </ButtonCTA>
@@ -58,7 +58,7 @@
     <template #footer>
       <div class="flex w-full items-center justify-end gap-4">
         <ButtonCTA variant="outline" size="xl" class="w-[124px]" @click="showEditStageDrawer = false">取消</ButtonCTA>
-        <ButtonCTA variant="primary" size="xl" class="w-[124px]">儲存</ButtonCTA>
+        <ButtonCTA :variant="hasStageChanges ? 'primary' : 'gray'" size="xl" class="w-[124px]" :disabled="!hasStageChanges">儲存</ButtonCTA>
       </div>
     </template>
   </Drawer>
@@ -77,6 +77,7 @@
 <script setup lang="ts">
 import { onMounted, ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
+import { useFormUnsavedCheck } from "@/composables/useFormUnsavedCheck";
 import type { StepperStep } from "@/components/atoms/Stepper.vue";
 import type { ProgressStage } from "@/types/backend/caseManagement/common/CaseDetailView.d";
 import Icon from "@/components/atoms/Icon.vue";
@@ -207,6 +208,14 @@ const editStageItems = ref([
   { id: 4, label: "專案小組" },
   { id: 5, label: "都更大會" },
 ]);
+const buildEditStageSnapshot = () =>
+  JSON.stringify(editStageItems.value.map((item) => ({ id: item.id, label: item.label.trim() })));
+const { hasUnsavedChanges: hasStageChanges, captureInitial: captureStageInitial } = useFormUnsavedCheck(buildEditStageSnapshot);
+
+const handleOpenEditStageDrawer = () => {
+  captureStageInitial();
+  showEditStageDrawer.value = true;
+};
 
 const handleOpenRemoveStage = (item: { id: number; label: string }) => {
   stageToRemoveId.value = item.id;
@@ -304,6 +313,7 @@ const buildProgressStages = () => {
 
 onMounted(() => {
   buildProgressStages();
+  captureStageInitial();
 });
 
 const handleViewDetails = (index: number) => {

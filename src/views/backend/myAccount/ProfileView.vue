@@ -89,7 +89,15 @@
           </div>
         </div>
         <div class="flex justify-center gap-4">
-          <ButtonCTA variant="gray" size="xl" class="w-[124px]" @click="handleSave"> {{ isAdmin ? "儲存變更" : "儲存" }} </ButtonCTA>
+          <ButtonCTA
+            :variant="hasProfileChanges ? 'primary' : 'gray'"
+            size="xl"
+            class="w-[124px]"
+            :disabled="!hasProfileChanges"
+            @click="handleSave"
+          >
+            {{ isAdmin ? "儲存變更" : "儲存" }}
+          </ButtonCTA>
         </div>
       </div>
     </div>
@@ -99,6 +107,7 @@
 <script setup lang="ts">
 import { ref, computed } from "vue";
 import { useRouter } from "vue-router";
+import { useFormUnsavedCheck } from "@/composables/useFormUnsavedCheck";
 import Input from "@/components/atoms/Input.vue";
 import Textarea from "@/components/atoms/Textarea.vue";
 import ButtonCTA from "@/components/atoms/ButtonCTA.vue";
@@ -158,6 +167,30 @@ const departmentOptions = [{ label: "秘書處" }, { label: "都市修復工程�
 
 const divisionOptions = [{ label: "都市修復工程科" }, { label: "住宅發展工程處" }, { label: "都市更新工程科" }, { label: "都計測量工程科" }];
 
+const buildProfileSnapshot = () =>
+  JSON.stringify(
+    isAdmin.value
+      ? {
+          personnelType: adminFormData.value.personnelType.trim(),
+          name: adminFormData.value.name.trim(),
+          account: adminFormData.value.account.trim(),
+          officialEmail: adminFormData.value.officialEmail.trim(),
+          officialExtension: adminFormData.value.officialExtension.trim(),
+          department: adminFormData.value.department.trim(),
+          division: adminFormData.value.division.trim(),
+          reason: adminFormData.value.reason.trim(),
+        }
+      : {
+          name: userFormData.value.name.trim(),
+          idNumber: userFormData.value.idNumber.trim(),
+          account: userFormData.value.account.trim(),
+          phone: userFormData.value.phone.trim(),
+          email: userFormData.value.email.trim(),
+        }
+  );
+const { hasUnsavedChanges: hasProfileChanges, captureInitial: captureProfileInitial } = useFormUnsavedCheck(buildProfileSnapshot);
+captureProfileInitial();
+
 // Event Handlers
 const handleSidebarItemSelect = (itemName: string) => {
   console.log("Selected sidebar item:", itemName);
@@ -186,6 +219,7 @@ const handleSave = () => {
   } else {
     console.log("Save user profile", userFormData.value);
   }
+  captureProfileInitial();
   // 這裡可以調用 API 儲存資料
 };
 </script>
