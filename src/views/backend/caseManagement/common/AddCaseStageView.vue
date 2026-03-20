@@ -151,7 +151,7 @@ const stageOptions = [
 /** 使用者已從彈窗選擇離開，略過下一次 onBeforeRouteLeave 的攔截，避免點一次退出卻彈兩次 */
 const skipNextLeaveCheck = ref(false);
 const isSubmitDisabled = computed(() => !form.value.stage?.trim());
-const { hasUnsavedChanges, captureInitial } = useFormUnsavedCheck(buildFormSnapshot);
+const { hasUnsavedChanges, captureInitial } = useFormUnsavedCheck(() => buildFormSnapshot());
 
 onBeforeRouteLeave((_to, _from, next) => {
   if (skipNextLeaveCheck.value) {
@@ -185,7 +185,7 @@ onMounted(() => {
   });
 });
 
-function buildFormSnapshot() {
+const buildFormSnapshot = () => {
   return JSON.stringify({
     stage: form.value.stage,
     meetingDate: form.value.meetingDate,
@@ -195,7 +195,7 @@ function buildFormSnapshot() {
   });
 }
 
-function getTodayString() {
+const getTodayString = () => {
   const d = new Date();
   const y = d.getFullYear();
   const m = String(d.getMonth() + 1).padStart(2, "0");
@@ -203,7 +203,7 @@ function getTodayString() {
   return `${y}-${m}-${day}`;
 }
 
-function getCurrentTimeString() {
+const getCurrentTimeString = () => {
   const d = new Date();
   const h = String(d.getHours()).padStart(2, "0");
   const min = String(d.getMinutes()).padStart(2, "0");

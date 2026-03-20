@@ -5,7 +5,7 @@ import { computed, ref, type Ref } from "vue";
  * @param getSnapshot 回傳目前表單內容的比對用字串，例如 JSON.stringify({ ... })
  * @param isEditMode 若傳入，僅在編輯模式時才比對；未傳入則新增/編輯都會比對
  */
-export function useFormUnsavedCheck(getSnapshot: () => string, isEditMode?: Ref<boolean>) {
+export const useFormUnsavedCheck = (getSnapshot: () => string, isEditMode?: Ref<boolean>) => {
   const initialSnapshot = ref("");
 
   const captureInitial = () => {
@@ -18,6 +18,5 @@ export function useFormUnsavedCheck(getSnapshot: () => string, isEditMode?: Ref<
   });
 
   return { hasUnsavedChanges, captureInitial };
-}
-
+};
 

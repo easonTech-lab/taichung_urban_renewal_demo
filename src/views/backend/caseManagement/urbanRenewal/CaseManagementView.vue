@@ -194,7 +194,7 @@ const paginationState = reactive(useTablePagination({
   slice: false,
 }));
 
-function getStatusVariant(status: string): "primary" | "success" | "danger" {
+const getStatusVariant = (status: string): "primary" | "success" | "danger" => {
   const mapping: Record<string, "primary" | "success" | "danger"> = {
     進行中: "primary",
     已完成: "success",
@@ -203,7 +203,7 @@ function getStatusVariant(status: string): "primary" | "success" | "danger" {
   return mapping[status] || "primary";
 }
 
-function handleSidebarItemSelect(itemName: string) {
+const handleSidebarItemSelect = (itemName: string) => {
   console.log("Selected sidebar item:", itemName);
 }
 
@@ -228,7 +228,7 @@ const selectedStageText = computed(() => {
   return `已選 ${selectedStages.value.length} 項`;
 });
 
-function handleStageChange(values: (string | number)[]) {
+const handleStageChange = (values: (string | number)[]) => {
   // 檢查傳入的值是否都在 stageOptions 中
   // 注意：CheckboxDropdown 組件在處理 "select-all" 時，會直接發送所有項目的值或空陣列，
   // 永遠不會發送 "select-all" 這個值，所以不需要過濾

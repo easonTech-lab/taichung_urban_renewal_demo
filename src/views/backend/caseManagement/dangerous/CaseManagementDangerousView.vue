@@ -212,7 +212,7 @@ const paginationState = reactive(useTablePagination({
   total: computed(() => (isAdmin.value ? totalCases.value : filteredCases.value.length)),
 }));
 
-function getStatusVariant(status: string): "primary" | "success" | "danger" {
+const getStatusVariant = (status: string): "primary" | "success" | "danger" => {
   const mapping: Record<string, "primary" | "success" | "danger"> = {
     進行中: "primary",
     已完成: "success",
@@ -221,7 +221,7 @@ function getStatusVariant(status: string): "primary" | "success" | "danger" {
   return mapping[status] || "primary";
 }
 
-function handleSidebarItemSelect(itemName: string) {
+const handleSidebarItemSelect = (itemName: string) => {
   console.log("Selected sidebar item:", itemName);
 }
 

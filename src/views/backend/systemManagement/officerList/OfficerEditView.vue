@@ -80,9 +80,9 @@ import SidebarSection from "@/components/sections/backend/SidebarSection.vue";
 
 const router = useRouter();
 const route = useRoute();
+
 const isViewMode = computed(() => route.query.mode === "view");
 const pageTitle = computed(() => (isViewMode.value ? "幹事資訊" : "編輯幹事"));
-
 const breadcrumbItems = computed<BreadcrumbItem[]>(() => [
   { label: "首頁", to: "/" },
   { label: "系統管理" },
@@ -90,13 +90,11 @@ const breadcrumbItems = computed<BreadcrumbItem[]>(() => [
   { label: pageTitle.value },
 ]);
 
-// TODO: 後續串接後端後，改為從 route id 取得幹事資料。
-// 目前因尚未有後端 API，暫從 sessionStorage 讀取列表頁帶入的 mock 編輯資料。
 const OFFICER_EDIT_STORAGE_KEY = "officer-edit-data";
 
 const getStringValue = (value: string | string[] | undefined) => {
   return typeof value === "string" ? value : "";
-};
+}
 
 const officerFromStorage = () => {
   const raw = sessionStorage.getItem(OFFICER_EDIT_STORAGE_KEY);
@@ -116,7 +114,7 @@ const officerFromStorage = () => {
   } catch {
     return null;
   }
-};
+}
 
 const initialData = officerFromStorage();
 const form = ref(
@@ -151,7 +149,7 @@ const { hasUnsavedChanges: hasOfficerChanges, captureInitial: captureOfficerInit
 
 const handleSidebarItemSelect = (itemName: string) => {
   console.log("Selected sidebar item:", itemName);
-};
+}
 
 const handleGoBack = () => {
   const returnTo = typeof route.query.returnTo === "string" ? route.query.returnTo : "";
@@ -160,11 +158,11 @@ const handleGoBack = () => {
     return;
   }
   router.push("/officer-list-management");
-};
+}
 
 const handleAddEducation = () => {
   educationList.value.push("");
-};
+}
 
 const handleSave = () => {
   // TODO: API 儲存
@@ -172,11 +170,11 @@ const handleSave = () => {
   captureOfficerInitial();
   console.log("Save officer:", form.value);
   router.push("/officer-list-management");
-};
+}
 
 const handleCancel = () => {
   router.push("/officer-list-management");
-};
+}
 
 onMounted(() => {
   if (!initialData) {

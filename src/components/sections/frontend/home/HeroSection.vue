@@ -21,6 +21,4 @@
   </section>
 </template>
 
-<script setup lang="ts">
-// Hero Section component
-</script>
+<script setup lang="ts"></script>

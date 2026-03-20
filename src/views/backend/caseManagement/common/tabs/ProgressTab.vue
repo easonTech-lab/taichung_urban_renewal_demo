@@ -86,7 +86,6 @@ import ButtonCTA from "@/components/atoms/ButtonCTA.vue";
 import CaseProgressTable from "@/components/molecules/CaseProgressTable.vue";
 import ConfirmDeleteModal from "@/components/molecules/ConfirmDeleteModal.vue";
 
-
 const props = defineProps<{
   isAdminUser: boolean;
   /** 該案件的幹事名單（用於新增案件階段時帶入參與幹事） */
@@ -107,6 +106,17 @@ const stageColumns = [
   { key: "reviewTime", label: "審議時間", width: 150 },
   { key: "action", label: "操作", width: 184 },
 ];
+const editStageItems = ref([
+  { id: 1, label: "案件申請" },
+  { id: 2, label: "公辦公聽會" },
+  { id: 3, label: "都更幹事會" },
+  { id: 4, label: "專案小組" },
+  { id: 5, label: "都更大會" },
+]);
+const progressStages = ref<ProgressStage[]>([]);
+const showEditStageDrawer = ref(false);
+const showRemoveStageModal = ref(false);
+const stageToRemoveId = ref<number | null>(null);
 
 const buildSubStages = (status: ProgressStage["status"]): StepperStep[] => {
   if (status === "completed") {
@@ -194,20 +204,6 @@ const baseStages: BaseStage[] = [
     isExpanded: false,
   },
 ];
-
-const progressStages = ref<ProgressStage[]>([]);
-
-const showEditStageDrawer = ref(false);
-const showRemoveStageModal = ref(false);
-const stageToRemoveId = ref<number | null>(null);
-
-const editStageItems = ref([
-  { id: 1, label: "案件申請" },
-  { id: 2, label: "公辦公聽會" },
-  { id: 3, label: "都更幹事會" },
-  { id: 4, label: "專案小組" },
-  { id: 5, label: "都更大會" },
-]);
 const buildEditStageSnapshot = () =>
   JSON.stringify(editStageItems.value.map((item) => ({ id: item.id, label: item.label.trim() })));
 const { hasUnsavedChanges: hasStageChanges, captureInitial: captureStageInitial } = useFormUnsavedCheck(buildEditStageSnapshot);
@@ -215,12 +211,12 @@ const { hasUnsavedChanges: hasStageChanges, captureInitial: captureStageInitial 
 const handleOpenEditStageDrawer = () => {
   captureStageInitial();
   showEditStageDrawer.value = true;
-};
+}
 
 const handleOpenRemoveStage = (item: { id: number; label: string }) => {
   stageToRemoveId.value = item.id;
   showRemoveStageModal.value = true;
-};
+}
 
 const handleConfirmRemoveStage = () => {
   if (stageToRemoveId.value !== null) {
@@ -228,18 +224,18 @@ const handleConfirmRemoveStage = () => {
   }
   showRemoveStageModal.value = false;
   stageToRemoveId.value = null;
-};
+}
 
 const handleCancelRemoveStage = () => {
   showRemoveStageModal.value = false;
   stageToRemoveId.value = null;
-};
+}
 
 const getStageIcon = (status: ProgressStage["status"]) => {
   if (status === "completed") return "stepCheck";
   if (status === "current") return "setpUncheck";
   return "stepUncheckGray";
-};
+}
 
 const getStatusBadgeVariant = (status: ProgressStage["status"]) => {
   switch (status) {
@@ -251,11 +247,11 @@ const getStatusBadgeVariant = (status: ProgressStage["status"]) => {
     default:
       return "gray";
   }
-};
+}
 
 const toggleStageExpand = (index: number) => {
   progressStages.value[index].isExpanded = !progressStages.value[index].isExpanded;
-};
+}
 
 const loadStageOverrides = (): Record<string, { status: string }> => {
   try {
@@ -265,13 +261,12 @@ const loadStageOverrides = (): Record<string, { status: string }> => {
   } catch {
     return {};
   }
-};
+}
 
 type StageStatus = ProgressStage["status"];
 
 const mapOverrideStatus = (
-  status: string
-): {
+  status: string): {
   status: StageStatus;
   statusText: string;
   subStageStatus: StageStatus;
@@ -289,7 +284,7 @@ const mapOverrideStatus = (
     return { status: "pending" as const, statusText: "案件廢止", subStageStatus: "pending" as const };
   }
   return { status: "pending", statusText: "未開始", subStageStatus: "pending" };
-};
+}
 
 const buildProgressStages = () => {
   const overrides = loadStageOverrides();
@@ -309,7 +304,7 @@ const buildProgressStages = () => {
       subStages: buildSubStages(mapped.subStageStatus),
     };
   });
-};
+}
 
 onMounted(() => {
   buildProgressStages();

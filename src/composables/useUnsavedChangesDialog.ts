@@ -1,6 +1,6 @@
 import { ref } from "vue";
 
-export function useUnsavedChangesDialog() {
+export const useUnsavedChangesDialog = () => {
   const showUnsavedChangesModal = ref(false);
   const pendingAction = ref<(() => void) | null>(null);
 
@@ -38,4 +38,4 @@ export function useUnsavedChangesDialog() {
     runPendingAction,
     takePendingAction,
   };
-}
+};

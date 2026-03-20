@@ -72,18 +72,17 @@ const route = useRoute();
 
 const isEditMode = computed(() => route.name === "case-statistics-edit");
 const formTitle = computed(() => (isEditMode.value ? "編輯案件件數" : "新增年度"));
-
 const breadcrumbItems = [
   { label: "首頁", to: "/" },
   { label: "首頁維護", to: "/case-statistics" },
   { label: "案件統計維護" },
 ];
 
-// Form State
 const annualCount = ref<CaseStatisticsFormData["annualCount"]>("");
 const yearValue = ref<CaseStatisticsFormData["year"]>("");
 const selectedCategory = ref<CaseStatisticsFormData["category"]>("");
 const showDuplicateModal = ref(false);
+
 const categoryOptions: InputDropdownItem[] = [
   { label: "都更案件", value: "都更案件" },
   { label: "危老案件", value: "危老案件" },
@@ -101,7 +100,6 @@ const buildFormSnapshot = () =>
 const { hasUnsavedChanges, captureInitial } = useFormUnsavedCheck(buildFormSnapshot);
 const canSave = computed(() => !isSaveDisabled.value && hasUnsavedChanges.value);
 
-// Case Data (從路由參數或查詢參數獲取)
 const caseData = ref({
   caseCategory: "都更案件",
   year: "114",
@@ -117,14 +115,13 @@ const existingStatistics: CaseStatisticsFormData[] = [
   { year: "112", category: "危老案件", annualCount: "22" },
 ];
 
-// Event Handlers
 const handleSidebarItemSelect = (itemName: string) => {
   console.log("Selected sidebar item:", itemName);
-};
+}
 
 const handleGoBack = () => {
   router.back();
-};
+}
 
 const handleSave = () => {
   if (!isEditMode.value) {
@@ -151,13 +148,12 @@ const handleSave = () => {
     },
   });
   captureInitial();
-};
+}
 
 const handleCategoryChange = (item: InputDropdownItem) => {
   selectedCategory.value = item.label;
-};
+}
 
-// 初始化數據
 onMounted(() => {
   if (isEditMode.value) {
     // 從路由查詢參數獲取數據（如果有的話）

@@ -26,7 +26,7 @@ import Icon from "@/components/atoms/Icon.vue";
 
 defineProps<{
   title: string;
-  iconName: string; // 改用 iconName 而不是 iconSrc
+  iconName: string;
   href: string;
 }>();
 </script>

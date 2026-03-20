@@ -110,8 +110,8 @@
 </template>
 
 <script setup lang="ts">
-import { useRouter, useRoute } from "vue-router";
 import { ref, watch, computed, onMounted } from "vue";
+import { useRoute, useRouter } from "vue-router";
 import { useFormUnsavedCheck } from "@/composables/useFormUnsavedCheck";
 import Input from "@/components/atoms/Input.vue";
 import Switch from "@/components/atoms/Switch.vue";
@@ -123,11 +123,7 @@ import SidebarSection from "@/components/sections/backend/SidebarSection.vue";
 
 const router = useRouter();
 const route = useRoute();
-
-// 判斷是新增還是編輯模式
 const isEditMode = computed(() => route.query.mode === "edit");
-
-// Form Data
 const formData = ref({
   name: "",
   email: "",
@@ -156,9 +152,7 @@ const formData = ref({
 });
 
 const selectAllPermissions = ref(false);
-const isIndeterminate = ref(false); // 半選狀態
-
-// 權限組配置
+const isIndeterminate = ref(false);
 const permissionGroups = [
   {
     key: "caseManagement",
@@ -189,9 +183,7 @@ const permissionGroups = [
   },
 ];
 
-// Options
 const departmentOptions = [{ label: "都市修復工程科" }, { label: "住宅發展工程處" }, { label: "都市更新工程科" }, { label: "都計測量工程科" }];
-
 const groupOptions = [
   { label: "審議委員" },
   { label: "業務承辦人員" },
@@ -227,18 +219,17 @@ const hasRequiredFields = computed(
 );
 const canSubmit = computed(() => hasFormChanges.value && hasRequiredFields.value);
 
-// Event Handlers
 const handleSidebarItemSelect = (itemName: string) => {
   console.log("Selected sidebar item:", itemName);
-};
+}
 
 const handleGoBack = () => {
   router.back();
-};
+}
 
 const handleDepartmentSelect = (item: any) => {
   formData.value.department = item.label;
-};
+}
 
 const handleGroupSelect = (item: any) => {
   formData.value.group = item.label;

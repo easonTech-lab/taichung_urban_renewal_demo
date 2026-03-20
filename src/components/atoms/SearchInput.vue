@@ -104,13 +104,14 @@ const props = withDefaults(
 // Vue 2.7 的 defineEmits 需要明確聲明
 const emit = defineEmits(["update:modelValue", "submit", "input"]);
 
-const inputId = computed(() => `search-input-${Math.random().toString(36).substring(2, 11)}`);
-
 const searchValue = ref(props.modelValue || "");
-
-// 計算是否有輸入值
-const hasValue = computed(() => {
-  return searchValue.value && searchValue.value.trim().length > 0;
+const inputId = computed(() => `search-input-${Math.random().toString(36).substring(2, 11)}`);
+const hasValue = computed(() => searchValue.value && searchValue.value.trim().length > 0);
+const inputClasses = computed(() => {
+  if (props.inputVariant === "gray") {
+    return "bg-gray-50 border border-gray-300 placeholder:text-gray-500 text-gray-900";
+  }
+  return "bg-white border border-gray-300 placeholder:text-gray-500 text-gray-900";
 });
 
 watch(
@@ -121,13 +122,6 @@ watch(
   { immediate: true }
 );
 
-const inputClasses = computed(() => {
-  if (props.inputVariant === "gray") {
-    return "bg-gray-50 border border-gray-300 placeholder:text-gray-500 text-gray-900";
-  }
-  return "bg-white border border-gray-300 placeholder:text-gray-500 text-gray-900";
-});
-
 const handleInput = (event: Event) => {
   const value = (event.target as HTMLInputElement).value;
   searchValue.value = value;
@@ -136,13 +130,13 @@ const handleInput = (event: Event) => {
   if (props.autoSearch) {
     emit("input", value);
   }
-};
+}
 
 const handleSubmit = () => {
   if (!props.disabled) {
     emit("submit", searchValue.value);
   }
-};
+}
 
 const handleClear = () => {
   searchValue.value = "";
@@ -150,5 +144,5 @@ const handleClear = () => {
   if (props.autoSearch) {
     emit("input", "");
   }
-};
+}
 </script>

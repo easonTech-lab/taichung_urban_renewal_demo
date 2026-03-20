@@ -71,6 +71,12 @@ const emit = defineEmits<{
   "request-delete": [row: ComplaintRow];
 }>();
 
+const defaultComplaintSections: ComplaintSection[] = [
+  { title: "書面受理資料", rows: [] },
+  { title: "委員會審議紀錄", rows: [] },
+  { title: "人民或團體陳情意見綜理表", rows: [] },
+];
+
 const complaintTableColumns: TableColumn[] = [
   {
     key: "title",
@@ -91,12 +97,6 @@ const complaintTableColumns: TableColumn[] = [
   },
 ];
 
-const defaultComplaintSections: ComplaintSection[] = [
-  { title: "書面受理資料", rows: [] },
-  { title: "委員會審議紀錄", rows: [] },
-  { title: "人民或團體陳情意見綜理表", rows: [] },
-];
-
 const sectionsToRender = computed(() => {
   if (props.complaintSections.length > 0) {
     return props.complaintSections;
@@ -106,17 +106,17 @@ const sectionsToRender = computed(() => {
 
 const handleComplaintUpload = (section: ComplaintSection) => {
   emit("upload", section);
-};
+}
 
 const getEmptyMessage = (sectionTitle: string) => {
   return `尚無${sectionTitle}`;
-};
+}
 
 const handleComplaintDownload = (row: ComplaintRow) => {
   emit("download", row);
-};
+}
 
 const handleComplaintDelete = (row: ComplaintRow) => {
   emit("request-delete", row);
-};
+}
 </script>

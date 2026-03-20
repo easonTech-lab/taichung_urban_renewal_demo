@@ -225,6 +225,7 @@ import UnsavedChangesModal from "@/components/molecules/UnsavedChangesModal.vue"
 import Table, { type TableColumn } from "@/components/atoms/Table.vue";
 import InputDropdown, { type InputDropdownItem } from "@/components/atoms/InputDropdown.vue";
 import type { DrawerMode, OfficerItem, OfficerTableRow } from "@/types/backend/caseManagement/common/CaseDetailView.d";
+
 const props = defineProps<{
   isAdminUser: boolean;
   caseInfo: {
@@ -247,6 +248,8 @@ const emit = defineEmits<{
 }>();
 const officerUnsavedDialog = useUnsavedChangesDialog();
 
+const router = useRouter();
+const route = useRoute();
 const isDrawerOpen = ref(false);
 const showOfficerRemoveModal = ref(false);
 const pendingOfficerRemoveIndex = ref<number | null>(null);
@@ -288,9 +291,6 @@ const saveToastPositionStyle = {
   maxWidth: "min(1420px, calc(100vw - 2rem))",
   minWidth: "min(1420px, calc(100vw - 2rem))",
 };
-
-const router = useRouter();
-const route = useRoute();
 
 const isDangerous = computed(() => route.query?.caseType === "dangerous");
 
@@ -337,7 +337,7 @@ const handleCardClick = (cardType: string) => {
     console.log("Card clicked:", cardType);
     // TODO: Navigate to 容積獎勵項目及額度 when route exists
   }
-};
+}
 
 const officerTableColumns: TableColumn[] = [
   { key: "index", label: "項次", width: "6%", headerClass: "px-4 py-4 text-left text-sm font-medium text-gray-500", cellClass: "p-0 align-middle" },
@@ -388,14 +388,14 @@ const editForm = ref({
 const getAvailableOfficersForIndex = (index: number) => {
   const selectedOfficers = localOfficerList.value.map((o, i) => (i !== index ? o.selectedOfficer : "")).filter((o) => o !== "");
   return allAvailableOfficers.filter((officer) => !selectedOfficers.includes(officer.label));
-};
+}
 
 const openOfficerListDrawer = () => {
   drawerMode.value = "officerList";
   localOfficerList.value = props.officerList.map((item) => ({ ...item }));
   captureOfficerListInitial();
   isDrawerOpen.value = true;
-};
+}
 
 const handleImportOfficerList = () => {
   localOfficerList.value = props.officerTableRows.map((row) => ({
@@ -404,11 +404,11 @@ const handleImportOfficerList = () => {
   captureOfficerListInitial();
   drawerMode.value = "officerList";
   isDrawerOpen.value = true;
-};
+}
 
 const handleExportOfficerList = () => {
   console.log("Export officer list");
-};
+}
 
 const handleDrawerClose = () => {
   if (drawerMode.value === "officerList") {

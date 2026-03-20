@@ -192,8 +192,10 @@ const emit = defineEmits<{
   "row-click": [row: Record<string, any>, rowIndex: number, event: MouseEvent];
 }>();
 
-const tableId = computed(() => Math.random().toString(36).substring(2, 11));
 const selectedRows = ref<Set<number>>(new Set());
+const tableId = computed(() => Math.random().toString(36).substring(2, 11));
+const sortBy = ref<string>("");
+const sortOrder = ref<"asc" | "desc">("asc");
 const resolvedMinWidth = computed(() => {
   if (typeof props.minWidth === "number") {
     return `${props.minWidth}px`;
@@ -206,10 +208,6 @@ const resolvedMinWidth = computed(() => {
   return `${Math.max(500, columnCount * 140)}px`;
 });
 
-// 排序狀態（內部管理）
-const sortBy = ref<string>("");
-const sortOrder = ref<"asc" | "desc">("asc");
-
 const isAllSelected = computed(() => {
   if (props.rows.length === 0) return false;
   return selectedRows.value.size === props.rows.length;
@@ -217,7 +215,7 @@ const isAllSelected = computed(() => {
 
 const isRowSelected = (rowIndex: number) => {
   return selectedRows.value.has(rowIndex);
-};
+}
 
 const getRowKey = (row: Record<string, any>, rowIndex: number): string | number => {
   if (typeof props.rowKey === "function") {
@@ -227,7 +225,7 @@ const getRowKey = (row: Record<string, any>, rowIndex: number): string | number 
     return row[props.rowKey] as string | number;
   }
   return rowIndex;
-};
+}
 
 const handleSelectAll = (event: Event) => {
   const checked = (event.target as HTMLInputElement).checked;
@@ -237,7 +235,7 @@ const handleSelectAll = (event: Event) => {
     selectedRows.value.clear();
   }
   emit("select-all", checked);
-};
+}
 
 const handleRowSelect = (rowIndex: number, event: Event) => {
   const checked = (event.target as HTMLInputElement).checked;
@@ -247,11 +245,11 @@ const handleRowSelect = (rowIndex: number, event: Event) => {
     selectedRows.value.delete(rowIndex);
   }
   emit("row-select", rowIndex, checked);
-};
+}
 
 const getCellValue = (row: Record<string, any>, column: TableColumn) => {
   return row[column.key] ?? "";
-};
+}
 
 const paginationPages = computed(() => {
   if (!props.pagination) return [];

@@ -116,8 +116,6 @@ import InputDropdown from "@/components/atoms/InputDropdown.vue";
 import SidebarSection from "@/components/sections/backend/SidebarSection.vue";
 
 const router = useRouter();
-
-// Check if user is admin
 const isAdmin = computed(() => {
   const userInfo = localStorage.getItem("userInfo");
   if (userInfo) {
@@ -131,7 +129,6 @@ const isAdmin = computed(() => {
   return false;
 });
 
-// Admin Form Data
 const adminFormData = ref({
   personnelType: "業務承辦人員",
   name: "陳傑瑞",
@@ -143,7 +140,6 @@ const adminFormData = ref({
   reason: "都市更新",
 });
 
-// User Form Data
 const userFormData = ref({
   name: "陳傑瑞",
   idNumber: "A123456789",
@@ -152,7 +148,6 @@ const userFormData = ref({
   email: "1111111@gmail.com",
 });
 
-// Options
 const personnelTypeOptions = [
   { label: "業務承辦人員" },
   { label: "審議委員" },
@@ -191,26 +186,25 @@ const buildProfileSnapshot = () =>
 const { hasUnsavedChanges: hasProfileChanges, captureInitial: captureProfileInitial } = useFormUnsavedCheck(buildProfileSnapshot);
 captureProfileInitial();
 
-// Event Handlers
 const handleSidebarItemSelect = (itemName: string) => {
   console.log("Selected sidebar item:", itemName);
-};
+}
 
 const handlePersonnelTypeSelect = (item: any) => {
   adminFormData.value.personnelType = item.label;
-};
+}
 
 const handleDepartmentSelect = (item: any) => {
   adminFormData.value.department = item.label;
-};
+}
 
 const handleDivisionSelect = (item: any) => {
   adminFormData.value.division = item.label;
-};
+}
 
 const handleChangePassword = () => {
   router.push("/change-password");
-};
+}
 
 const handleSave = () => {
   // TODO: 實現儲存功能
@@ -221,5 +215,5 @@ const handleSave = () => {
   }
   captureProfileInitial();
   // 這裡可以調用 API 儲存資料
-};
+}
 </script>

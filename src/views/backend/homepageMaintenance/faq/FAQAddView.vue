@@ -134,7 +134,7 @@ const isPublishDisabled = computed(() => {
   return answerTextLength.value === 0;
 });
 
-const { hasUnsavedChanges, captureInitial } = useFormUnsavedCheck(buildFormSnapshot, isEditMode);
+const { hasUnsavedChanges, captureInitial } = useFormUnsavedCheck(() => buildFormSnapshot(), isEditMode);
 
 const navigateToFAQList = () => {
   router.push("/faq-management");
@@ -155,14 +155,14 @@ onMounted(() => {
   captureInitial();
 });
 
-function getPlainTextLength(html: string): number {
+const getPlainTextLength = (html: string): number => {
   if (!html) return 0;
   const tempDiv = document.createElement("div");
   tempDiv.innerHTML = html;
   return tempDiv.textContent?.length || 0;
 }
 
-function buildFormSnapshot() {
+const buildFormSnapshot = () => {
   return JSON.stringify({
     title: formData.value.title.trim(),
     category: formData.value.category,

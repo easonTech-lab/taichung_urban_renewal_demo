@@ -689,7 +689,7 @@ const canDraftCurrentTab = computed(() => {
 });
 
 /** 解析案件詳情頁傳入的申請日期（例：114/10/20）為 Date */
-function parseApplyDateFromCaseInfo(value: string): Date | null {
+const parseApplyDateFromCaseInfo = (value: string): Date | null => {
   if (!value || typeof value !== "string") return null;
   const m = value.trim().match(/^(\d+)\/(\d+)\/(\d+)$/);
   if (!m) return null;

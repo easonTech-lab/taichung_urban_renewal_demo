@@ -32,7 +32,6 @@ const props = withDefaults(
 
 const activeTextClass = "text-2xl font-medium text-primary-600";
 const inactiveTextClass = "text-2xl font-medium text-neutral-300";
-
 const progressValue = computed(() => {
   if (typeof props.progress === "number") {
     return Math.min(100, Math.max(0, props.progress));

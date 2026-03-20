@@ -39,5 +39,5 @@ const emit = defineEmits<{
 
 const handleDelete = () => {
   emit("delete");
-};
+}
 </script>

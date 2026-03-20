@@ -100,13 +100,13 @@ const emit = defineEmits<{
   "file-removed": [index: number];
 }>();
 
+const fileInputRef = ref<HTMLInputElement | null>(null);
+const isDragging = ref(false);
+const maxSizeBytes = computed(() => props.maxSize * 1024 * 1024);
 const files = computed({
   get: () => props.modelValue || [],
   set: (value) => emit("update:modelValue", value),
 });
-
-const fileInputRef = ref<HTMLInputElement | null>(null);
-const isDragging = ref(false);
 
 const isAcceptValid = (file: File): boolean => {
   if (!props.accept || props.accept === "*") return true;
@@ -118,18 +118,15 @@ const isAcceptValid = (file: File): boolean => {
     if (rule.endsWith("/*")) return type.startsWith(rule.slice(0, -1));
     return type === rule || name.endsWith(rule);
   });
-};
-
-const maxSizeBytes = computed(() => props.maxSize * 1024 * 1024);
+}
 
 /** 必須在使用者點擊的同一同步執行緒裡呼叫 input.click()，否則部分瀏覽器不會開選檔視窗 */
 const onSelectFileClick = () => {
   fileInputRef.value?.click();
-};
+}
 
 const validateFile = (
-  file: File
-): { valid: true } | { valid: false; payload: FileUploadErrorPayload } => {
+  file: File): { valid: true } | { valid: false; payload: FileUploadErrorPayload } => {
   if (!isAcceptValid(file)) {
     return { valid: false, payload: { type: "format" } };
   }
@@ -137,7 +134,7 @@ const validateFile = (
     return { valid: false, payload: { type: "size", maxSize: props.maxSize } };
   }
   return { valid: true };
-};
+}
 
 const handleFileChange = (event: Event) => {
   const target = event.target as HTMLInputElement;
@@ -176,7 +173,7 @@ const handleFileChange = (event: Event) => {
     }
     emit("file-selected", validFiles);
   }
-};
+}
 
 const handleDrop = (event: DragEvent) => {
   isDragging.value = false;
@@ -209,11 +206,11 @@ const handleDrop = (event: DragEvent) => {
     }
     emit("file-selected", validFiles);
   }
-};
+}
 
 const handleRemoveFile = (index: number) => {
   const newFiles = files.value.filter((_, i) => i !== index);
   files.value = newFiles;
   emit("file-removed", index);
-};
+}
 </script>

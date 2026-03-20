@@ -181,15 +181,15 @@ const paginationState = reactive(useTablePagination({
   pageSize,
 }));
 
-function handleSidebarItemSelect(itemName: string) {
+const handleSidebarItemSelect = (itemName: string) => {
   console.log("Selected sidebar item:", itemName);
 }
 
-function handleAddQuestion() {
+const handleAddQuestion = () => {
   router.push("/faq-management/add");
 }
 
-function handleStatusChange(row: Record<string, any>, value: boolean) {
+const handleStatusChange = (row: Record<string, any>, value: boolean) => {
   const item = row as FaqItem;
   item.status = value;
   console.log("Status changed for:", item, "New status:", value);
@@ -201,11 +201,11 @@ function handleStatusChange(row: Record<string, any>, value: boolean) {
   // TODO: Implement status change logic
 }
 
-function handleRowClick(row: Record<string, any>) {
+const handleRowClick = (row: Record<string, any>) => {
   handleEdit(row);
 }
 
-function handleEdit(row: Record<string, any>) {
+const handleEdit = (row: Record<string, any>) => {
   const item = row as FaqItem;
   router.push({
     path: "/faq-management/add",
@@ -218,19 +218,19 @@ function handleEdit(row: Record<string, any>) {
   });
 }
 
-function handleDelete(row: Record<string, any>) {
+const handleDelete = (row: Record<string, any>) => {
   const item = row as FaqItem;
   console.log("Delete clicked for:", item);
   deleteTarget.value = item;
   showDeleteModal.value = true;
 }
 
-function handleCloseDeleteModal() {
+const handleCloseDeleteModal = () => {
   showDeleteModal.value = false;
   deleteTarget.value = null;
 }
 
-function handleConfirmDelete() {
+const handleConfirmDelete = () => {
   if (deleteTarget.value) {
     allFAQs.value = allFAQs.value.filter((item) => item.index !== deleteTarget.value?.index);
   }

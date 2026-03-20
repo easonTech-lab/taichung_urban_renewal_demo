@@ -61,7 +61,7 @@ interface MeetingItem {
   name: string;
   fileUrl: string;
   fileSize: string;
-  isMedium?: boolean; // 是否使用 medium 字重
+  isMedium?: boolean;
 }
 
 const meetings: MeetingItem[] = [

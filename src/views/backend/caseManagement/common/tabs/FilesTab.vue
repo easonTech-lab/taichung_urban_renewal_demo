@@ -51,8 +51,6 @@ import Dropdown, { type DropdownItem } from "@/components/atoms/Dropdown.vue";
 import type { ProjectFile } from "@/types/backend/caseManagement/common/CaseDetailView.d";
 
 const props = defineProps<{ files: ProjectFile[] }>();
-const hasAnyFiles = computed(() => props.files.length > 0);
-
 const emit = defineEmits<{
   download: [file: ProjectFile];
   "request-delete": [file: ProjectFile];
@@ -60,6 +58,8 @@ const emit = defineEmits<{
 
 const selectedFileStage = ref<string>("全部案件階段");
 const selectedFileCategory = ref<string>("檔案類別");
+const filePageSize = ref(10);
+
 const fileStageOptions: DropdownItem[] = [
   { label: "全部案件階段", value: "全部案件階段" },
   { label: "案件申請", value: "案件申請" },
@@ -113,7 +113,7 @@ const fileTableColumns: TableColumn[] = [
   },
 ];
 
-const filePageSize = ref(10);
+const hasAnyFiles = computed(() => props.files.length > 0);
 
 const filteredFiles = computed(() => {
   let files = [...props.files];
@@ -134,18 +134,18 @@ const filePaginationState = reactive(useTablePagination({
 const handleFileStageChange = (item: DropdownItem) => {
   selectedFileStage.value = item.value || "全部案件階段";
   filePaginationState.resetPage();
-};
+}
 
 const handleFileCategoryChange = (item: DropdownItem) => {
   selectedFileCategory.value = item.value || "檔案類別";
   filePaginationState.resetPage();
-};
+}
 
 const handleFileDownload = (file: ProjectFile) => {
   emit("download", file);
-};
+}
 
 const handleFileDelete = (file: ProjectFile) => {
   emit("request-delete", file);
-};
+}
 </script>

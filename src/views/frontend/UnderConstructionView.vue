@@ -13,6 +13,5 @@
     </div>
   </div>
 </template>
-<script setup lang="ts">
-// 施工中頁面
-</script>
+
+<script setup lang="ts"></script>

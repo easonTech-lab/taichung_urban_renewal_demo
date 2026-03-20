@@ -115,9 +115,9 @@ import ProgressTab from "@/views/backend/caseManagement/common/tabs/ProgressTab.
 import CaseInfoTab from "@/views/backend/caseManagement/common/tabs/CaseInfoTab.vue";
 import ComplaintsTab from "@/views/backend/caseManagement/common/tabs/ComplaintsTab.vue";
 import type { ComplaintRow, ComplaintSection, OfficerItem, OfficerTableRow, ProjectFile } from "@/types/backend/caseManagement/common/CaseDetailView.d";
+
 const route = useRoute();
 const router = useRouter();
-
 const tabs = computed(() => {
   if (isAdminUser.value) {
     return [
@@ -135,17 +135,11 @@ const tabs = computed(() => {
 });
 
 const activeTab = ref<string>("info");
-const validTabValues = computed(() => tabs.value.map((tab) => tab.value));
-const syncTabFromRoute = () => {
-  const queryTab = route.query?.tab as string | undefined;
-  if (queryTab && validTabValues.value.includes(queryTab)) {
-    activeTab.value = queryTab;
-  }
-};
 const activeTabIndex = computed(() => {
   const index = tabs.value.findIndex((tab) => tab.value === activeTab.value);
   return index === -1 ? 0 : index;
 });
+const validTabValues = computed(() => tabs.value.map((tab) => tab.value));
 const isAdminUser = computed(() => {
   const userInfo = localStorage.getItem("userInfo");
   if (!userInfo) return false;
@@ -156,6 +150,13 @@ const isAdminUser = computed(() => {
     return false;
   }
 });
+
+const syncTabFromRoute = () => {
+  const queryTab = route.query?.tab as string | undefined;
+  if (queryTab && validTabValues.value.includes(queryTab)) {
+    activeTab.value = queryTab;
+  }
+}
 
 const getTabClass = (index: number): string => {
   const isActive = index === activeTabIndex.value;
@@ -168,12 +169,12 @@ const getTabClass = (index: number): string => {
   }
 
   return baseClasses.join(" ");
-};
+}
 
 const getTabTextClass = (index: number): string => {
   const isActive = index === activeTabIndex.value;
   return isActive ? "text-base font-medium text-primary-500" : "text-base font-medium text-gray-500";
-};
+}
 
 const handleTabClick = (index: number) => {
   const nextTab = tabs.value[index]?.value || "info";
@@ -185,14 +186,15 @@ const handleTabClick = (index: number) => {
       tab: nextTab,
     },
   });
-};
+}
 
 const handleSidebarItemSelect = (itemName: string) => {
   console.log("Selected sidebar item:", itemName);
-};
+}
+
 const handleUnsavedToast = (visible: boolean) => {
   showUnsavedToast.value = visible;
-};
+}
 
 watch(
   () => tabs.value,

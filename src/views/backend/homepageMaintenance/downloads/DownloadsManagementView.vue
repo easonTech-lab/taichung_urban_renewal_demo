@@ -179,20 +179,20 @@ const paginationState = reactive(useTablePagination({
   slice: false,
 }));
 
-function handleSidebarItemSelect(itemName: string) {
+const handleSidebarItemSelect = (itemName: string) => {
   console.log("Selected sidebar item:", itemName);
 }
 
-function handleCategoryChange(item: { label: string; value?: string }) {
+const handleCategoryChange = (item: { label: string; value?: string }) => {
   selectedCategory.value = item.value || "";
   paginationState.resetPage();
 }
 
-function handleAddDownload() {
+const handleAddDownload = () => {
   router.push("/downloads-management/add");
 }
 
-function handleStatusChange(row: Record<string, any>, value: boolean) {
+const handleStatusChange = (row: Record<string, any>, value: boolean) => {
   const item = row as DownloadItem;
   item.status = value;
   console.log("Status changed for:", item, "New status:", value);
@@ -204,13 +204,13 @@ function handleStatusChange(row: Record<string, any>, value: boolean) {
   // TODO: Implement status change logic
 }
 
-function handleDelete(row: Record<string, any>) {
+const handleDelete = (row: Record<string, any>) => {
   const item = row as DownloadItem;
   deleteTarget.value = item;
   showDeleteModal.value = true;
 }
 
-function handleRowClick(row: Record<string, any>) {
+const handleRowClick = (row: Record<string, any>) => {
   handleEdit(row);
 }
 

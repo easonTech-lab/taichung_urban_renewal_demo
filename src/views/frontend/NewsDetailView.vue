@@ -90,10 +90,11 @@
 </template>
 
 <script setup lang="ts">
-import { useRoute, useRouter } from "vue-router";
 import Icon from "@/components/atoms/Icon.vue";
 import Breadcrumb from "@/components/atoms/Breadcrumb.vue";
 import FooterSection from "@/components/sections/global/FooterSection.vue";
+import { useRoute, useRouter } from "vue-router";
+
 const route = useRoute();
 const router = useRouter();
 const newsId = Number(route.params.id || 1);
@@ -169,5 +170,5 @@ const relatedNews = [
 
 const handleRelatedClick = (id: number) => {
   router.push(`/news/${id}`);
-};
+}
 </script>

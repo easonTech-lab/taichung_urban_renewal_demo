@@ -95,22 +95,10 @@ const emit = defineEmits(["item-click", "toggle"]);
 const isOpen = ref(false);
 const buttonRef = ref<HTMLElement | null>(null);
 const itemRefs = ref<HTMLElement[]>([]);
+const menuStyle = ref<Record<string, string>>({});
 const instanceId = `dropdown-${Math.random().toString(36).substring(2, 11)}`;
 const buttonId = `${instanceId}-button`;
 const dropdownId = `${instanceId}-menu`;
-
-const menuStyle = ref<Record<string, string>>({});
-
-const updateMenuPosition = () => {
-  if (!buttonRef.value) return;
-  const rect = buttonRef.value.getBoundingClientRect();
-  const gap = 4;
-  const leftPx = props.align === "right" ? rect.right - 176 : rect.left;
-  menuStyle.value = {
-    top: `${rect.bottom + gap}px`,
-    left: `${leftPx}px`,
-  };
-};
 
 const buttonClasses = computed(() => {
   return "bg-gray-50 border border-gray-300 text-gray-500 hover:bg-gray-100 focus:border-primary-500 focus:ring-primary-500 rounded-lg px-4 py-3 text-sm font-normal leading-[1.25]";
@@ -126,10 +114,21 @@ const buttonTextClasses = computed(() => {
   return isPlaceholder ? "text-gray-500" : "text-gray-900";
 });
 
+const updateMenuPosition = () => {
+  if (!buttonRef.value) return;
+  const rect = buttonRef.value.getBoundingClientRect();
+  const gap = 4;
+  const leftPx = props.align === "right" ? rect.right - 176 : rect.left;
+  menuStyle.value = {
+    top: `${rect.bottom + gap}px`,
+    left: `${leftPx}px`,
+  };
+}
+
 const setItemRef = (el: Element | null, index: number) => {
   if (!el) return;
   itemRefs.value[index] = el as HTMLElement;
-};
+}
 
 const focusItem = (index: number) => {
   const itemsCount = props.items.length;
@@ -137,7 +136,7 @@ const focusItem = (index: number) => {
 
   const normalizedIndex = ((index % itemsCount) + itemsCount) % itemsCount;
   itemRefs.value[normalizedIndex]?.focus();
-};
+}
 
 const openAndFocusItem = async (index = 0) => {
   if (!isOpen.value) {
@@ -147,26 +146,26 @@ const openAndFocusItem = async (index = 0) => {
     await nextTick();
   }
   focusItem(index);
-};
+}
 
 const toggle = () => {
   const willOpen = !isOpen.value;
   if (willOpen) updateMenuPosition();
   isOpen.value = willOpen;
   emit("toggle", isOpen.value);
-};
+}
 
 const close = () => {
   if (isOpen.value) {
     isOpen.value = false;
     emit("toggle", false);
   }
-};
+}
 
 const closeAndFocusButton = () => {
   close();
   buttonRef.value?.focus();
-};
+}
 
 const handleItemClick = (item: DropdownItem, index: number, event: Event) => {
   if (!item.to && !item.href) {
@@ -174,7 +173,7 @@ const handleItemClick = (item: DropdownItem, index: number, event: Event) => {
   }
   emit("item-click", item, index);
   close();
-};
+}
 
 const handleClickOutside = (event: Event) => {
   const target = event.target as HTMLElement;
@@ -184,11 +183,11 @@ const handleClickOutside = (event: Event) => {
   if (isOpen.value && dropdownElement && buttonElement && !dropdownElement.contains(target) && !buttonElement.contains(target)) {
     close();
   }
-};
+}
 
 const handleScrollOrResize = () => {
   if (isOpen.value) close();
-};
+}
 
 onMounted(() => {
   document.addEventListener("click", handleClickOutside);

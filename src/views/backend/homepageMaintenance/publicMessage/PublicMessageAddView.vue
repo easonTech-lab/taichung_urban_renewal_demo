@@ -119,7 +119,7 @@ const isPublishDisabled = computed(() => {
   return formData.value.files.length === 0;
 });
 
-const { hasUnsavedChanges, captureInitial } = useFormUnsavedCheck(buildFormSnapshot, isEditMode);
+const { hasUnsavedChanges, captureInitial } = useFormUnsavedCheck(() => buildFormSnapshot(), isEditMode);
 
 const handleSaveDraft = () => {
   // TODO: Implement save draft functionality
@@ -166,19 +166,19 @@ onMounted(() => {
   captureInitial();
 });
 
-function getPlainTextLength(html: string): number {
+const getPlainTextLength = (html: string): number => {
   if (!html) return 0;
   const tempDiv = document.createElement("div");
   tempDiv.innerHTML = html;
   return tempDiv.textContent?.length || 0;
 }
 
-function getFilesSignature(files: File[]): string {
+const getFilesSignature = (files: File[]): string => {
   const arr = [...files].sort((a, b) => a.name.localeCompare(b.name)).map((f) => `${f.name}|${f.size}`);
   return JSON.stringify(arr);
 }
 
-function buildFormSnapshot(): string {
+const buildFormSnapshot = (): string => {
   return JSON.stringify({
     title: formData.value.title.trim(),
     category: formData.value.category,

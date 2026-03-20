@@ -87,6 +87,4 @@
   </footer>
 </template>
 
-<script setup lang="ts">
-// Footer component
-</script>
+<script setup lang="ts"></script>

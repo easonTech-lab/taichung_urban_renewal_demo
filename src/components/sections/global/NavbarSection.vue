@@ -36,82 +36,33 @@
 </template>
 
 <script setup lang="ts">
-import { useRouter, useRoute } from "vue-router";
 import { ref, computed, onMounted, onUnmounted, watch } from "vue";
+import { useRoute, useRouter } from "vue-router";
 import { useSidebarMenuConfig } from "@/composables/useSidebarMenuConfig";
 import * as routerModule from "@/router/index";
 import ButtonCTA from "@/components/atoms/ButtonCTA.vue";
 import AvatarDropdown, { type AvatarDropdownItem } from "@/components/atoms/AvatarDropdown.vue";
 
-
 const router = useRouter();
 const route = useRoute();
-
-// 獲取導航欄顯示的路由
-const getNavRoutes = (): Array<{ path: string; label: string }> => {
-  const routes = routerModule.routes;
-  return routes
-    .filter((route: any) => {
-      // 只包含 meta.showInNav 為 true 的路由
-      return route.meta?.showInNav === true;
-    })
-    .map((route: any) => ({
-      path: route.path,
-      label: route.meta?.navLabel || route.name,
-    }));
-};
-
-const navRoutes = computed(() => getNavRoutes());
-
-// 使用 ref 來追蹤登入狀態，確保響應式更新
 const userInfo = ref<string | null>(localStorage.getItem("userInfo"));
 
-// 檢查登入狀態
-const checkLoginStatus = () => {
-  userInfo.value = localStorage.getItem("userInfo");
-};
-
-// 監聽路由變化，當路由改變時重新檢查登入狀態
-watch(
-  () => route.path,
-  () => {
-    checkLoginStatus();
-  }
-);
-
-// 監聽 storage 事件（當其他標籤頁或窗口改變 localStorage 時）
-onMounted(() => {
-  checkLoginStatus();
-  window.addEventListener("storage", checkLoginStatus);
-  // 監聽自定義事件（當同一個標籤頁內登入/登出時）
-  window.addEventListener("login-status-changed", checkLoginStatus);
-});
-
-// 清理事件監聽器
-onUnmounted(() => {
-  window.removeEventListener("storage", checkLoginStatus);
-  window.removeEventListener("login-status-changed", checkLoginStatus);
-});
-
+const navRoutes = computed(() => getNavRoutes());
 const isLoggedIn = computed(() => !!userInfo.value);
 const isAuthPage = computed(() => {
   return route.path === "/login" || route.path === "/forgot-password";
 });
-
 const userName = computed(() => {
   if (!userInfo.value) return "訪客";
   const user = JSON.parse(userInfo.value);
   return user.username === "adm" ? "陳傑瑞" : user.username;
 });
-
 const userEmail = computed(() => {
   if (!userInfo.value) return "name@flowbite.com";
   const user = JSON.parse(userInfo.value);
   return user.email || "name@flowbite.com";
 });
-
 const userSurname = computed(() => userName.value.charAt(0));
-
 const isAdmin = computed(() => {
   try {
     if (!userInfo.value) return false;
@@ -122,27 +73,58 @@ const isAdmin = computed(() => {
     return false;
   }
 });
-
 const avatarItems = computed<AvatarDropdownItem[]>(() => {
   return useSidebarMenuConfig(isAdmin.value).map((item) => ({
     label: item.title,
     icon: item.icon,
   }));
 });
-
 const navLinkClass = computed(() => {
   return isLoggedIn.value
     ? "text-base font-medium leading-normal text-gray-900 hover:text-primary-700"
     : "text-sm font-medium text-gray-900 hover:text-primary-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500";
 });
 
+const getNavRoutes = (): Array<{ path: string; label: string }> => {
+  const routes = routerModule.routes;
+  return routes
+    .filter((route: any) => {
+      return route.meta?.showInNav === true;
+    })
+    .map((route: any) => ({
+      path: route.path,
+      label: route.meta?.navLabel || route.name,
+    }));
+}
+
+const checkLoginStatus = () => {
+  userInfo.value = localStorage.getItem("userInfo");
+}
+
+watch(
+  () => route.path,
+  () => {
+    checkLoginStatus();
+  }
+);
+
+onMounted(() => {
+  checkLoginStatus();
+  window.addEventListener("storage", checkLoginStatus);
+  window.addEventListener("login-status-changed", checkLoginStatus);
+});
+
+onUnmounted(() => {
+  window.removeEventListener("storage", checkLoginStatus);
+  window.removeEventListener("login-status-changed", checkLoginStatus);
+});
+
 const handleLogout = () => {
   localStorage.removeItem("userInfo");
   userInfo.value = null;
-  // 觸發自定義事件，通知其他組件
   window.dispatchEvent(new Event("login-status-changed"));
   router.push("/login");
-};
+}
 
 const handleAvatarItemClick = (item: AvatarDropdownItem) => {
   const config = useSidebarMenuConfig(isAdmin.value);
@@ -151,5 +133,5 @@ const handleAvatarItemClick = (item: AvatarDropdownItem) => {
   if (routeTarget && routeTarget !== "#") {
     router.push(routeTarget);
   }
-};
+}
 </script>

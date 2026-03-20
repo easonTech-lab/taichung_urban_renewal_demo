@@ -74,9 +74,9 @@ const isOpen = computed({
 const handleCancel = () => {
   emit("update:modelValue", false);
   emit("cancel");
-};
+}
 
 const handleConfirm = () => {
   emit("confirm");
-};
+}
 </script>
