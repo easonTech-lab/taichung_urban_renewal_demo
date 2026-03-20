@@ -27,7 +27,6 @@
       <div>
         <CaseInfoTab
           v-if="activeTab === 'info'"
-          ref="caseInfoTabRef"
           :is-admin-user="isAdminUser"
           :case-info="caseInfo"
           :officer-table-rows="officerTableRows"
@@ -103,7 +102,7 @@
 
 <script setup lang="ts">
 import { useRoute, useRouter } from "vue-router";
-import { ref, computed, nextTick, watch } from "vue";
+import { ref, computed, watch } from "vue";
 import Icon from "@/components/atoms/Icon.vue";
 import Toast from "@/components/atoms/Toast.vue";
 import ButtonCTA from "@/components/atoms/ButtonCTA.vue";
@@ -210,7 +209,6 @@ watch(
   }
 );
 
-const caseInfoTabRef = ref<InstanceType<typeof CaseInfoTab> | null>(null);
 const confirmDeleteOpen = ref(false);
 const confirmDeleteMessage = ref("確認刪除此項目");
 const confirmDeleteDescription = ref("內容將完全刪除無法復原");
@@ -395,17 +393,6 @@ const allFiles = ref<ProjectFile[]>([
     fileSize: "107 KB",
   },
 ]);
-
-const handleOpenOfficerDrawer = () => {
-  if (activeTab.value !== "info") {
-    activeTab.value = "info";
-    nextTick(() => {
-      caseInfoTabRef.value?.openOfficerListDrawer();
-    });
-    return;
-  }
-  caseInfoTabRef.value?.openOfficerListDrawer();
-};
 
 const handleDeleteCase = () => {
   openConfirmDelete({

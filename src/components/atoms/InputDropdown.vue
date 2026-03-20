@@ -41,7 +41,7 @@
             <li v-for="(item, index) in items" :key="index" role="none">
               <component
                 :is="item.to ? 'router-link' : item.href ? 'a' : 'button'"
-                :ref="(el) => setItemRef(el, index)"
+                :ref="(el: Element | null) => setItemRef(el, index)"
                 :to="item.to"
                 :href="item.href || '#'"
                 :type="item.to || item.href ? undefined : 'button'"
@@ -110,7 +110,7 @@
               <li v-for="(item, index) in items" :key="index" role="none">
                 <component
                   :is="item.to ? 'router-link' : item.href ? 'a' : 'button'"
-                  :ref="(el) => setItemRef(el, index)"
+                  :ref="(el: Element | null) => setItemRef(el, index)"
                   :to="item.to"
                   :href="item.href || '#'"
                   :type="item.to || item.href ? undefined : 'button'"

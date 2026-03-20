@@ -98,11 +98,6 @@ const emit = defineEmits<{
 
 type PaginationItem = { type: "page"; page: number } | { type: "ellipsis"; page?: never };
 
-// 類型守衛函數
-const isPageItem = (item: PaginationItem): item is { type: "page"; page: number } => {
-  return item.type === "page";
-};
-
 // 計算分頁項目（包括頁碼和省略號）
 const paginationItems = computed<PaginationItem[]>(() => {
   const items: PaginationItem[] = [];
@@ -152,11 +147,6 @@ const paginationItems = computed<PaginationItem[]>(() => {
   }
 
   return items;
-});
-
-// 過濾出頁碼項目（確保類型安全）
-const pageItems = computed(() => {
-  return paginationItems.value.filter(isPageItem);
 });
 
 const handlePageClick = (page: number | undefined) => {

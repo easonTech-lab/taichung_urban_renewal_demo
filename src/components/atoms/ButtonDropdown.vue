@@ -71,7 +71,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted, watch } from "vue";
+import { ref, computed, onMounted, onUnmounted } from "vue";
 import Icon from "@/components/atoms/Icon.vue";
 import ButtonCTA from "@/components/atoms/ButtonCTA.vue";
 
@@ -170,14 +170,6 @@ const handleEscape = (event: KeyboardEvent) => {
     close();
   }
 };
-
-// 監聽 selectedIndex 變化，同步內部狀態
-watch(
-  () => props.selectedIndex,
-  (newIndex) => {
-    // 如果需要可以根據 selectedIndex 更新內部狀態
-  }
-);
 
 onMounted(() => {
   document.addEventListener("click", handleClickOutside);

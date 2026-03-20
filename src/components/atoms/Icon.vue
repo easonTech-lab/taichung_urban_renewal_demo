@@ -28,7 +28,7 @@ Icon 組件 - 動態載入 SVG 圖標
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch, onMounted } from "vue";
+import { ref, watch, onMounted } from "vue";
 
 const props = withDefaults(
   defineProps<{
@@ -51,15 +51,6 @@ const props = withDefaults(
 );
 
 const svgContent = ref<string>("");
-
-// 獲取 class 的計算屬性（用於 SVG 內部）
-const iconClass = computed(() => {
-  const baseClass = "inline-block";
-  // 在 Vue 2.7 中，$attrs 不包含 class，class 會自動應用到根元素
-  // 但我們需要手動獲取它來應用到 SVG 內部
-  // 這裡我們使用一個簡單的方法：從 DOM 中獲取（在 onMounted 後）
-  return baseClass;
-});
 
 // 使用 import.meta.glob 預先載入所有 SVG 文件（包括子目錄）
 const svgModules = import.meta.glob("../../assets/svg/**/*.svg", {
@@ -176,7 +167,7 @@ const loadSvg = () => {
     if (props.fill === "none") {
       // 匹配所有沒有 fill 屬性的 SVG 元素（path, rect, circle 等）
       // 只處理沒有 fill 屬性的元素，避免覆蓋已有的 fill 值
-      processedHTML = processedHTML.replace(/<(path|rect|circle|ellipse|polygon|polyline|line|g)(\s+)(?!.*\bfill=)([^>]*?)(\/?>)/g, (match, tag, space1, attrs, closing) => {
+      processedHTML = processedHTML.replace(/<(path|rect|circle|ellipse|polygon|polyline|line|g)(\s+)(?!.*\bfill=)([^>]*?)(\/?>)/g, (_match, tag, space1, attrs, closing) => {
         // 添加 fill="none"，注意空格處理
         const cleanAttrs = attrs.trim();
         return `<${tag}${space1}fill="none"${cleanAttrs ? " " + cleanAttrs : ""}${closing}`;

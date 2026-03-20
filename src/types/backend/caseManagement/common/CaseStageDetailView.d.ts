@@ -3,10 +3,12 @@ export interface ReviewUploadItem {
   status: "uploaded" | "pending";
 }
 
+export type ReviewFileCategory = "報告書/審查簡報" | "修正意見/會議記錄";
+
 export interface ReviewFileItem {
   id: number;
   name: string;
-  category: "報告書/審查簡報" | "修正意見/會議記錄";
+  category: ReviewFileCategory;
   uploadDeadline: string;
   staffVisible: boolean;
   applicantVisible: boolean;
@@ -15,4 +17,18 @@ export interface ReviewFileItem {
   receiveNumber?: string;
   uploadItems: ReviewUploadItem[];
   isExpanded: boolean;
+}
+
+export interface AddReviewItemForm {
+  name: string;
+  category: ReviewFileCategory;
+  uploadSelections: string[];
+  deadline: Date | null;
+  staffVisible: boolean;
+  applicantVisible: boolean;
+  documentNo: string;
+  publishDate: Date | null;
+  receiveDate: Date | null;
+  receiveNumber: string;
+  attachments: File[];
 }

@@ -68,7 +68,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from "vue";
+import { ref } from "vue";
 import Icon from "@/components/atoms/Icon.vue";
 
 export type StepperStatus = "completed" | "current" | "pending";
@@ -166,16 +166,4 @@ const getStepIcon = (step: StepperStep): string => {
   return "setpUncheck";
 };
 
-// 根據狀態獲取子步驟圖標容器的 class
-const getChildStepIconClass = (status?: StepperStatus): string => {
-  switch (status) {
-    case "completed":
-      return "bg-primary-500";
-    case "current":
-      return "bg-primary-500";
-    case "pending":
-    default:
-      return "bg-gray-300";
-  }
-};
 </script>

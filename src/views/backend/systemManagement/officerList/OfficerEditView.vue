@@ -35,7 +35,7 @@
             <Input v-model="form.title" label="現職" size="lg" container-class="w-full" :disabled="isViewMode" />
             <div class="flex flex-col gap-4">
               <Input
-                v-for="(education, index) in educationList"
+                v-for="(_education, index) in educationList"
                 :key="`education-${index}`"
                 v-model="educationList[index]"
                 :label="index === 0 ? '學經歷' : undefined"

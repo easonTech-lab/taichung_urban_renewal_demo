@@ -158,7 +158,7 @@ const navigateToDownloadsList = () => {
   router.push("/downloads-management");
 };
 
-const handleSidebarItemSelect = (itemName: string) => {
+const handleSidebarItemSelect = () => {
   // Handle sidebar item selection
 };
 

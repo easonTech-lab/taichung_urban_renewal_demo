@@ -249,18 +249,18 @@ const filteredDataAll = computed(() => {
   return data;
 });
 
-const { currentPage, paginatedRows: filteredData, pagination, handlePageChange: setPage, resetPage } = useTablePagination({
+const { paginatedRows: filteredData, pagination, handlePageChange: setPage, resetPage } = useTablePagination({
   rows: filteredDataAll,
   pageSize,
 });
 
 // Event Handlers
-const handleTabChange = (index: number, item: TabItem) => {
+const handleTabChange = (index: number) => {
   activeTab.value = index;
   resetPage(); // Reset to first page when filter changes
 };
 
-const handleStageChange = (item: DropdownItem, index: number) => {
+const handleStageChange = (item: DropdownItem) => {
   selectedStage.value = item.value as string;
   resetPage(); // Reset to first page when filter changes
 };

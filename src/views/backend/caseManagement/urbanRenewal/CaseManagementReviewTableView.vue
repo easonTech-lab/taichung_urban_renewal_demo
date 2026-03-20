@@ -44,7 +44,7 @@
 
               <div class="flex w-[744px] flex-col gap-6 border-b border-gray-300 pb-6">
                 <div
-                  v-for="(entry, index) in formData.landUseEntries"
+                  v-for="entry in formData.landUseEntries"
                   :key="entry.label"
                   class="flex flex-col gap-4"
                 >

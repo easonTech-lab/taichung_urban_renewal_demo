@@ -58,7 +58,6 @@ const emit = defineEmits<{
 const inputId = computed(() => `radio-${Math.random().toString(36).substring(2, 11)}`);
 
 const handleChange = (event: Event) => {
-  const target = event.target as HTMLInputElement;
   if (props.value !== undefined) {
     emit("update:modelValue", props.value);
   }

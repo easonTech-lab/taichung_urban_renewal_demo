@@ -262,7 +262,7 @@ const handleEmptyStateAddCase = () => {
   });
 };
 
-const handleRowClick = (row: Record<string, any>) => {
+const handleRowClick = () => {
   router.push({
     path: "/case-detail",
     query: {

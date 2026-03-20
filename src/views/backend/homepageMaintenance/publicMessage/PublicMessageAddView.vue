@@ -163,7 +163,7 @@ const navigateToPublicMessageList = () => {
   router.push("/public-message-management");
 };
 
-const handleSidebarItemSelect = (itemName: string) => {
+const handleSidebarItemSelect = () => {
   // Handle sidebar item selection
 };
 

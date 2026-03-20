@@ -384,9 +384,7 @@ import ConfirmDeleteModal from "@/components/molecules/ConfirmDeleteModal.vue";
 import SidebarSection from "@/components/sections/backend/SidebarSection.vue";
 import InputDropdown, { type InputDropdownItem } from "@/components/atoms/InputDropdown.vue";
 import ButtonDropdown, { type ButtonDropdownItem } from "@/components/atoms/ButtonDropdown.vue";
-import type { ReviewFileItem } from "@/types/backend/caseManagement/common/CaseStageDetailView.d";
-
-type ReviewFileCategory = ReviewFileItem["category"];
+import type { AddReviewItemForm, ReviewFileCategory, ReviewFileItem } from "@/types/backend/caseManagement/common/CaseStageDetailView.d";
 const route = useRoute();
 const stageTitle = computed(() => (route.query?.stage as string | undefined) || "都更幹事會");
 const handleSidebarItemSelect = (itemName: string) => {
@@ -453,19 +451,20 @@ const showDeleteModal = ref(false);
 const deleteTargetId = ref<number | null>(null);
 const showAddItemDrawer = ref(false);
 const editTargetId = ref<number | null>(null);
-const addItemForm = ref({
+const createInitialAddItemForm = (): AddReviewItemForm => ({
   name: "",
-  category: "報告書/審查簡報" as ReviewFileCategory,
-  uploadSelections: ["upload-official", "upload-report", "upload-presentation"] as string[],
-  deadline: null as Date | null,
+  category: "報告書/審查簡報",
+  uploadSelections: ["upload-official", "upload-report", "upload-presentation"],
+  deadline: null,
   staffVisible: false,
   applicantVisible: true,
   documentNo: "",
-  publishDate: null as Date | null,
-  receiveDate: null as Date | null,
+  publishDate: null,
+  receiveDate: null,
   receiveNumber: "",
-  attachments: [] as File[],
+  attachments: [],
 });
+const addItemForm = ref<AddReviewItemForm>(createInitialAddItemForm());
 
 const isEditMode = computed(() => editTargetId.value !== null);
 const addItemDrawerTitle = computed(() => (isEditMode.value ? "編輯" : "新增項目"));
@@ -501,26 +500,6 @@ const getAddItemSnapshot = () =>
   });
 const { hasUnsavedChanges: isAddItemDirty, captureInitial: captureAddItemInitial } = useFormUnsavedCheck(getAddItemSnapshot);
 
-const drawerWidthPx = 460;
-const toastPositionStyle = computed(() => {
-  if (!showAddItemDrawer.value) {
-    return {
-      left: "50%",
-      transform: "translateX(-50%)",
-      width: "min(900px, calc(100vw - 2rem))",
-      maxWidth: "min(900px, calc(100vw - 2rem))",
-      minWidth: "min(900px, calc(100vw - 2rem))",
-    };
-  }
-  const width = `min(900px, calc(100vw - ${drawerWidthPx}px - 2rem))`;
-  return {
-    left: `max(1rem, calc((100vw - ${drawerWidthPx}px) / 2))`,
-    transform: "translateX(-50%)",
-    width,
-    maxWidth: width,
-    minWidth: width,
-  };
-});
 const saveToastPositionStyle = {
   left: "50%",
   transform: "translateX(-50%)",
@@ -647,19 +626,7 @@ const mapUploadLabelsToSelections = (items: ReviewFileItem["uploadItems"]) =>
 
 const resetAddItemForm = () => {
   editTargetId.value = null;
-  addItemForm.value = {
-    name: "",
-    category: "報告書/審查簡報",
-    uploadSelections: ["upload-official", "upload-report", "upload-presentation"],
-    deadline: null,
-    staffVisible: false,
-    applicantVisible: true,
-    documentNo: "",
-    publishDate: null,
-    receiveDate: null,
-    receiveNumber: "",
-    attachments: [],
-  };
+  addItemForm.value = createInitialAddItemForm();
 };
 
 const handleEditReviewFile = (file: ReviewFileItem) => {
@@ -775,7 +742,7 @@ const handleSaveAddItem = () => {
 
 const handleConfirmCreateReportGuide = () => {
   resetAddItemForm();
-  addItemForm.value.name = createReportGuideName.value;
+  addItemForm.value.name = "都市更新事業計畫書(補正版)";
   addItemForm.value.category = "報告書/審查簡報";
   showCreateReportGuideModal.value = false;
   showAddItemDrawer.value = true;

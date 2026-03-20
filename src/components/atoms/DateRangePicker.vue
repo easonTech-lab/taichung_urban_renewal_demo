@@ -2,7 +2,6 @@
   <div :id="dateRangePickerId" :class="containerClass">
     <div class="flex items-center gap-2">
       <input
-        ref="startDateRef"
         v-model="startDateValue"
         type="date"
         :placeholder="startPlaceholder"
@@ -18,7 +17,6 @@
       />
       <span class="text-gray-500">{{ separatorText }}</span>
       <input
-        ref="endDateRef"
         v-model="endDateValue"
         type="date"
         :placeholder="endPlaceholder"
@@ -77,8 +75,6 @@ const props = withDefaults(
 
 const emit = defineEmits(["update:modelValue", "start-change", "end-change", "range-change", "start-input", "end-input", "start-focus", "end-focus", "start-blur", "end-blur"]);
 
-const startDateRef = ref<HTMLInputElement | null>(null);
-const endDateRef = ref<HTMLInputElement | null>(null);
 const dateRangePickerId = computed(() => `date-range-picker-${Math.random().toString(36).substring(2, 11)}`);
 
 // Internal values for HTML5 date inputs
@@ -154,7 +150,7 @@ watch(
 // Watch start date changes
 watch(
   () => startDateValue.value,
-  (newValue) => {
+  () => {
     updateDateRange();
   }
 );
@@ -162,7 +158,7 @@ watch(
 // Watch end date changes
 watch(
   () => endDateValue.value,
-  (newValue) => {
+  () => {
     updateDateRange();
   }
 );

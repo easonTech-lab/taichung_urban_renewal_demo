@@ -248,7 +248,7 @@ const handleSidebarItemSelect = (itemName: string) => {
   console.log("Selected sidebar item:", itemName);
 };
 
-const handleTabClick = (index: number, item: any, event?: Event) => {
+const handleTabClick = (index: number) => {
   activeTab.value = index;
   resetPage();
 };

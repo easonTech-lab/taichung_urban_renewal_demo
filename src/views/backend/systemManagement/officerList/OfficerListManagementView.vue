@@ -94,7 +94,7 @@
       <template #default>
         <div class="flex flex-col">
           <div
-            v-for="(year, index) in yearList"
+            v-for="(_year, index) in yearList"
             :key="index"
             class="flex flex-1 items-center justify-between gap-2 border-b border-gray-300 py-5"
           >
@@ -375,12 +375,6 @@ const officerList = ref<OfficerItem[]>(
 
 // Available officers (mock data - should come from internal staff accounts)
 const allAvailableOfficers: InputDropdownItem[] = [{ label: "陳傑瑞" }, { label: "張森" }, { label: "吳偉翔" }, { label: "林美華" }, { label: "王小明" }, { label: "李大同" }];
-
-// Computed: Filter out already selected officers
-const availableOfficers = computed(() => {
-  const selectedOfficers = officerList.value.map((o) => o.selectedOfficer).filter((o) => o !== "" && o !== "未選擇");
-  return allAvailableOfficers.filter((officer) => !selectedOfficers.includes(officer.label));
-});
 
 // Get available officers for a specific index (excluding the current selection)
 const getAvailableOfficersForIndex = (index: number) => {

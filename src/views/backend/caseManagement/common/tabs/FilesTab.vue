@@ -45,7 +45,6 @@
 import { ref, computed } from "vue";
 import { useTablePagination } from "@/composables/useTablePagination";
 import Icon from "@/components/atoms/Icon.vue";
-import Tabs, { type TabItem } from "@/components/atoms/Tabs.vue";
 import Table, { type TableColumn } from "@/components/atoms/Table.vue";
 import Empty from "@/components/atoms/Empty.vue";
 import Dropdown, { type DropdownItem } from "@/components/atoms/Dropdown.vue";
@@ -58,8 +57,6 @@ const emit = defineEmits<{
   download: [file: ProjectFile];
   "request-delete": [file: ProjectFile];
 }>();
-
-const activeFileTab = ref(0);
 
 const selectedFileStage = ref<string>("全部案件階段");
 const selectedFileCategory = ref<string>("檔案類別");
@@ -146,11 +143,6 @@ const handleFileStageChange = (item: DropdownItem) => {
 
 const handleFileCategoryChange = (item: DropdownItem) => {
   selectedFileCategory.value = item.value || "檔案類別";
-  resetFilePage();
-};
-
-const handleFileTabClick = (index: number) => {
-  activeFileTab.value = index;
   resetFilePage();
 };
 

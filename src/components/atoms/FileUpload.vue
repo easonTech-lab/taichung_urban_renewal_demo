@@ -108,10 +108,6 @@ const files = computed({
 const fileInputRef = ref<HTMLInputElement | null>(null);
 const isDragging = ref(false);
 
-const maxSizeText = computed(() => {
-  return `${props.maxSize}MB`;
-});
-
 const isAcceptValid = (file: File): boolean => {
   if (!props.accept || props.accept === "*") return true;
   const acceptList = props.accept.split(",").map((s) => s.trim().toLowerCase());

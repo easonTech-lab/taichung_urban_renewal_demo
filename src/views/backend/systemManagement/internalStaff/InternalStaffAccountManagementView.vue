@@ -192,28 +192,13 @@ import type { HandlerAccount } from "@/types/backend/systemManagement/internalSt
 const router = useRouter();
 const route = useRoute();
 const pageSize = ref<number>(10);
-const showEditModal = ref<boolean>(false);
 const showDeleteModal = ref<boolean>(false);
 const showCannotDeleteAdminModal = ref<boolean>(false);
 const showToast = ref<boolean>(false);
 const toastMessage = ref("儲存成功");
 const deleteTarget = ref<HandlerAccount | null>(null);
-const editingHandler = ref<HandlerAccount | null>(null);
 const showChangeAccountDrawer = ref<boolean>(false);
 const selectedAccountEmail = ref<string>("");
-const editForm = ref<{
-  name: string;
-  email: string;
-  department: string;
-  group: string;
-  status: boolean;
-}>({
-  name: "",
-  email: "",
-  department: "",
-  group: "",
-  status: true,
-});
 
 // Current Admin Account
 const currentAdminAccount = ref<{
@@ -431,30 +416,6 @@ const handleEdit = (row: Record<string, any>) => {
       email: item.email,
     },
   });
-};
-
-const handleSaveEdit = () => {
-  if (!editingHandler.value) return;
-
-  // 更新資料
-  const index = handlerAccounts.value.findIndex((account) => account.email === editingHandler.value?.email);
-  if (index !== -1) {
-    handlerAccounts.value[index] = {
-      ...handlerAccounts.value[index],
-      name: editForm.value.name,
-      email: editForm.value.email,
-      department: editForm.value.department,
-      group: editForm.value.group,
-      status: editForm.value.status,
-    };
-  }
-
-  // 關閉 Modal
-  showEditModal.value = false;
-  editingHandler.value = null;
-
-  // TODO: 調用 API 保存資料
-  console.log("Saved handler account:", editForm.value);
 };
 
 const handleDelete = (row: Record<string, any>) => {

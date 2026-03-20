@@ -25,7 +25,7 @@
             @row-click="handleRowClick"
             @page-change="handlePageChange"
           >
-            <template #cell-index="{ row, rowIndex }">
+            <template #cell-index="{ rowIndex }">
               <p class="text-base text-gray-500">{{ (pagination.currentPage - 1) * pageSize + rowIndex + 1 }}</p>
             </template>
             <template #cell-status="{ row }">
@@ -174,7 +174,7 @@ const filteredFAQs = computed(() => {
   return [...allFAQs.value];
 });
 
-const { paginatedRows: paginatedFAQs, pagination, handlePageChange, resetPage } = useTablePagination({
+const { paginatedRows: paginatedFAQs, pagination, handlePageChange } = useTablePagination({
   rows: filteredFAQs,
   pageSize,
 });

@@ -109,7 +109,7 @@
                       >
                         <button
                           type="button"
-                          class="flex w-full cursor-pointer items-center gap-2 rounded text-left focus:outline-none"
+                          class="flex w-full cursor-pointer items-center gap-2 rounded text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2"
                           :aria-expanded="activeQuestionId === question.id"
                           :aria-controls="`question-${question.id}-content`"
                           :aria-label="`${question.title}，點擊${activeQuestionId === question.id ? '收起' : '展開'}查看詳細答案`"
@@ -153,14 +153,14 @@
             <template v-else>
               <h2 v-show="activeCategory" class="text-2xl font-bold leading-normal tracking-[-0.24px] text-gray-900">{{ activeCategory?.title || "" }}</h2>
               <div v-if="currentQuestions.length > 0" class="flex flex-col gap-6">
-                <template v-for="(question, index) in currentQuestions" :key="question.id">
+                <template v-for="question in currentQuestions" :key="question.id">
                   <div
                     class="rounded-lg transition-colors"
                     :class="activeQuestionId === question.id ? 'bg-white p-5' : 'hover:bg-gray-50'"
                   >
                     <button
                       type="button"
-                      class="flex w-full cursor-pointer items-center gap-2 rounded text-left focus:outline-none"
+                      class="flex w-full cursor-pointer items-center gap-2 rounded text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2"
                       :aria-expanded="activeQuestionId === question.id"
                       :aria-controls="`question-${question.id}-content`"
                       :aria-label="`${question.title}，點擊${activeQuestionId === question.id ? '收起' : '展開'}查看詳細答案`"

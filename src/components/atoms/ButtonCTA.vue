@@ -215,7 +215,6 @@ const justifyClasses = computed(() => {
 });
 
 const getSolidClasses = () => {
-  const base = "focus-visible:ring-primary-600";
   const variants: Record<string, string> = {
     primary: "bg-primary-600 text-white hover:bg-primary-700 focus-visible:ring-primary-600",
     dark: "bg-gray-900 text-white hover:bg-gray-800 focus-visible:ring-gray-600",

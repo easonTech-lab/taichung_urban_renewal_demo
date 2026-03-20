@@ -268,7 +268,7 @@ const handleEmptyStateAddCase = () => {
   });
 };
 
-const handleRowClick = (row: Record<string, any>) => {
+const handleRowClick = () => {
   // Navigate to case detail page with source route information
   router.push({
     path: "/case-detail",

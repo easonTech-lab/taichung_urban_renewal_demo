@@ -164,7 +164,7 @@ const isPublishDisabled = computed(() => {
   return answerTextLength.value === 0;
 });
 
-const handleSidebarItemSelect = (itemName: string) => {
+const handleSidebarItemSelect = () => {
   // Handle sidebar item selection
 };
 
