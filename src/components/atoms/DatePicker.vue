@@ -2,6 +2,7 @@
   <div :class="containerClass">
     <label v-if="label" :for="inputId" class="mb-2 block text-base font-medium text-gray-900">
       {{ label }}
+      <span v-if="required" class="ml-1 text-red-500">*</span>
     </label>
     <div :class="displayClasses">
       <span :class="displayTextClasses">{{ displayText }}</span>

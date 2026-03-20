@@ -21,8 +21,8 @@
           <div class="h-7 w-1 shrink-0 rounded bg-primary-600"></div>
           <h2 class="text-2xl font-medium leading-6 text-gray-900">新增案件階段</h2>
         </div>
-        <div class="flex flex-wrap gap-4">
-          <div class="w-full min-w-0 max-w-[364px]">
+        <div class="grid w-full max-w-[744px] grid-cols-[repeat(2,364px)] gap-4">
+          <div class="w-[364px]">
             <InputDropdown
               label="新增階段"
               required
@@ -33,7 +33,7 @@
               @item-click="(item) => (form.stage = item.label)"
             />
           </div>
-          <div class="w-full min-w-0 max-w-[364px]">
+          <div class="w-[364px]">
             <DatePicker
               v-model="form.meetingDate"
               label="會議日期"
@@ -42,7 +42,7 @@
               container-class="w-full"
             />
           </div>
-          <div class="w-full min-w-0 max-w-[364px]">
+          <div class="w-[364px]">
             <TimePicker
               v-model="form.meetingTime"
               label="會議時間"
@@ -53,7 +53,7 @@
               container-class="w-full"
             />
           </div>
-          <div class="w-full min-w-0 max-w-[364px]">
+          <div class="w-[364px]">
             <Input
               v-model="form.meetingPlace"
               label="會議地點"
@@ -62,7 +62,7 @@
               container-class="w-full"
             />
           </div>
-          <div class="w-full min-w-0 max-w-[744px]">
+          <div class="col-span-2 w-[744px]">
             <Input
               v-model="form.participants"
               label="參與幹事"
@@ -84,7 +84,7 @@
         </div>
         <div class="flex flex-col items-center gap-6 py-6">
           <Empty
-            type="search"
+            type="case-management"
             message="尚無申請人端審查檔案相關項目"
             :show-button="true"
             button-text="新增項目"
@@ -142,7 +142,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from "vue";
+import { ref, computed, onMounted, nextTick } from "vue";
 import { useRouter, useRoute, onBeforeRouteLeave } from "vue-router";
 import { useFormUnsavedCheck } from "@/composables/useFormUnsavedCheck";
 import Icon from "@/components/atoms/Icon.vue";
@@ -284,7 +284,9 @@ onMounted(() => {
       }
     }
   }
-  captureInitial();
+  nextTick(() => {
+    captureInitial();
+  });
 });
 
 const handleSubmit = () => {

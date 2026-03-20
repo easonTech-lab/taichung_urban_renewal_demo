@@ -1,6 +1,6 @@
 <template>
   <div class="min-h-screen bg-indigo-50">
-  <SidebarSection :backdrop-closable="!showUnsavedToast" @item-select="handleSidebarItemSelect" />
+    <SidebarSection :backdrop-closable="!showAddItemUnsavedModal" @item-select="handleSidebarItemSelect" />
     <div class="flex flex-1 flex-col gap-10 p-4 sm:ml-[328px] sm:p-10">
       <div class="flex flex-col gap-6">
         <Breadcrumb />
@@ -60,6 +60,7 @@
               <h2 class="text-2xl font-medium leading-6 text-gray-900">審查檔案</h2>
             </div>
             <ButtonDropdown
+              v-if="reviewFiles.length > 0"
               button-text="新增項目"
               :items="addFileOptions"
               button-variant="outline"
@@ -71,8 +72,20 @@
               @item-click="handleAddFileOption"
             />
           </div>
-          <div v-if="reviewFiles.length === 0" class="py-6">
-            <Empty type="search" message="尚無審查檔案相關項目" :show-button="false" />
+          <div v-if="reviewFiles.length === 0" class="py-2">
+            <div class="flex flex-col items-center gap-3">
+              <Empty type="case-management" message="尚無審查檔案相關項目" :show-button="false" class="!gap-4 !py-0" />
+              <ButtonDropdown
+                button-text="新增項目"
+                :items="addFileOptions"
+                button-variant="outline"
+                button-size="sm"
+                menu-width="w-[200px]"
+                menu-class="bottom-0 left-full mt-0 ml-0"
+                :show-right-icon="false"
+                @item-click="handleAddFileOption"
+              />
+            </div>
           </div>
           <div v-else class="flex flex-col gap-4 pt-4">
             <div v-for="file in reviewFiles" :key="file.id" class="rounded-lg border border-blue-500 px-5 py-8">
@@ -84,7 +97,7 @@
                   <p class="text-lg text-gray-900">{{ file.name }}</p>
                 </div>
               <div class="flex items-center gap-4 text-primary-700">
-                <button class="flex items-center justify-center" aria-label="編輯項目">
+                <button class="flex items-center justify-center" aria-label="編輯項目" @click="handleEditReviewFile(file)">
                   <Icon name="editOutline" :size="24" color="#1A56DB" />
                 </button>
                 <button class="flex items-center justify-center" aria-label="刪除項目" @click="openDeleteModal(file)">
@@ -120,7 +133,15 @@
                     </div>
                     <div class="flex w-[150px] flex-col gap-1">
                       <p class="text-base font-medium text-gray-500">收文日期</p>
-                      <button class="text-left text-lg text-blue-500 underline">新增</button>
+                      <button
+                        v-if="!file.receiveDate || file.receiveDate === '-'"
+                        type="button"
+                        class="text-left text-lg text-blue-500 underline"
+                        @click="handleEditReviewFile(file)"
+                      >
+                        新增
+                      </button>
+                      <p v-else class="text-lg text-gray-900">{{ file.receiveDate }}</p>
                     </div>
                   </div>
                 </div>
@@ -130,30 +151,24 @@
                     <div class="flex items-center gap-5">
                       <span
                         class="rounded-md px-3 py-0.5 text-sm font-medium"
-                        :class="item.status === 'uploaded' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-900'"
+                        :class="getUploadStatusClasses(item.status)"
                       >
                         {{ item.status === 'uploaded' ? '已上傳' : '未上傳' }}
                       </span>
                       <p class="text-lg text-gray-900">{{ item.label }}</p>
                     </div>
-                    <button class="text-sm font-medium text-primary-700 underline">查看</button>
+                    <button
+                      type="button"
+                      class="text-sm font-medium underline"
+                      :class="item.status === 'uploaded' ? 'text-primary-700' : 'cursor-not-allowed text-[#A4CAFE]'"
+                      :disabled="item.status !== 'uploaded'"
+                    >
+                      查看
+                    </button>
                   </div>
                 </div>
               </div>
             </div>
-          </div>
-          <div v-if="reviewFiles.length === 0" class="flex justify-center pb-2">
-            <ButtonDropdown
-              button-text="新增項目"
-              :items="addFileOptions"
-              button-variant="outline"
-              button-size="sm"
-              left-icon="plus"
-              menu-width="w-[200px]"
-              :showRightIcon="false"
-              align="right"
-              @item-click="handleAddFileOption"
-            />
           </div>
         </div>
       </div>
@@ -186,11 +201,12 @@
       </div>
     </template>
   </Drawer>
-  <Drawer v-model="showAddItemDrawer" title="新增項目" width="xl" :static="showUnsavedToast">
+  <Drawer v-model="showAddItemDrawer" :title="addItemDrawerTitle" width="xl" close-action="emit" @close="handleAddItemDrawerClose">
     <template #default>
       <div class="flex flex-col gap-6">
         <Input v-model="addItemForm.name" label="項目名稱" placeholder="輸入項目名稱" size="lg" required />
         <InputDropdown
+          v-if="!isEditMode"
           label="項目類別"
           required
           :button-text="addItemForm.category"
@@ -198,7 +214,7 @@
           :items="addFileOptions"
           @item-click="handleCategorySelect"
         />
-        <div v-if="!isRevisionCategory" class="flex flex-col gap-4">
+        <div v-if="!isRevisionCategory && !isEditMode" class="flex flex-col gap-4">
           <p class="text-base font-medium text-gray-900">申請端上傳項目設定</p>
           <div class="flex flex-col gap-3">
             <label v-for="item in uploadOptions" :key="item.value" class="inline-flex items-center gap-2 text-sm font-medium text-gray-900">
@@ -207,7 +223,7 @@
             </label>
           </div>
         </div>
-        <DatePicker v-if="!isRevisionCategory" v-model="addItemForm.deadline" label="上傳截止日期" placeholder="設定上傳截止日期" containerClass="w-full" />
+        <DatePicker v-if="!isRevisionCategory" v-model="addItemForm.deadline" label="上傳截止日期" placeholder="設定上傳截止日期" containerClass="w-full" required />
         <div class="flex flex-col gap-4">
           <p class="text-base font-medium text-[#1a1b1d]">權限設定</p>
           <div class="flex items-center gap-6">
@@ -221,10 +237,24 @@
             </div>
           </div>
         </div>
-        <div v-if="isRevisionCategory" class="h-px w-full bg-gray-300"></div>
-        <Input v-if="isRevisionCategory" v-model="addItemForm.documentNo" label="發文字號" placeholder="輸入發文字號" size="lg" required />
-        <DatePicker v-if="isRevisionCategory" v-model="addItemForm.publishDate" label="發文日期" placeholder="選擇發文日期" containerClass="w-full" />
-        <FileUpload v-if="isRevisionCategory" v-model="addItemForm.attachments" label="公文及修正意見上傳" :max-size="10" />
+        <div v-if="isEditMode || isRevisionCategory" class="h-px w-full bg-gray-300"></div>
+        <template v-if="isEditMode">
+          <DatePicker
+            v-model="addItemForm.publishDate"
+            label="發文日期"
+            :placeholder="isRevisionCategory ? '選擇發文日期' : '申請端填寫'"
+            containerClass="w-full"
+            :disabled="!isRevisionCategory"
+            :required="isRevisionCategory"
+          />
+          <DatePicker v-model="addItemForm.receiveDate" label="收文日期" placeholder="填寫收文日期" containerClass="w-full" />
+          <Input v-model="addItemForm.receiveNumber" label="收文字號" placeholder="填寫收文字號" size="lg" />
+        </template>
+        <template v-else-if="isRevisionCategory">
+          <Input v-model="addItemForm.documentNo" label="發文字號" placeholder="輸入發文字號" size="lg" required />
+          <DatePicker v-model="addItemForm.publishDate" label="發文日期" placeholder="選擇發文日期" containerClass="w-full" required />
+          <FileUpload v-model="addItemForm.attachments" label="公文及修正意見上傳" :max-size="10" multiple @file-error="handleFileError" />
+        </template>
       </div>
     </template>
     <template #footer>
@@ -234,29 +264,98 @@
       </div>
     </template>
   </Drawer>
-  <div class="fixed bottom-6 z-[90]" :style="toastPositionStyle">
-    <Toast v-model="showSaveToast" message="儲存成功" :show-actions="false" :show-close="false" :auto-close="true" />
+  <div class="fixed bottom-6 z-[90]" :style="saveToastPositionStyle">
+    <Toast v-model="showSaveToast" message="儲存成功" :show-actions="false" :show-close="true" :auto-close="true">
+      <template #icon>
+        <Icon name="check" :size="24" class="text-gray-50" aria-hidden="true" />
+      </template>
+    </Toast>
   </div>
-  <div class="fixed bottom-6 z-[90]" :style="toastPositionStyle">
+  <div class="fixed bottom-6 z-[90]" :style="saveToastPositionStyle">
     <Toast v-model="showAddItemToast" message="已新增" :show-actions="false" :show-close="true" :auto-close="true">
       <template #icon>
         <Icon name="check" :size="24" class="text-gray-50" aria-hidden="true" />
       </template>
     </Toast>
   </div>
-  <div class="fixed bottom-6 z-[90]" :style="toastPositionStyle">
-    <Toast
-      v-model="showUnsavedToast"
-      message="有尚未儲存的修改"
-      :show-actions="true"
-      :show-close="true"
-      :auto-close="false"
-      primary-label="暫存"
-      secondary-label="退出編輯"
-      @primary="handleTempSave"
-      @secondary="handleExitEdit"
-    />
-  </div>
+  <Modal v-model="showAddItemUnsavedModal" size="md" :static="false" :show-close-button="false" close-action="emit" backdrop-class="bg-gray-600/80">
+    <template #header>
+      <div class="flex w-full items-center justify-end px-4 pb-0 pt-4">
+        <button
+          type="button"
+          class="flex h-5 w-5 items-center justify-center rounded text-gray-400 hover:text-gray-600 focus:outline-none focus:ring-2 focus:ring-primary-500"
+          aria-label="關閉彈窗"
+          @click="showAddItemUnsavedModal = false"
+        >
+          <Icon name="close" :size="20" />
+        </button>
+      </div>
+    </template>
+    <template #body>
+      <div class="flex flex-col items-center gap-4 px-6 py-5">
+        <Icon name="exclamation" :size="42" color="#9CA3AF" />
+        <p class="w-[311px] text-center text-base font-normal leading-[1.5] text-gray-600">有尚未儲存的修改，離開前是否先儲存</p>
+      </div>
+    </template>
+    <template #footer>
+      <div class="flex w-full items-center justify-center gap-4 px-6 pb-6 pt-0">
+        <ButtonCTA variant="white" size="xs" class="h-8 w-[120px] border-gray-200 px-3 py-2 text-sm font-medium leading-[1.5] text-gray-800" @click="handleExitAddItemEdit">退出編輯</ButtonCTA>
+        <ButtonCTA variant="primary" size="xs" class="h-8 w-[120px] px-3 py-2 text-sm font-medium leading-[1.5]" :disabled="isAddItemSaveDisabled" @click="handleSaveAndCloseAddItem">儲存修改</ButtonCTA>
+      </div>
+    </template>
+  </Modal>
+  <Modal v-model="showCreateReportGuideModal" size="md" :static="false" :show-close-button="false" close-action="emit" backdrop-class="bg-gray-600/80">
+    <template #header>
+      <div class="flex w-full items-center justify-end px-4 pb-0 pt-4">
+        <button
+          type="button"
+          class="flex h-5 w-5 items-center justify-center rounded text-gray-400 hover:text-gray-600 focus:outline-none focus:ring-2 focus:ring-primary-500"
+          aria-label="關閉彈窗"
+          @click="handleCloseCreateReportGuide"
+        >
+          <Icon name="close" :size="20" />
+        </button>
+      </div>
+    </template>
+    <template #body>
+      <div class="flex flex-col items-center gap-4 px-6 py-5">
+        <Icon name="filePlus" :size="42" color="#9CA3AF" fill="#9CA3AF" />
+        <p class="w-[311px] text-center text-base font-normal leading-[1.5] text-gray-600">
+          繼續建立都市更新事業計畫書(補正版)
+          <br />
+          供申請者上傳
+        </p>
+      </div>
+    </template>
+    <template #footer>
+      <div class="flex w-full items-center justify-center gap-4 px-6 pb-6 pt-0">
+        <ButtonCTA
+          variant="white"
+          size="xs"
+          class="h-8 w-[120px] border-gray-200 px-3 py-2 text-sm font-medium leading-[1.5] text-gray-800"
+          @click="handleCloseCreateReportGuide"
+        >
+          取消
+        </ButtonCTA>
+        <ButtonCTA variant="primary" size="xs" class="h-8 w-[120px] px-3 py-2 text-sm font-medium leading-[1.5]" @click="handleConfirmCreateReportGuide">
+          確認
+        </ButtonCTA>
+      </div>
+    </template>
+  </Modal>
+  <Modal v-model="showUploadWarningModal" size="md" backdrop-class="bg-gray-600/80" :show-close-button="true" close-action="emit">
+    <template #body>
+      <div class="flex w-full flex-col items-center gap-4 px-6 py-5">
+        <div class="flex h-6 w-6 items-center justify-center rounded-full bg-gray-400 text-xs font-medium text-white">!</div>
+        <p class="w-[311px] text-center text-base font-normal leading-[1.5] text-gray-600">{{ uploadWarningMessage }}</p>
+      </div>
+    </template>
+    <template #footer>
+      <div class="flex w-full items-center justify-center px-6 pb-6 pt-0">
+        <ButtonCTA variant="primary" size="xs" class="h-8 min-w-[120px]" @click="showUploadWarningModal = false">確認</ButtonCTA>
+      </div>
+    </template>
+  </Modal>
   <ConfirmDeleteModal
     v-model="showDeleteModal"
     message="確認刪除此項目"
@@ -272,6 +371,7 @@ import { useFormUnsavedCheck } from "@/composables/useFormUnsavedCheck";
 import Icon from "@/components/atoms/Icon.vue";
 import Empty from "@/components/atoms/Empty.vue";
 import Radio from "@/components/atoms/Radio.vue";
+import Modal from "@/components/atoms/Modal.vue";
 import Toast from "@/components/atoms/Toast.vue";
 import Input from "@/components/atoms/Input.vue";
 import Switch from "@/components/atoms/Switch.vue";
@@ -285,6 +385,8 @@ import SidebarSection from "@/components/sections/backend/SidebarSection.vue";
 import InputDropdown, { type InputDropdownItem } from "@/components/atoms/InputDropdown.vue";
 import ButtonDropdown, { type ButtonDropdownItem } from "@/components/atoms/ButtonDropdown.vue";
 import type { ReviewFileItem } from "@/types/backend/caseManagement/common/CaseStageDetailView.d";
+
+type ReviewFileCategory = ReviewFileItem["category"];
 const route = useRoute();
 const stageTitle = computed(() => (route.query?.stage as string | undefined) || "都更幹事會");
 const handleSidebarItemSelect = (itemName: string) => {
@@ -294,8 +396,11 @@ const STORAGE_KEY = "caseStageStatusOverrides";
 const savedStatus = ref("in-progress");
 const selectedStatus = ref("in-progress");
 const showSaveToast = ref(false);
-const showUnsavedToast = ref(false);
 const showAddItemToast = ref(false);
+const showAddItemUnsavedModal = ref(false);
+const showUploadWarningModal = ref(false);
+const showCreateReportGuideModal = ref(false);
+const uploadWarningMessage = ref("");
 const showEditResultDrawer = ref(false);
 const statusOptions = [
   { label: "未開始", value: "not-started" },
@@ -347,26 +452,35 @@ const reviewFiles = ref<ReviewFileItem[]>([]);
 const showDeleteModal = ref(false);
 const deleteTargetId = ref<number | null>(null);
 const showAddItemDrawer = ref(false);
+const editTargetId = ref<number | null>(null);
 const addItemForm = ref({
   name: "",
-  category: "報告書/審查簡報",
-  uploadSelections: ["upload-official", "upload-report", "upload-presentation"],
-  deadline: "",
+  category: "報告書/審查簡報" as ReviewFileCategory,
+  uploadSelections: ["upload-official", "upload-report", "upload-presentation"] as string[],
+  deadline: null as Date | null,
   staffVisible: false,
   applicantVisible: true,
   documentNo: "",
-  publishDate: "",
-  attachments: [],
+  publishDate: null as Date | null,
+  receiveDate: null as Date | null,
+  receiveNumber: "",
+  attachments: [] as File[],
 });
 
+const isEditMode = computed(() => editTargetId.value !== null);
+const addItemDrawerTitle = computed(() => (isEditMode.value ? "編輯" : "新增項目"));
 const isRevisionCategory = computed(() => addItemForm.value.category === "修正意見/會議記錄");
 const isAddItemSaveDisabled = computed(() => {
   if (!addItemForm.value.name.trim()) return true;
   if (!addItemForm.value.category) return true;
+  if (isEditMode.value) {
+    if (!isRevisionCategory.value && !addItemForm.value.deadline) return true;
+    return !isAddItemDirty.value;
+  }
   if (isRevisionCategory.value) {
     if (!addItemForm.value.documentNo.trim()) return true;
     if (!addItemForm.value.publishDate) return true;
-    return addItemForm.value.attachments.length === 0;
+    return false;
   }
   if (!addItemForm.value.deadline) return true;
   return addItemForm.value.uploadSelections.length === 0;
@@ -381,6 +495,8 @@ const getAddItemSnapshot = () =>
     applicantVisible: addItemForm.value.applicantVisible,
     documentNo: addItemForm.value.documentNo.trim(),
     publishDate: addItemForm.value.publishDate ?? "",
+    receiveDate: addItemForm.value.receiveDate ?? "",
+    receiveNumber: addItemForm.value.receiveNumber.trim(),
     attachmentsCount: addItemForm.value.attachments.length,
   });
 const { hasUnsavedChanges: isAddItemDirty, captureInitial: captureAddItemInitial } = useFormUnsavedCheck(getAddItemSnapshot);
@@ -405,6 +521,13 @@ const toastPositionStyle = computed(() => {
     minWidth: width,
   };
 });
+const saveToastPositionStyle = {
+  left: "50%",
+  transform: "translateX(-50%)",
+  width: "min(1420px, calc(100vw - 2rem))",
+  maxWidth: "min(1420px, calc(100vw - 2rem))",
+  minWidth: "min(1420px, calc(100vw - 2rem))",
+};
 
 const resetProgressItems = () => {
   progressItems.value = progressItems.value.map((item) => ({
@@ -489,26 +612,85 @@ const handleCancelEditResult = () => {
 };
 
 const handleAddFileOption = (item: ButtonDropdownItem) => {
+  editTargetId.value = null;
   if (item.value === "report") {
-    addItemForm.value.category = item.label;
+    addItemForm.value.category = item.label as ReviewFileCategory;
     showAddItemDrawer.value = true;
   }
   if (item.value === "revision") {
-    addItemForm.value.category = item.label;
+    addItemForm.value.category = item.label as ReviewFileCategory;
     showAddItemDrawer.value = true;
   }
 };
 
 const handleCategorySelect = (item: InputDropdownItem) => {
-  addItemForm.value.category = item.label;
+  addItemForm.value.category = item.label as ReviewFileCategory;
+};
+
+const parseRocDate = (value: string | undefined) => {
+  if (!value || value === "-") return null;
+  const match = value.match(/^(\d{2,3})\/(\d{2})\/(\d{2})$/);
+  if (!match) return null;
+  const [, rocYear, month, day] = match;
+  return new Date(Number(rocYear) + 1911, Number(month) - 1, Number(day));
+};
+
+const mapUploadLabelsToSelections = (items: ReviewFileItem["uploadItems"]) =>
+  items
+    .map((item) => {
+      if (item.label === "公文") return "upload-official";
+      if (item.label === "報告書") return "upload-report";
+      if (item.label === "審查簡報") return "upload-presentation";
+      return null;
+    })
+    .filter((value): value is "upload-official" | "upload-report" | "upload-presentation" => value !== null);
+
+const resetAddItemForm = () => {
+  editTargetId.value = null;
+  addItemForm.value = {
+    name: "",
+    category: "報告書/審查簡報",
+    uploadSelections: ["upload-official", "upload-report", "upload-presentation"],
+    deadline: null,
+    staffVisible: false,
+    applicantVisible: true,
+    documentNo: "",
+    publishDate: null,
+    receiveDate: null,
+    receiveNumber: "",
+    attachments: [],
+  };
+};
+
+const handleEditReviewFile = (file: ReviewFileItem) => {
+  editTargetId.value = file.id;
+  addItemForm.value = {
+    name: file.name,
+    category: file.category,
+    uploadSelections: mapUploadLabelsToSelections(file.uploadItems),
+    deadline: parseRocDate(file.uploadDeadline),
+    staffVisible: file.staffVisible,
+    applicantVisible: file.applicantVisible,
+    documentNo: "",
+    publishDate: parseRocDate(file.publishDate),
+    receiveDate: parseRocDate(file.receiveDate),
+    receiveNumber: file.receiveNumber ?? "",
+    attachments: [],
+  };
+  showAddItemDrawer.value = true;
 };
 
 const handleCancelAddItem = () => {
   if (isAddItemDirty.value) {
-    showUnsavedToast.value = true;
+    showAddItemUnsavedModal.value = true;
   } else {
     showAddItemDrawer.value = false;
+    resetAddItemForm();
   }
+};
+
+const handleAddItemDrawerClose = () => {
+  handleCancelAddItem();
 };
 
 const formatDateDisplay = (value: string | Date | null | undefined) => {
@@ -523,7 +705,36 @@ const formatDateDisplay = (value: string | Date | null | undefined) => {
   return value.toString();
 };
 
+const getUploadStatusClasses = (status: "uploaded" | "pending") => {
+  if (status === "uploaded") {
+    return "bg-green-100 text-green-800";
+  }
+  return "bg-blue-50 text-[#A4CAFE]";
+};
+
 const handleSaveAddItem = () => {
+  if (isEditMode.value) {
+    reviewFiles.value = reviewFiles.value.map((item) =>
+      item.id === editTargetId.value
+        ? {
+            ...item,
+            name: addItemForm.value.name.trim(),
+            category: addItemForm.value.category,
+            uploadDeadline: formatDateDisplay(addItemForm.value.deadline),
+            staffVisible: addItemForm.value.staffVisible,
+            applicantVisible: addItemForm.value.applicantVisible,
+            publishDate: isRevisionCategory.value ? formatDateDisplay(addItemForm.value.publishDate) : "-",
+            receiveDate: formatDateDisplay(addItemForm.value.receiveDate),
+            receiveNumber: addItemForm.value.receiveNumber.trim(),
+          }
+        : item
+    );
+    showAddItemDrawer.value = false;
+    showSaveToast.value = true;
+    resetAddItemForm();
+    captureAddItemInitial();
+    return;
+  }
   const name = addItemForm.value.name.trim() || addItemForm.value.category;
   const uploadItems = isRevisionCategory.value
     ? [
@@ -541,29 +752,37 @@ const handleSaveAddItem = () => {
     {
       id: Date.now(),
       name,
-      uploadDeadline: "114/10/20",
+      category: addItemForm.value.category,
+      uploadDeadline: formatDateDisplay(addItemForm.value.deadline),
       staffVisible: addItemForm.value.staffVisible,
       applicantVisible: addItemForm.value.applicantVisible,
       publishDate: formatDateDisplay(addItemForm.value.publishDate),
       receiveDate: "",
+      receiveNumber: "",
       uploadItems,
       isExpanded: false,
     },
   ];
   showAddItemDrawer.value = false;
-  showAddItemToast.value = true;
-  addItemForm.value = {
-    name: "",
-    category: "報告書/審查簡報",
-    uploadSelections: ["upload-official", "upload-report", "upload-presentation"],
-    deadline: "",
-    staffVisible: false,
-    applicantVisible: true,
-    documentNo: "",
-    publishDate: "",
-    attachments: [],
-  };
+  if (isRevisionCategory.value) {
+    showCreateReportGuideModal.value = true;
+  } else {
+    showAddItemToast.value = true;
+  }
+  resetAddItemForm();
   captureAddItemInitial();
+};
+
+const handleConfirmCreateReportGuide = () => {
+  resetAddItemForm();
+  addItemForm.value.name = createReportGuideName.value;
+  addItemForm.value.category = "報告書/審查簡報";
+  showCreateReportGuideModal.value = false;
+  showAddItemDrawer.value = true;
+};
+
+const handleCloseCreateReportGuide = () => {
+  showCreateReportGuideModal.value = false;
 };
 
 const openDeleteModal = (file: ReviewFileItem) => {
@@ -584,15 +803,25 @@ const handleCancelDelete = () => {
   deleteTargetId.value = null;
 };
 
-const handleTempSave = () => {
-  showUnsavedToast.value = false;
-  showAddItemDrawer.value = false;
-  showSaveToast.value = true;
+const handleSaveAndCloseAddItem = () => {
+  if (isAddItemSaveDisabled.value) return;
+  showAddItemUnsavedModal.value = false;
+  handleSaveAddItem();
 };
 
-const handleExitEdit = () => {
-  showUnsavedToast.value = false;
+const handleExitAddItemEdit = () => {
+  showAddItemUnsavedModal.value = false;
   showAddItemDrawer.value = false;
+  resetAddItemForm();
+};
+
+const handleFileError = (payload: { type: "size" | "format"; maxSize?: number }) => {
+  if (payload.type === "size") {
+    uploadWarningMessage.value = `檔案大小需限 ${payload.maxSize ?? 10}MB，請重新確認`;
+  } else {
+    uploadWarningMessage.value = "檔案格式不符合規定，請重新確認";
+  }
+  showUploadWarningModal.value = true;
 };
 
 watch(

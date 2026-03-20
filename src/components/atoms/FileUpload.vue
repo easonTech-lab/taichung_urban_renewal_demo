@@ -44,9 +44,9 @@
 
       <!-- File List -->
       <div v-if="files.length > 0" class="flex flex-col gap-4">
-        <div v-for="(file, index) in files" :key="index" class="flex items-center gap-2 rounded-lg">
+        <div v-for="(file, index) in files" :key="index" class="flex min-w-0 items-center gap-2 rounded-lg">
           <Icon name="clip" :size="24" class="h-6 w-6 shrink-0 text-gray-900" />
-          <p class="flex-1 whitespace-pre-wrap break-words text-sm font-normal leading-[1.5] text-primary-900">
+          <p class="min-w-0 flex-1 truncate text-sm font-normal leading-[1.5] text-primary-900" :title="file.name">
             {{ file.name }}
           </p>
           <button type="button" @click="handleRemoveFile(index)" class="shrink-0 leading-none" aria-label="刪除檔案">

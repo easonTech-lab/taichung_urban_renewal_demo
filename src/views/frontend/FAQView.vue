@@ -47,7 +47,6 @@
                 :aria-controls="`category-${categoryIndex}-questions`"
                 :aria-label="`${category.title}，點擊${isCategoryOpen(categoryIndex) ? '收起' : '展開'}子問題列表`"
                 @click="selectCategory(categoryIndex)"
-                @keydown.tab.exact.prevent="handleCategoryTab(categoryIndex)"
               >
                 <p class="flex-1 text-xl font-medium" :class="isCategoryOpen(categoryIndex) ? 'text-blue-50' : 'text-gray-900'">
                   {{ category.title }}
@@ -84,8 +83,8 @@
                   :aria-label="`${question.title}，點擊查看詳細答案`"
                   :aria-current="activeQuestionId === question.id ? 'true' : undefined"
                   :tabindex="isCategoryOpen(categoryIndex) ? 0 : -1"
-                  @click.stop="selectQuestion(question.id)"
-                  @focus="focusQuestion(question.id)"
+                  @click.stop="selectNavQuestion(question.id)"
+                  @focus="selectNavQuestion(question.id)"
                 >
                   {{ question.title }}
                 </button>
@@ -165,6 +164,7 @@
                       :aria-expanded="activeQuestionId === question.id"
                       :aria-controls="`question-${question.id}-content`"
                       :aria-label="`${question.title}，點擊${activeQuestionId === question.id ? '收起' : '展開'}查看詳細答案`"
+                      tabindex="-1"
                       @click="selectQuestion(question.id)"
                     >
                       <div class="relative size-6 shrink-0">
@@ -208,7 +208,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, nextTick } from "vue";
+import { ref, computed, nextTick, onMounted, onBeforeUnmount } from "vue";
 import Empty from "@/components/atoms/Empty.vue";
 import Breadcrumb from "@/components/atoms/Breadcrumb.vue";
 import SearchInput from "@/components/atoms/SearchInput.vue";
@@ -410,13 +410,8 @@ const selectCategory = (index: number) => {
   }
 };
 
-const handleCategoryTab = (index: number) => {
-  if (!isCategoryOpen(index)) {
-    return;
-  }
-  void nextTick(() => {
-    focusFirstQuestionButton(index);
-  });
+const selectNavQuestion = (questionId: string) => {
+  activeQuestionId.value = questionId;
 };
 
 //點擊問題標題展開/收起
@@ -425,12 +420,6 @@ const selectQuestion = (questionId: string) => {
   if (activeQuestionId.value === questionId) {
     activeQuestionId.value = null;
   } else {
-    activeQuestionId.value = questionId;
-  }
-};
-
-const focusQuestion = (questionId: string) => {
-  if (activeQuestionId.value !== questionId) {
     activeQuestionId.value = questionId;
   }
 };
@@ -449,5 +438,41 @@ const handleSearch = () => {
     }
   }
 };
+
+let lastTabDirection: "forward" | "backward" | null = null;
+
+const describeFocusTarget = (target: EventTarget | null) => {
+  if (!(target instanceof HTMLElement)) return "unknown";
+
+  const tag = target.tagName.toLowerCase();
+  const id = target.id ? `#${target.id}` : "";
+  const className =
+    typeof target.className === "string" && target.className.trim()
+      ? `.${target.className.trim().replace(/\s+/g, ".")}`
+      : "";
+  const text = (target.innerText || target.textContent || "").trim().replace(/\s+/g, " ").slice(0, 60);
+
+  return `${tag}${id}${className}${text ? ` -> ${text}` : ""}`;
+};
+
+const handleTabKeydown = (event: KeyboardEvent) => {
+  if (event.key !== "Tab") return;
+  lastTabDirection = event.shiftKey ? "backward" : "forward";
+};
+
+const handleFocusIn = (event: FocusEvent) => {
+  if (!lastTabDirection) return;
+  console.log("[FAQ Tab Focus]", `direction=${lastTabDirection}`, `target=${describeFocusTarget(event.target)}`);
+};
+
+onMounted(() => {
+  window.addEventListener("keydown", handleTabKeydown, true);
+  window.addEventListener("focusin", handleFocusIn, true);
+});
+
+onBeforeUnmount(() => {
+  window.removeEventListener("keydown", handleTabKeydown, true);
+  window.removeEventListener("focusin", handleFocusIn, true);
+});
 
 </script>
