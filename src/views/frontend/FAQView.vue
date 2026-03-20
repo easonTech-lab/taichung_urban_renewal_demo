@@ -379,10 +379,12 @@ const stripHtmlTags = (html: string): string => {
   return tmp.textContent || tmp.innerText || "";
 };
 
+// 產生左側子問題按鈕的 DOM id，供鍵盤聚焦時查找元素
 const getQuestionNavId = (categoryIndex: number, questionIndex: number) => {
   return `faq-nav-question-${categoryIndex}-${questionIndex}`;
 };
 
+// 展開分類後，將焦點移到第一個子問題按鈕
 const focusFirstQuestionButton = (categoryIndex: number) => {
   const firstQuestionButton = document.getElementById(getQuestionNavId(categoryIndex, 0));
   if (firstQuestionButton instanceof HTMLButtonElement) {
@@ -410,11 +412,12 @@ const selectCategory = (index: number) => {
   }
 };
 
+// 左側導覽點擊時，直接切換右側目前顯示的問題
 const selectNavQuestion = (questionId: string) => {
   activeQuestionId.value = questionId;
 };
 
-//點擊問題標題展開/收起
+// 右側問題標題點擊時，切換展開/收起狀態
 const selectQuestion = (questionId: string) => {
   // 如果點擊的是已展開的問題，則收起
   if (activeQuestionId.value === questionId) {
@@ -424,6 +427,7 @@ const selectQuestion = (questionId: string) => {
   }
 };
 
+// 由搜尋按鈕觸發查詢，並同步重設 FAQ 的展開狀態
 const handleSearch = () => {
   const query = searchQuery.value.trim();
   appliedSearchQuery.value = query;
@@ -439,11 +443,12 @@ const handleSearch = () => {
   }
 };
 
+// 暫存最近一次 Tab 方向，方便觀察焦點移動順序
 let lastTabDirection: "forward" | "backward" | null = null;
 
+// 將目前聚焦元素整理成較易讀的除錯字串
 const describeFocusTarget = (target: EventTarget | null) => {
   if (!(target instanceof HTMLElement)) return "unknown";
-
   const tag = target.tagName.toLowerCase();
   const id = target.id ? `#${target.id}` : "";
   const className =
@@ -451,25 +456,28 @@ const describeFocusTarget = (target: EventTarget | null) => {
       ? `.${target.className.trim().replace(/\s+/g, ".")}`
       : "";
   const text = (target.innerText || target.textContent || "").trim().replace(/\s+/g, " ").slice(0, 60);
-
   return `${tag}${id}${className}${text ? ` -> ${text}` : ""}`;
 };
 
+// 監聽 Tab / Shift+Tab，記錄本次焦點移動方向
 const handleTabKeydown = (event: KeyboardEvent) => {
   if (event.key !== "Tab") return;
   lastTabDirection = event.shiftKey ? "backward" : "forward";
 };
 
+// 焦點移入新元素時，在 console 印出目前聚焦到的目標
 const handleFocusIn = (event: FocusEvent) => {
   if (!lastTabDirection) return;
   console.log("[FAQ Tab Focus]", `direction=${lastTabDirection}`, `target=${describeFocusTarget(event.target)}`);
 };
 
+// 頁面掛載時啟用 FAQ 的 Tab 焦點除錯監聽
 onMounted(() => {
   window.addEventListener("keydown", handleTabKeydown, true);
   window.addEventListener("focusin", handleFocusIn, true);
 });
 
+// 頁面卸載時移除除錯監聽，避免影響其他頁面
 onBeforeUnmount(() => {
   window.removeEventListener("keydown", handleTabKeydown, true);
   window.removeEventListener("focusin", handleFocusIn, true);

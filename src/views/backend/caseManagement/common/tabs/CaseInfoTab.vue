@@ -87,7 +87,12 @@
       </div>
 
       <div v-if="hasOfficerRows" class="rounded-lg border border-gray-300 bg-white">
-        <Table :columns="officerTableColumns" :rows="paginatedOfficerRows" :pagination="officerPagination" @page-change="handleOfficerPageChange">
+        <Table
+          :columns="officerTableColumns"
+          :rows="officerPaginationState.paginatedRows"
+          :pagination="officerPaginationState.pagination"
+          @page-change="officerPaginationState.handlePageChange"
+        >
           <template #cell-index="{ rowIndex }">
             <p class="text-base text-gray-500">{{ rowIndex + 1 }}</p>
           </template>
@@ -172,36 +177,12 @@
     @cancel="handleCloseOfficerRemove"
   />
 
-  <Modal v-model="showOfficerUnsavedModal" size="md" :static="false" :show-close-button="false" close-action="emit" backdrop-class="bg-gray-600/80">
-    <template #header>
-      <div class="flex w-full items-center justify-end px-4 pt-4">
-        <button
-          type="button"
-          class="flex h-6 w-6 items-center justify-center text-gray-400 hover:text-gray-500"
-          aria-label="關閉"
-          @click="showOfficerUnsavedModal = false"
-        >
-          <Icon name="close" :size="20" aria-hidden="true" />
-        </button>
-      </div>
-    </template>
-    <template #body>
-      <div class="flex w-full flex-col items-center gap-4 px-6 py-5">
-        <div class="flex h-[42px] w-[42px] items-center justify-center rounded-full bg-gray-400 text-[28px] font-medium leading-none text-white">!</div>
-        <p class="w-[311px] text-center text-base font-normal leading-[1.5] text-gray-600">有尚未儲存的修改，離開前是否先儲存</p>
-      </div>
-    </template>
-    <template #footer>
-      <div class="flex w-full items-center justify-center gap-4 px-6 pb-6 pt-0">
-        <ButtonCTA variant="outline" size="xs" class="h-8 w-[120px] px-3 py-2 text-sm font-medium leading-[1.5]" @click="handleOfficerModalExit">
-          退出編輯
-        </ButtonCTA>
-        <ButtonCTA variant="primary" size="xs" class="h-8 w-[120px] px-3 py-2 text-sm font-medium leading-[1.5]" @click="handleOfficerModalSave">
-          儲存修改
-        </ButtonCTA>
-      </div>
-    </template>
-  </Modal>
+  <UnsavedChangesModal
+    :model-value="officerUnsavedDialog.showUnsavedChangesModal.value"
+    @update:modelValue="(value) => (officerUnsavedDialog.showUnsavedChangesModal.value = value)"
+    @exit="handleOfficerModalExit"
+    @confirm="handleOfficerModalSave"
+  />
 
   <div class="fixed bottom-6 z-[90]" :style="toastPositionStyle">
     <Toast
@@ -228,18 +209,19 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from "vue";
+import { ref, computed, watch, reactive } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import { useTablePagination } from "@/composables/useTablePagination";
 import { useFormUnsavedCheck } from "@/composables/useFormUnsavedCheck";
+import { useUnsavedChangesDialog } from "@/composables/useUnsavedChangesDialog";
 import Icon from "@/components/atoms/Icon.vue";
 import Input from "@/components/atoms/Input.vue";
 import Toast from "@/components/atoms/Toast.vue";
 import Drawer from "@/components/atoms/Drawer.vue";
-import Modal from "@/components/atoms/Modal.vue";
 import ButtonCTA from "@/components/atoms/ButtonCTA.vue";
 import Empty from "@/components/atoms/Empty.vue";
 import ConfirmDeleteModal from "@/components/molecules/ConfirmDeleteModal.vue";
+import UnsavedChangesModal from "@/components/molecules/UnsavedChangesModal.vue";
 import Table, { type TableColumn } from "@/components/atoms/Table.vue";
 import InputDropdown, { type InputDropdownItem } from "@/components/atoms/InputDropdown.vue";
 import type { DrawerMode, OfficerItem, OfficerTableRow } from "@/types/backend/caseManagement/common/CaseDetailView.d";
@@ -263,6 +245,7 @@ const emit = defineEmits<{
   "request-remove-officer": [row: OfficerTableRow];
   "unsaved-toast": [visible: boolean];
 }>();
+const officerUnsavedDialog = useUnsavedChangesDialog();
 
 const isDrawerOpen = ref(false);
 const showOfficerRemoveModal = ref(false);
@@ -364,20 +347,15 @@ const officerTableColumns: TableColumn[] = [
   { key: "action", label: "動作", width: "10%", headerClass: "px-4 py-4 text-left text-sm font-medium text-gray-500", cellClass: "px-4 py-4 align-middle" },
 ];
 
-const {
-  paginatedRows: paginatedOfficerRows,
-  pagination: officerPagination,
-  handlePageChange: handleOfficerPageChange,
-} = useTablePagination({
+const officerPaginationState = reactive(useTablePagination({
   rows: computed(() => props.officerTableRows),
   pageSize: 10,
-});
+}));
 const hasOfficerRows = computed(() => props.officerTableRows.length > 0);
 
 const localOfficerList = ref<OfficerItem[]>(props.officerList.map((item) => ({ ...item })));
 const toastContext = ref<"officerList" | "editInfo">("editInfo");
 const showCancelToast = ref(false);
-const showOfficerUnsavedModal = ref(false);
 const showDrawerDeleteToast = ref(false);
 const showSaveToast = ref(false);
 const normalizeOfficerList = (items: OfficerItem[]) =>
@@ -434,11 +412,9 @@ const handleExportOfficerList = () => {
 
 const handleDrawerClose = () => {
   if (drawerMode.value === "officerList") {
-    if (hasOfficerChanges.value) {
-      showOfficerUnsavedModal.value = true;
-      return;
-    }
-    isDrawerOpen.value = false;
+    officerUnsavedDialog.requestUnsavedConfirmation(hasOfficerChanges.value, () => {
+      isDrawerOpen.value = false;
+    });
     return;
   }
   isDrawerOpen.value = false;
@@ -472,11 +448,9 @@ const handleAddNewOfficer = () => {
 };
 
 const handleCancel = () => {
-  if (hasOfficerChanges.value) {
-    showOfficerUnsavedModal.value = true;
-    return;
-  }
-  isDrawerOpen.value = false;
+  officerUnsavedDialog.requestUnsavedConfirmation(hasOfficerChanges.value, () => {
+    isDrawerOpen.value = false;
+  });
 };
 
 const handleSave = () => {
@@ -504,19 +478,18 @@ const handleCloseToast = () => {
 };
 
 watch(
-  () => showCancelToast.value || showOfficerUnsavedModal.value,
+  () => showCancelToast.value || officerUnsavedDialog.showUnsavedChangesModal.value,
   (visible) => {
     emit("unsaved-toast", visible);
   }
 );
 
 const handleOfficerModalExit = () => {
-  showOfficerUnsavedModal.value = false;
-  isDrawerOpen.value = false;
+  officerUnsavedDialog.runPendingAction();
 };
 
 const handleOfficerModalSave = () => {
-  showOfficerUnsavedModal.value = false;
+  officerUnsavedDialog.closeUnsavedChangesModal();
   handleSave();
 };
 

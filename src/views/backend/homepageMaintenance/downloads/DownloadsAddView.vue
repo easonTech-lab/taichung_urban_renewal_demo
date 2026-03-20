@@ -43,37 +43,14 @@
       </div>
     </div>
 
-    <!-- 有尚未儲存的修改時詢問是否離開 -->
-    <Modal v-model="showUnsavedChangesModal" size="md" :static="false" :show-close-button="false" close-action="emit" backdrop-class="bg-gray-600/80">
-      <template #header>
-        <div class="flex w-full items-center justify-end px-4 pt-4">
-          <button
-            type="button"
-            class="flex h-6 w-6 items-center justify-center text-gray-400 hover:text-gray-500"
-            aria-label="關閉"
-            @click="showUnsavedChangesModal = false"
-          >
-            <Icon name="close" :size="20" aria-hidden="true" />
-          </button>
-        </div>
-      </template>
-      <template #body>
-        <div class="flex w-full flex-col items-center gap-4 px-6 py-5">
-          <div class="flex h-6 w-6 items-center justify-center rounded-full bg-gray-400 text-xl font-medium leading-none text-white">!</div>
-          <p class="w-[311px] text-center text-base font-normal leading-[1.5] text-gray-600">有尚未儲存的修改，離開前是否先儲存</p>
-        </div>
-      </template>
-      <template #footer>
-        <div class="flex w-full items-center justify-center gap-4 px-6 pb-6 pt-0">
-          <ButtonCTA variant="white" size="xs" class="h-8 w-[120px] border-gray-200 px-3 py-2 text-sm font-medium leading-[1.5] text-gray-800" @click="handleExitWithoutSaving">
-            退出編輯
-          </ButtonCTA>
-          <ButtonCTA variant="primary" size="xs" class="h-8 w-[120px] px-3 py-2 text-sm font-medium leading-[1.5]" :disabled="isPublishDisabled" @click="handleSaveFromUnsavedModal">
-            {{ isEditMode ? "儲存修改" : "暫存" }}
-          </ButtonCTA>
-        </div>
-      </template>
-    </Modal>
+    <UnsavedChangesModal
+      :model-value="unsavedDialog.showUnsavedChangesModal.value"
+      @update:modelValue="(value) => (unsavedDialog.showUnsavedChangesModal.value = value)"
+      :confirm-label="isEditMode ? '儲存修改' : '暫存'"
+      :confirm-disabled="isPublishDisabled"
+      @exit="handleExitWithoutSaving"
+      @confirm="handleSaveFromUnsavedModal"
+    />
     <Modal v-model="showUploadWarningModal" size="md" backdrop-class="bg-gray-600/80" :show-close-button="true" close-action="emit">
       <template #body>
         <div class="flex w-full flex-col items-center gap-4 px-6 py-5">
@@ -93,6 +70,7 @@
 import { ref, computed, onMounted } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import { useFormUnsavedCheck } from "@/composables/useFormUnsavedCheck";
+import { useUnsavedChangesDialog } from "@/composables/useUnsavedChangesDialog";
 import Input from "@/components/atoms/Input.vue";
 import Radio from "@/components/atoms/Radio.vue";
 import ButtonCTA from "@/components/atoms/ButtonCTA.vue";
@@ -102,14 +80,13 @@ import Icon from "@/components/atoms/Icon.vue";
 import FileUpload from "@/components/atoms/FileUpload.vue";
 import Modal from "@/components/atoms/Modal.vue";
 import RichTextEditor from "@/components/atoms/RichTextEditor.vue";
+import UnsavedChangesModal from "@/components/molecules/UnsavedChangesModal.vue";
 import SidebarSection from "@/components/sections/backend/SidebarSection.vue";
 import type { DownloadFormData } from "@/types/backend/homepageMaintenance/downloadsManagement.d";
 
 const router = useRouter();
 const route = useRoute();
-
-const isEditMode = computed(() => route.query.edit === "true");
-const showUnsavedChangesModal = ref(false);
+const unsavedDialog = useUnsavedChangesDialog();
 
 const formData = ref<DownloadFormData>({
   title: "",
@@ -117,6 +94,9 @@ const formData = ref<DownloadFormData>({
   text: "",
   files: [],
 });
+
+const showUploadWarningModal = ref(false);
+const uploadWarningMessage = ref("");
 
 const categoryOptions = [
   { label: "都市更新類", value: "urban-renewal" },
@@ -132,85 +112,15 @@ const categoryValueMap: Record<string, string> = {
   整建維護: "renovation-maintenance",
 };
 
+const isEditMode = computed(() => route.query.edit === "true");
+
 const isPublishDisabled = computed(() => {
   if (!formData.value.title.trim()) return true;
   if (!formData.value.category) return true;
   return formData.value.files.length === 0;
 });
 
-/** 用於比對的檔案簽名（檔名+大小），與常見問題維護邏輯一致只比對內容不另做正規化 */
-const getFilesSignature = (files: File[]): string => {
-  const arr = [...files].sort((a, b) => a.name.localeCompare(b.name)).map((f) => `${f.name}|${f.size}`);
-  return JSON.stringify(arr);
-};
-
-const buildFormSnapshot = (): string =>
-  JSON.stringify({
-    title: formData.value.title.trim(),
-    category: formData.value.category,
-    text: formData.value.text,
-    filesSignature: getFilesSignature(formData.value.files),
-  });
-
 const { hasUnsavedChanges, captureInitial } = useFormUnsavedCheck(buildFormSnapshot);
-
-const navigateToDownloadsList = () => {
-  router.push("/downloads-management");
-};
-
-const handleSidebarItemSelect = () => {
-  // Handle sidebar item selection
-};
-
-const handleGoBack = () => {
-  if (hasUnsavedChanges.value) {
-    showUnsavedChangesModal.value = true;
-    return;
-  }
-  router.back();
-};
-
-const handleCancelOrDraft = () => {
-  if (isEditMode.value) {
-    handleCancelEdit();
-  } else {
-    handleSaveDraft();
-  }
-};
-
-const handleCancelEdit = () => {
-  if (hasUnsavedChanges.value) {
-    showUnsavedChangesModal.value = true;
-    return;
-  }
-  navigateToDownloadsList();
-};
-
-const handleExitWithoutSaving = () => {
-  showUnsavedChangesModal.value = false;
-  navigateToDownloadsList();
-};
-
-const handleSaveFromUnsavedModal = () => {
-  showUnsavedChangesModal.value = false;
-  if (isEditMode.value) {
-    handlePublish();
-  } else {
-    handleSaveDraft();
-  }
-};
-
-const showUploadWarningModal = ref(false);
-const uploadWarningMessage = ref("");
-
-const handleFileError = (payload: { type: "size" | "format"; maxSize?: number }) => {
-  if (payload.type === "size") {
-    uploadWarningMessage.value = `檔案大小需限 ${payload.maxSize ?? 10}MB，請重新確認`;
-  } else {
-    uploadWarningMessage.value = "檔案格式不符，請重新確認";
-  }
-  showUploadWarningModal.value = true;
-};
 
 const handleSaveDraft = () => {
   // TODO: Implement save draft functionality
@@ -250,4 +160,64 @@ onMounted(() => {
   }
   captureInitial();
 });
+
+function getFilesSignature(files: File[]): string {
+  const arr = [...files].sort((a, b) => a.name.localeCompare(b.name)).map((f) => `${f.name}|${f.size}`);
+  return JSON.stringify(arr);
+}
+
+function buildFormSnapshot(): string {
+  return JSON.stringify({
+    title: formData.value.title.trim(),
+    category: formData.value.category,
+    text: formData.value.text,
+    filesSignature: getFilesSignature(formData.value.files),
+  });
+}
+
+const navigateToDownloadsList = () => {
+  router.push("/downloads-management");
+};
+
+const handleSidebarItemSelect = () => {
+  // Handle sidebar item selection
+};
+
+const handleGoBack = () => {
+  unsavedDialog.requestUnsavedConfirmation(hasUnsavedChanges.value, () => router.back());
+};
+
+const handleCancelOrDraft = () => {
+  if (isEditMode.value) {
+    handleCancelEdit();
+  } else {
+    handleSaveDraft();
+  }
+};
+
+const handleCancelEdit = () => {
+  unsavedDialog.requestUnsavedConfirmation(hasUnsavedChanges.value, navigateToDownloadsList);
+};
+
+const handleExitWithoutSaving = () => {
+  unsavedDialog.runPendingAction();
+};
+
+const handleSaveFromUnsavedModal = () => {
+  unsavedDialog.closeUnsavedChangesModal();
+  if (isEditMode.value) {
+    handlePublish();
+  } else {
+    handleSaveDraft();
+  }
+};
+
+const handleFileError = (payload: { type: "size" | "format"; maxSize?: number }) => {
+  if (payload.type === "size") {
+    uploadWarningMessage.value = `檔案大小需限 ${payload.maxSize ?? 10}MB，請重新確認`;
+  } else {
+    uploadWarningMessage.value = "檔案格式不符，請重新確認";
+  }
+  showUploadWarningModal.value = true;
+};
 </script>

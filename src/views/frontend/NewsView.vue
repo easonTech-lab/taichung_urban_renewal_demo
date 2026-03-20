@@ -33,9 +33,17 @@
         <Empty type="search" message="查無符合條件的公開消息" />
       </div>
       <div v-else class="rounded-lg bg-white p-6 shadow-sm">
-        <Table :borderless="true" :columns="tableColumns" :rows="paginatedRows" :pagination="pagination" row-clickable @page-change="handlePageChange" @row-click="handleRowClick">
+        <Table
+          :borderless="true"
+          :columns="tableColumns"
+          :rows="paginationState.paginatedRows"
+          :pagination="paginationState.pagination"
+          row-clickable
+          @page-change="handlePageChange"
+          @row-click="handleRowClick"
+        >
           <template #cell-index="{ rowIndex }">
-            {{ (currentPage - 1) * pageSize + rowIndex + 1 }}
+            {{ (paginationState.currentPage - 1) * paginationState.pageSize + rowIndex + 1 }}
           </template>
           <template #cell-title="{ row }">
             <p class="line-clamp-2 text-left text-base text-gray-800">
@@ -50,7 +58,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from "vue";
+import { ref, computed, reactive } from "vue";
 import { useRouter } from "vue-router";
 import { useTablePagination } from "@/composables/useTablePagination";
 import Empty from "@/components/atoms/Empty.vue";
@@ -64,7 +72,11 @@ import type { NewsItem } from "@/types/frontend/frontend.d";
 
 const router = useRouter();
 
-// 模擬資料
+const selectedCategory = ref<string>("");
+const selectedCategoryText = ref<string>("全部類別");
+const searchQuery = ref<string>("");
+const appliedSearchQuery = ref<string>("");
+
 const mockData: NewsItem[] = [
   {
     id: 1,
@@ -131,16 +143,7 @@ const mockData: NewsItem[] = [
 // 重複資料以達到 1000 筆
 const allData = Array.from({ length: 100 }, () => mockData).flat();
 
-// Category Dropdown
 const categoryItems: InputDropdownItem[] = [{ label: "全部類別" }, { label: "最新消息" }, { label: "新聞快訊" }, { label: "活動訊息" }];
-
-// State
-const selectedCategory = ref<string>("");
-const selectedCategoryText = ref<string>("全部類別");
-const searchQuery = ref<string>("");
-const appliedSearchQuery = ref<string>(""); // 應用於過濾的搜尋關鍵字（點擊搜尋後才應用）
-
-// Table Columns（項次 5% / 標題 55% / 類別 22% / 發布日期 18%）
 const tableColumns: TableColumn[] = [
   { key: "index", label: "項次", width: "5%" },
   { key: "title", label: "標題", width: "55%" },
@@ -148,14 +151,11 @@ const tableColumns: TableColumn[] = [
   { key: "publishDate", label: "發布日期", width: "18%", sortable: true },
 ];
 
-// Filtered Data
 const filteredData = computed(() => {
   let data = [...allData];
-  // Filter by category
   if (selectedCategory.value && selectedCategory.value !== "全部類別") {
     data = data.filter((item) => item.category === selectedCategory.value);
   }
-  // Filter by search query (only apply when search button is clicked)
   if (appliedSearchQuery.value.trim()) {
     const query = appliedSearchQuery.value.toLowerCase();
     data = data.filter((item) => item.title.toLowerCase().includes(query) || item.category.toLowerCase().includes(query));
@@ -163,32 +163,28 @@ const filteredData = computed(() => {
   return data;
 });
 
-const { currentPage, pageSize, paginatedRows, pagination, handlePageChange: setPage, resetPage } = useTablePagination({
+const paginationState = reactive(useTablePagination({
   rows: filteredData,
   pageSize: 10,
-});
+}));
 
-// Handlers
 const handleCategoryChange = (item: InputDropdownItem) => {
   selectedCategory.value = item.label === "全部類別" ? "" : item.label;
   selectedCategoryText.value = item.label;
-  resetPage(); // Reset to first page when filter changes
+  paginationState.resetPage();
 };
 
 const handleSearch = () => {
-  // 將當前輸入的搜尋關鍵字應用到過濾
   appliedSearchQuery.value = searchQuery.value;
-  resetPage(); // Reset to first page when search
+  paginationState.resetPage();
 };
 
 const handlePageChange = (page: number) => {
-  setPage(page);
-  // Scroll to top of table
+  paginationState.handlePageChange(page);
   window.scrollTo({ top: 0, behavior: "smooth" });
 };
 
 const handleTitleClick = (row: Record<string, any>) => {
-  // TODO: Navigate to news detail page
   console.log("View news:", row);
   router.push(`/news/${row.id}`);
 };

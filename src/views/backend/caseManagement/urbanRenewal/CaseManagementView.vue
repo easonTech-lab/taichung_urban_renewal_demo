@@ -49,7 +49,15 @@
         <div class="rounded-lg border border-gray-300 bg-white">
           <Empty v-if="!hasAnyCases" type="case-management" message="尚無都市更新案件" @button-click="handleEmptyStateAddCase" />
           <Empty v-else-if="filteredCases.length === 0" type="search" :show-button="false" class="py-12" />
-          <Table v-else :columns="tableColumns" :rows="paginatedCases" :pagination="pagination" :row-clickable="true" @page-change="handlePageChange" @row-click="handleRowClick">
+          <Table
+            v-else
+            :columns="tableColumns"
+            :rows="paginationState.paginatedRows"
+            :pagination="paginationState.pagination"
+            :row-clickable="true"
+            @page-change="paginationState.handlePageChange"
+            @row-click="handleRowClick"
+          >
             <template #cell-caseStatus="{ row }">
               <Badge :variant="getStatusVariant(row.caseStatus)" :text="row.caseStatus" />
             </template>
@@ -69,7 +77,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from "vue";
+import { ref, computed, watch, reactive } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import { useTablePagination } from "@/composables/useTablePagination";
 import Badge from "@/components/atoms/Badge.vue";
@@ -86,13 +94,14 @@ import type { CaseItem } from "@/types/backend/caseManagement/urbanRenewal/caseM
 
 const router = useRouter();
 const route = useRoute();
+
 const showDeleteToast = ref(false);
 const toastMessage = ref("刪除成功");
+const selectedStages = ref<(string | number)[]>([]);
+const selectedStatus = ref<string>("");
+const selectedAddCaseIndex = ref<number | undefined>(undefined);
+const pageSize = ref<number>(10);
 
-// 判斷是否為管理員模式（根據路由名稱）
-const isAdmin = computed(() => route.name === "case-management-admin");
-
-// Filter Options
 const stageOptions: CheckboxDropdownItem[] = [
   { label: "案件申請", value: "案件申請" },
   { label: "公辦公聽會", value: "公辦公聽會" },
@@ -104,7 +113,6 @@ const stageOptions: CheckboxDropdownItem[] = [
 
 const statusOptions: DropdownItem[] = [{ label: "全部案件狀態" }, { label: "進行中" }, { label: "已中斷" }, { label: "已完成" }];
 
-// Add Case Options
 const addCaseOptions: ButtonDropdownItem[] = [
   { label: "申請審議(事業計畫)", value: "business-plan" },
   { label: "申請審議(權利變換)", value: "rights-exchange" },
@@ -113,12 +121,7 @@ const addCaseOptions: ButtonDropdownItem[] = [
   { label: "變更案", value: "amendment" },
 ];
 
-// State
-// 預設全選：初始化時選擇所有案件階段
-const selectedStages = ref<(string | number)[]>(stageOptions.map((opt) => opt.value));
-const selectedStatus = ref<string>("");
-const selectedAddCaseIndex = ref<number | undefined>(undefined);
-const pageSize = ref<number>(10);
+selectedStages.value = stageOptions.map((opt) => opt.value);
 
 // Mock Data
 const allCases: CaseItem[] = [
@@ -166,7 +169,6 @@ const allCases: CaseItem[] = [
   },
 ];
 
-// Table Columns（比例：編號 12% / 名稱 46% / 類別 12% / 階段 15% / 狀態 15%）
 const tableColumns: TableColumn[] = [
   { key: "caseNumber", label: "案件編號", width: "12%" },
   { key: "caseName", label: "案件名稱", width: "46%" },
@@ -175,7 +177,8 @@ const tableColumns: TableColumn[] = [
   { key: "caseStatus", label: "案件狀態", width: "15%" },
 ];
 
-// Filtered Cases
+const isAdmin = computed(() => route.name === "case-management-admin");
+
 const hasAnyCases = computed(() => allCases.length > 0);
 
 const filteredCases = computed(() => {
@@ -185,28 +188,25 @@ const filteredCases = computed(() => {
   return allCases.filter((item) => selectedStages.value.includes(item.caseStage));
 });
 
-const { paginatedRows: paginatedCases, pagination, handlePageChange, resetPage } = useTablePagination({
+const paginationState = reactive(useTablePagination({
   rows: filteredCases,
   pageSize,
   slice: false,
-});
+}));
 
-// Status Variant Mapping
-const getStatusVariant = (status: string): "primary" | "success" | "danger" => {
+function getStatusVariant(status: string): "primary" | "success" | "danger" {
   const mapping: Record<string, "primary" | "success" | "danger"> = {
     進行中: "primary",
     已完成: "success",
     已中斷: "danger",
   };
   return mapping[status] || "primary";
-};
+}
 
-// Event Handlers
-const handleSidebarItemSelect = (itemName: string) => {
+function handleSidebarItemSelect(itemName: string) {
   console.log("Selected sidebar item:", itemName);
-};
+}
 
-// 計算按鈕顯示文字
 const selectedStageText = computed(() => {
   // 全不選
   if (selectedStages.value.length === 0) {
@@ -228,7 +228,7 @@ const selectedStageText = computed(() => {
   return `已選 ${selectedStages.value.length} 項`;
 });
 
-const handleStageChange = (values: (string | number)[]) => {
+function handleStageChange(values: (string | number)[]) {
   // 檢查傳入的值是否都在 stageOptions 中
   // 注意：CheckboxDropdown 組件在處理 "select-all" 時，會直接發送所有項目的值或空陣列，
   // 永遠不會發送 "select-all" 這個值，所以不需要過濾
@@ -239,12 +239,12 @@ const handleStageChange = (values: (string | number)[]) => {
 
   // 如果使用者清除所有勾選，設為空陣列（全不選）
   selectedStages.value = validValues;
-  resetPage();
-};
+  paginationState.resetPage();
+}
 
 const handleStatusChange = (item: DropdownItem) => {
   selectedStatus.value = item.label;
-  resetPage();
+  paginationState.resetPage();
 };
 
 const handleAddCaseOption = (item: ButtonDropdownItem, index: number) => {

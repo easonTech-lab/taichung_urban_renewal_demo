@@ -33,9 +33,15 @@
             <ButtonCTA v-if="hasAnyHandlers" variant="primary" size="sm" @click="handleAddHandler">新增承辦</ButtonCTA>
           </div>
           <div v-if="hasAnyHandlers" class="rounded-lg border border-gray-300 bg-white">
-            <Table :columns="tableColumns" :rows="paginatedHandlers" :pagination="pagination" row-key="email" @page-change="handlePageChange">
+            <Table
+              :columns="tableColumns"
+              :rows="paginationState.paginatedRows"
+              :pagination="paginationState.pagination"
+              row-key="email"
+              @page-change="paginationState.handlePageChange"
+            >
               <template #cell-index="{ rowIndex }">
-                <p class="text-base text-gray-500">{{ (currentPage - 1) * pageSize + rowIndex + 1 }}</p>
+                <p class="text-base text-gray-500">{{ (paginationState.currentPage - 1) * pageSize + rowIndex + 1 }}</p>
               </template>
               <template #cell-permissions="{ row }">
                 <div class="text-base text-gray-600">
@@ -170,7 +176,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from "vue";
+import { computed, onMounted, ref, reactive } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useFormUnsavedCheck } from "@/composables/useFormUnsavedCheck";
 import { useTablePagination } from "@/composables/useTablePagination";
@@ -315,52 +321,50 @@ const tableColumns: TableColumn[] = [
   {
     key: "index",
     label: "項次",
-    headerClass: "w-[52px]",
-    cellClass: "w-[52px]",
+    width: "6%",
   },
   {
     key: "name",
     label: "承辦姓名",
-    headerClass: "w-[101px]",
-    cellClass: "w-[101px]",
+    width: "12%",
   },
   {
     key: "email",
     label: "公務信箱",
-    headerClass: "w-[152px]",
-    cellClass: "w-[152px]",
+    width: "18%",
   },
   {
     key: "department",
     label: "科室",
-    headerClass: "w-[150px]",
-    cellClass: "w-[150px]",
+    width: "16%",
   },
   {
     key: "group",
     label: "組別",
-    headerClass: "w-[128px]",
-    cellClass: "w-[128px]",
+    width: "12%",
   },
   {
     key: "permissions",
     label: "角色權限",
+    width: "16%",
   },
   {
     key: "status",
     label: "狀態",
+    width: "10%",
   },
   {
     key: "action",
     label: "動作",
+    width: "10%",
   },
 ];
 
-const { currentPage, paginatedRows: paginatedHandlers, pagination, handlePageChange } = useTablePagination({
+const paginationState = reactive(useTablePagination({
   rows: handlerAccounts,
   pageSize,
   slice: false,
-});
+}));
 
 // Event Handlers
 const handleSidebarItemSelect = (itemName: string) => {

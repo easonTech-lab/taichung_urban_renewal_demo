@@ -75,19 +75,19 @@ const complaintTableColumns: TableColumn[] = [
   {
     key: "title",
     label: "案件名稱",
-    headerClass: "w-auto",
+    width: "60%",
     sortable: true,
   },
   {
     key: "uploadedAt",
     label: "上傳時間",
-    headerClass: "w-[170px]",
+    width: "25%",
     sortable: true,
   },
   {
     key: "action",
     label: "動作",
-    width: "96px",
+    width: "15%",
   },
 ];
 

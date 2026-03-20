@@ -37,7 +37,13 @@
         </div>
         <div v-if="hasAnyStatistics" class="overflow-x-auto">
           <div class="min-w-[460px] rounded-lg border border-gray-300 bg-white">
-          <Table v-if="filteredStatistics.length > 0" :columns="tableColumns" :rows="paginatedStatistics" :pagination="pagination" @page-change="handlePageChange">
+          <Table
+            v-if="filteredStatistics.length > 0"
+            :columns="tableColumns"
+            :rows="paginationState.paginatedRows"
+            :pagination="paginationState.pagination"
+            @page-change="paginationState.handlePageChange"
+          >
             <template #cell-growthRate="{ row }">
               <Badge :variant="getGrowthRateVariant(row.growthRate)" :text="row.growthRate" />
             </template>
@@ -70,7 +76,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, watch } from "vue";
+import { ref, computed, onMounted, watch, reactive } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import { useTablePagination } from "@/composables/useTablePagination";
 import Tabs from "@/components/atoms/Tabs.vue";
@@ -85,26 +91,11 @@ import ConfirmDeleteModal from "@/components/molecules/ConfirmDeleteModal.vue";
 import Table, { type TableColumn } from "@/components/atoms/Table.vue";
 import Dropdown, { type DropdownItem } from "@/components/atoms/Dropdown.vue";
 import type { CaseStatisticsItem } from "@/types/backend/homepageMaintenance/caseStatistics.d";
+
 const router = useRouter();
 const route = useRoute();
 
-// Tabs
-const tabItems = [
-  { label: "全部", value: "all" },
-  { label: "都更案件", value: "urban-renewal" },
-  { label: "危老案件", value: "dangerous-building" },
-];
-
 const activeTab = ref<number>(0);
-
-// Year Options (small to large)
-const currentRocYear = new Date().getFullYear() - 1911;
-const yearOptions: DropdownItem[] = Array.from({ length: 20 }, (_, i) => {
-  const year = currentRocYear - 19 + i;
-  return { label: year.toString(), value: year.toString() };
-});
-
-// State
 const selectedStartYear = ref<string>("");
 const selectedEndYear = ref<string>("");
 const appliedStartYear = ref<string>("");
@@ -121,6 +112,18 @@ const deleteToastStyle = {
   maxWidth: "min(1420px, calc(100vw - 2rem))",
   minWidth: "min(1420px, calc(100vw - 2rem))",
 };
+
+const tabItems = [
+  { label: "全部", value: "all" },
+  { label: "都更案件", value: "urban-renewal" },
+  { label: "危老案件", value: "dangerous-building" },
+];
+
+const currentRocYear = new Date().getFullYear() - 1911;
+const yearOptions: DropdownItem[] = Array.from({ length: 20 }, (_, i) => {
+  const year = currentRocYear - 19 + i;
+  return { label: year.toString(), value: year.toString() };
+});
 
 const startYearOptions = computed(() => {
   if (!selectedEndYear.value) return yearOptions;
@@ -159,43 +162,38 @@ const tableColumns: TableColumn[] = [
   {
     key: "index",
     label: "項次",
-    headerClass: "w-[60px]",
-    cellClass: "w-[60px]",
+    width: "6%",
   },
   {
     key: "year",
     label: "年度",
-    headerClass: "w-[100px]",
-    cellClass: "w-[100px]",
+    width: "10%",
     sortable: true,
   },
   {
     key: "caseCategory",
     label: "案件類別",
+    width: "20%",
   },
   {
     key: "annualCount",
     label: "年件數",
-    headerClass: "w-[160px]",
-    cellClass: "w-[160px]",
+    width: "16%",
   },
   {
     key: "cumulativeCount",
     label: "歷年已累計件數",
-    headerClass: "w-[160px]",
-    cellClass: "w-[160px]",
+    width: "16%",
   },
   {
     key: "growthRate",
     label: "年成長率",
-    headerClass: "w-[160px]",
-    cellClass: "w-[160px]",
+    width: "16%",
   },
   {
     key: "action",
     label: "動作",
-    headerClass: "w-[96px]",
-    cellClass: "w-[96px]",
+    width: "16%",
   },
 ];
 
@@ -223,15 +221,10 @@ const filteredStatistics = computed(() => {
   return stats;
 });
 
-const {
-  paginatedRows: paginatedStatistics,
-  pagination,
-  handlePageChange,
-  resetPage,
-} = useTablePagination({
+const paginationState = reactive(useTablePagination({
   rows: filteredStatistics,
   pageSize,
-});
+}));
 
 // Growth Rate Variant Mapping
 const getGrowthRateVariant = (rate: string): "primary" | "success" | "danger" => {
@@ -250,7 +243,7 @@ const handleSidebarItemSelect = (itemName: string) => {
 
 const handleTabClick = (index: number) => {
   activeTab.value = index;
-  resetPage();
+  paginationState.resetPage();
 };
 
 const handleStartYearChange = (item: DropdownItem) => {
@@ -270,7 +263,7 @@ const handleEndYearChange = (item: DropdownItem) => {
 const handleSearch = () => {
   appliedStartYear.value = selectedStartYear.value;
   appliedEndYear.value = selectedEndYear.value;
-  resetPage();
+  paginationState.resetPage();
 };
 
 const handleResetFilters = () => {
@@ -278,7 +271,7 @@ const handleResetFilters = () => {
   selectedEndYear.value = "";
   appliedStartYear.value = "";
   appliedEndYear.value = "";
-  resetPage();
+  paginationState.resetPage();
 };
 
 const handleAddYear = () => {

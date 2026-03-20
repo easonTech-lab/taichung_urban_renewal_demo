@@ -18,15 +18,15 @@
           <Table
             v-if="filteredFAQs.length > 0"
             :columns="tableColumns"
-            :rows="paginatedFAQs"
-            :pagination="pagination"
+            :rows="paginationState.paginatedRows"
+            :pagination="paginationState.pagination"
             row-key="index"
             :row-clickable="true"
             @row-click="handleRowClick"
-            @page-change="handlePageChange"
+            @page-change="paginationState.handlePageChange"
           >
             <template #cell-index="{ rowIndex }">
-              <p class="text-base text-gray-500">{{ (pagination.currentPage - 1) * pageSize + rowIndex + 1 }}</p>
+              <p class="text-base text-gray-500">{{ (paginationState.pagination.currentPage - 1) * pageSize + rowIndex + 1 }}</p>
             </template>
             <template #cell-status="{ row }">
               <div @click.stop @mousedown.prevent>
@@ -69,8 +69,8 @@
 </template>
 
 <script setup lang="ts">
-import { useRouter, useRoute } from "vue-router";
-import { ref, computed, onMounted, watch } from "vue";
+import { ref, computed, onMounted, watch, reactive } from "vue";
+import { useRoute, useRouter } from "vue-router";
 import { useTablePagination } from "@/composables/useTablePagination";
 import Icon from "@/components/atoms/Icon.vue";
 import Badge from "@/components/atoms/Badge.vue";
@@ -84,10 +84,15 @@ import ConfirmDeleteModal from "@/components/molecules/ConfirmDeleteModal.vue";
 import Table, { type TableColumn } from "@/components/atoms/Table.vue";
 import type { FaqItem } from "@/types/backend/homepageMaintenance/faqManagement.d";
 
-// State
+const router = useRouter();
+const route = useRoute();
+
 const pageSize = ref<number>(10);
 const showSuccessToast = ref(false);
 const toastMessage = ref("新增成功");
+const showDeleteModal = ref(false);
+const deleteTarget = ref<FaqItem | null>(null);
+
 const toastStyle = {
   left: "50%",
   transform: "translateX(-50%)",
@@ -96,7 +101,6 @@ const toastStyle = {
   minWidth: "min(1420px, calc(100vw - 2rem))",
 };
 
-// Mock Data (使用 ref 使其響應式)
 const allFAQs = ref<FaqItem[]>([
   {
     index: 1,
@@ -159,7 +163,6 @@ const allFAQs = ref<FaqItem[]>([
 
 const hasAnyFAQs = computed(() => allFAQs.value.length > 0);
 
-// Table Columns（比例：項次 5% / 問題 35% / 類別 18% / 發布日期 12% / 狀態 10% / 動作 20%）
 const tableColumns: TableColumn[] = [
   { key: "index", label: "項次", width: "5%" },
   { key: "question", label: "問題", width: "35%" },
@@ -169,31 +172,24 @@ const tableColumns: TableColumn[] = [
   { key: "action", label: "動作", width: "20%" },
 ];
 
-// Filtered FAQs
 const filteredFAQs = computed(() => {
   return [...allFAQs.value];
 });
 
-const { paginatedRows: paginatedFAQs, pagination, handlePageChange } = useTablePagination({
+const paginationState = reactive(useTablePagination({
   rows: filteredFAQs,
   pageSize,
-});
+}));
 
-// Event Handlers
-const handleSidebarItemSelect = (itemName: string) => {
+function handleSidebarItemSelect(itemName: string) {
   console.log("Selected sidebar item:", itemName);
-};
+}
 
-const router = useRouter();
-const route = useRoute();
-const showDeleteModal = ref(false);
-const deleteTarget = ref<FaqItem | null>(null);
-
-const handleAddQuestion = () => {
+function handleAddQuestion() {
   router.push("/faq-management/add");
-};
+}
 
-const handleStatusChange = (row: Record<string, any>, value: boolean) => {
+function handleStatusChange(row: Record<string, any>, value: boolean) {
   const item = row as FaqItem;
   item.status = value;
   console.log("Status changed for:", item, "New status:", value);
@@ -203,13 +199,13 @@ const handleStatusChange = (row: Record<string, any>, value: boolean) => {
     if (activeElement?.blur) activeElement.blur();
   });
   // TODO: Implement status change logic
-};
+}
 
-const handleRowClick = (row: Record<string, any>) => {
+function handleRowClick(row: Record<string, any>) {
   handleEdit(row);
-};
+}
 
-const handleEdit = (row: Record<string, any>) => {
+function handleEdit(row: Record<string, any>) {
   const item = row as FaqItem;
   router.push({
     path: "/faq-management/add",
@@ -220,21 +216,21 @@ const handleEdit = (row: Record<string, any>) => {
       answer: "",
     },
   });
-};
+}
 
-const handleDelete = (row: Record<string, any>) => {
+function handleDelete(row: Record<string, any>) {
   const item = row as FaqItem;
   console.log("Delete clicked for:", item);
   deleteTarget.value = item;
   showDeleteModal.value = true;
-};
+}
 
-const handleCloseDeleteModal = () => {
+function handleCloseDeleteModal() {
   showDeleteModal.value = false;
   deleteTarget.value = null;
-};
+}
 
-const handleConfirmDelete = () => {
+function handleConfirmDelete() {
   if (deleteTarget.value) {
     allFAQs.value = allFAQs.value.filter((item) => item.index !== deleteTarget.value?.index);
   }

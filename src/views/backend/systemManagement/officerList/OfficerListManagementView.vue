@@ -32,7 +32,13 @@
           />
         </div>
         <div v-else class="flex flex-col gap-0">
-          <Table :columns="tableColumns" :rows="paginatedOfficers" :pagination="pagination" min-width="984px" @page-change="handlePageChange">
+          <Table
+            :columns="tableColumns"
+            :rows="paginationState.paginatedRows"
+            :pagination="paginationState.pagination"
+            min-width="984px"
+            @page-change="paginationState.handlePageChange"
+          >
             <template #cell-index="{ row }">
               <div class="flex h-20 items-center justify-start px-4 py-4">
                 <p class="text-sm font-normal leading-6 text-gray-500">{{ row.index }}</p>
@@ -180,36 +186,12 @@
       </template>
     </Drawer>
 
-    <Modal v-model="showUnsavedChangesModal" size="md" :static="false" :show-close-button="false" close-action="emit" backdrop-class="bg-gray-600/80">
-      <template #header>
-        <div class="flex w-full items-center justify-end px-4 pt-4">
-          <button
-            type="button"
-            class="flex h-6 w-6 items-center justify-center text-gray-400 hover:text-gray-500"
-            aria-label="關閉"
-            @click="showUnsavedChangesModal = false"
-          >
-            <Icon name="close" :size="20" aria-hidden="true" />
-          </button>
-        </div>
-      </template>
-      <template #body>
-        <div class="flex w-full flex-col items-center gap-4 px-6 py-5">
-          <div class="flex h-6 w-6 items-center justify-center rounded-full bg-gray-400 text-xl font-medium leading-none text-white">!</div>
-          <p class="w-[311px] text-center text-base font-normal leading-[1.5] text-gray-600">有尚未儲存的修改，離開前是否先儲存</p>
-        </div>
-      </template>
-      <template #footer>
-        <div class="flex w-full items-center justify-center gap-4 px-6 pb-6 pt-0">
-          <ButtonCTA variant="white" size="xs" class="h-8 w-[120px] border-gray-200 px-3 py-2 text-sm font-medium leading-[1.5] text-gray-800" @click="handleExitWithoutSaving">
-            退出編輯
-          </ButtonCTA>
-          <ButtonCTA variant="primary" size="xs" class="h-8 w-[120px] px-3 py-2 text-sm font-medium leading-[1.5]" @click="handleSaveFromUnsavedModal">
-            儲存修改
-          </ButtonCTA>
-        </div>
-      </template>
-    </Modal>
+    <UnsavedChangesModal
+      :model-value="unsavedDialog.showUnsavedChangesModal.value"
+      @update:modelValue="(value) => (unsavedDialog.showUnsavedChangesModal.value = value)"
+      @exit="handleExitWithoutSaving"
+      @confirm="handleSaveFromUnsavedModal"
+    />
 
     <ConfirmDeleteModal
       v-model="showDeleteModal"
@@ -231,14 +213,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from "vue";
+import { ref, computed, reactive } from "vue";
 import { useRouter } from "vue-router";
 import { useFormUnsavedCheck } from "@/composables/useFormUnsavedCheck";
 import { useTablePagination } from "@/composables/useTablePagination";
+import { useUnsavedChangesDialog } from "@/composables/useUnsavedChangesDialog";
 import Icon from "@/components/atoms/Icon.vue";
 import Empty from "@/components/atoms/Empty.vue";
 import Drawer from "@/components/atoms/Drawer.vue";
-import Modal from "@/components/atoms/Modal.vue";
 import Toast from "@/components/atoms/Toast.vue";
 import ButtonCTA from "@/components/atoms/ButtonCTA.vue";
 import Breadcrumb from "@/components/atoms/Breadcrumb.vue";
@@ -248,6 +230,7 @@ import Table, { type TableColumn } from "@/components/atoms/Table.vue";
 import Input from "@/components/atoms/Input.vue";
 import InputDropdown, { type InputDropdownItem } from "@/components/atoms/InputDropdown.vue";
 import ConfirmDeleteModal from "@/components/molecules/ConfirmDeleteModal.vue";
+import UnsavedChangesModal from "@/components/molecules/UnsavedChangesModal.vue";
 import type { OfficerData, OfficerItem } from "@/types/backend/systemManagement/officerList/officerListManagement.d";
 
 // Tabs（年度 + 添加年度，儲存後會更新）
@@ -255,13 +238,13 @@ const tabItems = ref<TabItem[]>([{ label: "115" }, { label: "114" }, { label: "1
 
 const activeTab = ref(0);
 const hasAnyOfficers = computed(() => allOfficers.value.length > 0);
+const unsavedDialog = useUnsavedChangesDialog();
 
 // Drawer state
 const isDrawerOpen = ref(false);
 const isAddYearDrawerOpen = ref(false);
 const showToast = ref(false);
 const toastMessage = ref("儲存成功");
-const showUnsavedChangesModal = ref(false);
 
 // Delete modal state
 const showDeleteModal = ref(false);
@@ -359,12 +342,12 @@ const officerTableRows = ref(
   })
 );
 
-const { paginatedRows: paginatedOfficers, pagination, handlePageChange } = useTablePagination({
+const paginationState = reactive(useTablePagination({
   rows: officerTableRows,
   pageSize: 10,
   total: computed(() => officerTableRows.value.length),
   slice: false,
-});
+}));
 
 // Officer List (20 items default)
 const officerList = ref<OfficerItem[]>(
@@ -432,11 +415,9 @@ const handleAddOfficer = () => {
 };
 
 const handleDrawerClose = () => {
-  if (hasOfficerListChanges.value) {
-    showUnsavedChangesModal.value = true;
-    return;
-  }
-  isDrawerOpen.value = false;
+  unsavedDialog.requestUnsavedConfirmation(hasOfficerListChanges.value, () => {
+    isDrawerOpen.value = false;
+  });
 };
 
 const handleOfficerSelect = (index: number, item: InputDropdownItem) => {
@@ -455,11 +436,9 @@ const handleAddNewOfficer = () => {
 };
 
 const handleCancel = () => {
-  if (hasOfficerListChanges.value) {
-    showUnsavedChangesModal.value = true;
-    return;
-  }
-  isDrawerOpen.value = false;
+  unsavedDialog.requestUnsavedConfirmation(hasOfficerListChanges.value, () => {
+    isDrawerOpen.value = false;
+  });
 };
 
 const handleSave = () => {
@@ -472,12 +451,11 @@ const handleSave = () => {
 };
 
 const handleExitWithoutSaving = () => {
-  showUnsavedChangesModal.value = false;
-  isDrawerOpen.value = false;
+  unsavedDialog.runPendingAction();
 };
 
 const handleSaveFromUnsavedModal = () => {
-  showUnsavedChangesModal.value = false;
+  unsavedDialog.closeUnsavedChangesModal();
   handleSave();
 };
 

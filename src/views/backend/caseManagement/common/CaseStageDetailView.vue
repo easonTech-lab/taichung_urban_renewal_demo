@@ -1,6 +1,6 @@
 <template>
   <div class="min-h-screen bg-indigo-50">
-    <SidebarSection :backdrop-closable="!showAddItemUnsavedModal" @item-select="handleSidebarItemSelect" />
+    <SidebarSection :backdrop-closable="!addItemUnsavedDialog.showUnsavedChangesModal.value" @item-select="handleSidebarItemSelect" />
     <div class="flex flex-1 flex-col gap-10 p-4 sm:ml-[328px] sm:p-10">
       <div class="flex flex-col gap-6">
         <Breadcrumb />
@@ -278,32 +278,13 @@
       </template>
     </Toast>
   </div>
-  <Modal v-model="showAddItemUnsavedModal" size="md" :static="false" :show-close-button="false" close-action="emit" backdrop-class="bg-gray-600/80">
-    <template #header>
-      <div class="flex w-full items-center justify-end px-4 pb-0 pt-4">
-        <button
-          type="button"
-          class="flex h-5 w-5 items-center justify-center rounded text-gray-400 hover:text-gray-600 focus:outline-none focus:ring-2 focus:ring-primary-500"
-          aria-label="關閉彈窗"
-          @click="showAddItemUnsavedModal = false"
-        >
-          <Icon name="close" :size="20" />
-        </button>
-      </div>
-    </template>
-    <template #body>
-      <div class="flex flex-col items-center gap-4 px-6 py-5">
-        <Icon name="exclamation" :size="42" color="#9CA3AF" />
-        <p class="w-[311px] text-center text-base font-normal leading-[1.5] text-gray-600">有尚未儲存的修改，離開前是否先儲存</p>
-      </div>
-    </template>
-    <template #footer>
-      <div class="flex w-full items-center justify-center gap-4 px-6 pb-6 pt-0">
-        <ButtonCTA variant="white" size="xs" class="h-8 w-[120px] border-gray-200 px-3 py-2 text-sm font-medium leading-[1.5] text-gray-800" @click="handleExitAddItemEdit">退出編輯</ButtonCTA>
-        <ButtonCTA variant="primary" size="xs" class="h-8 w-[120px] px-3 py-2 text-sm font-medium leading-[1.5]" :disabled="isAddItemSaveDisabled" @click="handleSaveAndCloseAddItem">儲存修改</ButtonCTA>
-      </div>
-    </template>
-  </Modal>
+  <UnsavedChangesModal
+    :model-value="addItemUnsavedDialog.showUnsavedChangesModal.value"
+    @update:modelValue="(value) => (addItemUnsavedDialog.showUnsavedChangesModal.value = value)"
+    :confirm-disabled="isAddItemSaveDisabled"
+    @exit="handleExitAddItemEdit"
+    @confirm="handleSaveAndCloseAddItem"
+  />
   <Modal v-model="showCreateReportGuideModal" size="md" :static="false" :show-close-button="false" close-action="emit" backdrop-class="bg-gray-600/80">
     <template #header>
       <div class="flex w-full items-center justify-end px-4 pb-0 pt-4">
@@ -368,6 +349,7 @@
 import { useRoute } from "vue-router";
 import { computed, ref, watch } from "vue";
 import { useFormUnsavedCheck } from "@/composables/useFormUnsavedCheck";
+import { useUnsavedChangesDialog } from "@/composables/useUnsavedChangesDialog";
 import Icon from "@/components/atoms/Icon.vue";
 import Empty from "@/components/atoms/Empty.vue";
 import Radio from "@/components/atoms/Radio.vue";
@@ -381,11 +363,13 @@ import FileUpload from "@/components/atoms/FileUpload.vue";
 import Breadcrumb from "@/components/atoms/Breadcrumb.vue";
 import DatePicker from "@/components/atoms/DatePicker.vue";
 import ConfirmDeleteModal from "@/components/molecules/ConfirmDeleteModal.vue";
+import UnsavedChangesModal from "@/components/molecules/UnsavedChangesModal.vue";
 import SidebarSection from "@/components/sections/backend/SidebarSection.vue";
 import InputDropdown, { type InputDropdownItem } from "@/components/atoms/InputDropdown.vue";
 import ButtonDropdown, { type ButtonDropdownItem } from "@/components/atoms/ButtonDropdown.vue";
 import type { AddReviewItemForm, ReviewFileCategory, ReviewFileItem } from "@/types/backend/caseManagement/common/CaseStageDetailView.d";
 const route = useRoute();
+const addItemUnsavedDialog = useUnsavedChangesDialog();
 const stageTitle = computed(() => (route.query?.stage as string | undefined) || "都更幹事會");
 const handleSidebarItemSelect = (itemName: string) => {
   console.log("Selected sidebar item:", itemName);
@@ -395,7 +379,6 @@ const savedStatus = ref("in-progress");
 const selectedStatus = ref("in-progress");
 const showSaveToast = ref(false);
 const showAddItemToast = ref(false);
-const showAddItemUnsavedModal = ref(false);
 const showUploadWarningModal = ref(false);
 const showCreateReportGuideModal = ref(false);
 const uploadWarningMessage = ref("");
@@ -648,11 +631,11 @@ const handleEditReviewFile = (file: ReviewFileItem) => {
 };
 
 const handleCancelAddItem = () => {
-  if (isAddItemDirty.value) {
-    showAddItemUnsavedModal.value = true;
-  } else {
+  if (!addItemUnsavedDialog.requestUnsavedConfirmation(isAddItemDirty.value, () => {
     showAddItemDrawer.value = false;
     resetAddItemForm();
+  })) {
+    return;
   }
 };
 
@@ -772,14 +755,12 @@ const handleCancelDelete = () => {
 
 const handleSaveAndCloseAddItem = () => {
   if (isAddItemSaveDisabled.value) return;
-  showAddItemUnsavedModal.value = false;
+  addItemUnsavedDialog.closeUnsavedChangesModal();
   handleSaveAddItem();
 };
 
 const handleExitAddItemEdit = () => {
-  showAddItemUnsavedModal.value = false;
-  showAddItemDrawer.value = false;
-  resetAddItemForm();
+  addItemUnsavedDialog.runPendingAction();
 };
 
 const handleFileError = (payload: { type: "size" | "format"; maxSize?: number }) => {

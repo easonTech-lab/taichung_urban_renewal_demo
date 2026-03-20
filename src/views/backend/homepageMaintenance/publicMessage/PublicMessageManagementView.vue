@@ -21,16 +21,16 @@
           <Table
             v-if="filteredMessages.length > 0"
             :columns="tableColumns"
-            :rows="paginatedMessages"
-            :pagination="pagination"
+            :rows="paginationState.paginatedRows"
+            :pagination="paginationState.pagination"
             row-key="title"
             :row-clickable="true"
             @row-click="handleRowClick"
-            @page-change="handlePageChange"
+            @page-change="paginationState.handlePageChange"
           >
             <!-- Index -->
             <template #cell-index="{ rowIndex }">
-              <p class="text-base text-gray-500">{{ (currentPage - 1) * pageSize + rowIndex + 1 }}</p>
+              <p class="text-base text-gray-500">{{ (paginationState.currentPage - 1) * pageSize + rowIndex + 1 }}</p>
             </template>
             <!-- Status -->
             <template #cell-status="{ row }">
@@ -72,8 +72,8 @@
 </template>
 
 <script setup lang="ts">
-import { useRouter, useRoute } from "vue-router";
-import { ref, computed, onMounted, watch } from "vue";
+import { ref, computed, onMounted, watch, reactive } from "vue";
+import { useRoute, useRouter } from "vue-router";
 import { useTablePagination } from "@/composables/useTablePagination";
 import Icon from "@/components/atoms/Icon.vue";
 import Badge from "@/components/atoms/Badge.vue";
@@ -88,13 +88,16 @@ import ConfirmDeleteModal from "@/components/molecules/ConfirmDeleteModal.vue";
 import Table, { type TableColumn } from "@/components/atoms/Table.vue";
 import type { PublicMessageItem } from "@/types/backend/homepageMaintenance/publicMessageManagement.d";
 
-// State
+const router = useRouter();
+const route = useRoute();
+
 const pageSize = ref<number>(10);
 const selectedCategory = ref<string>("");
 const showDeleteModal = ref(false);
 const deleteTarget = ref<PublicMessageItem | null>(null);
 const showToast = ref(false);
 const toastMessage = ref("新增成功");
+
 const toastStyle = {
   left: "50%",
   transform: "translateX(-50%)",
@@ -103,7 +106,6 @@ const toastStyle = {
   minWidth: "min(1420px, calc(100vw - 2rem))",
 };
 
-// Category Options
 const categoryOptions = [
   { label: "全部類別", value: "" },
   { label: "最新消息", value: "最新消息" },
@@ -111,12 +113,6 @@ const categoryOptions = [
   { label: "新聞快訊", value: "新聞快訊" },
 ];
 
-const handleCategoryChange = (item: { label: string; value?: string }) => {
-  selectedCategory.value = item.value || "";
-  resetPage();
-};
-
-// Mock Data (使用 ref 使其響應式)
 const allMessages = ref<PublicMessageItem[]>([
   {
     title: "臺中市都市更新相關推動成果公告",
@@ -172,7 +168,6 @@ const allMessages = ref<PublicMessageItem[]>([
 
 const hasAnyMessages = computed(() => allMessages.value.length > 0);
 
-// Table Columns（比例：項次 5% / 公開消息 42% / 類別 11% / 發布日期 12% / 狀態 10% / 動作 20%）
 const tableColumns: TableColumn[] = [
   { key: "index", label: "項次", width: "5%" },
   { key: "title", label: "公開消息", width: "42%" },
@@ -182,7 +177,6 @@ const tableColumns: TableColumn[] = [
   { key: "action", label: "動作", width: "20%" },
 ];
 
-// Filtered Messages
 const filteredMessages = computed(() => {
   let messages = [...allMessages.value];
 
@@ -194,29 +188,30 @@ const filteredMessages = computed(() => {
   return messages;
 });
 
-const { currentPage, paginatedRows: paginatedMessages, pagination, handlePageChange, resetPage } = useTablePagination({
+const paginationState = reactive(useTablePagination({
   rows: filteredMessages,
   pageSize,
   slice: false,
-});
+}));
 
-// Event Handlers
-const handleSidebarItemSelect = (itemName: string) => {
+function handleSidebarItemSelect(itemName: string) {
   console.log("Selected sidebar item:", itemName);
-};
+}
 
-const router = useRouter();
-const route = useRoute();
+function handleCategoryChange(item: { label: string; value?: string }) {
+  selectedCategory.value = item.value || "";
+  paginationState.resetPage();
+}
 
-const handleAddMessage = () => {
+function handleAddMessage() {
   router.push("/public-message-management/add");
-};
+}
 
-const handleRowClick = (row: Record<string, any>) => {
+function handleRowClick(row: Record<string, any>) {
   handleEdit(row);
-};
+}
 
-const handleEdit = (row: Record<string, any>) => {
+function handleEdit(row: Record<string, any>) {
   const item = row as PublicMessageItem;
   router.push({
     path: "/public-message-management/add",
@@ -227,9 +222,9 @@ const handleEdit = (row: Record<string, any>) => {
       content: (item as any).content ?? "",
     },
   });
-};
+}
 
-const handleStatusChange = (row: Record<string, any>, value: boolean) => {
+function handleStatusChange(row: Record<string, any>, value: boolean) {
   const item = row as PublicMessageItem;
   item.status = value;
   console.log("Status changed for:", item, "New status:", value);
@@ -239,7 +234,7 @@ const handleStatusChange = (row: Record<string, any>, value: boolean) => {
     if (activeElement?.blur) activeElement.blur();
   });
   // TODO: Implement status change logic
-};
+}
 
 const handleDelete = (row: Record<string, any>) => {
   const item = row as PublicMessageItem;

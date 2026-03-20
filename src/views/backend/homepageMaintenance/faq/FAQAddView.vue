@@ -79,36 +79,13 @@
       </div>
     </div>
 
-    <Modal v-model="showUnsavedChangesModal" size="md" :static="false" :show-close-button="false" close-action="emit" backdrop-class="bg-gray-600/80">
-      <template #header>
-        <div class="flex w-full items-center justify-end px-4 pt-4">
-          <button
-            type="button"
-            class="flex h-6 w-6 items-center justify-center text-gray-400 hover:text-gray-500"
-            aria-label="關閉"
-            @click="showUnsavedChangesModal = false"
-          >
-            <Icon name="close" :size="20" aria-hidden="true" />
-          </button>
-        </div>
-      </template>
-      <template #body>
-        <div class="flex w-full flex-col items-center gap-4 px-6 py-5">
-          <div class="flex h-6 w-6 items-center justify-center rounded-full bg-gray-400 text-xl font-medium leading-none text-white">!</div>
-          <p class="w-[311px] text-center text-base font-normal leading-[1.5] text-gray-600">有尚未儲存的修改，離開前是否先儲存</p>
-        </div>
-      </template>
-      <template #footer>
-        <div class="flex w-full items-center justify-center gap-4 px-6 pb-6 pt-0">
-          <ButtonCTA variant="white" size="xs" class="h-8 w-[120px] border-gray-200 px-3 py-2 text-sm font-medium leading-[1.5] text-gray-800" @click="handleExitWithoutSaving">
-            退出編輯
-          </ButtonCTA>
-          <ButtonCTA variant="primary" size="xs" class="h-8 w-[120px] px-3 py-2 text-sm font-medium leading-[1.5]" :disabled="isPublishDisabled" @click="handleSaveFromUnsavedModal">
-            儲存修改
-          </ButtonCTA>
-        </div>
-      </template>
-    </Modal>
+    <UnsavedChangesModal
+      :model-value="unsavedDialog.showUnsavedChangesModal.value"
+      @update:modelValue="(value) => (unsavedDialog.showUnsavedChangesModal.value = value)"
+      :confirm-disabled="isPublishDisabled"
+      @exit="handleExitWithoutSaving"
+      @confirm="handleSaveFromUnsavedModal"
+    />
   </div>
 </template>
 
@@ -116,7 +93,7 @@
 import { ref, computed, onMounted } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import { useFormUnsavedCheck } from "@/composables/useFormUnsavedCheck";
-import Modal from "@/components/atoms/Modal.vue";
+import { useUnsavedChangesDialog } from "@/composables/useUnsavedChangesDialog";
 import Icon from "@/components/atoms/Icon.vue";
 import Input from "@/components/atoms/Input.vue";
 import Radio from "@/components/atoms/Radio.vue";
@@ -124,27 +101,19 @@ import ButtonCTA from "@/components/atoms/ButtonCTA.vue";
 import RadioGroup from "@/components/atoms/RadioGroup.vue";
 import Breadcrumb from "@/components/atoms/Breadcrumb.vue";
 import RichTextEditor from "@/components/atoms/RichTextEditor.vue";
+import UnsavedChangesModal from "@/components/molecules/UnsavedChangesModal.vue";
 import SidebarSection from "@/components/sections/backend/SidebarSection.vue";
 import type { FaqFormData } from "@/types/backend/homepageMaintenance/faqManagement.d";
 
 const router = useRouter();
 const route = useRoute();
-
-const isEditMode = computed(() => route.query.edit === "true");
-const showUnsavedChangesModal = ref(false);
+const unsavedDialog = useUnsavedChangesDialog();
 
 const formData = ref<FaqFormData>({
   title: "",
   category: "",
   answer: "",
 });
-
-const getPlainTextLength = (html: string): number => {
-  if (!html) return 0;
-  const tempDiv = document.createElement("div");
-  tempDiv.innerHTML = html;
-  return tempDiv.textContent?.length || 0;
-};
 
 const categoryOptions = ref([
   { label: "我適合哪種重建方式？", value: "reconstruction-type" },
@@ -154,6 +123,7 @@ const categoryOptions = ref([
 
 const showNewCategory = ref(false);
 const newCategoryName = ref("");
+const isEditMode = computed(() => route.query.edit === "true");
 const isNewCategoryValid = computed(() => newCategoryName.value.trim().length > 0);
 const answerTextLength = computed(() => getPlainTextLength(formData.value.answer));
 const isAnswerOverLimit = computed(() => answerTextLength.value > 200);
@@ -164,42 +134,60 @@ const isPublishDisabled = computed(() => {
   return answerTextLength.value === 0;
 });
 
-const handleSidebarItemSelect = () => {
-  // Handle sidebar item selection
-};
-
-const handleGoBack = () => {
-  router.back();
-};
-
-const buildFormSnapshot = () =>
-  JSON.stringify({
-    title: formData.value.title.trim(),
-    category: formData.value.category,
-    answer: formData.value.answer,
-  });
-
 const { hasUnsavedChanges, captureInitial } = useFormUnsavedCheck(buildFormSnapshot, isEditMode);
 
 const navigateToFAQList = () => {
   router.push("/faq-management");
 };
 
-const handleCancelEdit = () => {
-  if (hasUnsavedChanges.value) {
-    showUnsavedChangesModal.value = true;
-    return;
+onMounted(() => {
+  if (!isEditMode.value) return;
+  if (route.query.title) {
+    formData.value.title = route.query.title as string;
   }
-  navigateToFAQList();
+  if (route.query.category) {
+    const label = route.query.category as string;
+    formData.value.category = normalizeCategoryValue(label);
+  }
+  if (route.query.answer) {
+    formData.value.answer = route.query.answer as string;
+  }
+  captureInitial();
+});
+
+function getPlainTextLength(html: string): number {
+  if (!html) return 0;
+  const tempDiv = document.createElement("div");
+  tempDiv.innerHTML = html;
+  return tempDiv.textContent?.length || 0;
+}
+
+function buildFormSnapshot() {
+  return JSON.stringify({
+    title: formData.value.title.trim(),
+    category: formData.value.category,
+    answer: formData.value.answer,
+  });
+}
+
+const handleSidebarItemSelect = () => {
+  // Handle sidebar item selection
+};
+
+const handleGoBack = () => {
+  unsavedDialog.requestUnsavedConfirmation(hasUnsavedChanges.value, () => router.back());
+};
+
+const handleCancelEdit = () => {
+  unsavedDialog.requestUnsavedConfirmation(hasUnsavedChanges.value, navigateToFAQList);
 };
 
 const handleExitWithoutSaving = () => {
-  showUnsavedChangesModal.value = false;
-  navigateToFAQList();
+  unsavedDialog.runPendingAction();
 };
 
 const handleSaveFromUnsavedModal = () => {
-  showUnsavedChangesModal.value = false;
+  unsavedDialog.closeUnsavedChangesModal();
   handlePublish();
 };
 
@@ -235,7 +223,6 @@ const handleSaveDraft = () => {
 const handlePublish = () => {
   // TODO: Implement publish functionality
   console.log("發布", formData.value);
-  // Navigate back to FAQ management page
   router.push({
     path: "/faq-management",
     query: {
@@ -252,19 +239,4 @@ const normalizeCategoryValue = (label: string) => {
   categoryOptions.value.push({ label, value });
   return value;
 };
-
-onMounted(() => {
-  if (!isEditMode.value) return;
-  if (route.query.title) {
-    formData.value.title = route.query.title as string;
-  }
-  if (route.query.category) {
-    const label = route.query.category as string;
-    formData.value.category = normalizeCategoryValue(label);
-  }
-  if (route.query.answer) {
-    formData.value.answer = route.query.answer as string;
-  }
-  captureInitial();
-});
 </script>

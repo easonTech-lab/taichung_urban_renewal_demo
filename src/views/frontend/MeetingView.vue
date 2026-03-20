@@ -24,10 +24,16 @@
         <Empty type="search" message="查無符合條件的會議資料" />
       </div>
       <div v-else class="rounded-lg bg-white p-6 shadow-sm">
-        <Table :borderless="true" :columns="tableColumns" :rows="filteredData" :pagination="pagination" @page-change="handlePageChange">
+        <Table
+          :borderless="true"
+          :columns="tableColumns"
+          :rows="paginationState.paginatedRows"
+          :pagination="paginationState.pagination"
+          @page-change="handlePageChange"
+        >
           <template #cell-index="{ rowIndex }">
             <p class="font-sans text-base font-normal text-[#6b7280]">
-              {{ rowIndex + 1 + (pagination.currentPage - 1) * pagination.pageSize }}
+              {{ rowIndex + 1 + (paginationState.pagination.currentPage - 1) * paginationState.pagination.pageSize }}
             </p>
           </template>
           <template #cell-agenda="{ row }">
@@ -53,7 +59,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from "vue";
+import { ref, computed, reactive } from "vue";
 import { useTablePagination } from "@/composables/useTablePagination";
 import Icon from "@/components/atoms/Icon.vue";
 import Empty from "@/components/atoms/Empty.vue";
@@ -249,38 +255,38 @@ const filteredDataAll = computed(() => {
   return data;
 });
 
-const { paginatedRows: filteredData, pagination, handlePageChange: setPage, resetPage } = useTablePagination({
+const paginationState = reactive(useTablePagination({
   rows: filteredDataAll,
   pageSize,
-});
+}));
 
 // Event Handlers
 const handleTabChange = (index: number) => {
   activeTab.value = index;
-  resetPage(); // Reset to first page when filter changes
+  paginationState.resetPage(); // Reset to first page when filter changes
 };
 
 const handleStageChange = (item: DropdownItem) => {
   selectedStage.value = item.value as string;
-  resetPage(); // Reset to first page when filter changes
+  paginationState.resetPage(); // Reset to first page when filter changes
 };
 
 const handleDateRangeChange = (range: DateRange | null) => {
   dateRange.value = range;
-  resetPage(); // Reset to first page when filter changes
+  paginationState.resetPage(); // Reset to first page when filter changes
 };
 
 const handleSearch = () => {
   // 將當前選擇的日期範圍應用到過濾
   appliedDateRange.value = dateRange.value ? { ...dateRange.value } : null;
   // 重置到第一頁
-  resetPage();
+  paginationState.resetPage();
   // 滾動到表格頂部
   window.scrollTo({ top: 0, behavior: "smooth" });
 };
 
 const handlePageChange = (page: number) => {
-  setPage(page);
+  paginationState.handlePageChange(page);
 };
 
 const handleDownload = (row: any) => {

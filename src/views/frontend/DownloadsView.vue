@@ -17,10 +17,10 @@
         <Empty type="search" message="查無符合條件的檔案資料" />
       </div>
       <div v-else class="rounded-lg bg-white p-6 shadow-sm">
-        <Table :borderless="true" :columns="tableColumns" :rows="tableRows" :pagination="pagination" @page-change="handlePageChange">
+        <Table :borderless="true" :columns="tableColumns" :rows="tableRows" :pagination="paginationState.pagination" @page-change="handlePageChange">
           <!-- 項次欄位 -->
           <template #cell-index="{ rowIndex }">
-            {{ (currentPage - 1) * pageSize + rowIndex + 1 }}
+            {{ (paginationState.currentPage - 1) * pageSize + rowIndex + 1 }}
           </template>
           <!-- 動作欄位 -->
           <template #cell-action="{ row }">
@@ -41,7 +41,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from "vue";
+import { ref, computed, reactive } from "vue";
 import { useTablePagination } from "@/composables/useTablePagination";
 import Icon from "@/components/atoms/Icon.vue";
 import Empty from "@/components/atoms/Empty.vue";
@@ -61,7 +61,10 @@ const props = withDefaults(
   }
 );
 
-// 模擬資料
+const selectedCategory = ref<string>("");
+const searchQuery = ref<string>("");
+const appliedSearchQuery = ref<string>("");
+
 const mockData: DownloadItem[] = [
   {
     fileName: "修正臺中市都市更新事業計畫及權利變換計畫核定後申請變更之審議層級簡化處理方式",
@@ -118,16 +121,9 @@ const mockData: DownloadItem[] = [
 // 重複資料以達到 1000 筆
 const allData = Array.from({ length: 100 }, () => mockData).flat();
 
-// Category Dropdown
 const categoryItems: DropdownItem[] = [{ label: "全部案件類別" }, { label: "都市更新類" }, { label: "危老類" }, { label: "老舊街區" }, { label: "整建維護" }];
-
-// State
-const selectedCategory = ref<string>("");
-const searchQuery = ref<string>("");
-const appliedSearchQuery = ref<string>(""); // 應用於過濾的搜尋關鍵字（點擊搜尋後才應用）
 const pageSize = computed(() => props.pageSize);
 
-// Table Columns（項次 5% / 文件名稱 42% / 案件類別 12% / 發布日期 12% / 動作 14%）
 const tableColumns: TableColumn[] = [
   { key: "index", label: "項次", width: "5%" },
   { key: "fileName", label: "文件名稱", width: "42%" },
@@ -136,14 +132,11 @@ const tableColumns: TableColumn[] = [
   { key: "action", label: "動作", width: "14%" },
 ];
 
-// 搜索資料
 const filteredData = computed(() => {
   let data = [...allData];
-  // Filter by category
   if (selectedCategory.value && selectedCategory.value !== "全部案件類別") {
     data = data.filter((item) => item.category === selectedCategory.value);
   }
-  // Filter by search query (only apply when search button is clicked)
   if (appliedSearchQuery.value.trim()) {
     const query = appliedSearchQuery.value.toLowerCase();
     data = data.filter((item) => item.fileName.toLowerCase().includes(query) || item.category.toLowerCase().includes(query));
@@ -153,37 +146,30 @@ const filteredData = computed(() => {
 
 const tableRows = computed(() => filteredData.value);
 
-const { currentPage, pagination, resetPage, handlePageChange: setPage } = useTablePagination({
+const paginationState = reactive(useTablePagination({
   rows: tableRows,
   pageSize,
   slice: false,
-});
+}));
 
-// Handlers
 const handleCategoryChange = (item: DropdownItem) => {
   selectedCategory.value = item.label;
-  resetPage(); // Reset to first page when filter changes
+  paginationState.resetPage();
 };
 
 const handleSearch = () => {
-  // 將當前輸入的搜尋關鍵字應用到過濾
   appliedSearchQuery.value = searchQuery.value;
-  resetPage(); // Reset to first page when search
+  paginationState.resetPage();
 };
 
-// 處理分頁變更
 const handlePageChange = (page: number) => {
-  setPage(page);
-  // Scroll to top of table
+  paginationState.handlePageChange(page);
   window.scrollTo({ top: 0, behavior: "smooth" });
 };
 
-// 處理下載動作
 const handleDownload = (row: Record<string, any>) => {
-  // TODO: Implement actual download logic
   const item = row as DownloadItem;
   console.log("Download:", item);
-  // You can use item.fileUrl if available
   if (item.fileUrl) {
     window.open(item.fileUrl, "_blank");
   } else {

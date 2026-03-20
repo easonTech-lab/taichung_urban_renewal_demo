@@ -46,10 +46,10 @@
           <Table
             v-else
             :columns="tableColumns"
-            :rows="paginatedCases"
-            :pagination="pagination"
+            :rows="paginationState.paginatedRows"
+            :pagination="paginationState.pagination"
             :row-clickable="true"
-            @page-change="handlePageChange"
+            @page-change="paginationState.handlePageChange"
             @row-click="handleRowClick"
           >
             <template #cell-caseStatus="{ row }">
@@ -71,7 +71,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from "vue";
+import { ref, computed, watch, reactive } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useTablePagination } from "@/composables/useTablePagination";
 import Icon from "@/components/atoms/Icon.vue";
@@ -87,30 +87,24 @@ import type { CaseItem } from "@/types/backend/caseManagement/dangerous/caseMana
 
 const route = useRoute();
 const router = useRouter();
+
 const showDeleteToast = ref(false);
 const toastMessage = ref("刪除成功");
+const selectedStage = ref<string>("");
+const selectedStatus = ref<string>("");
+const selectedAddCaseIndex = ref<number | undefined>(undefined);
+const totalCases = ref<number>(1000); // 管理員顯示的總案件數
 
-// 判斷是否為管理員模式（根據路由名稱）
-const isAdmin = computed(() => route.name === "case-management-dangerous-admin" || route.path.includes("-admin"));
-
-// Filter Options
 const stageOptions: DropdownItem[] = [{ label: "全部案件階段" }, { label: "專案小組" }, { label: "其他階段" }];
 
 const statusOptions: DropdownItem[] = [{ label: "全部案件狀態" }, { label: "進行中" }, { label: "已中斷" }, { label: "已完成" }];
 
-// Add Case Options - 危老重建案件專用
 const addCaseOptions: ButtonDropdownItem[] = [
   { label: "申請審議(一般案件)", value: "general-case" },
   { label: "第一次變更", value: "first-amendment" },
   { label: "第二次變更", value: "second-amendment" },
   { label: "申請審議(簡化案件)", value: "simplified-case" },
 ];
-
-// State
-const selectedStage = ref<string>("");
-const selectedStatus = ref<string>("");
-const selectedAddCaseIndex = ref<number | undefined>(undefined);
-const totalCases = ref<number>(1000); // 管理員顯示的總案件數
 
 // Mock Data - 危老重建案件
 const allCases: CaseItem[] = [
@@ -186,7 +180,6 @@ const allCases: CaseItem[] = [
   },
 ];
 
-// Table Columns（比例：編號 8% / 名稱 50% / 類別 12% / 階段 15% / 狀態 15%）
 const tableColumns: TableColumn[] = [
   { key: "caseNumber", label: "案件編號", width: "8%", cellClass: "text-base text-gray-900" },
   { key: "caseName", label: "案件名稱", width: "50%", cellClass: "text-base text-gray-900" },
@@ -195,7 +188,8 @@ const tableColumns: TableColumn[] = [
   { key: "caseStatus", label: "案件狀態", width: "15%" },
 ];
 
-// Filtered Cases
+const isAdmin = computed(() => route.name === "case-management-dangerous-admin" || route.path.includes("-admin"));
+
 const hasAnyCases = computed(() => allCases.length > 0);
 
 const filteredCases = computed(() => {
@@ -212,35 +206,33 @@ const filteredCases = computed(() => {
   return cases;
 });
 
-const { paginatedRows: paginatedCases, pagination, handlePageChange, resetPage } = useTablePagination({
+const paginationState = reactive(useTablePagination({
   rows: filteredCases,
   pageSize: 10,
   total: computed(() => (isAdmin.value ? totalCases.value : filteredCases.value.length)),
-});
+}));
 
-// Status Variant Mapping
-const getStatusVariant = (status: string): "primary" | "success" | "danger" => {
+function getStatusVariant(status: string): "primary" | "success" | "danger" {
   const mapping: Record<string, "primary" | "success" | "danger"> = {
     進行中: "primary",
     已完成: "success",
     已中斷: "danger",
   };
   return mapping[status] || "primary";
-};
+}
 
-// Event Handlers
-const handleSidebarItemSelect = (itemName: string) => {
+function handleSidebarItemSelect(itemName: string) {
   console.log("Selected sidebar item:", itemName);
-};
+}
 
 const handleStageChange = (item: DropdownItem) => {
   selectedStage.value = item.label;
-  resetPage();
+  paginationState.resetPage();
 };
 
 const handleStatusChange = (item: DropdownItem) => {
   selectedStatus.value = item.label;
-  resetPage();
+  paginationState.resetPage();
 };
 
 const handleAddCaseOption = (item: ButtonDropdownItem, index: number) => {

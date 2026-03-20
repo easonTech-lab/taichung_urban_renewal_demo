@@ -17,11 +17,11 @@
         <Table
           v-if="filteredFiles.length > 0"
           :columns="fileTableColumns"
-          :rows="paginatedFiles"
-          :pagination="filePagination"
+          :rows="filePaginationState.paginatedRows"
+          :pagination="filePaginationState.pagination"
           :borderless="true"
           class="shadow-none"
-          @page-change="handleFilePageChange"
+          @page-change="filePaginationState.handlePageChange"
         >
           <template #cell-action="{ row }">
             <div class="flex items-center gap-4">
@@ -42,7 +42,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from "vue";
+import { ref, computed, reactive } from "vue";
 import { useTablePagination } from "@/composables/useTablePagination";
 import Icon from "@/components/atoms/Icon.vue";
 import Table, { type TableColumn } from "@/components/atoms/Table.vue";
@@ -80,36 +80,36 @@ const fileTableColumns: TableColumn[] = [
   {
     key: "fileName",
     label: "檔案名稱",
-    headerClass: "w-auto",
+    width: "32%",
     sortable: true,
   },
   {
     key: "uploadTime",
     label: "上傳時間",
-    headerClass: "w-[200px]",
+    width: "22%",
     sortable: true,
   },
   {
     key: "caseStage",
     label: "案件階段",
-    headerClass: "w-[115px]",
+    width: "14%",
     sortable: true,
   },
   {
     key: "fileCategory",
     label: "檔案類別",
-    headerClass: "w-[125px]",
+    width: "14%",
   },
   {
     key: "fileSize",
     label: "檔案大小",
-    headerClass: "w-[108px]",
+    width: "10%",
     sortable: true,
   },
   {
     key: "action",
     label: "動作",
-    headerClass: "w-[80px]",
+    width: "8%",
   },
 ];
 
@@ -126,24 +126,19 @@ const filteredFiles = computed(() => {
   return files;
 });
 
-const {
-  paginatedRows: paginatedFiles,
-  pagination: filePagination,
-  handlePageChange: handleFilePageChange,
-  resetPage: resetFilePage,
-} = useTablePagination({
+const filePaginationState = reactive(useTablePagination({
   rows: filteredFiles,
   pageSize: filePageSize,
-});
+}));
 
 const handleFileStageChange = (item: DropdownItem) => {
   selectedFileStage.value = item.value || "全部案件階段";
-  resetFilePage();
+  filePaginationState.resetPage();
 };
 
 const handleFileCategoryChange = (item: DropdownItem) => {
   selectedFileCategory.value = item.value || "檔案類別";
-  resetFilePage();
+  filePaginationState.resetPage();
 };
 
 const handleFileDownload = (file: ProjectFile) => {

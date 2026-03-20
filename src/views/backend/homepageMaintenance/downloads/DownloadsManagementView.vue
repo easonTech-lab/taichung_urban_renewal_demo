@@ -21,15 +21,15 @@
           <Table
             v-if="filteredDownloads.length > 0"
             :columns="tableColumns"
-            :rows="paginatedDownloads"
-            :pagination="pagination"
+            :rows="paginationState.paginatedRows"
+            :pagination="paginationState.pagination"
             row-key="fileName"
             :row-clickable="true"
             @row-click="handleRowClick"
-            @page-change="handlePageChange"
+            @page-change="paginationState.handlePageChange"
           >
             <template #cell-index="{ rowIndex }">
-              <p class="text-base text-gray-500">{{ (currentPage - 1) * pageSize + rowIndex + 1 }}</p>
+              <p class="text-base text-gray-500">{{ (paginationState.currentPage - 1) * pageSize + rowIndex + 1 }}</p>
             </template>
             <template #cell-status="{ row }">
               <div @click.stop @mousedown.prevent>
@@ -64,8 +64,8 @@
 </template>
 
 <script setup lang="ts">
-import { useRouter, useRoute } from "vue-router";
-import { ref, computed, watch, onMounted } from "vue";
+import { ref, computed, watch, onMounted, reactive } from "vue";
+import { useRoute, useRouter } from "vue-router";
 import { useTablePagination } from "@/composables/useTablePagination";
 import Icon from "@/components/atoms/Icon.vue";
 import Toast from "@/components/atoms/Toast.vue";
@@ -80,13 +80,16 @@ import Table, { type TableColumn } from "@/components/atoms/Table.vue";
 
 import type { DownloadItem } from "@/types/backend/homepageMaintenance/downloadsManagement.d";
 
-// State
+const router = useRouter();
+const route = useRoute();
+
 const pageSize = ref<number>(10);
 const selectedCategory = ref<string>("");
 const showDeleteModal = ref(false);
 const deleteTarget = ref<DownloadItem | null>(null);
 const showDeleteToast = ref(false);
 const toastMessage = ref("新增成功");
+
 const deleteToastStyle = {
   left: "50%",
   transform: "translateX(-50%)",
@@ -95,7 +98,6 @@ const deleteToastStyle = {
   minWidth: "min(1420px, calc(100vw - 2rem))",
 };
 
-// Category Options
 const categoryOptions = [
   { label: "全部案件類別", value: "" },
   { label: "都市更新類", value: "都市更新類" },
@@ -104,12 +106,6 @@ const categoryOptions = [
   { label: "整建維護", value: "整建維護" },
 ];
 
-const handleCategoryChange = (item: { label: string; value?: string }) => {
-  selectedCategory.value = item.value || "";
-  resetPage();
-};
-
-// Mock Data (使用 ref 使其響應式)
 const allDownloads = ref<DownloadItem[]>([
   {
     fileName: "都市更新申請書範本（含事業計畫書、概要書）",
@@ -157,7 +153,6 @@ const allDownloads = ref<DownloadItem[]>([
 
 const hasAnyDownloads = computed(() => allDownloads.value.length > 0);
 
-// Table Columns（比例：項次 5% / 檔案名稱 35% / 案件類別 18% / 發布日期 12% / 狀態 10% / 動作 20%）
 const tableColumns: TableColumn[] = [
   { key: "index", label: "項次", width: "5%" },
   { key: "fileName", label: "檔案名稱", width: "35%" },
@@ -167,7 +162,6 @@ const tableColumns: TableColumn[] = [
   { key: "action", label: "動作", width: "20%" },
 ];
 
-// Filtered Downloads
 const filteredDownloads = computed(() => {
   let downloads = [...allDownloads.value];
 
@@ -179,31 +173,26 @@ const filteredDownloads = computed(() => {
   return downloads;
 });
 
-const {
-  currentPage,
-  paginatedRows: paginatedDownloads,
-  pagination,
-  handlePageChange,
-  resetPage,
-} = useTablePagination({
+const paginationState = reactive(useTablePagination({
   rows: filteredDownloads,
   pageSize,
   slice: false,
-});
+}));
 
-// Event Handlers
-const handleSidebarItemSelect = (itemName: string) => {
+function handleSidebarItemSelect(itemName: string) {
   console.log("Selected sidebar item:", itemName);
-};
+}
 
-const router = useRouter();
-const route = useRoute();
+function handleCategoryChange(item: { label: string; value?: string }) {
+  selectedCategory.value = item.value || "";
+  paginationState.resetPage();
+}
 
-const handleAddDownload = () => {
+function handleAddDownload() {
   router.push("/downloads-management/add");
-};
+}
 
-const handleStatusChange = (row: Record<string, any>, value: boolean) => {
+function handleStatusChange(row: Record<string, any>, value: boolean) {
   const item = row as DownloadItem;
   item.status = value;
   console.log("Status changed for:", item, "New status:", value);
@@ -213,17 +202,17 @@ const handleStatusChange = (row: Record<string, any>, value: boolean) => {
     if (activeElement?.blur) activeElement.blur();
   });
   // TODO: Implement status change logic
-};
+}
 
-const handleDelete = (row: Record<string, any>) => {
+function handleDelete(row: Record<string, any>) {
   const item = row as DownloadItem;
   deleteTarget.value = item;
   showDeleteModal.value = true;
-};
+}
 
-const handleRowClick = (row: Record<string, any>) => {
+function handleRowClick(row: Record<string, any>) {
   handleEdit(row);
-};
+}
 
 const handleEdit = (row: Record<string, any>) => {
   const item = row as DownloadItem;
