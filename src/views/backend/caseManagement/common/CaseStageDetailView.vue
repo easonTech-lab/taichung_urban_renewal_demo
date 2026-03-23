@@ -366,6 +366,7 @@ import type { AddReviewItemForm, ReviewFileCategory, ReviewFileItem } from "@/ty
 const route = useRoute();
 const addItemUnsavedDialog = useUnsavedChangesDialog();
 const showSaveToast = ref(false);
+const addItemUnsavedCheck = useFormUnsavedCheck(() => getAddItemSnapshot());
 const showDeleteModal = ref(false);
 const showAddItemToast = ref(false);
 const uploadWarningMessage = ref("");
@@ -451,7 +452,7 @@ const isAddItemSaveDisabled = computed(() => {
   if (!addItemForm.value.category) return true;
   if (isEditMode.value) {
     if (!isRevisionCategory.value && !addItemForm.value.deadline) return true;
-    return !isAddItemDirty.value;
+    return !addItemUnsavedCheck.hasUnsavedChanges.value;
   }
   if (isRevisionCategory.value) {
     if (!addItemForm.value.documentNo.trim()) return true;
@@ -490,7 +491,7 @@ watch(
   () => showAddItemDrawer.value,
   (isOpen) => {
     if (isOpen) {
-      captureAddItemInitial();
+      addItemUnsavedCheck.captureInitial();
     }
   }
 );
@@ -511,7 +512,6 @@ const getAddItemSnapshot = () =>
     receiveNumber: addItemForm.value.receiveNumber.trim(),
     attachmentsCount: addItemForm.value.attachments.length,
   });
-const { hasUnsavedChanges: isAddItemDirty, captureInitial: captureAddItemInitial } = useFormUnsavedCheck(getAddItemSnapshot);
 const resetProgressItems = () => {
   progressItems.value = progressItems.value.map((item) => ({
     ...item,
@@ -623,7 +623,7 @@ const handleEditReviewFile = (file: ReviewFileItem) => {
 };
 const handleCancelAddItem = () => {
   if (
-    !addItemUnsavedDialog.requestUnsavedConfirmation(isAddItemDirty.value, () => {
+    !addItemUnsavedDialog.requestUnsavedConfirmation(addItemUnsavedCheck.hasUnsavedChanges.value, () => {
       showAddItemDrawer.value = false;
       resetAddItemForm();
     })
@@ -671,7 +671,7 @@ const handleSaveAddItem = () => {
     showAddItemDrawer.value = false;
     showSaveToast.value = true;
     resetAddItemForm();
-    captureAddItemInitial();
+    addItemUnsavedCheck.captureInitial();
     return;
   }
   const name = addItemForm.value.name.trim() || addItemForm.value.category;
@@ -709,7 +709,7 @@ const handleSaveAddItem = () => {
     showAddItemToast.value = true;
   }
   resetAddItemForm();
-  captureAddItemInitial();
+  addItemUnsavedCheck.captureInitial();
 };
 const handleConfirmCreateReportGuide = () => {
   resetAddItemForm();

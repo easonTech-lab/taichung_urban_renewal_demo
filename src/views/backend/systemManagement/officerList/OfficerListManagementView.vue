@@ -173,10 +173,10 @@
         <div class="flex gap-4">
           <ButtonCTA variant="outline" size="xl" class="w-[124px]" @click="handleCancel"> 取消 </ButtonCTA>
           <ButtonCTA
-            :variant="hasOfficerListChanges ? 'primary' : 'gray'"
+            :variant="officerListUnsavedCheck.hasUnsavedChanges.value ? 'primary' : 'gray'"
             size="xl"
             class="w-[124px]"
-            :disabled="!hasOfficerListChanges"
+            :disabled="!officerListUnsavedCheck.hasUnsavedChanges.value"
             @click="handleSave"
           >
             儲存
@@ -231,6 +231,7 @@ import type { OfficerData, OfficerItem } from "@/types/backend/systemManagement/
 const router = useRouter();
 const activeTab = ref(0);
 const showToast = ref(false);
+const officerListUnsavedCheck = useFormUnsavedCheck(() => buildOfficerListSnapshot());
 // Drawer state
 const isDrawerOpen = ref(false);
 /** 添加年度側拉選單的年度列表（從現有 tab 帶入） */
@@ -372,7 +373,7 @@ const populateOfficerListFromTable = () => {
   officerList.value = Array.from({ length: TOTAL_OFFICER_SLOTS }, (_, index) => ({
     selectedOfficer: allOfficers.value[index]?.name ?? "未選擇",
   }));
-  captureOfficerListInitial();
+  officerListUnsavedCheck.captureInitial();
 };
 const handleManageList = () => {
   populateOfficerListFromTable();
@@ -387,7 +388,7 @@ const handleAddOfficer = () => {
   isDrawerOpen.value = true;
 };
 const handleDrawerClose = () => {
-  unsavedDialog.requestUnsavedConfirmation(hasOfficerListChanges.value, () => {
+  unsavedDialog.requestUnsavedConfirmation(officerListUnsavedCheck.hasUnsavedChanges.value, () => {
     isDrawerOpen.value = false;
   });
 };
@@ -404,14 +405,14 @@ const handleAddNewOfficer = () => {
   });
 };
 const handleCancel = () => {
-  unsavedDialog.requestUnsavedConfirmation(hasOfficerListChanges.value, () => {
+  unsavedDialog.requestUnsavedConfirmation(officerListUnsavedCheck.hasUnsavedChanges.value, () => {
     isDrawerOpen.value = false;
   });
 };
 const handleSave = () => {
   console.log("Save officer list:", officerList.value);
   // TODO: Implement save logic
-  captureOfficerListInitial();
+  officerListUnsavedCheck.captureInitial();
   isDrawerOpen.value = false;
   toastMessage.value = "儲存成功";
   showToast.value = true;
@@ -479,7 +480,6 @@ const handleAddYearCancel = () => {
 const validateYear = (value: string) => /^\d+$/.test(value.trim());
 const syncYearErrors = () => {
   const errorMap = new Map<number, "format" | "duplicate">();
-
   yearList.value.forEach((year, index) => {
     const trimmed = year.trim();
     if (!trimmed) return;
@@ -487,7 +487,6 @@ const syncYearErrors = () => {
       errorMap.set(index, "format");
     }
   });
-
   const valueToIndices = new Map<string, number[]>();
   yearList.value.forEach((year, index) => {
     if (errorMap.has(index)) return;
@@ -497,13 +496,11 @@ const syncYearErrors = () => {
     indices.push(index);
     valueToIndices.set(trimmed, indices);
   });
-
   valueToIndices.forEach((indices) => {
     if (indices.length > 1) {
       indices.forEach((index) => errorMap.set(index, "duplicate"));
     }
   });
-
   yearErrorMap.value = errorMap;
 };
 const handleYearInput = (index: number, value: string) => {
@@ -515,7 +512,6 @@ const handleAddYearSave = () => {
   if (yearErrorMap.value.size > 0) {
     return;
   }
-
   const validYears = yearList.value.map((y) => y.trim()).filter(Boolean);
   tabItems.value = [...validYears.map((y) => ({ label: y })), { label: "添加年度" }];
   activeTab.value = 0;
@@ -523,5 +519,4 @@ const handleAddYearSave = () => {
   initialYearSnapshot.value = buildYearSnapshot();
   isAddYearDrawerOpen.value = false;
 };
-const { hasUnsavedChanges: hasOfficerListChanges, captureInitial: captureOfficerListInitial } = useFormUnsavedCheck(buildOfficerListSnapshot);
 </script>

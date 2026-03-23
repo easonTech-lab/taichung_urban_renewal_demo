@@ -119,7 +119,7 @@ const isPublishDisabled = computed(() => {
   return formData.value.files.length === 0;
 });
 
-const { hasUnsavedChanges, captureInitial } = useFormUnsavedCheck(() => buildFormSnapshot(), isEditMode);
+const publicMessageFormUnsavedCheck = useFormUnsavedCheck(() => buildFormSnapshot(), isEditMode);
 
 const handleSaveDraft = () => {
   // TODO: Implement save draft functionality
@@ -163,7 +163,7 @@ onMounted(() => {
   if (route.query.content) {
     formData.value.content = (route.query.content as string) ?? "";
   }
-  captureInitial();
+  publicMessageFormUnsavedCheck.captureInitial();
 });
 
 const getPlainTextLength = (html: string): number => {
@@ -196,11 +196,11 @@ const handleSidebarItemSelect = () => {
 };
 
 const handleGoBack = () => {
-  unsavedDialog.requestUnsavedConfirmation(hasUnsavedChanges.value, () => router.back());
+  unsavedDialog.requestUnsavedConfirmation(publicMessageFormUnsavedCheck.hasUnsavedChanges.value, () => router.back());
 };
 
 const handleCancelEdit = () => {
-  unsavedDialog.requestUnsavedConfirmation(hasUnsavedChanges.value, navigateToPublicMessageList);
+  unsavedDialog.requestUnsavedConfirmation(publicMessageFormUnsavedCheck.hasUnsavedChanges.value, navigateToPublicMessageList);
 };
 
 const handleExitWithoutSaving = () => {

@@ -120,7 +120,7 @@ const isPublishDisabled = computed(() => {
   return formData.value.files.length === 0;
 });
 
-const { hasUnsavedChanges, captureInitial } = useFormUnsavedCheck(() => buildFormSnapshot());
+const downloadsFormUnsavedCheck = useFormUnsavedCheck(() => buildFormSnapshot());
 
 const handleSaveDraft = () => {
   // TODO: Implement save draft functionality
@@ -158,7 +158,7 @@ onMounted(() => {
   if (route.query.text) {
     formData.value.text = (route.query.text as string) ?? "";
   }
-  captureInitial();
+  downloadsFormUnsavedCheck.captureInitial();
 });
 
 const getFilesSignature = (files: File[]): string => {
@@ -184,7 +184,7 @@ const handleSidebarItemSelect = () => {
 };
 
 const handleGoBack = () => {
-  unsavedDialog.requestUnsavedConfirmation(hasUnsavedChanges.value, () => router.back());
+  unsavedDialog.requestUnsavedConfirmation(downloadsFormUnsavedCheck.hasUnsavedChanges.value, () => router.back());
 };
 
 const handleCancelOrDraft = () => {
@@ -196,7 +196,7 @@ const handleCancelOrDraft = () => {
 };
 
 const handleCancelEdit = () => {
-  unsavedDialog.requestUnsavedConfirmation(hasUnsavedChanges.value, navigateToDownloadsList);
+  unsavedDialog.requestUnsavedConfirmation(downloadsFormUnsavedCheck.hasUnsavedChanges.value, navigateToDownloadsList);
 };
 
 const handleExitWithoutSaving = () => {

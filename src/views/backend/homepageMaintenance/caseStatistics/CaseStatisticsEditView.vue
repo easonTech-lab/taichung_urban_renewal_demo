@@ -93,7 +93,7 @@ const formTitle = computed(() => (isEditMode.value ? "編輯案件件數" : "新
 const isSaveDisabled = computed(() => {
   return !selectedCategory.value || !yearValue.value.trim() || !annualCount.value.trim();
 });
-const canSave = computed(() => !isSaveDisabled.value && hasUnsavedChanges.value);
+const canSave = computed(() => !isSaveDisabled.value && statisticsFormUnsavedCheck.hasUnsavedChanges.value);
 const handleSidebarItemSelect = (itemName: string) => {
   console.log("Selected sidebar item:", itemName);
 };
@@ -128,12 +128,12 @@ const handleSave = () => {
       msg: isEditMode.value ? "儲存成功" : "新增成功",
     },
   });
-  captureInitial();
+  statisticsFormUnsavedCheck.captureInitial();
 };
 const handleCategoryChange = (item: InputDropdownItem) => {
   selectedCategory.value = item.label;
 };
-const { hasUnsavedChanges, captureInitial } = useFormUnsavedCheck(buildFormSnapshot);
+const statisticsFormUnsavedCheck = useFormUnsavedCheck(buildFormSnapshot);
 onMounted(() => {
   if (isEditMode.value) {
     // 從路由查詢參數獲取數據（如果有的話）
@@ -156,6 +156,6 @@ onMounted(() => {
     yearValue.value = "";
     annualCount.value = "";
   }
-  captureInitial();
+  statisticsFormUnsavedCheck.captureInitial();
 });
 </script>

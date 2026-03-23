@@ -134,7 +134,7 @@ const isPublishDisabled = computed(() => {
   return answerTextLength.value === 0;
 });
 
-const { hasUnsavedChanges, captureInitial } = useFormUnsavedCheck(() => buildFormSnapshot(), isEditMode);
+const faqFormUnsavedCheck = useFormUnsavedCheck(() => buildFormSnapshot(), isEditMode);
 
 const navigateToFAQList = () => {
   router.push("/faq-management");
@@ -152,7 +152,7 @@ onMounted(() => {
   if (route.query.answer) {
     formData.value.answer = route.query.answer as string;
   }
-  captureInitial();
+  faqFormUnsavedCheck.captureInitial();
 });
 
 const getPlainTextLength = (html: string): number => {
@@ -175,11 +175,11 @@ const handleSidebarItemSelect = () => {
 };
 
 const handleGoBack = () => {
-  unsavedDialog.requestUnsavedConfirmation(hasUnsavedChanges.value, () => router.back());
+  unsavedDialog.requestUnsavedConfirmation(faqFormUnsavedCheck.hasUnsavedChanges.value, () => router.back());
 };
 
 const handleCancelEdit = () => {
-  unsavedDialog.requestUnsavedConfirmation(hasUnsavedChanges.value, navigateToFAQList);
+  unsavedDialog.requestUnsavedConfirmation(faqFormUnsavedCheck.hasUnsavedChanges.value, navigateToFAQList);
 };
 
 const handleExitWithoutSaving = () => {

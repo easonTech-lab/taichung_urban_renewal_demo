@@ -37,7 +37,7 @@
     <template #footer>
       <div class="flex w-full items-center justify-end gap-4">
         <ButtonCTA variant="outline" size="xl" class="w-[124px]" @click="showEditStageDrawer = false">取消</ButtonCTA>
-        <ButtonCTA :variant="hasStageChanges ? 'primary' : 'gray'" size="xl" class="w-[124px]" :disabled="!hasStageChanges">儲存</ButtonCTA>
+        <ButtonCTA :variant="stageUnsavedCheck.hasUnsavedChanges.value ? 'primary' : 'gray'" size="xl" class="w-[124px]" :disabled="!stageUnsavedCheck.hasUnsavedChanges.value">儲存</ButtonCTA>
       </div>
     </template>
   </Drawer>
@@ -80,6 +80,7 @@ const editStageItems = ref([
 ]);
 const progressStages = ref<ProgressStage[]>([]);
 const showEditStageDrawer = ref(false);
+const stageUnsavedCheck = useFormUnsavedCheck(() => buildEditStageSnapshot());
 const showRemoveStageModal = ref(false);
 const stageToRemoveId = ref<number | null>(null);
 const baseStages: BaseStage[] = [
@@ -176,9 +177,8 @@ const buildSubStages = (status: ProgressStage["status"]): StepperStep[] => {
   }));
 };
 const buildEditStageSnapshot = () => JSON.stringify(editStageItems.value.map((item) => ({ id: item.id, label: item.label.trim() })));
-const { hasUnsavedChanges: hasStageChanges, captureInitial: captureStageInitial } = useFormUnsavedCheck(buildEditStageSnapshot);
 const handleOpenEditStageDrawer = () => {
-  captureStageInitial();
+  stageUnsavedCheck.captureInitial();
   showEditStageDrawer.value = true;
 };
 const handleOpenRemoveStage = (item: { id: number; label: string }) => {
@@ -289,6 +289,6 @@ const handleAddCaseStage = () => {
 };
 onMounted(() => {
   buildProgressStages();
-  captureStageInitial();
+  stageUnsavedCheck.captureInitial();
 });
 </script>

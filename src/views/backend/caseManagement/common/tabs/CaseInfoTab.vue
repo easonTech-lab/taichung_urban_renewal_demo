@@ -239,6 +239,7 @@ const drawerWidth = ref<"sm" | "md" | "lg" | "xl">("xl");
 const pendingOfficerRemoveIndex = ref<number | null>(null);
 const toastContext = ref<"officerList" | "editInfo">("editInfo");
 const localOfficerList = ref<OfficerItem[]>(props.officerList.map((item) => ({ ...item })));
+const officerListUnsavedCheck = useFormUnsavedCheck(() => buildOfficerListSnapshot());
 const editForm = ref({
   caseNumber: "abc13456788999",
   applyDate: "114/10/20",
@@ -314,7 +315,6 @@ watch(
   { deep: true }
 );
 const buildOfficerListSnapshot = () => JSON.stringify(normalizeOfficerList(localOfficerList.value));
-const { hasUnsavedChanges: hasOfficerChanges, captureInitial: captureOfficerListInitial } = useFormUnsavedCheck(buildOfficerListSnapshot);
 const handleCardClick = (cardType: string) => {
   if (cardType === "application-basic") {
     try {
@@ -370,14 +370,14 @@ const getAvailableOfficersForIndex = (index: number) => {
 const openOfficerListDrawer = () => {
   drawerMode.value = "officerList";
   localOfficerList.value = props.officerList.map((item) => ({ ...item }));
-  captureOfficerListInitial();
+  officerListUnsavedCheck.captureInitial();
   isDrawerOpen.value = true;
 };
 const handleImportOfficerList = () => {
   localOfficerList.value = props.officerTableRows.map((row) => ({
     selectedOfficer: row.name,
   }));
-  captureOfficerListInitial();
+  officerListUnsavedCheck.captureInitial();
   drawerMode.value = "officerList";
   isDrawerOpen.value = true;
 };
@@ -386,7 +386,7 @@ const handleExportOfficerList = () => {
 };
 const handleDrawerClose = () => {
   if (drawerMode.value === "officerList") {
-    officerUnsavedDialog.requestUnsavedConfirmation(hasOfficerChanges.value, () => {
+    officerUnsavedDialog.requestUnsavedConfirmation(officerListUnsavedCheck.hasUnsavedChanges.value, () => {
       isDrawerOpen.value = false;
     });
     return;
@@ -416,7 +416,7 @@ const handleAddNewOfficer = () => {
   });
 };
 const handleCancel = () => {
-  officerUnsavedDialog.requestUnsavedConfirmation(hasOfficerChanges.value, () => {
+  officerUnsavedDialog.requestUnsavedConfirmation(officerListUnsavedCheck.hasUnsavedChanges.value, () => {
     isDrawerOpen.value = false;
   });
 };
@@ -427,7 +427,7 @@ const handleSave = () => {
     "save-officer-list",
     localOfficerList.value.map((item) => ({ ...item }))
   );
-  captureOfficerListInitial();
+  officerListUnsavedCheck.captureInitial();
   isDrawerOpen.value = false;
 };
 const handleEditCancel = () => {

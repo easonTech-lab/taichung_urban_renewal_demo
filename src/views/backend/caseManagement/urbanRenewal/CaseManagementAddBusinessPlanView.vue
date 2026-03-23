@@ -423,7 +423,7 @@
       <div class="flex items-center justify-center gap-6">
         <template v-if="isFromCaseDetail">
           <ButtonCTA variant="outline" size="xl" :to="cancelTarget">取消</ButtonCTA>
-          <ButtonCTA variant="primary" size="xl" :disabled="!hasBusinessPlanChanges">儲存</ButtonCTA>
+          <ButtonCTA variant="primary" size="xl" :disabled="!businessPlanUnsavedCheck.hasUnsavedChanges.value">儲存</ButtonCTA>
         </template>
         <template v-else-if="activeTab === 0">
           <ButtonCTA variant="outline" size="xl" @click="handleDraft">暫存</ButtonCTA>
@@ -499,6 +499,7 @@ const route = useRoute();
 const router = useRouter();
 const activeTab = ref(0);
 const isFromCaseDetail = ref(false);
+const businessPlanUnsavedCheck = useFormUnsavedCheck(() => buildBusinessPlanSnapshot(), isFromCaseDetail);
 const showDraftNameWarningModal = ref(false);
 const renderInputRef = ref<HTMLInputElement | null>(null);
 const demolitionInputRef = ref<HTMLInputElement | null>(null);
@@ -648,7 +649,6 @@ const buildBusinessPlanSnapshot = () =>
     formData: formData.value,
     publicForm: publicForm.value,
   });
-const { hasUnsavedChanges: hasBusinessPlanChanges, captureInitial: captureBusinessPlanInitial } = useFormUnsavedCheck(buildBusinessPlanSnapshot, isFromCaseDetail);
 const hasTextValue = (value: string) => value.trim() !== "";
 /** 解析案件詳情頁傳入的申請日期（例：114/10/20）為 Date */
 const parseApplyDateFromCaseInfo = (value: string): Date | null => {
@@ -743,7 +743,7 @@ onMounted(() => {
     // ignore
   } finally {
     if (isFromCaseDetail.value) {
-      captureBusinessPlanInitial();
+      businessPlanUnsavedCheck.captureInitial();
     }
   }
 });

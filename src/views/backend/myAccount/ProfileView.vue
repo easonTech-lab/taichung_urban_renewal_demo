@@ -90,10 +90,10 @@
         </div>
         <div class="flex justify-center gap-4">
           <ButtonCTA
-            :variant="hasProfileChanges ? 'primary' : 'gray'"
+            :variant="profileUnsavedCheck.hasUnsavedChanges.value ? 'primary' : 'gray'"
             size="xl"
             class="w-[124px]"
-            :disabled="!hasProfileChanges"
+            :disabled="!profileUnsavedCheck.hasUnsavedChanges.value"
             @click="handleSave"
           >
             {{ isAdmin ? "儲存變更" : "儲存" }}
@@ -114,6 +114,7 @@ import Breadcrumb from "@/components/atoms/Breadcrumb.vue";
 import InputDropdown from "@/components/atoms/InputDropdown.vue";
 import SidebarSection from "@/components/sections/backend/SidebarSection.vue";
 const router = useRouter();
+const profileUnsavedCheck = useFormUnsavedCheck(() => buildProfileSnapshot());
 const adminFormData = ref({
   personnelType: "業務承辦人員",
   name: "陳傑瑞",
@@ -175,8 +176,7 @@ const buildProfileSnapshot = () =>
           email: userFormData.value.email.trim(),
         }
   );
-const { hasUnsavedChanges: hasProfileChanges, captureInitial: captureProfileInitial } = useFormUnsavedCheck(buildProfileSnapshot);
-captureProfileInitial();
+profileUnsavedCheck.captureInitial();
 const handleSidebarItemSelect = (itemName: string) => {
   console.log("Selected sidebar item:", itemName);
 }
@@ -199,7 +199,7 @@ const handleSave = () => {
   } else {
     console.log("Save user profile", userFormData.value);
   }
-  captureProfileInitial();
+  profileUnsavedCheck.captureInitial();
   // 這裡可以調用 API 儲存資料
 }
 </script>

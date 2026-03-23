@@ -258,6 +258,7 @@ mockHandlerAccountsData.forEach((account) => {
   };
 });
 const isEditMode = computed(() => route.query.mode === "edit");
+const formUnsavedCheck = useFormUnsavedCheck(() => buildFormSnapshot());
 const hasAnyPermissionSelected = computed(() =>
   permissionGroups.some((group) => group.functions.some((func) => (formData.value.permissions as any)[group.key][func.key]))
 );
@@ -270,7 +271,7 @@ const hasRequiredFields = computed(
     formData.value.supervisorEmail.trim() !== "" &&
     hasAnyPermissionSelected.value
 );
-const canSubmit = computed(() => hasFormChanges.value && hasRequiredFields.value);
+const canSubmit = computed(() => formUnsavedCheck.hasUnsavedChanges.value && hasRequiredFields.value);
 // Watch for select all checkbox
 watch(selectAllPermissions, (newValue) => {
   handleSelectAllPermissions(newValue);
@@ -406,7 +407,7 @@ const loadEditData = () => {
       };
       selectAllPermissions.value = false;
       isIndeterminate.value = false;
-      captureFormInitial();
+      formUnsavedCheck.captureInitial();
     }
     return;
   }
@@ -438,7 +439,7 @@ const loadEditData = () => {
     const someSelected = allPermissions.some((p) => p === true) && !allSelected;
     selectAllPermissions.value = allSelected;
     isIndeterminate.value = someSelected;
-    captureFormInitial();
+    formUnsavedCheck.captureInitial();
   } else {
     console.warn(`Account not found for email: ${email}`);
   }
@@ -460,13 +461,12 @@ const handleSave = () => {
     // TODO: Implement update logic
   } else {
     handleCreate();
-    captureFormInitial();
+    formUnsavedCheck.captureInitial();
     return;
   }
-  captureFormInitial();
+  formUnsavedCheck.captureInitial();
   router.push("/internal-staff-account-management");
 };
-const { hasUnsavedChanges: hasFormChanges, captureInitial: captureFormInitial } = useFormUnsavedCheck(buildFormSnapshot);
 // 初始化
 onMounted(() => {
   loadEditData();

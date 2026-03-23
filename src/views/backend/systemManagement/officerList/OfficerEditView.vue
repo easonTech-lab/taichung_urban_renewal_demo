@@ -54,10 +54,10 @@
         <div v-if="!isViewMode" class="flex justify-center gap-4">
           <ButtonCTA variant="outline" size="xl" class="w-[124px]" @click="handleCancel"> 取消 </ButtonCTA>
           <ButtonCTA
-            :variant="hasOfficerChanges ? 'primary' : 'gray'"
+            :variant="officerUnsavedCheck.hasUnsavedChanges.value ? 'primary' : 'gray'"
             size="xl"
             class="w-[124px]"
-            :disabled="!hasOfficerChanges"
+            :disabled="!officerUnsavedCheck.hasUnsavedChanges.value"
             @click="handleSave"
           >
             儲存變更
@@ -109,6 +109,7 @@ const form = ref(
   }
 );
 const OFFICER_EDIT_STORAGE_KEY = "officer-edit-data";
+const officerUnsavedCheck = useFormUnsavedCheck(() => buildOfficerSnapshot());
 const isViewMode = computed(() => route.query.mode === "view");
 const pageTitle = computed(() => (isViewMode.value ? "幹事資訊" : "編輯幹事"));
 const breadcrumbItems = computed<BreadcrumbItem[]>(() => [
@@ -152,20 +153,19 @@ const handleAddEducation = () => {
 const handleSave = () => {
   // TODO: API 儲存
   form.value.education = educationList.value.map((item) => item.trim()).filter(Boolean);
-  captureOfficerInitial();
+  officerUnsavedCheck.captureInitial();
   console.log("Save officer:", form.value);
   router.push("/officer-list-management");
 }
 const handleCancel = () => {
   router.push("/officer-list-management");
 }
-const { hasUnsavedChanges: hasOfficerChanges, captureInitial: captureOfficerInitial } = useFormUnsavedCheck(buildOfficerSnapshot);
 onMounted(() => {
   if (!initialData) {
     router.replace("/officer-list-management");
     return;
   }
-  captureOfficerInitial();
+  officerUnsavedCheck.captureInitial();
   sessionStorage.removeItem(OFFICER_EDIT_STORAGE_KEY);
 });
 </script>

@@ -146,7 +146,7 @@ const stageOptions = [
 ];
 /** 使用者已從彈窗選擇離開，略過下一次 onBeforeRouteLeave 的攔截，避免點一次退出卻彈兩次 */
 const isSubmitDisabled = computed(() => !form.value.stage?.trim());
-const { hasUnsavedChanges, captureInitial } = useFormUnsavedCheck(() => buildFormSnapshot());
+const stageFormUnsavedCheck = useFormUnsavedCheck(() => buildFormSnapshot());
 const buildFormSnapshot = () => {
   return JSON.stringify({
     stage: form.value.stage,
@@ -182,10 +182,10 @@ const goToProgress = () => {
 };
 const handleSidebarItemSelect = (_itemName: string) => {};
 const handleGoBack = () => {
-  unsavedDialog.requestUnsavedConfirmation(hasUnsavedChanges.value, goToProgress);
+  unsavedDialog.requestUnsavedConfirmation(stageFormUnsavedCheck.hasUnsavedChanges.value, goToProgress);
 };
 const handleCancel = () => {
-  unsavedDialog.requestUnsavedConfirmation(hasUnsavedChanges.value, goToProgress);
+  unsavedDialog.requestUnsavedConfirmation(stageFormUnsavedCheck.hasUnsavedChanges.value, goToProgress);
 };
 const handleExitWithoutSaving = () => {
   skipNextLeaveCheck.value = true;
@@ -194,13 +194,13 @@ const handleExitWithoutSaving = () => {
 const handleSaveFromUnsavedModal = () => {
   const fn = unsavedDialog.takePendingAction();
   unsavedDialog.closeUnsavedChangesModal();
-  captureInitial();
+  stageFormUnsavedCheck.captureInitial();
   skipNextLeaveCheck.value = true;
   fn?.();
 };
 const handleSubmit = () => {
   // TODO: 送出表單後導回案件進度
-  captureInitial();
+  stageFormUnsavedCheck.captureInitial();
   goToProgress();
 };
 const handleAddReviewItem = () => {
@@ -212,7 +212,7 @@ onBeforeRouteLeave((_to, _from, next) => {
     next();
     return;
   }
-  if (!hasUnsavedChanges.value) {
+  if (!stageFormUnsavedCheck.hasUnsavedChanges.value) {
     next();
     return;
   }
@@ -233,7 +233,7 @@ onMounted(() => {
     }
   }
   nextTick(() => {
-    captureInitial();
+    stageFormUnsavedCheck.captureInitial();
   });
 });
 </script>

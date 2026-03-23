@@ -166,7 +166,7 @@
       <div class="flex items-center justify-center gap-6">
         <template v-if="isFromCaseDetail">
           <ButtonCTA variant="outline" size="xl" :to="cancelTarget">取消</ButtonCTA>
-          <ButtonCTA :variant="hasDangerousApplicationChanges ? 'primary' : 'gray'" size="xl" :disabled="!hasDangerousApplicationChanges">儲存</ButtonCTA>
+          <ButtonCTA :variant="dangerousApplicationUnsavedCheck.hasUnsavedChanges.value ? 'primary' : 'gray'" size="xl" :disabled="!dangerousApplicationUnsavedCheck.hasUnsavedChanges.value">儲存</ButtonCTA>
         </template>
         <template v-else>
           <ButtonCTA variant="textPlain" size="xl" :to="{ path: '/case-management-dangerous/add' }">上一步</ButtonCTA>
@@ -193,6 +193,7 @@ import type { DangerousApplicationFormData } from "@/types/backend/caseManagemen
 type DropdownStringKey = "builderType" | "district" | "landOwner" | "buildingOwner";
 const route = useRoute();
 const isFromCaseDetail = ref(false);
+const dangerousApplicationUnsavedCheck = useFormUnsavedCheck(() => buildDangerousApplicationSnapshot(), isFromCaseDetail);
 const formData = ref<DangerousApplicationFormData>({
   builderType: "",
   designerName: "",
@@ -279,7 +280,6 @@ const buildDangerousApplicationSnapshot = () =>
     psercbId: formData.value.psercbId.trim(),
     buildingLineDate: formData.value.buildingLineDate ? new Date(formData.value.buildingLineDate).toISOString() : null,
   });
-const { hasUnsavedChanges: hasDangerousApplicationChanges, captureInitial: captureDangerousApplicationInitial } = useFormUnsavedCheck(buildDangerousApplicationSnapshot, isFromCaseDetail);
 const handleSidebarItemSelect = (itemName: string) => {
   console.log("Selected sidebar item:", itemName);
 };
@@ -307,6 +307,6 @@ onMounted(() => {
   } catch (_) {
     // ignore
   }
-  captureDangerousApplicationInitial();
+  dangerousApplicationUnsavedCheck.captureInitial();
 });
 </script>

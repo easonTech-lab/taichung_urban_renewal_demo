@@ -347,7 +347,8 @@ const tableColumns: TableColumn[] = [
 ];
 const hasAnyHandlers = computed(() => handlerAccounts.value.length > 0);
 const hasAvailableAccounts = computed(() => availableAccounts.value.length > 0);
-const canSaveAdminAccount = computed(() => hasAvailableAccounts.value && hasAdminAccountChanges.value);
+const adminAccountUnsavedCheck = useFormUnsavedCheck(() => buildAdminAccountSnapshot());
+const canSaveAdminAccount = computed(() => hasAvailableAccounts.value && adminAccountUnsavedCheck.hasUnsavedChanges.value);
 const buildAdminAccountSnapshot = () => JSON.stringify({ email: selectedAccountEmail.value.trim() });
 // Event Handlers
 const handleSidebarItemSelect = (itemName: string) => {
@@ -355,7 +356,7 @@ const handleSidebarItemSelect = (itemName: string) => {
 };
 const handleChangeAccount = () => {
   selectedAccountEmail.value = currentAdminAccount.value.email;
-  captureAdminAccountInitial();
+  adminAccountUnsavedCheck.captureInitial();
   showChangeAccountDrawer.value = true;
 };
 const handleCancelChangeAccount = () => {
@@ -372,7 +373,7 @@ const handleSaveChangeAccount = () => {
     // TODO: 調用 API 更新最高權限帳號
     console.log("Changed admin account to:", selectedAccount);
   }
-  captureAdminAccountInitial();
+  adminAccountUnsavedCheck.captureInitial();
   showChangeAccountDrawer.value = false;
   selectedAccountEmail.value = "";
   toastMessage.value = "儲存成功";
@@ -437,7 +438,6 @@ const handleRouteToast = () => {
     query: nextQuery,
   });
 };
-const { hasUnsavedChanges: hasAdminAccountChanges, captureInitial: captureAdminAccountInitial } = useFormUnsavedCheck(buildAdminAccountSnapshot);
 onMounted(() => {
   handleRouteToast();
 });

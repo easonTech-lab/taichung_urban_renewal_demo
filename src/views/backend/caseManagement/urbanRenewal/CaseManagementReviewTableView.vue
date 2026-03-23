@@ -438,7 +438,7 @@
         <div class="flex justify-center gap-6">
           <template v-if="isFromCaseDetail">
             <ButtonCTA variant="outline" size="xl" :to="cancelTarget">取消</ButtonCTA>
-            <ButtonCTA variant="primary" size="xl" :disabled="!hasReviewTableChanges">儲存</ButtonCTA>
+            <ButtonCTA variant="primary" size="xl" :disabled="!reviewTableUnsavedCheck.hasUnsavedChanges.value">儲存</ButtonCTA>
           </template>
           <template v-else>
             <ButtonCTA variant="text" size="xl" :to="{ path: '/case-management/add/business-plan' }">上一步</ButtonCTA>
@@ -465,6 +465,7 @@ type FacilityKey = (typeof facilityFields)[number]["key"];
 /** 從案件詳情按鈕進入為編輯，從新增流程進入為新增 */
 const route = useRoute();
 const isFromCaseDetail = ref(false);
+const reviewTableUnsavedCheck = useFormUnsavedCheck(() => buildReviewTableSnapshot(), isFromCaseDetail);
 const planningUnits = reactive([
   {
     id: 1,
@@ -600,7 +601,6 @@ const buildReviewTableSnapshot = () =>
     formData,
     planningUnits,
   });
-const { hasUnsavedChanges: hasReviewTableChanges, captureInitial: captureReviewTableInitial } = useFormUnsavedCheck(buildReviewTableSnapshot, isFromCaseDetail);
 const addPlanningUnit = () => {
   planningUnits.push({
     id: Date.now(),
@@ -631,7 +631,7 @@ onMounted(() => {
     // ignore
   } finally {
     if (isFromCaseDetail.value) {
-      captureReviewTableInitial();
+      reviewTableUnsavedCheck.captureInitial();
     }
   }
 });
