@@ -143,7 +143,6 @@
         </div>
       </template>
     </Drawer>
-
     <Drawer v-model="isDrawerOpen" title="幹事管理名單" width="xl" close-action="emit" @close="handleDrawerClose">
       <template #default>
         <div class="flex flex-col gap-0">
@@ -185,14 +184,12 @@
         </div>
       </template>
     </Drawer>
-
     <UnsavedChangesModal
       :model-value="unsavedDialog.showUnsavedChangesModal.value"
       @update:modelValue="(value) => (unsavedDialog.showUnsavedChangesModal.value = value)"
       @exit="handleExitWithoutSaving"
       @confirm="handleSaveFromUnsavedModal"
     />
-
     <ConfirmDeleteModal
       v-model="showDeleteModal"
       message="確認移除幹事"
@@ -201,7 +198,6 @@
       @confirm="handleConfirmDeleteOfficer"
       @cancel="handleCloseDeleteModal"
     />
-
     <div v-if="showToast" class="fixed bottom-6 left-1/2 z-[90] w-[min(1420px,calc(100vw-2rem))] -translate-x-1/2">
       <Toast v-model="showToast" :message="toastMessage" :show-actions="false" :show-close="false" :auto-close="true">
         <template #icon>
@@ -211,7 +207,6 @@
     </div>
   </div>
 </template>
-
 <script setup lang="ts">
 import { ref, computed, reactive } from "vue";
 import { useRouter } from "vue-router";
@@ -232,61 +227,24 @@ import InputDropdown, { type InputDropdownItem } from "@/components/atoms/InputD
 import ConfirmDeleteModal from "@/components/molecules/ConfirmDeleteModal.vue";
 import UnsavedChangesModal from "@/components/molecules/UnsavedChangesModal.vue";
 import type { OfficerData, OfficerItem } from "@/types/backend/systemManagement/officerList/officerListManagement.d";
-
 // Tabs（年度 + 添加年度，儲存後會更新）
-const tabItems = ref<TabItem[]>([{ label: "115" }, { label: "114" }, { label: "113" }, { label: "添加年度" }]);
-
+const router = useRouter();
 const activeTab = ref(0);
-const hasAnyOfficers = computed(() => allOfficers.value.length > 0);
-const unsavedDialog = useUnsavedChangesDialog();
-
+const showToast = ref(false);
 // Drawer state
 const isDrawerOpen = ref(false);
-const isAddYearDrawerOpen = ref(false);
-const showToast = ref(false);
-const toastMessage = ref("儲存成功");
-
-// Delete modal state
-const showDeleteModal = ref(false);
-const deleteTarget = ref<OfficerData | null>(null);
-
 /** 添加年度側拉選單的年度列表（從現有 tab 帶入） */
 const yearList = ref<string[]>([]);
-
+const toastMessage = ref("儲存成功");
+const initialYearSnapshot = ref("");
+// Delete modal state
+const showDeleteModal = ref(false);
+const isAddYearDrawerOpen = ref(false);
+const deleteTarget = ref<OfficerData | null>(null);
+const tabItems = ref<TabItem[]>([{ label: "115" }, { label: "114" }, { label: "113" }, { label: "添加年度" }]);
 /** 年度欄位驗證錯誤（儲存時觸發，輸入時重置） */
 const yearErrorMap = ref<Map<number, "format" | "duplicate">>(new Map());
-const hasYearErrors = computed(() => yearErrorMap.value.size > 0);
-const initialYearSnapshot = ref("");
-const getYearErrorMessage = (index: number) => {
-  const type = yearErrorMap.value.get(index);
-  if (type === "format") return "限輸入阿拉伯數字";
-  if (type === "duplicate") return "輸入年度重複";
-  return undefined;
-};
-
-const normalizeYearList = (list: string[]) => list.map((year) => year.trim()).filter(Boolean);
-const buildYearSnapshot = () => JSON.stringify(normalizeYearList(yearList.value));
-const hasYearChanges = computed(() => buildYearSnapshot() !== initialYearSnapshot.value);
-const canSaveYears = computed(() => hasYearChanges.value && !hasYearErrors.value);
-
-const openAddYearDrawer = () => {
-  yearList.value = tabItems.value.slice(0, -1).map((t) => t.label);
-  syncYearErrors();
-  initialYearSnapshot.value = buildYearSnapshot();
-  isAddYearDrawerOpen.value = true;
-};
-
-const TOTAL_OFFICER_SLOTS = 20;
-
-// Table Columns
-const tableColumns: TableColumn[] = [
-  { key: "index", label: "項次", width: "6%", headerClass: "px-4 py-4 text-left text-sm font-medium text-gray-500", cellClass: "p-0 align-middle" },
-  { key: "nameGender", label: "委員姓名", width: "12%", headerClass: "px-4 py-4 text-left text-sm font-medium text-gray-500", cellClass: "px-4 py-4 align-middle" },
-  { key: "title", label: "現職", width: "20%", headerClass: "px-4 py-4 text-left text-sm font-medium text-gray-500", cellClass: "px-4 py-4 align-middle" },
-  { key: "education", label: "學經歷", width: "52%", headerClass: "px-4 py-4 text-left text-sm font-medium text-gray-500", cellClass: "p-0 align-middle" },
-  { key: "action", label: "動作", width: "10%", headerClass: "px-4 py-4 text-left text-sm font-medium text-gray-500", cellClass: "p-0 align-middle" },
-];
-
+const OFFICER_EDIT_STORAGE_KEY = "officer-edit-data";
 // Mock Officer Data
 const allOfficers = ref<OfficerData[]>([
   {
@@ -327,6 +285,7 @@ const allOfficers = ref<OfficerData[]>([
   { index: 9, name: "朱秀秋", gender: "男", title: "中山大學公共事務管理研究所教授兼管理學院副院長", education: ["美國北卡羅萊納州立大學景觀規劃博士"] },
   { index: 10, name: "朱秀秋", gender: "男", title: "中山大學公共事務管理研究所教授兼管理學院副院長", education: ["美國北卡羅萊納州立大學景觀規劃博士"] },
 ]);
+const TOTAL_OFFICER_SLOTS = 20;
 const officerTableRows = ref(
   Array.from({ length: TOTAL_OFFICER_SLOTS }, (_, index) => {
     const officer = allOfficers.value[index];
@@ -341,32 +300,54 @@ const officerTableRows = ref(
     };
   })
 );
-
-const paginationState = reactive(useTablePagination({
-  rows: officerTableRows,
-  pageSize: 10,
-  total: computed(() => officerTableRows.value.length),
-  slice: false,
-}));
-
 // Officer List (20 items default)
 const officerList = ref<OfficerItem[]>(
   Array.from({ length: 20 }, () => ({
     selectedOfficer: "",
   }))
 );
-
+const paginationState = reactive(useTablePagination({
+  rows: officerTableRows,
+  pageSize: 10,
+  total: computed(() => officerTableRows.value.length),
+  slice: false,
+}));
 // Available officers (mock data - should come from internal staff accounts)
 const allAvailableOfficers: InputDropdownItem[] = [{ label: "陳傑瑞" }, { label: "張森" }, { label: "吳偉翔" }, { label: "林美華" }, { label: "王小明" }, { label: "李大同" }];
-
 // Get available officers for a specific index (excluding the current selection)
+// Table Columns
+const tableColumns: TableColumn[] = [
+  { key: "index", label: "項次", width: "6%", headerClass: "px-4 py-4 text-left text-sm font-medium text-gray-500", cellClass: "p-0 align-middle" },
+  { key: "nameGender", label: "委員姓名", width: "12%", headerClass: "px-4 py-4 text-left text-sm font-medium text-gray-500", cellClass: "px-4 py-4 align-middle" },
+  { key: "title", label: "現職", width: "20%", headerClass: "px-4 py-4 text-left text-sm font-medium text-gray-500", cellClass: "px-4 py-4 align-middle" },
+  { key: "education", label: "學經歷", width: "52%", headerClass: "px-4 py-4 text-left text-sm font-medium text-gray-500", cellClass: "p-0 align-middle" },
+  { key: "action", label: "動作", width: "10%", headerClass: "px-4 py-4 text-left text-sm font-medium text-gray-500", cellClass: "p-0 align-middle" },
+];
+const unsavedDialog = useUnsavedChangesDialog();
+const hasAnyOfficers = computed(() => allOfficers.value.length > 0);
+const hasYearErrors = computed(() => yearErrorMap.value.size > 0);
+const hasYearChanges = computed(() => buildYearSnapshot() !== initialYearSnapshot.value);
+const canSaveYears = computed(() => hasYearChanges.value && !hasYearErrors.value);
+const getYearErrorMessage = (index: number) => {
+  const type = yearErrorMap.value.get(index);
+  if (type === "format") return "限輸入阿拉伯數字";
+  if (type === "duplicate") return "輸入年度重複";
+  return undefined;
+};
+const normalizeYearList = (list: string[]) => list.map((year) => year.trim()).filter(Boolean);
+const buildYearSnapshot = () => JSON.stringify(normalizeYearList(yearList.value));
+const openAddYearDrawer = () => {
+  yearList.value = tabItems.value.slice(0, -1).map((t) => t.label);
+  syncYearErrors();
+  initialYearSnapshot.value = buildYearSnapshot();
+  isAddYearDrawerOpen.value = true;
+};
 const getAvailableOfficersForIndex = (index: number) => {
   const selectedOfficers = officerList.value
     .map((o, i) => (i !== index ? o.selectedOfficer : ""))
     .filter((o) => o !== "" && o !== "未選擇");
   return allAvailableOfficers.filter((officer) => !selectedOfficers.includes(officer.label));
 };
-
 const normalizeOfficerList = (list: OfficerItem[]) => {
   return list
     .map((item) => ({
@@ -374,15 +355,11 @@ const normalizeOfficerList = (list: OfficerItem[]) => {
     }))
     .filter((item) => item.selectedOfficer !== "" && item.selectedOfficer !== "未選擇");
 };
-
 const buildOfficerListSnapshot = () => JSON.stringify(normalizeOfficerList(officerList.value));
-const { hasUnsavedChanges: hasOfficerListChanges, captureInitial: captureOfficerListInitial } = useFormUnsavedCheck(buildOfficerListSnapshot);
-
 // Event Handlers
 const handleSidebarItemSelect = (itemName: string) => {
   console.log("Selected sidebar item:", itemName);
 };
-
 const handleTabClick = (index: number) => {
   if (index === tabItems.value.length - 1) {
     // 點擊「添加年度」開啟側拉選單
@@ -391,56 +368,46 @@ const handleTabClick = (index: number) => {
   }
   activeTab.value = index;
 };
-
 const populateOfficerListFromTable = () => {
   officerList.value = Array.from({ length: TOTAL_OFFICER_SLOTS }, (_, index) => ({
     selectedOfficer: allOfficers.value[index]?.name ?? "未選擇",
   }));
   captureOfficerListInitial();
 };
-
 const handleManageList = () => {
   populateOfficerListFromTable();
   isDrawerOpen.value = true;
 };
-
 const handleExportList = () => {
   console.log("Export list");
   // TODO: Implement export list logic
 };
-
 const handleAddOfficer = () => {
   populateOfficerListFromTable();
   isDrawerOpen.value = true;
 };
-
 const handleDrawerClose = () => {
   unsavedDialog.requestUnsavedConfirmation(hasOfficerListChanges.value, () => {
     isDrawerOpen.value = false;
   });
 };
-
 const handleOfficerSelect = (index: number, item: InputDropdownItem) => {
   officerList.value[index].selectedOfficer = item.label;
 };
-
 const handleRemoveOfficer = (index: number) => {
   officerList.value.splice(index, 1);
 };
-
 const handleAddNewOfficer = () => {
   // Add a new empty officer slot
   officerList.value.push({
     selectedOfficer: "",
   });
 };
-
 const handleCancel = () => {
   unsavedDialog.requestUnsavedConfirmation(hasOfficerListChanges.value, () => {
     isDrawerOpen.value = false;
   });
 };
-
 const handleSave = () => {
   console.log("Save officer list:", officerList.value);
   // TODO: Implement save logic
@@ -449,27 +416,22 @@ const handleSave = () => {
   toastMessage.value = "儲存成功";
   showToast.value = true;
 };
-
 const handleExitWithoutSaving = () => {
   unsavedDialog.runPendingAction();
 };
-
 const handleSaveFromUnsavedModal = () => {
   unsavedDialog.closeUnsavedChangesModal();
   handleSave();
 };
-
 const handleDeleteOfficer = (row: Record<string, any>) => {
   if (row.isPlaceholder) return;
   deleteTarget.value = row as OfficerData;
   showDeleteModal.value = true;
 };
-
 const handleCloseDeleteModal = () => {
   showDeleteModal.value = false;
   deleteTarget.value = null;
 };
-
 const handleConfirmDeleteOfficer = () => {
   if (deleteTarget.value) {
     const index = allOfficers.value.findIndex((o) => o.index === deleteTarget.value?.index);
@@ -481,10 +443,6 @@ const handleConfirmDeleteOfficer = () => {
   }
   handleCloseDeleteModal();
 };
-
-const router = useRouter();
-const OFFICER_EDIT_STORAGE_KEY = "officer-edit-data";
-
 const handleOfficerProfileCard = (row: OfficerData & { email?: string; phone?: string; address?: string }) => {
   if ((row as OfficerData & { isPlaceholder?: boolean }).isPlaceholder) return;
   // TODO: 後續串接後端後，改為帶 officer id 進編輯頁並由編輯頁重新取資料。
@@ -501,30 +459,24 @@ const handleOfficerProfileCard = (row: OfficerData & { email?: string; phone?: s
   sessionStorage.setItem(OFFICER_EDIT_STORAGE_KEY, JSON.stringify(officer));
   router.push("/officer-list-management/edit");
 };
-
 // 添加年度 Drawer
 const handleAddYear = () => {
   yearList.value.push("");
   syncYearErrors();
 };
-
 const handleRemoveYear = (index: number) => {
   yearList.value.splice(index, 1);
   syncYearErrors();
 };
-
 const handleAddYearDrawerClose = () => {
   yearErrorMap.value = new Map();
   isAddYearDrawerOpen.value = false;
 };
-
 const handleAddYearCancel = () => {
   isAddYearDrawerOpen.value = false;
 };
-
 /** 驗證年度：限輸入阿拉伯數字 */
 const validateYear = (value: string) => /^\d+$/.test(value.trim());
-
 const syncYearErrors = () => {
   const errorMap = new Map<number, "format" | "duplicate">();
 
@@ -554,12 +506,10 @@ const syncYearErrors = () => {
 
   yearErrorMap.value = errorMap;
 };
-
 const handleYearInput = (index: number, value: string) => {
   yearList.value[index] = value;
   syncYearErrors();
 };
-
 const handleAddYearSave = () => {
   syncYearErrors();
   if (yearErrorMap.value.size > 0) {
@@ -573,4 +523,5 @@ const handleAddYearSave = () => {
   initialYearSnapshot.value = buildYearSnapshot();
   isAddYearDrawerOpen.value = false;
 };
+const { hasUnsavedChanges: hasOfficerListChanges, captureInitial: captureOfficerListInitial } = useFormUnsavedCheck(buildOfficerListSnapshot);
 </script>

@@ -62,9 +62,7 @@
         </div>
       </div>
     </div>
-
     <ConfirmDeleteModal v-model="showDeleteModal" message="確認刪除此項目" description="內容將完全刪除無法復原" @confirm="handleConfirmDelete" @cancel="handleCloseDeleteModal" />
-
     <div class="fixed bottom-6 z-[90]" :style="deleteToastStyle">
       <Toast v-model="showDeleteToast" :message="toastMessage" :show-actions="false" :show-close="false" :auto-close="true">
         <template #icon>
@@ -74,7 +72,6 @@
     </div>
   </div>
 </template>
-
 <script setup lang="ts">
 import { ref, computed, onMounted, watch, reactive } from "vue";
 import { useRouter, useRoute } from "vue-router";
@@ -91,10 +88,8 @@ import ConfirmDeleteModal from "@/components/molecules/ConfirmDeleteModal.vue";
 import Table, { type TableColumn } from "@/components/atoms/Table.vue";
 import Dropdown, { type DropdownItem } from "@/components/atoms/Dropdown.vue";
 import type { CaseStatisticsItem } from "@/types/backend/homepageMaintenance/caseStatistics.d";
-
-const router = useRouter();
 const route = useRoute();
-
+const router = useRouter();
 const activeTab = ref<number>(0);
 const selectedStartYear = ref<string>("");
 const selectedEndYear = ref<string>("");
@@ -105,6 +100,7 @@ const showDeleteModal = ref(false);
 const pendingDeleteItem = ref<CaseStatisticsItem | null>(null);
 const showDeleteToast = ref(false);
 const toastMessage = ref("刪除成功");
+const currentRocYear = new Date().getFullYear() - 1911;
 const deleteToastStyle = {
   left: "50%",
   transform: "translateX(-50%)",
@@ -112,35 +108,15 @@ const deleteToastStyle = {
   maxWidth: "min(1420px, calc(100vw - 2rem))",
   minWidth: "min(1420px, calc(100vw - 2rem))",
 };
-
 const tabItems = [
   { label: "全部", value: "all" },
   { label: "都更案件", value: "urban-renewal" },
   { label: "危老案件", value: "dangerous-building" },
 ];
-
-const currentRocYear = new Date().getFullYear() - 1911;
 const yearOptions: DropdownItem[] = Array.from({ length: 20 }, (_, i) => {
   const year = currentRocYear - 19 + i;
   return { label: year.toString(), value: year.toString() };
 });
-
-const startYearOptions = computed(() => {
-  if (!selectedEndYear.value) return yearOptions;
-  const endYear = parseInt(selectedEndYear.value, 10);
-  return yearOptions.filter((item) => parseInt(item.value, 10) <= endYear);
-});
-
-const endYearOptions = computed(() => {
-  if (!selectedStartYear.value) return yearOptions;
-  const startYear = parseInt(selectedStartYear.value, 10);
-  return yearOptions.filter((item) => parseInt(item.value, 10) >= startYear);
-});
-
-const showResetButton = computed(() => {
-  return Boolean(selectedStartYear.value || selectedEndYear.value);
-});
-
 // Mock Data
 const allStatistics: CaseStatisticsItem[] = [
   { index: 1, year: "114", caseCategory: "都更案件", annualCount: 103, cumulativeCount: 455, growthRate: "降低" },
@@ -154,9 +130,6 @@ const allStatistics: CaseStatisticsItem[] = [
   { index: 9, year: "112", caseCategory: "危老案件", annualCount: 22, cumulativeCount: 22, growthRate: "持平" },
   { index: 10, year: "112", caseCategory: "危老案件", annualCount: 22, cumulativeCount: 22, growthRate: "持平" },
 ];
-
-const hasAnyStatistics = computed(() => allStatistics.length > 0);
-
 // Table Columns
 const tableColumns: TableColumn[] = [
   {
@@ -196,11 +169,8 @@ const tableColumns: TableColumn[] = [
     width: "16%",
   },
 ];
-
-// Filtered Statistics
 const filteredStatistics = computed(() => {
   let stats = [...allStatistics];
-
   // Filter by tab
   if (activeTab.value === 1) {
     // 都更案件
@@ -209,7 +179,6 @@ const filteredStatistics = computed(() => {
     // 危老案件
     stats = stats.filter((item) => item.caseCategory === "危老案件");
   }
-
   // Filter by year range
   if (appliedStartYear.value) {
     stats = stats.filter((item) => parseInt(item.year) >= parseInt(appliedStartYear.value));
@@ -217,15 +186,32 @@ const filteredStatistics = computed(() => {
   if (appliedEndYear.value) {
     stats = stats.filter((item) => parseInt(item.year) <= parseInt(appliedEndYear.value));
   }
-
   return stats;
 });
-
 const paginationState = reactive(useTablePagination({
   rows: filteredStatistics,
   pageSize,
 }));
-
+const hasAnyStatistics = computed(() => allStatistics.length > 0);
+const startYearOptions = computed(() => {
+  if (!selectedEndYear.value) return yearOptions;
+  const endYear = parseInt(selectedEndYear.value, 10);
+  return yearOptions.filter((item) => parseInt(item.value, 10) <= endYear);
+});
+const endYearOptions = computed(() => {
+  if (!selectedStartYear.value) return yearOptions;
+  const startYear = parseInt(selectedStartYear.value, 10);
+  return yearOptions.filter((item) => parseInt(item.value, 10) >= startYear);
+});
+const showResetButton = computed(() => {
+  return Boolean(selectedStartYear.value || selectedEndYear.value);
+});
+watch(
+  () => route.query.toast,
+  () => {
+    maybeShowReturnToast();
+  }
+);
 // Growth Rate Variant Mapping
 const getGrowthRateVariant = (rate: string): "primary" | "success" | "danger" => {
   const mapping: Record<string, "primary" | "success" | "danger"> = {
@@ -235,37 +221,31 @@ const getGrowthRateVariant = (rate: string): "primary" | "success" | "danger" =>
   };
   return mapping[rate] || "primary";
 };
-
 // Event Handlers
 const handleSidebarItemSelect = (itemName: string) => {
   console.log("Selected sidebar item:", itemName);
 };
-
 const handleTabClick = (index: number) => {
   activeTab.value = index;
   paginationState.resetPage();
 };
-
 const handleStartYearChange = (item: DropdownItem) => {
   selectedStartYear.value = item.label;
   if (selectedEndYear.value && parseInt(selectedStartYear.value, 10) > parseInt(selectedEndYear.value, 10)) {
     selectedEndYear.value = selectedStartYear.value;
   }
 };
-
 const handleEndYearChange = (item: DropdownItem) => {
   selectedEndYear.value = item.label;
   if (selectedStartYear.value && parseInt(selectedStartYear.value, 10) > parseInt(selectedEndYear.value, 10)) {
     selectedStartYear.value = selectedEndYear.value;
   }
 };
-
 const handleSearch = () => {
   appliedStartYear.value = selectedStartYear.value;
   appliedEndYear.value = selectedEndYear.value;
   paginationState.resetPage();
 };
-
 const handleResetFilters = () => {
   selectedStartYear.value = "";
   selectedEndYear.value = "";
@@ -273,11 +253,9 @@ const handleResetFilters = () => {
   appliedEndYear.value = "";
   paginationState.resetPage();
 };
-
 const handleAddYear = () => {
   router.push("/case-statistics/add");
 };
-
 const handleEdit = (row: Record<string, any>) => {
   const item = row as CaseStatisticsItem;
   // 導航到編輯頁面，傳遞案件數據
@@ -290,18 +268,15 @@ const handleEdit = (row: Record<string, any>) => {
     },
   });
 };
-
 const handleDelete = (row: Record<string, any>) => {
   const item = row as CaseStatisticsItem;
   pendingDeleteItem.value = item;
   showDeleteModal.value = true;
 };
-
 const handleCloseDeleteModal = () => {
   showDeleteModal.value = false;
   pendingDeleteItem.value = null;
 };
-
 const handleConfirmDelete = () => {
   if (!pendingDeleteItem.value) return;
   // TODO: Implement delete logic
@@ -310,27 +285,16 @@ const handleConfirmDelete = () => {
   toastMessage.value = "刪除成功";
   showDeleteToast.value = true;
 };
-
 const maybeShowReturnToast = () => {
   const toastType = route.query.toast as string | undefined;
   if (toastType !== "success") return;
-
   const msg = (route.query.msg as string | undefined) || "新增成功";
   toastMessage.value = msg;
   showDeleteToast.value = true;
-
   router.replace({
     path: route.path,
     query: { ...route.query, toast: undefined, msg: undefined },
   });
 };
-
 onMounted(maybeShowReturnToast);
-
-watch(
-  () => route.query.toast,
-  () => {
-    maybeShowReturnToast();
-  }
-);
 </script>

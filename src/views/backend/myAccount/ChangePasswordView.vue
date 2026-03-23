@@ -80,7 +80,6 @@
     </Modal>
   </div>
 </template>
-
 <script setup lang="ts">
 import { ref, computed } from "vue";
 import { useRouter } from "vue-router";
@@ -91,34 +90,28 @@ import ButtonCTA from "@/components/atoms/ButtonCTA.vue";
 import Breadcrumb from "@/components/atoms/Breadcrumb.vue";
 import SidebarSection from "@/components/sections/backend/SidebarSection.vue";
 const router = useRouter();
-
 // Form Data
 const formData = ref({
   oldPassword: "",
   newPassword: "",
   confirmPassword: "",
 });
-
 // Error States
 const errors = ref({
   oldPassword: false,
   newPassword: false,
   confirmPassword: false,
 });
-
 const errorMessages = ref({
   oldPassword: "",
   newPassword: "",
   confirmPassword: "",
 });
-
 // Success Modal State
 const showSuccessModal = ref(false);
-
 // 判斷按鈕是否應該被禁用
 const isSaveDisabled = computed(() => {
   // 如果正在提交，禁用按鈕
-
   // 如果任何必填欄位為空，禁用按鈕
   if (!formData.value.oldPassword || !formData.value.newPassword || !formData.value.confirmPassword) {
     return true;
@@ -131,23 +124,18 @@ const isSaveDisabled = computed(() => {
 
   return false;
 });
-
 // Event Handlers
 const handleSidebarItemSelect = (itemName: string) => {
   console.log("Selected sidebar item:", itemName);
 };
-
 const handleGoBack = () => {
   router.back();
 };
-
 const handleCancel = () => {
   router.back();
 };
-
 const validateForm = (): boolean => {
   let isValid = true;
-
   // 重置錯誤
   errors.value = {
     oldPassword: false,
@@ -195,7 +183,6 @@ const validateForm = (): boolean => {
 
   return isValid;
 };
-
 const handleSave = async () => {
   if (!validateForm()) {
     return;
@@ -231,11 +218,9 @@ const handleSave = async () => {
     }
   }
 };
-
 const handleCloseSuccessModal = () => {
   showSuccessModal.value = false;
 };
-
 const handleGoToLogin = () => {
   showSuccessModal.value = false;
   // 清除登入資料

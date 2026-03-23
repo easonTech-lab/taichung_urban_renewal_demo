@@ -27,11 +27,9 @@
     </div>
   </div>
 </template>
-
 <script setup lang="ts">
 import { ref, computed, watch } from "vue";
 import Icon from "@/components/atoms/Icon.vue";
-
 const props = withDefaults(
   defineProps<{
     modelValue?: string | Date | null;
@@ -60,50 +58,38 @@ const props = withDefaults(
     dateFormat: "YYYY-MM-DD",
   }
 );
-
 const emit = defineEmits(["update:modelValue", "input", "change", "focus", "blur"]);
-
 const datePickerRef = ref<HTMLInputElement | null>(null);
-const inputId = computed(() => `datepicker-${Math.random().toString(36).substring(2, 11)}`);
-
 // Internal value for HTML5 date input (uses YYYY-MM-DD format)
 const internalValue = ref<string>("");
-
-// Convert Date to YYYY-MM-DD string format for HTML5 date input
-const convertToDateString = (value: string | Date | null): string => {
-  if (!value) return "";
-
-  const date = typeof value === "string" ? new Date(value) : value;
-  if (isNaN(date.getTime())) return "";
-
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const day = String(date.getDate()).padStart(2, "0");
-
-  return `${year}-${month}-${day}`;
-};
-
-// Convert YYYY-MM-DD string format to Date
-const convertFromDateString = (value: string): Date | null => {
-  if (!value) return null;
-
-  const date = new Date(value + "T00:00:00");
-  if (isNaN(date.getTime())) return null;
-
-  return date;
-};
-
+const inputId = computed(() => `datepicker-${Math.random().toString(36).substring(2, 11)}`);
 // Min/Max date strings for HTML5 date input
 const minDateString = computed(() => {
   if (!props.minDate) return undefined;
   return convertToDateString(props.minDate);
 });
-
 const maxDateString = computed(() => {
   if (!props.maxDate) return undefined;
   return convertToDateString(props.maxDate);
 });
-
+const inputClasses = computed(() => {
+  const baseClasses = "absolute inset-0 h-full w-full cursor-pointer opacity-0 [color:transparent] [background:transparent] focus:outline-none";
+  const stateClasses = props.disabled ? "opacity-50 cursor-not-allowed" : "";
+  return `${baseClasses} ${stateClasses} ${props.inputClass}`.trim();
+});
+const displayClasses = computed(() => {
+  const baseClasses =
+    "relative flex w-full items-center justify-between gap-3 rounded-lg border border-gray-300 bg-gray-50 px-3 py-2.5 text-sm text-gray-900 focus-within:border-blue-500 focus-within:ring-1 focus-within:ring-blue-500";
+  const stateClasses = props.disabled ? "opacity-50 cursor-not-allowed" : "";
+  return `${baseClasses} ${stateClasses}`.trim();
+});
+const displayText = computed(() => {
+  if (!internalValue.value) return props.placeholder;
+  return internalValue.value.replace(/-/g, "/");
+});
+const displayTextClasses = computed(() => {
+  return internalValue.value ? "text-sm text-gray-900" : "text-sm text-gray-400";
+});
 // Watch modelValue changes
 watch(
   () => props.modelValue,
@@ -112,7 +98,6 @@ watch(
   },
   { immediate: true }
 );
-
 // Watch internal value changes
 watch(
   () => internalValue.value,
@@ -122,36 +107,28 @@ watch(
     emit("input", newValue);
   }
 );
-
-const inputClasses = computed(() => {
-  const baseClasses =
-    "absolute inset-0 h-full w-full cursor-pointer opacity-0 [color:transparent] [background:transparent] focus:outline-none";
-  const stateClasses = props.disabled ? "opacity-50 cursor-not-allowed" : "";
-  return `${baseClasses} ${stateClasses} ${props.inputClass}`.trim();
-});
-
-const displayClasses = computed(() => {
-  const baseClasses =
-    "relative flex w-full items-center justify-between gap-3 rounded-lg border border-gray-300 bg-gray-50 px-3 py-2.5 text-sm text-gray-900 focus-within:border-blue-500 focus-within:ring-1 focus-within:ring-blue-500";
-  const stateClasses = props.disabled ? "opacity-50 cursor-not-allowed" : "";
-  return `${baseClasses} ${stateClasses}`.trim();
-});
-
-const displayText = computed(() => {
-  if (!internalValue.value) return props.placeholder;
-  return internalValue.value.replace(/-/g, "/");
-});
-
-const displayTextClasses = computed(() => {
-  return internalValue.value ? "text-sm text-gray-900" : "text-sm text-gray-400";
-});
-
+// Convert Date to YYYY-MM-DD string format for HTML5 date input
+const convertToDateString = (value: string | Date | null): string => {
+  if (!value) return "";
+  const date = typeof value === "string" ? new Date(value) : value;
+  if (isNaN(date.getTime())) return "";
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+};
+// Convert YYYY-MM-DD string format to Date
+const convertFromDateString = (value: string): Date | null => {
+  if (!value) return null;
+  const date = new Date(value + "T00:00:00");
+  if (isNaN(date.getTime())) return null;
+  return date;
+};
 const handleChange = (event: Event) => {
   const target = event.target as HTMLInputElement;
   const date = convertFromDateString(target.value);
   emit("change", date);
 };
-
 const handleFocus = (event: FocusEvent) => {
   const input = datePickerRef.value;
   if (input && "showPicker" in input) {
@@ -159,10 +136,7 @@ const handleFocus = (event: FocusEvent) => {
   }
   emit("focus", event);
 };
-
 const handleBlur = (event: FocusEvent) => {
   emit("blur", event);
 };
 </script>
-
-<style scoped></style>

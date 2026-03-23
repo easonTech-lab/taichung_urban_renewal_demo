@@ -51,12 +51,10 @@
     </template>
   </Modal>
 </template>
-
 <script setup lang="ts">
 import Modal from "@/components/atoms/Modal.vue";
 import Icon from "@/components/atoms/Icon.vue";
 import ButtonCTA from "@/components/atoms/ButtonCTA.vue";
-
 withDefaults(
   defineProps<{
     modelValue: boolean;
@@ -74,7 +72,6 @@ withDefaults(
     confirmVariant: "primary",
   }
 );
-
 const emit = defineEmits<{
   "update:modelValue": [value: boolean];
   exit: [];

@@ -17,7 +17,6 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import ProgressBar from "@/components/atoms/ProgressBar.vue";
-
 const props = withDefaults(
   defineProps<{
     steps: string[];
@@ -29,7 +28,6 @@ const props = withDefaults(
     progress: undefined,
   }
 );
-
 const activeTextClass = "text-2xl font-medium text-primary-600";
 const inactiveTextClass = "text-2xl font-medium text-neutral-300";
 const progressValue = computed(() => {

@@ -4,7 +4,6 @@
     <router-view />
   </div>
 </template>
-
 <script setup lang="ts">
 import NavbarSection from "@/components/sections/global/NavbarSection.vue";
 </script>

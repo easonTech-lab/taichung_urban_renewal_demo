@@ -94,11 +94,9 @@ import Icon from "@/components/atoms/Icon.vue";
 import Breadcrumb from "@/components/atoms/Breadcrumb.vue";
 import FooterSection from "@/components/sections/global/FooterSection.vue";
 import { useRoute, useRouter } from "vue-router";
-
 const route = useRoute();
 const router = useRouter();
 const newsId = Number(route.params.id || 1);
-
 const newsDetail = {
   id: newsId,
   title: "臺中市率先完成全市老屋大規模重建計劃領先全台",
@@ -134,7 +132,6 @@ const newsDetail = {
     "數據亮點：重建案平均基地面積擴大，核准面積與整合速度均領先其他五都。",
   ],
 };
-
 const relatedNews = [
   {
     id: 1,
@@ -167,7 +164,6 @@ const relatedNews = [
     title: "「臺中市新建建築工程工地地下水資源再利用名冊」(114年12月更新)",
   },
 ];
-
 const handleRelatedClick = (id: number) => {
   router.push(`/news/${id}`);
 }

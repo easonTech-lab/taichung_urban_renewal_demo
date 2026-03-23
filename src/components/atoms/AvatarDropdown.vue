@@ -52,18 +52,15 @@
     </div>
   </div>
 </template>
-
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, ref } from "vue";
 import Icon from "@/components/atoms/Icon.vue";
-
 export interface AvatarDropdownItem {
   label: string;
   href?: string;
   tone?: "default" | "danger";
   icon?: string;
 }
-
 const props = withDefaults(
   defineProps<{
     avatarSrc?: string;
@@ -81,27 +78,22 @@ const props = withDefaults(
     showChevron: true,
   }
 );
-
 const emit = defineEmits<{
   (e: "item-click", item: AvatarDropdownItem, index: number): void;
   (e: "toggle", isOpen: boolean): void;
 }>();
-
 const isOpen = ref(false);
 const buttonId = computed(() => `avatar-dropdown-button-${Math.random().toString(36).substring(2, 11)}`);
 const dropdownId = computed(() => `avatar-dropdown-${Math.random().toString(36).substring(2, 11)}`);
-
 const toggle = () => {
   isOpen.value = !isOpen.value;
   emit("toggle", isOpen.value);
 };
-
 const close = () => {
   if (!isOpen.value) return;
   isOpen.value = false;
   emit("toggle", false);
 };
-
 const handleItemClick = (item: AvatarDropdownItem, index: number, event: Event) => {
   if (!item.href) {
     event.preventDefault();
@@ -109,26 +101,21 @@ const handleItemClick = (item: AvatarDropdownItem, index: number, event: Event) 
   emit("item-click", item, index);
   close();
 };
-
 const itemClass = (item: AvatarDropdownItem) => {
   if (item.tone === "danger") return "text-red-600";
   return "text-gray-500";
 };
-
 const handleClickOutside = (event: Event) => {
   const target = event.target as HTMLElement;
   const dropdownElement = document.getElementById(dropdownId.value);
   const buttonElement = document.getElementById(buttonId.value);
-
   if (isOpen.value && dropdownElement && buttonElement && !dropdownElement.contains(target) && !buttonElement.contains(target)) {
     close();
   }
 };
-
 onMounted(() => {
   document.addEventListener("click", handleClickOutside);
 });
-
 onUnmounted(() => {
   document.removeEventListener("click", handleClickOutside);
 });

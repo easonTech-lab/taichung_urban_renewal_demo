@@ -13,14 +13,12 @@
           <Icon name="arrowRightOutline" :size="20" color="#374151" class="h-5 w-5" aria-hidden="true" />
         </RouterLink>
       </div>
-
       <!-- Download Content -->
       <div class="flex flex-col items-start gap-6 md:flex-row">
         <!-- Left Image -->
         <div class="min-h-[196px] w-full max-w-[260px] shrink-0 overflow-hidden rounded-lg">
           <img src="/download.png" alt="下載專區插圖" class="h-full w-full object-cover" />
         </div>
-
         <!-- Right Items -->
         <div class="grid w-full flex-1 grid-cols-1 gap-6 md:grid-cols-3">
           <DownloadItem category="都市更新類" title="本處辦理「114年度老屋新用計畫2.0」潭子區老屋第2次進駐者徵選，入選結果公告" date="2025/07/03" />
@@ -35,7 +33,6 @@
     </div>
   </section>
 </template>
-
 <script setup lang="ts">
 import Icon from "@/components/atoms/Icon.vue";
 import DownloadItem from "@/components/molecules/DownloadItem.vue";

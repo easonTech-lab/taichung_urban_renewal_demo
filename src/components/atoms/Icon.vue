@@ -29,7 +29,6 @@ Icon 組件 - 動態載入 SVG 圖標
 
 <script setup lang="ts">
 import { ref, watch, onMounted } from "vue";
-
 const props = withDefaults(
   defineProps<{
     name: string; // 圖標名稱（對應 src/assets/svg/ 目錄下的文件名，不含 .svg 後綴）
@@ -49,16 +48,29 @@ const props = withDefaults(
     fill: "none",
   }
 );
-
 const svgContent = ref<string>("");
-
+// 監聽 props 變化，重新載入圖標
 // 使用 import.meta.glob 預先載入所有 SVG 文件（包括子目錄）
 const svgModules = import.meta.glob("../../assets/svg/**/*.svg", {
   eager: true,
   query: "?raw",
   import: "default",
 }) as Record<string, string>;
-
+watch(
+  () => props.name,
+  () => {
+    loadSvg();
+  },
+  { immediate: false }
+);
+watch(
+  () => [props.size, props.color, props.fill],
+  () => {
+    if (svgContent.value) {
+      loadSvg(); // 重新載入以應用新的樣式
+    }
+  }
+);
 // 創建 SVG 文件名到內容的映射
 const svgMap = new Map<string, string>();
 if (svgModules && typeof svgModules === "object") {
@@ -95,7 +107,6 @@ if (svgModules && typeof svgModules === "object") {
     }
   });
 }
-
 // 載入 SVG 文件的輔助函數
 const loadSvgModule = (name: string): string | null => {
   // 生成可能的文件名變體
@@ -112,7 +123,6 @@ const loadSvgModule = (name: string): string | null => {
 
   return null;
 };
-
 // 載入 SVG 文件
 const loadSvg = () => {
   if (!props.name) {
@@ -227,25 +237,6 @@ const loadSvg = () => {
     svgContent.value = "";
   }
 };
-
-// 監聽 props 變化，重新載入圖標
-watch(
-  () => props.name,
-  () => {
-    loadSvg();
-  },
-  { immediate: false }
-);
-
-watch(
-  () => [props.size, props.color, props.fill],
-  () => {
-    if (svgContent.value) {
-      loadSvg(); // 重新載入以應用新的樣式
-    }
-  }
-);
-
 onMounted(() => {
   loadSvg();
 });

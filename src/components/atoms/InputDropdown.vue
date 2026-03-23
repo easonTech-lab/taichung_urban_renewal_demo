@@ -143,7 +143,6 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted, nextTick } from "vue";
 import Icon from "@/components/atoms/Icon.vue";
-
 export interface InputDropdownItem {
   label: string;
   to?: string; // Vue Router 路徑
@@ -151,7 +150,6 @@ export interface InputDropdownItem {
   class?: string; // 自訂 class
   [key: string]: any; // 允許其他屬性
 }
-
 const props = withDefaults(
   defineProps<{
     label?: string;
@@ -176,15 +174,12 @@ const props = withDefaults(
     containerClass: "",
   }
 );
-
 const emit = defineEmits(["item-click", "toggle"]);
-
 const isOpen = ref(false);
 const buttonRef = ref<HTMLElement | null>(null);
 const itemRefs = ref<HTMLElement[]>([]);
 const buttonId = computed(() => `input-dropdown-button-${Math.random().toString(36).substring(2, 11)}`);
 const dropdownId = computed(() => `input-dropdown-${Math.random().toString(36).substring(2, 11)}`);
-
 const buttonClasses = computed(() => {
   const variantClasses = {
     primary: "bg-primary-500 hover:bg-primary-600 focus:ring-primary-500 text-white border-primary-500",
@@ -194,23 +189,19 @@ const buttonClasses = computed(() => {
   };
   return variantClasses[props.variant];
 });
-
 const buttonTextClasses = computed(() => {
   if (!props.buttonText) {
     return "text-gray-500";
   }
   return "text-gray-900";
 });
-
 const labelClasses = computed(() => {
   return "text-gray-900";
 });
-
 const setItemRef = (el: Element | null, index: number) => {
   if (!el) return;
   itemRefs.value[index] = el as HTMLElement;
 };
-
 const focusItem = (index: number) => {
   const itemsCount = props.items.length;
   if (itemsCount === 0) return;
@@ -218,7 +209,6 @@ const focusItem = (index: number) => {
   const normalizedIndex = ((index % itemsCount) + itemsCount) % itemsCount;
   itemRefs.value[normalizedIndex]?.focus();
 };
-
 const openAndFocusItem = async (index = 0) => {
   if (!isOpen.value) {
     isOpen.value = true;
@@ -227,24 +217,20 @@ const openAndFocusItem = async (index = 0) => {
   }
   focusItem(index);
 };
-
 const toggle = () => {
   isOpen.value = !isOpen.value;
   emit("toggle", isOpen.value);
 };
-
 const close = () => {
   if (isOpen.value) {
     isOpen.value = false;
     emit("toggle", false);
   }
 };
-
 const closeAndFocusButton = () => {
   close();
   buttonRef.value?.focus();
 };
-
 const handleItemClick = (item: InputDropdownItem, index: number, event: Event) => {
   // 如果是按鈕類型，阻止預設行為
   if (!item.to && !item.href) {
@@ -253,21 +239,17 @@ const handleItemClick = (item: InputDropdownItem, index: number, event: Event) =
   emit("item-click", item, index);
   close();
 };
-
 const handleClickOutside = (event: Event) => {
   const target = event.target as HTMLElement;
   const dropdownElement = document.getElementById(dropdownId.value);
   const buttonElement = document.getElementById(buttonId.value);
-
   if (isOpen.value && dropdownElement && buttonElement && !dropdownElement.contains(target) && !buttonElement.contains(target)) {
     close();
   }
 };
-
 onMounted(() => {
   document.addEventListener("click", handleClickOutside);
 });
-
 onUnmounted(() => {
   document.removeEventListener("click", handleClickOutside);
 });

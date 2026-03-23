@@ -52,7 +52,7 @@ export interface BreadcrumbItem {
   to?: string; // Vue Router 路徑
   href?: string; // 外部連結
 }
-
+const route = useRoute();
 const props = withDefaults(
   defineProps<{
     items?: BreadcrumbItem[]; // 可選，如果提供則使用提供的，否則自動生成
@@ -61,9 +61,13 @@ const props = withDefaults(
     items: undefined,
   }
 );
-
-const route = useRoute();
-
+// 如果提供了 items，使用提供的；否則根據當前路由自動生成
+const breadcrumbItems = computed<BreadcrumbItem[]>(() => {
+  if (props.items && props.items.length > 0) {
+    return props.items;
+  }
+  return resolveBreadcrumbItems(route);
+});
 const normalizeItems = (items: BreadcrumbItem[]): BreadcrumbItem[] => {
   if (items.length === 0) {
     return [{ label: "首頁", to: "/" }];
@@ -73,7 +77,6 @@ const normalizeItems = (items: BreadcrumbItem[]): BreadcrumbItem[] => {
   }
   return items;
 };
-
 const buildItemsFromMeta = (metaBreadcrumb: any): BreadcrumbItem[] => {
   const items: BreadcrumbItem[] = [{ label: "首頁", to: "/" }];
   const addParents = (parent: any) => {
@@ -92,7 +95,6 @@ const buildItemsFromMeta = (metaBreadcrumb: any): BreadcrumbItem[] => {
   }
   return items;
 };
-
 const resolveBreadcrumbItems = (currentRoute: RouteLocationNormalizedLoaded): BreadcrumbItem[] => {
   if (currentRoute.path === "/") {
     return [{ label: "首頁" }];
@@ -115,12 +117,4 @@ const resolveBreadcrumbItems = (currentRoute: RouteLocationNormalizedLoaded): Br
   const routeName = (currentRoute.name as string | undefined) ?? "";
   return [{ label: "首頁", to: "/" }, { label: navLabel || routeName || "當前頁面" }];
 };
-
-// 如果提供了 items，使用提供的；否則根據當前路由自動生成
-const breadcrumbItems = computed<BreadcrumbItem[]>(() => {
-  if (props.items && props.items.length > 0) {
-    return props.items;
-  }
-  return resolveBreadcrumbItems(route);
-});
 </script>

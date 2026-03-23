@@ -74,15 +74,12 @@
 import { ref, computed, onMounted, onUnmounted } from "vue";
 import Icon from "@/components/atoms/Icon.vue";
 import ButtonCTA from "@/components/atoms/ButtonCTA.vue";
-
-
 export interface ButtonDropdownItem {
   label: string;
   value?: string;
   class?: string;
   [key: string]: any;
 }
-
 const props = withDefaults(
   defineProps<{
     buttonText?: string;
@@ -112,17 +109,14 @@ const props = withDefaults(
     menuWidth: undefined,
   }
 );
-
 const emit = defineEmits<{
   "item-click": [item: ButtonDropdownItem, index: number];
   toggle: [isOpen: boolean];
   "update:selectedIndex": [index: number | undefined];
 }>();
-
 const isOpen = ref(false);
 const buttonId = computed(() => `button-dropdown-${Math.random().toString(36).substring(2, 11)}`);
 const dropdownId = computed(() => `dropdown-${Math.random().toString(36).substring(2, 11)}`);
-
 // 計算圖標大小（與 ButtonCTA 的 size 匹配）
 const iconSize = computed(() => {
   const sizeMap = {
@@ -134,27 +128,23 @@ const iconSize = computed(() => {
   };
   return sizeMap[props.buttonSize] || 20;
 });
-
 const toggle = () => {
   if (props.disabled) return;
   isOpen.value = !isOpen.value;
   emit("toggle", isOpen.value);
 };
-
 const close = () => {
   if (isOpen.value) {
     isOpen.value = false;
     emit("toggle", false);
   }
 };
-
 const handleItemClick = (item: ButtonDropdownItem, index: number, event: Event) => {
   event.preventDefault();
   emit("item-click", item, index);
   emit("update:selectedIndex", index);
   close();
 };
-
 const handleClickOutside = (event: Event) => {
   const target = event.target as HTMLElement;
   const dropdownElement = document.getElementById(dropdownId.value);
@@ -163,19 +153,16 @@ const handleClickOutside = (event: Event) => {
     close();
   }
 };
-
 // 處理 ESC 鍵
 const handleEscape = (event: KeyboardEvent) => {
   if (event.key === "Escape" && isOpen.value) {
     close();
   }
 };
-
 onMounted(() => {
   document.addEventListener("click", handleClickOutside);
   document.addEventListener("keydown", handleEscape);
 });
-
 onUnmounted(() => {
   document.removeEventListener("click", handleClickOutside);
   document.removeEventListener("keydown", handleEscape);

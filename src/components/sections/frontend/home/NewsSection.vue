@@ -13,14 +13,12 @@
           <Icon name="arrowRightOutline" :size="20" color="#374151" class="h-5 w-5" aria-hidden="true" />
         </RouterLink>
       </div>
-
       <!-- News Content -->
       <div class="flex flex-col items-start gap-6 md:flex-row">
         <!-- Left Image -->
         <div class="min-h-[196px] w-full max-w-[260px] shrink-0 overflow-hidden rounded-lg">
           <img src="/news.png" alt="公開消息插圖" class="h-full w-full object-cover" />
         </div>
-
         <!-- Right Items -->
         <div class="grid w-full flex-1 grid-cols-1 gap-6 md:grid-cols-3">
           <NewsItem
@@ -37,11 +35,9 @@
     </div>
   </section>
 </template>
-
 <script setup lang="ts">
 import Icon from "@/components/atoms/Icon.vue";
 import NewsItem from "@/components/molecules/NewsItem.vue";
-
 interface NewsItemData {
   category: string;
   title: string;
@@ -49,7 +45,6 @@ interface NewsItemData {
   date: string;
   hasBorder?: boolean;
 }
-
 const newsData: NewsItemData[] = [
   {
     category: "最新消息",

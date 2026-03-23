@@ -52,7 +52,6 @@
     </div>
   </div>
 </template>
-
 <script setup lang="ts">
 import { computed } from "vue";
 import Icon from "@/components/atoms/Icon.vue";
@@ -60,23 +59,19 @@ import Empty from "@/components/atoms/Empty.vue";
 import ButtonCTA from "@/components/atoms/ButtonCTA.vue";
 import Table, { type TableColumn } from "@/components/atoms/Table.vue";
 import type { ComplaintSection, ComplaintRow } from "@/types/backend/caseManagement/common/CaseDetailView.d";
-
 const props = defineProps<{
   complaintSections: ComplaintSection[];
 }>();
-
 const emit = defineEmits<{
   upload: [section: ComplaintSection];
   download: [row: ComplaintRow];
   "request-delete": [row: ComplaintRow];
 }>();
-
 const defaultComplaintSections: ComplaintSection[] = [
   { title: "書面受理資料", rows: [] },
   { title: "委員會審議紀錄", rows: [] },
   { title: "人民或團體陳情意見綜理表", rows: [] },
 ];
-
 const complaintTableColumns: TableColumn[] = [
   {
     key: "title",
@@ -96,26 +91,21 @@ const complaintTableColumns: TableColumn[] = [
     width: "15%",
   },
 ];
-
 const sectionsToRender = computed(() => {
   if (props.complaintSections.length > 0) {
     return props.complaintSections;
   }
   return defaultComplaintSections;
 });
-
 const handleComplaintUpload = (section: ComplaintSection) => {
   emit("upload", section);
 }
-
 const getEmptyMessage = (sectionTitle: string) => {
   return `尚無${sectionTitle}`;
 }
-
 const handleComplaintDownload = (row: ComplaintRow) => {
   emit("download", row);
 }
-
 const handleComplaintDelete = (row: ComplaintRow) => {
   emit("request-delete", row);
 }

@@ -84,28 +84,22 @@ import Table, { type TableColumn } from "@/components/atoms/Table.vue";
 import Dropdown, { type DropdownItem } from "@/components/atoms/Dropdown.vue";
 import ButtonDropdown, { type ButtonDropdownItem } from "@/components/atoms/ButtonDropdown.vue";
 import type { CaseItem } from "@/types/backend/caseManagement/dangerous/caseManagementDangerous.d";
-
 const route = useRoute();
 const router = useRouter();
-
 const showDeleteToast = ref(false);
 const toastMessage = ref("刪除成功");
 const selectedStage = ref<string>("");
 const selectedStatus = ref<string>("");
 const selectedAddCaseIndex = ref<number | undefined>(undefined);
 const totalCases = ref<number>(1000); // 管理員顯示的總案件數
-
 const stageOptions: DropdownItem[] = [{ label: "全部案件階段" }, { label: "專案小組" }, { label: "其他階段" }];
-
 const statusOptions: DropdownItem[] = [{ label: "全部案件狀態" }, { label: "進行中" }, { label: "已中斷" }, { label: "已完成" }];
-
 const addCaseOptions: ButtonDropdownItem[] = [
   { label: "申請審議(一般案件)", value: "general-case" },
   { label: "第一次變更", value: "first-amendment" },
   { label: "第二次變更", value: "second-amendment" },
   { label: "申請審議(簡化案件)", value: "simplified-case" },
 ];
-
 // Mock Data - 危老重建案件
 const allCases: CaseItem[] = [
   {
@@ -179,7 +173,6 @@ const allCases: CaseItem[] = [
     caseStatus: "進行中",
   },
 ];
-
 const tableColumns: TableColumn[] = [
   { key: "caseNumber", label: "案件編號", width: "8%", cellClass: "text-base text-gray-900" },
   { key: "caseName", label: "案件名稱", width: "50%", cellClass: "text-base text-gray-900" },
@@ -187,31 +180,23 @@ const tableColumns: TableColumn[] = [
   { key: "caseStage", label: "案件階段", width: "15%", cellClass: "text-base text-gray-500" },
   { key: "caseStatus", label: "案件狀態", width: "15%" },
 ];
-
 const isAdmin = computed(() => route.name === "case-management-dangerous-admin" || route.path.includes("-admin"));
-
 const hasAnyCases = computed(() => allCases.length > 0);
-
 const filteredCases = computed(() => {
   let cases = [...allCases];
-
   if (selectedStage.value && selectedStage.value !== "全部案件階段") {
     cases = cases.filter((item) => item.caseStage === selectedStage.value);
   }
-
   if (selectedStatus.value && selectedStatus.value !== "全部案件狀態") {
     cases = cases.filter((item) => item.caseStatus === selectedStatus.value);
   }
-
   return cases;
 });
-
 const paginationState = reactive(useTablePagination({
   rows: filteredCases,
   pageSize: 10,
   total: computed(() => (isAdmin.value ? totalCases.value : filteredCases.value.length)),
 }));
-
 const getStatusVariant = (status: string): "primary" | "success" | "danger" => {
   const mapping: Record<string, "primary" | "success" | "danger"> = {
     進行中: "primary",
@@ -220,21 +205,17 @@ const getStatusVariant = (status: string): "primary" | "success" | "danger" => {
   };
   return mapping[status] || "primary";
 }
-
 const handleSidebarItemSelect = (itemName: string) => {
   console.log("Selected sidebar item:", itemName);
 }
-
 const handleStageChange = (item: DropdownItem) => {
   selectedStage.value = item.label;
   paginationState.resetPage();
 };
-
 const handleStatusChange = (item: DropdownItem) => {
   selectedStatus.value = item.label;
   paginationState.resetPage();
 };
-
 const handleAddCaseOption = (item: ButtonDropdownItem, index: number) => {
   selectedAddCaseIndex.value = index;
   router.push({
@@ -244,7 +225,6 @@ const handleAddCaseOption = (item: ButtonDropdownItem, index: number) => {
     },
   });
 };
-
 const handleEmptyStateAddCase = () => {
   router.push({
     name: "case-management-dangerous-add",
@@ -253,7 +233,6 @@ const handleEmptyStateAddCase = () => {
     },
   });
 };
-
 const handleRowClick = () => {
   router.push({
     path: "/case-detail",
@@ -263,12 +242,10 @@ const handleRowClick = () => {
     },
   });
 };
-
 const clearToastQuery = () => {
   const { toast, ...rest } = route.query as Record<string, any>;
   router.replace({ query: rest });
 };
-
 watch(
   () => route.query.toast,
   (toast) => {

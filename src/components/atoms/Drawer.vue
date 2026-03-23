@@ -45,11 +45,9 @@
     </div>
   </Teleport>
 </template>
-
 <script setup lang="ts">
 import { computed, watch, onMounted, onUnmounted } from "vue";
 import Icon from "@/components/atoms/Icon.vue";
-
 const props = withDefaults(
   defineProps<{
     modelValue: boolean; // v-model 支持
@@ -74,15 +72,12 @@ const props = withDefaults(
     width: "md",
   }
 );
-
 const emit = defineEmits<{
   "update:modelValue": [value: boolean];
   close: [];
   open: [];
 }>();
-
 const drawerId = computed(() => `drawer-${Math.random().toString(36).substring(2, 11)}`);
-
 // Drawer 寬度類別
 const widthClasses = computed(() => {
   const widths: Record<string, string> = {
@@ -93,29 +88,6 @@ const widthClasses = computed(() => {
   };
   return widths[props.width] || widths.md;
 });
-
-// 處理關閉
-const handleClose = () => {
-  if (props.closeAction === "model") {
-    emit("update:modelValue", false);
-  }
-  emit("close");
-};
-
-// 處理 backdrop 點擊
-const handleBackdropClick = () => {
-  if (!props.static) {
-    handleClose();
-  }
-};
-
-// 處理 ESC 鍵
-const handleEscape = (event: KeyboardEvent) => {
-  if (event.key === "Escape" && props.modelValue && !props.static) {
-    handleClose();
-  }
-};
-
 // 監聽 modelValue 變化
 watch(
   () => props.modelValue,
@@ -131,12 +103,29 @@ watch(
   },
   { immediate: true }
 );
-
+// 處理關閉
+const handleClose = () => {
+  if (props.closeAction === "model") {
+    emit("update:modelValue", false);
+  }
+  emit("close");
+};
+// 處理 backdrop 點擊
+const handleBackdropClick = () => {
+  if (!props.static) {
+    handleClose();
+  }
+};
+// 處理 ESC 鍵
+const handleEscape = (event: KeyboardEvent) => {
+  if (event.key === "Escape" && props.modelValue && !props.static) {
+    handleClose();
+  }
+};
 // 監聽 ESC 鍵
 onMounted(() => {
   document.addEventListener("keydown", handleEscape);
 });
-
 onUnmounted(() => {
   document.removeEventListener("keydown", handleEscape);
   // 確保清理 body overflow

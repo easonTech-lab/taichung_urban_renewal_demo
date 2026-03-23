@@ -65,7 +65,6 @@
         </div>
       </div>
     </div>
-
     <div class="fixed bottom-6 left-1/2 z-[90] w-[min(900px,calc(100vw-2rem))] -translate-x-1/2">
       <Toast v-model="showDeleteToast" :message="toastMessage" :show-actions="false" :show-close="false" :auto-close="true">
         <template #icon>
@@ -75,7 +74,6 @@
     </div>
   </div>
 </template>
-
 <script setup lang="ts">
 import { ref, computed, watch, reactive } from "vue";
 import { useRouter, useRoute } from "vue-router";
@@ -91,17 +89,14 @@ import Dropdown, { type DropdownItem } from "@/components/atoms/Dropdown.vue";
 import ButtonDropdown, { type ButtonDropdownItem } from "@/components/atoms/ButtonDropdown.vue";
 import CheckboxDropdown, { type CheckboxDropdownItem } from "@/components/atoms/CheckboxDropdown.vue";
 import type { CaseItem } from "@/types/backend/caseManagement/urbanRenewal/caseManagement.d";
-
 const router = useRouter();
 const route = useRoute();
-
+const pageSize = ref<number>(10);
 const showDeleteToast = ref(false);
 const toastMessage = ref("刪除成功");
 const selectedStages = ref<(string | number)[]>([]);
 const selectedStatus = ref<string>("");
 const selectedAddCaseIndex = ref<number | undefined>(undefined);
-const pageSize = ref<number>(10);
-
 const stageOptions: CheckboxDropdownItem[] = [
   { label: "案件申請", value: "案件申請" },
   { label: "公辦公聽會", value: "公辦公聽會" },
@@ -110,9 +105,8 @@ const stageOptions: CheckboxDropdownItem[] = [
   { label: "都更大會", value: "都更大會" },
   { label: "最終核定", value: "最終核定" },
 ];
-
+selectedStages.value = stageOptions.map((opt) => opt.value);
 const statusOptions: DropdownItem[] = [{ label: "全部案件狀態" }, { label: "進行中" }, { label: "已中斷" }, { label: "已完成" }];
-
 const addCaseOptions: ButtonDropdownItem[] = [
   { label: "申請審議(事業計畫)", value: "business-plan" },
   { label: "申請審議(權利變換)", value: "rights-exchange" },
@@ -120,9 +114,6 @@ const addCaseOptions: ButtonDropdownItem[] = [
   { label: "申請審議(事權併送)", value: "concurrent-submission" },
   { label: "變更案", value: "amendment" },
 ];
-
-selectedStages.value = stageOptions.map((opt) => opt.value);
-
 // Mock Data
 const allCases: CaseItem[] = [
   {
@@ -168,7 +159,6 @@ const allCases: CaseItem[] = [
     caseStatus: "進行中",
   },
 ];
-
 const tableColumns: TableColumn[] = [
   { key: "caseNumber", label: "案件編號", width: "12%" },
   { key: "caseName", label: "案件名稱", width: "46%" },
@@ -176,24 +166,36 @@ const tableColumns: TableColumn[] = [
   { key: "caseStage", label: "案件階段", width: "15%" },
   { key: "caseStatus", label: "案件狀態", width: "15%" },
 ];
-
 const isAdmin = computed(() => route.name === "case-management-admin");
-
 const hasAnyCases = computed(() => allCases.length > 0);
-
 const filteredCases = computed(() => {
   if (selectedStages.value.length === 0) {
     return [];
   }
   return allCases.filter((item) => selectedStages.value.includes(item.caseStage));
 });
-
+const selectedStageText = computed(() => {
+  // 全不選
+  if (selectedStages.value.length === 0) {
+    return "未選案件階段";
+  }
+  // 全選
+  if (selectedStages.value.length === stageOptions.length) {
+    return "全部案件階段";
+  }
+  // 單選
+  if (selectedStages.value.length === 1) {
+    const selected = stageOptions.find((opt) => opt.value === selectedStages.value[0]);
+    return selected?.label || "未選案件階段";
+  }
+  // 多選
+  return `已選 ${selectedStages.value.length} 項`;
+});
 const paginationState = reactive(useTablePagination({
   rows: filteredCases,
   pageSize,
   slice: false,
 }));
-
 const getStatusVariant = (status: string): "primary" | "success" | "danger" => {
   const mapping: Record<string, "primary" | "success" | "danger"> = {
     進行中: "primary",
@@ -202,32 +204,9 @@ const getStatusVariant = (status: string): "primary" | "success" | "danger" => {
   };
   return mapping[status] || "primary";
 }
-
 const handleSidebarItemSelect = (itemName: string) => {
   console.log("Selected sidebar item:", itemName);
 }
-
-const selectedStageText = computed(() => {
-  // 全不選
-  if (selectedStages.value.length === 0) {
-    return "未選案件階段";
-  }
-
-  // 全選
-  if (selectedStages.value.length === stageOptions.length) {
-    return "全部案件階段";
-  }
-
-  // 單選
-  if (selectedStages.value.length === 1) {
-    const selected = stageOptions.find((opt) => opt.value === selectedStages.value[0]);
-    return selected?.label || "未選案件階段";
-  }
-
-  // 多選
-  return `已選 ${selectedStages.value.length} 項`;
-});
-
 const handleStageChange = (values: (string | number)[]) => {
   // 檢查傳入的值是否都在 stageOptions 中
   // 注意：CheckboxDropdown 組件在處理 "select-all" 時，會直接發送所有項目的值或空陣列，
@@ -241,12 +220,10 @@ const handleStageChange = (values: (string | number)[]) => {
   selectedStages.value = validValues;
   paginationState.resetPage();
 }
-
 const handleStatusChange = (item: DropdownItem) => {
   selectedStatus.value = item.label;
   paginationState.resetPage();
 };
-
 const handleAddCaseOption = (item: ButtonDropdownItem, index: number) => {
   selectedAddCaseIndex.value = index;
   router.push({
@@ -257,7 +234,6 @@ const handleAddCaseOption = (item: ButtonDropdownItem, index: number) => {
     },
   });
 };
-
 const handleEmptyStateAddCase = () => {
   router.push({
     path: "/case-management/add/business-plan",
@@ -267,7 +243,6 @@ const handleEmptyStateAddCase = () => {
     },
   });
 };
-
 const handleRowClick = () => {
   // Navigate to case detail page with source route information
   router.push({
@@ -277,12 +252,10 @@ const handleRowClick = () => {
     },
   });
 };
-
 const clearToastQuery = () => {
   const { toast, ...rest } = route.query as Record<string, any>;
   router.replace({ query: rest });
 };
-
 watch(
   () => route.query.toast,
   (toast) => {

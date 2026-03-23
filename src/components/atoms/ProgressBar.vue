@@ -3,10 +3,8 @@
     <div class="h-full rounded-full bg-primary-600 transition-[width] duration-300 ease-out" :style="{ width: `${clampedValue}%` }"></div>
   </div>
 </template>
-
 <script setup lang="ts">
 import { computed } from "vue";
-
 const props = withDefaults(
   defineProps<{
     value: number;
@@ -16,7 +14,6 @@ const props = withDefaults(
     heightClass: "h-2",
   }
 );
-
 const clampedValue = computed(() => Math.min(100, Math.max(0, props.value)));
 const trackClass = computed(() => props.heightClass);
 </script>

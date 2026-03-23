@@ -21,10 +21,8 @@
     </div>
   </div>
 </template>
-
 <script setup lang="ts">
 import { computed } from "vue";
-
 const props = withDefaults(
   defineProps<{
     label?: string;
@@ -49,14 +47,11 @@ const props = withDefaults(
     labelClass: "",
   }
 );
-
 const emit = defineEmits<{
   "update:modelValue": [value: string | number];
   change: [event: Event];
 }>();
-
 const inputId = computed(() => `radio-${Math.random().toString(36).substring(2, 11)}`);
-
 const handleChange = (event: Event) => {
   if (props.value !== undefined) {
     emit("update:modelValue", props.value);

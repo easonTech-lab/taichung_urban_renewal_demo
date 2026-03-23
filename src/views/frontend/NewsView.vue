@@ -56,7 +56,6 @@
     <FooterSection />
   </div>
 </template>
-
 <script setup lang="ts">
 import { ref, computed, reactive } from "vue";
 import { useRouter } from "vue-router";
@@ -68,15 +67,11 @@ import FooterSection from "@/components/sections/global/FooterSection.vue";
 import Table, { type TableColumn } from "@/components/atoms/Table.vue";
 import InputDropdown, { type InputDropdownItem } from "@/components/atoms/InputDropdown.vue";
 import type { NewsItem } from "@/types/frontend/frontend.d";
-
-
 const router = useRouter();
-
 const selectedCategory = ref<string>("");
 const selectedCategoryText = ref<string>("全部類別");
 const searchQuery = ref<string>("");
 const appliedSearchQuery = ref<string>("");
-
 const mockData: NewsItem[] = [
   {
     id: 1,
@@ -139,10 +134,8 @@ const mockData: NewsItem[] = [
     publishDate: "114/08/01",
   },
 ];
-
 // 重複資料以達到 1000 筆
 const allData = Array.from({ length: 100 }, () => mockData).flat();
-
 const categoryItems: InputDropdownItem[] = [{ label: "全部類別" }, { label: "最新消息" }, { label: "新聞快訊" }, { label: "活動訊息" }];
 const tableColumns: TableColumn[] = [
   { key: "index", label: "項次", width: "5%" },
@@ -150,8 +143,7 @@ const tableColumns: TableColumn[] = [
   { key: "category", label: "類別", width: "22%" },
   { key: "publishDate", label: "發布日期", width: "18%", sortable: true },
 ];
-
-const filteredData = computed(() => {
+const getFilteredData = () => {
   let data = [...allData];
   if (selectedCategory.value && selectedCategory.value !== "全部類別") {
     data = data.filter((item) => item.category === selectedCategory.value);
@@ -161,34 +153,29 @@ const filteredData = computed(() => {
     data = data.filter((item) => item.title.toLowerCase().includes(query) || item.category.toLowerCase().includes(query));
   }
   return data;
-});
-
+};
+const filteredData = computed(getFilteredData);
 const paginationState = reactive(useTablePagination({
-  rows: filteredData,
+  rows: computed(getFilteredData),
   pageSize: 10,
 }));
-
 const handleCategoryChange = (item: InputDropdownItem) => {
   selectedCategory.value = item.label === "全部類別" ? "" : item.label;
   selectedCategoryText.value = item.label;
   paginationState.resetPage();
 };
-
 const handleSearch = () => {
   appliedSearchQuery.value = searchQuery.value;
   paginationState.resetPage();
 };
-
 const handlePageChange = (page: number) => {
   paginationState.handlePageChange(page);
   window.scrollTo({ top: 0, behavior: "smooth" });
 };
-
 const handleTitleClick = (row: Record<string, any>) => {
   console.log("View news:", row);
   router.push(`/news/${row.id}`);
 };
-
 const handleRowClick = (row: Record<string, any>) => {
   handleTitleClick(row);
 };

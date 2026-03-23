@@ -9,7 +9,6 @@
         <Icon name="arrowleft" :size="16" class="shrink-0" aria-hidden="true" />
         <span>返回登入</span>
       </router-link>
-
       <div class="mt-[120px] flex w-full max-w-[428px] flex-col items-start gap-10 self-center rounded-lg border border-gray-200 bg-white p-8 shadow-sm">
         <div class="flex flex-col gap-2">
           <h1 class="text-2xl font-medium leading-6 text-gray-900">忘記密碼</h1>
@@ -51,7 +50,6 @@
     </Modal>
   </div>
 </template>
-
 <script setup lang="ts">
 import { ref, computed } from "vue";
 import { useRouter } from "vue-router";
@@ -59,29 +57,22 @@ import Icon from "@/components/atoms/Icon.vue";
 import Input from "@/components/atoms/Input.vue";
 import Modal from "@/components/atoms/Modal.vue";
 import ButtonCTA from "@/components/atoms/ButtonCTA.vue";
-
 const router = useRouter();
-
 const formData = ref({
   email: "",
 });
-
 const errors = ref({
   email: "",
 });
-
 const showSuccessModal = ref(false);
-
 const isFormValid = computed(() => {
   return formData.value.email.trim() !== "" && isValidEmail(formData.value.email);
 });
-
 // 簡單的電子信箱驗證
 const isValidEmail = (email: string): boolean => {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   return emailRegex.test(email);
 };
-
 const handleSubmit = () => {
   // 清除之前的錯誤
   errors.value.email = "";
@@ -100,7 +91,6 @@ const handleSubmit = () => {
     showSuccessModal.value = true;
   }
 };
-
 const handleReturnToLogin = () => {
   showSuccessModal.value = false;
   router.push("/login");

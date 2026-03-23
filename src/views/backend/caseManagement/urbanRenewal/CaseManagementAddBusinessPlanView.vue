@@ -6,22 +6,18 @@
         <Breadcrumb :items="breadcrumbItems" />
         <h1 class="text-3xl font-bold leading-[30px] text-gray-900">{{ isFromCaseDetail ? '編輯都更案件' : '新增都更案件' }}</h1>
       </div>
-
       <div class="flex flex-col gap-4">
         <StageProgressBar
           :steps="['基本資料', '都市更新審議資料表', '容積獎勵項目及額度']"
           :active-index="0"
         />
-
         <div class="flex flex-col gap-10 rounded-lg bg-white p-8 shadow-sm">
           <div class="flex items-center gap-3">
             <div class="h-7 w-1 rounded bg-primary-600"></div>
             <h2 class="text-2xl font-medium text-gray-900">基本資料</h2>
           </div>
           <Tabs :items="tabItems" v-model="activeTab" />
-
           <div v-if="activeTab === 0" class="flex flex-col gap-6">
-
           <div class="flex flex-col gap-6 border-b border-gray-300 pb-6">
             <div class="flex flex-col gap-4 w-[744px]">
               <Input v-model="formData.caseName" label="案件名稱" placeholder="請輸入案件名稱" size="lg" required containerClass="w-[744px]" />
@@ -49,7 +45,6 @@
               </div>
             </div>
           </div>
-
           <div class="flex flex-col gap-6 border-b border-gray-300 pb-6">
             <h3 class="text-xl font-bold text-blue-700">申請者基本資訊</h3>
             <div class="grid w-[744px] grid-cols-[repeat(2,364px)] gap-4">
@@ -61,7 +56,6 @@
               <div class="w-[364px]"></div>
             </div>
           </div>
-
           <div class="flex flex-col gap-6 border-b border-gray-300 pb-6">
             <h3 class="text-xl font-bold text-blue-700">受託單位基本資訊</h3>
             <div class="grid w-[744px] grid-cols-[repeat(2,364px)] gap-4">
@@ -73,7 +67,6 @@
               <div class="w-[364px]"></div>
             </div>
           </div>
-
           <div class="flex flex-col gap-6 border-b border-gray-300 pb-6">
             <h3 class="text-xl font-bold text-blue-700">更新單元基本資訊</h3>
             <div class="grid w-[744px] grid-cols-[repeat(2,364px)] gap-4">
@@ -86,7 +79,6 @@
               <div class="w-[364px]"></div>
             </div>
           </div>
-
           <div class="flex flex-col gap-6 border-b border-gray-300 pb-6">
             <h3 class="text-xl font-bold text-blue-700">範圍內所有權人數</h3>
             <div class="grid w-[744px] grid-cols-[repeat(2,364px)] gap-4">
@@ -94,7 +86,6 @@
               <Input v-model="formData.legalBuildingOwners" label="合法建築物所有權人數（人）" placeholder="請輸入合法建築物所有權人數" size="lg" required containerClass="w-[364px]" />
             </div>
           </div>
-
           <div class="flex flex-col gap-6 border-b border-gray-300 pb-6">
             <h3 class="text-xl font-bold text-blue-700">範圍內建築物棟數</h3>
             <div class="grid w-[744px] grid-cols-[repeat(2,364px)] gap-4">
@@ -102,7 +93,6 @@
               <Input v-model="formData.illegalBuildingCount" label="舊違章建物棟數（棟）" placeholder="請輸入舊違章建物棟數" size="lg" required containerClass="w-[364px]" />
             </div>
           </div>
-
           <div class="flex flex-col gap-6 border-b border-gray-300 pb-6">
             <h3 class="text-xl font-bold text-blue-700">範圍內建築物樓地板面積</h3>
             <div class="grid w-[744px] grid-cols-[repeat(2,364px)] gap-4">
@@ -110,7 +100,6 @@
               <Input v-model="formData.illegalBuildingArea" label="舊違章建築物面積（m²）" placeholder="請輸入舊違章建築物面積" size="lg" required containerClass="w-[364px]" />
             </div>
           </div>
-
           <div class="flex flex-col gap-6 border-b border-gray-300 pb-6">
             <h3 class="text-xl font-bold text-blue-700">劃定基準</h3>
             <InputDropdown
@@ -123,7 +112,6 @@
               @item-click="(item) => handleDropdownChange('ordinance', item)"
             />
           </div>
-
           <div class="flex flex-col gap-6 border-b border-gray-300 pb-6">
             <h3 class="text-xl font-bold text-blue-700">指標評估標準</h3>
             <div class="flex flex-col gap-4">
@@ -149,7 +137,6 @@
                   </div>
                 </template>
               </RadioGroup>
-
               <div class="grid w-[744px] grid-cols-[repeat(2,364px)] gap-4">
                 <InputDropdown
                   label="指標評估標準 1"
@@ -180,7 +167,6 @@
                 />
                 <div class="w-[364px]"></div>
               </div>
-
               <div class="grid w-[744px] grid-cols-[repeat(2,364px)] gap-4">
                 <Input
                   v-model="formData.neighborConsentRate"
@@ -225,7 +211,6 @@
                 </template>
               </RadioGroup>
             </div>
-
             <div class="flex flex-col gap-4">
               <RadioGroup label="範圍內是否涉及歷史建築物或暫定歷史建築物或聚落" required container-class="gap-5">
                 <template #radios>
@@ -250,7 +235,6 @@
                 </template>
               </RadioGroup>
             </div>
-
             <div class="flex flex-col gap-4">
               <RadioGroup label="範圍內是否涉及公有地" required container-class="gap-5">
                 <template #radios>
@@ -286,7 +270,6 @@
                 </template>
               </RadioGroup>
             </div>
-
             <div class="flex flex-col gap-4">
               <RadioGroup label="鄰接道路是否涉及未開闢道路" required container-class="gap-5">
                 <template #radios>
@@ -322,7 +305,6 @@
                 </template>
               </RadioGroup>
             </div>
-
             <div class="flex flex-col gap-4">
               <RadioGroup label="鄰接道路是否涉及未達8公尺" required container-class="gap-5">
                 <template #radios>
@@ -358,11 +340,9 @@
                 </template>
               </RadioGroup>
             </div>
-
             <Input v-model="formData.note" label="備註" placeholder="請輸入備註" size="lg" required containerClass="w-full md:w-[364px]" />
           </div>
           </div>
-
           <div v-else class="flex flex-col gap-6">
             <div class="flex flex-col gap-6 border-b border-gray-300 pb-8">
               <h3 class="text-xl font-bold text-blue-700">基本資訊</h3>
@@ -373,7 +353,6 @@
                 </p>
               </div>
             </div>
-
             <div class="flex flex-col gap-6 border-b border-gray-300 pb-6">
               <h3 class="text-xl font-bold text-blue-700">基地資料</h3>
               <div class="flex flex-col gap-4">
@@ -400,7 +379,6 @@
                     新增其他筆
                   </ButtonCTA>
                 </div>
-
                 <div class="flex flex-wrap gap-4">
                   <Input v-model="publicForm.totalFloorArea" label="總樓地板面積（m²）" placeholder="請輸入總樓地板面積" size="lg" required containerClass="w-full md:w-[364px]" />
                   <Input v-model="publicForm.floorCount" label="建築物樓層數（F）" placeholder="請輸入建築物樓層數" size="lg" required containerClass="w-full md:w-[364px]" />
@@ -409,12 +387,10 @@
                 </div>
               </div>
             </div>
-
             <div class="flex flex-wrap gap-4">
               <Input v-model="publicForm.carParking" label="實設汽車停車位（輛）" placeholder="請輸入汽車實設停車位" size="lg" required containerClass="w-full md:w-[364px]" />
               <Input v-model="publicForm.motorParking" label="實設機車停車位（輛）" placeholder="請輸入機車實設停車位" size="lg" required containerClass="w-full md:w-[364px]" />
             </div>
-
             <div class="flex flex-col gap-4">
               <h3 class="text-xl font-bold text-blue-700">圖說及相片</h3>
               <div class="flex flex-col gap-4">
@@ -444,7 +420,6 @@
           </div>
         </div>
       </div>
-
       <div class="flex items-center justify-center gap-6">
         <template v-if="isFromCaseDetail">
           <ButtonCTA variant="outline" size="xl" :to="cancelTarget">取消</ButtonCTA>
@@ -498,7 +473,6 @@
     </div>
   </div>
 </template>
-
 <script setup lang="ts">
 import { ref, computed, onMounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
@@ -517,35 +491,17 @@ import StageProgressBar from "@/components/molecules/StageProgressBar.vue";
 import SidebarSection from "@/components/sections/backend/SidebarSection.vue";
 import Tabs, { type TabItem } from "@/components/atoms/Tabs.vue";
 import InputDropdown, { type InputDropdownItem } from "@/components/atoms/InputDropdown.vue";
-
-
+type StringFieldKey = {
+  [Key in keyof typeof formData.value]: typeof formData.value[Key] extends string ? Key : never;
+}[keyof typeof formData.value];
 /** 從案件詳情按鈕進入為編輯，從新增流程進入為新增 */
-const isFromCaseDetail = ref(false);
 const route = useRoute();
 const router = useRouter();
-const cancelTarget = computed(() => {
-  const returnTo = route.query?.returnTo;
-  if (typeof returnTo === "string" && returnTo.trim()) {
-    return returnTo;
-  }
-  return { path: "/case-management" };
-});
-
-const breadcrumbItems = computed(() => [
-  { label: "首頁", to: "/" },
-  { label: "案件管理", to: "/case-management" },
-  { label: "都市更新案件", to: "/case-management" },
-  { label: isFromCaseDetail.value ? "編輯都更案件" : "新增都更案件" },
-]);
-
-const tabItems: TabItem[] = [{ label: "申請基本資料" }, { label: "公開基本資料" }];
 const activeTab = ref(0);
+const isFromCaseDetail = ref(false);
 const showDraftNameWarningModal = ref(false);
-
-const ordinanceOptions: InputDropdownItem[] = [];
-const indicatorStandardOptions: InputDropdownItem[] = [];
-const consentRateOptions: InputDropdownItem[] = [];
-
+const renderInputRef = ref<HTMLInputElement | null>(null);
+const demolitionInputRef = ref<HTMLInputElement | null>(null);
 const formData = ref({
   caseName: "",
   applyDate: null as Date | null,
@@ -588,7 +544,6 @@ const formData = ref({
   narrowRoadLength: "",
   note: "",
 });
-
 const publicForm = ref({
   caseName: "",
   basePlots: [
@@ -612,17 +567,24 @@ const publicForm = ref({
   ],
   demolitionImages: [],
 });
-
+const tabItems: TabItem[] = [{ label: "申請基本資料" }, { label: "公開基本資料" }];
+const ordinanceOptions: InputDropdownItem[] = [];
+const indicatorStandardOptions: InputDropdownItem[] = [];
+const consentRateOptions: InputDropdownItem[] = [];
 const STORAGE_KEY_CASE_FOR_APPLICATION = "caseDetailForApplication";
-
-const buildBusinessPlanSnapshot = () =>
-  JSON.stringify({
-    formData: formData.value,
-    publicForm: publicForm.value,
-  });
-
-const { hasUnsavedChanges: hasBusinessPlanChanges, captureInitial: captureBusinessPlanInitial } = useFormUnsavedCheck(buildBusinessPlanSnapshot, isFromCaseDetail);
-const hasTextValue = (value: string) => value.trim() !== "";
+const cancelTarget = computed(() => {
+  const returnTo = route.query?.returnTo;
+  if (typeof returnTo === "string" && returnTo.trim()) {
+    return returnTo;
+  }
+  return { path: "/case-management" };
+});
+const breadcrumbItems = computed(() => [
+  { label: "首頁", to: "/" },
+  { label: "案件管理", to: "/case-management" },
+  { label: "都市更新案件", to: "/case-management" },
+  { label: isFromCaseDetail.value ? "編輯都更案件" : "新增都更案件" },
+]);
 const canGoNextToReviewTable = computed(() => {
   const requiredTextFields = [
     formData.value.caseName,
@@ -660,34 +622,34 @@ const canGoNextToReviewTable = computed(() => {
     formData.value.narrowRoad,
     formData.value.note,
   ];
-
   if (!formData.value.applyDate || !formData.value.hearingDate) {
     return false;
   }
-
   if (!requiredTextFields.every(hasTextValue)) {
     return false;
   }
-
   if (formData.value.publicLand === "yes" && !hasTextValue(formData.value.publicLandArea)) {
     return false;
   }
-
   if (formData.value.unopenedRoad === "yes" && !hasTextValue(formData.value.unopenedRoadCount)) {
     return false;
   }
-
   if (formData.value.narrowRoad === "yes" && !hasTextValue(formData.value.narrowRoadLength)) {
     return false;
   }
-
   return true;
 });
 const canDraftCurrentTab = computed(() => {
   const caseName = activeTab.value === 0 ? formData.value.caseName : publicForm.value.caseName;
   return hasTextValue(caseName);
 });
-
+const buildBusinessPlanSnapshot = () =>
+  JSON.stringify({
+    formData: formData.value,
+    publicForm: publicForm.value,
+  });
+const { hasUnsavedChanges: hasBusinessPlanChanges, captureInitial: captureBusinessPlanInitial } = useFormUnsavedCheck(buildBusinessPlanSnapshot, isFromCaseDetail);
+const hasTextValue = (value: string) => value.trim() !== "";
 /** 解析案件詳情頁傳入的申請日期（例：114/10/20）為 Date */
 const parseApplyDateFromCaseInfo = (value: string): Date | null => {
   if (!value || typeof value !== "string") return null;
@@ -700,7 +662,58 @@ const parseApplyDateFromCaseInfo = (value: string): Date | null => {
   const d = new Date(year, month, day);
   return isNaN(d.getTime()) ? null : d;
 }
-
+const handleSidebarItemSelect = (itemName: string) => {
+  console.log("Selected sidebar item:", itemName);
+};
+const handleDraft = () => {
+  if (!canDraftCurrentTab.value) {
+    showDraftNameWarningModal.value = true;
+    return;
+  }
+  console.log("Draft business plan:", activeTab.value === 0 ? formData.value : publicForm.value);
+  router.push({
+    path: "/case-management",
+    query: {
+      toast: "draft-success",
+    },
+  });
+};
+const handleDropdownChange = (key: StringFieldKey, item: InputDropdownItem) => {
+  formData.value[key] = item.label;
+};
+const handleRadioChange = (key: StringFieldKey, value: string) => {
+  formData.value[key] = value;
+};
+const handleAddBasePlot = () => {
+  publicForm.value.basePlots.push({
+    landUseZone: "",
+    legalCoverage: "",
+    siteArea: "",
+    actualCoverage: "",
+  });
+};
+const handleRemoveRenderImage = (index: number) => {
+  publicForm.value.renderImages.splice(index, 1);
+};
+const triggerImageUpload = (target: "render" | "demolition") => {
+  if (target === "render") {
+    renderInputRef.value?.click();
+  } else {
+    demolitionInputRef.value?.click();
+  }
+};
+const handleImageUpload = (target: "render" | "demolition", event: Event) => {
+  const input = event.target as HTMLInputElement;
+  if (!input.files?.length) return;
+  const files = Array.from(input.files);
+  const urls = files.map((file) => URL.createObjectURL(file));
+  if (target === "render") {
+    publicForm.value.renderImages.push(...urls);
+  } else {
+    publicForm.value.demolitionImages.push(...urls);
+  }
+  input.value = "";
+};
 onMounted(() => {
   try {
     const raw = sessionStorage.getItem(STORAGE_KEY_CASE_FOR_APPLICATION);
@@ -734,71 +747,4 @@ onMounted(() => {
     }
   }
 });
-
-const handleSidebarItemSelect = (itemName: string) => {
-  console.log("Selected sidebar item:", itemName);
-};
-
-const handleDraft = () => {
-  if (!canDraftCurrentTab.value) {
-    showDraftNameWarningModal.value = true;
-    return;
-  }
-  console.log("Draft business plan:", activeTab.value === 0 ? formData.value : publicForm.value);
-  router.push({
-    path: "/case-management",
-    query: {
-      toast: "draft-success",
-    },
-  });
-};
-
-type StringFieldKey = {
-  [Key in keyof typeof formData.value]: typeof formData.value[Key] extends string ? Key : never;
-}[keyof typeof formData.value];
-
-const handleDropdownChange = (key: StringFieldKey, item: InputDropdownItem) => {
-  formData.value[key] = item.label;
-};
-
-const handleRadioChange = (key: StringFieldKey, value: string) => {
-  formData.value[key] = value;
-};
-
-const handleAddBasePlot = () => {
-  publicForm.value.basePlots.push({
-    landUseZone: "",
-    legalCoverage: "",
-    siteArea: "",
-    actualCoverage: "",
-  });
-};
-
-const handleRemoveRenderImage = (index: number) => {
-  publicForm.value.renderImages.splice(index, 1);
-};
-
-const renderInputRef = ref<HTMLInputElement | null>(null);
-const demolitionInputRef = ref<HTMLInputElement | null>(null);
-
-const triggerImageUpload = (target: "render" | "demolition") => {
-  if (target === "render") {
-    renderInputRef.value?.click();
-  } else {
-    demolitionInputRef.value?.click();
-  }
-};
-
-const handleImageUpload = (target: "render" | "demolition", event: Event) => {
-  const input = event.target as HTMLInputElement;
-  if (!input.files?.length) return;
-  const files = Array.from(input.files);
-  const urls = files.map((file) => URL.createObjectURL(file));
-  if (target === "render") {
-    publicForm.value.renderImages.push(...urls);
-  } else {
-    publicForm.value.demolitionImages.push(...urls);
-  }
-  input.value = "";
-};
 </script>

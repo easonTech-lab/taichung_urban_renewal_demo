@@ -82,10 +82,8 @@
 import { computed } from "vue";
 import type { RouteLocationRaw } from "vue-router";
 import Icon from "@/components/atoms/Icon.vue";
-
 type ColorVariant = "primary" | "dark" | "green" | "red" | "gray" | "white" | "alternative" | "alternativeDark" | "red-outline";
 type SizeVariant = "mini" | "xs" | "sm" | "base" | "l" | "xl";
-
 const props = withDefaults(
   defineProps<{
     href?: string;
@@ -110,7 +108,6 @@ const props = withDefaults(
     align: "center",
   }
 );
-
 // Size configurations (design system)
 const sizeConfig = {
   mini: {
@@ -168,18 +165,14 @@ const sizeConfig = {
     iconOnlySize: "w-[52px] h-[52px]",
   },
 };
-
 const iconSize = computed(() => {
   return sizeConfig[props.size].icon;
 });
-
 const linkTarget = computed<RouteLocationRaw | null>(() => {
   if (props.to) return props.to;
   if (props.href) return props.href;
   return null;
 });
-
-
 const sizeClasses = computed(() => {
   const config = sizeConfig[props.size];
   if (props.iconOnly) {
@@ -187,14 +180,12 @@ const sizeClasses = computed(() => {
   }
   return `${config.height} ${config.minWidth} ${config.paddingX} ${config.paddingY} ${config.text}`;
 });
-
 const textButtonClasses = computed(() => {
   if (props.disabled) {
     return "cursor-not-allowed text-gray-500";
   }
   return "hover:text-primary-800";
 });
-
 const buttonClasses = computed(() => {
   if (props.variant === "none") {
     return getNoneClasses();
@@ -207,13 +198,11 @@ const buttonClasses = computed(() => {
   }
   return getSolidClasses();
 });
-
 const justifyClasses = computed(() => {
   if (props.align === "left") return "justify-start";
   if (props.align === "right") return "justify-end";
   return "justify-center"; // center is default
 });
-
 const getSolidClasses = () => {
   const variants: Record<string, string> = {
     primary: "bg-primary-600 text-white hover:bg-primary-700 focus-visible:ring-primary-600",
@@ -227,7 +216,6 @@ const getSolidClasses = () => {
   };
   return variants[props.variant] || variants.primary;
 };
-
 const getOutlineClasses = () => {
   const base = "border bg-transparent focus-visible:ring-primary-600";
   const variants: Record<string, string> = {
@@ -244,14 +232,12 @@ const getOutlineClasses = () => {
   };
   return `${base} ${variants[props.variant] || variants.primary}`;
 };
-
 const getNoneClasses = () => {
   if (props.disabled) {
     return "bg-transparent text-gray-500";
   }
   return "bg-transparent text-black hover:text-gray-700 focus-visible:ring-gray-600";
 };
-
 const getDisabledClasses = () => {
   if (props.variant === "none") {
     return "bg-transparent text-gray-500";

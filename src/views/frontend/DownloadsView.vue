@@ -39,7 +39,6 @@
     <FooterSection />
   </div>
 </template>
-
 <script setup lang="ts">
 import { ref, computed, reactive } from "vue";
 import { useTablePagination } from "@/composables/useTablePagination";
@@ -60,11 +59,9 @@ const props = withDefaults(
     pageSize: 10,
   }
 );
-
-const selectedCategory = ref<string>("");
 const searchQuery = ref<string>("");
+const selectedCategory = ref<string>("");
 const appliedSearchQuery = ref<string>("");
-
 const mockData: DownloadItem[] = [
   {
     fileName: "修正臺中市都市更新事業計畫及權利變換計畫核定後申請變更之審議層級簡化處理方式",
@@ -117,13 +114,9 @@ const mockData: DownloadItem[] = [
     publishDate: "114/08/01",
   },
 ];
-
 // 重複資料以達到 1000 筆
 const allData = Array.from({ length: 100 }, () => mockData).flat();
-
 const categoryItems: DropdownItem[] = [{ label: "全部案件類別" }, { label: "都市更新類" }, { label: "危老類" }, { label: "老舊街區" }, { label: "整建維護" }];
-const pageSize = computed(() => props.pageSize);
-
 const tableColumns: TableColumn[] = [
   { key: "index", label: "項次", width: "5%" },
   { key: "fileName", label: "文件名稱", width: "42%" },
@@ -131,7 +124,6 @@ const tableColumns: TableColumn[] = [
   { key: "publishDate", label: "發布日期", width: "12%", sortable: true },
   { key: "action", label: "動作", width: "14%" },
 ];
-
 const filteredData = computed(() => {
   let data = [...allData];
   if (selectedCategory.value && selectedCategory.value !== "全部案件類別") {
@@ -143,30 +135,27 @@ const filteredData = computed(() => {
   }
   return data;
 });
-
 const tableRows = computed(() => filteredData.value);
-
-const paginationState = reactive(useTablePagination({
-  rows: tableRows,
-  pageSize,
-  slice: false,
-}));
-
+const pageSize = computed(() => props.pageSize);
+const paginationState = reactive(
+  useTablePagination({
+    rows: tableRows,
+    pageSize,
+    slice: false,
+  })
+);
 const handleCategoryChange = (item: DropdownItem) => {
   selectedCategory.value = item.label;
   paginationState.resetPage();
 };
-
 const handleSearch = () => {
   appliedSearchQuery.value = searchQuery.value;
   paginationState.resetPage();
 };
-
 const handlePageChange = (page: number) => {
   paginationState.handlePageChange(page);
   window.scrollTo({ top: 0, behavior: "smooth" });
 };
-
 const handleDownload = (row: Record<string, any>) => {
   const item = row as DownloadItem;
   console.log("Download:", item);

@@ -23,7 +23,6 @@
               <Icon name="richtext/bold" :size="20" class="h-5 w-5" />
               <span class="sr-only">Bold</span>
             </button>
-
             <!-- Italic -->
             <button
               type="button"
@@ -36,7 +35,6 @@
               <Icon name="richtext/italic" :size="20" class="h-5 w-5" />
               <span class="sr-only">Italic</span>
             </button>
-
             <!-- Underline -->
             <button
               type="button"
@@ -49,7 +47,6 @@
               <Icon name="richtext/underline" :size="20" class="h-5 w-5" />
               <span class="sr-only">Underline</span>
             </button>
-
             <!-- Strike -->
             <button
               type="button"
@@ -62,7 +59,6 @@
               <Icon name="richtext/strike" :size="20" class="h-5 w-5" />
               <span class="sr-only">Strike</span>
             </button>
-
             <!-- Highlight -->
             <button
               type="button"
@@ -75,7 +71,6 @@
               <Icon name="richtext/highlight" :size="20" class="h-5 w-5" />
               <span class="sr-only">Highlight</span>
             </button>
-
             <!-- Code -->
             <button
               type="button"
@@ -88,7 +83,6 @@
               <Icon name="richtext/code" :size="20" class="h-5 w-5" />
               <span class="sr-only">Code</span>
             </button>
-
             <!-- Link -->
             <button
               type="button"
@@ -101,7 +95,6 @@
               <Icon name="richtext/link" :size="20" class="h-5 w-5" />
               <span class="sr-only">Link</span>
             </button>
-
             <!-- Remove Link -->
             <button
               v-if="editor?.isActive('link')"
@@ -112,7 +105,6 @@
               <Icon name="richtext/linkRemove" :size="20" class="h-5 w-5" />
               <span class="sr-only">Remove link</span>
             </button>
-
             <!-- Text Size Dropdown -->
             <div class="relative">
               <button
@@ -162,7 +154,6 @@
                 </ul>
               </div>
             </div>
-
             <!-- Text Color Dropdown -->
             <div class="relative">
               <button
@@ -197,7 +188,6 @@
                 </button>
               </div>
             </div>
-
             <!-- Font Family Dropdown -->
             <div class="relative">
               <button
@@ -227,12 +217,10 @@
                 </ul>
               </div>
             </div>
-
             <!-- Separator -->
             <div class="px-1">
               <span class="block h-4 w-px bg-gray-100"></span>
             </div>
-
             <!-- Align Left -->
             <button
               type="button"
@@ -245,7 +233,6 @@
               <Icon name="richtext/alignLeft" :size="20" class="h-5 w-5" />
               <span class="sr-only">Align left</span>
             </button>
-
             <!-- Align Center -->
             <button
               type="button"
@@ -258,7 +245,6 @@
               <Icon name="richtext/alignCenter" :size="20" class="h-5 w-5" />
               <span class="sr-only">Align center</span>
             </button>
-
             <!-- Align Right -->
             <button
               type="button"
@@ -273,7 +259,6 @@
             </button>
           </div>
         </div>
-
         <!-- Second Row: Media, Lists -->
         <div class="mt-2 flex flex-wrap items-center gap-2">
           <!-- Add Image -->
@@ -282,7 +267,6 @@
             <Icon name="richtext/image" :size="20" class="h-5 w-5" />
             <span class="sr-only">Add image</span>
           </label>
-
           <!-- Bullet List -->
           <button
             type="button"
@@ -333,7 +317,6 @@
           </button>
         </div>
       </div>
-
       <!-- Editor Content -->
       <div class="rounded-b-lg bg-white px-4 py-2">
         <EditorContent :editor="editor" class="prose prose-sm max-w-none" />
@@ -346,12 +329,10 @@
     <p v-if="errorMessage" class="w-full text-base leading-6 text-red-600">{{ errorMessage }}</p>
   </div>
 </template>
-
 <script setup lang="ts">
 import { Extension } from "@tiptap/core";
 import { useEditor, EditorContent } from "@tiptap/vue-3";
 import { ref, onBeforeUnmount, watch, computed } from "vue";
-
 import Link from "@tiptap/extension-link";
 import Image from "@tiptap/extension-image";
 import Color from "@tiptap/extension-color";
@@ -363,17 +344,18 @@ import TextAlign from "@tiptap/extension-text-align";
 import TextStyle from "@tiptap/extension-text-style";
 import FontFamily from "@tiptap/extension-font-family";
 import Placeholder from "@tiptap/extension-placeholder";
-
+// Click outside directive
+interface HTMLElementWithClickOutside extends HTMLElement {
+  clickOutsideEvent?: (event: MouseEvent) => void;
+}
 // Custom FontSize extension
 const FontSize = Extension.create({
   name: "fontSize",
-
   addOptions() {
     return {
       types: ["textStyle"],
     };
   },
-
   addGlobalAttributes() {
     return [
       {
@@ -411,7 +393,6 @@ const FontSize = Extension.create({
     } as any;
   },
 });
-
 const props = withDefaults(
   defineProps<{
     modelValue?: string;
@@ -438,17 +419,14 @@ const props = withDefaults(
     enforceMaxlength: true,
   }
 );
-
 const emit = defineEmits<{
   "update:modelValue": [value: string];
 }>();
-
 // Dropdown states
 const showTextSizeDropdown = ref(false);
 const showTextColorDropdown = ref(false);
 const showFontFamilyDropdown = ref(false);
 const customColor = ref("#e66465");
-
 // Color options
 const colorOptions = [
   "#1A56DB",
@@ -487,7 +465,6 @@ const colorOptions = [
   "#F3F4F6",
   "#F9FAFB",
 ];
-
 // Font options
 const fontOptions = [
   { label: "Default", value: "Inter, ui-sans-serif" },
@@ -500,12 +477,6 @@ const fontOptions = [
   { label: "Trebuchet MS", value: "'Trebuchet MS', sans-serif" },
   { label: "Verdana", value: "Verdana, sans-serif" },
 ];
-
-// Click outside directive
-interface HTMLElementWithClickOutside extends HTMLElement {
-  clickOutsideEvent?: (event: MouseEvent) => void;
-}
-
 const vClickOutside = {
   mounted(el: HTMLElementWithClickOutside, binding: { value: () => void }) {
     el.clickOutsideEvent = (event: MouseEvent) => {
@@ -521,7 +492,6 @@ const vClickOutside = {
     }
   },
 };
-
 // Initialize editor
 const editor = useEditor({
   extensions: [
@@ -562,7 +532,6 @@ const editor = useEditor({
     emit("update:modelValue", html);
   },
 });
-
 // Watch for external changes
 watch(
   () => props.modelValue,
@@ -573,7 +542,6 @@ watch(
     }
   }
 );
-
 // 計算純文字字數的函數
 const getPlainTextLength = (html: string): number => {
   if (!html) return 0;
@@ -581,20 +549,17 @@ const getPlainTextLength = (html: string): number => {
   tempDiv.innerHTML = html;
   return tempDiv.textContent?.length || 0;
 };
-
 // 計算當前字數
 const characterCount = computed(() => {
   if (!editor.value) return 0;
   return getPlainTextLength(editor.value.getHTML());
 });
-
 const editorContainerClasses = computed(() => {
   if (props.error || props.errorMessage) {
     return "border-red-500";
   }
   return "border-gray-300";
 });
-
 // Methods
 const setLink = () => {
   const previousUrl = editor.value?.getAttributes("link").href;
@@ -611,33 +576,26 @@ const setLink = () => {
 
   editor.value?.chain().focus().extendMarkRange("link").setLink({ href: url }).run();
 };
-
 const setFontSize = (size: string) => {
   (editor.value?.chain().focus() as any).setFontSize(size).run();
   showTextSizeDropdown.value = false;
 };
-
 const setTextColor = (color: string) => {
   editor.value?.chain().focus().setColor(color).run();
   showTextColorDropdown.value = false;
 };
-
 const resetTextColor = () => {
   editor.value?.chain().focus().unsetColor().run();
   showTextColorDropdown.value = false;
 };
-
 const setFontFamily = (font: string) => {
   editor.value?.chain().focus().setFontFamily(font).run();
   showFontFamilyDropdown.value = false;
 };
-
 const imageInputRef = ref<HTMLInputElement | null>(null);
-
 const handleImageUpload = (event: Event) => {
   const target = event.target as HTMLInputElement;
   const file = target.files?.[0];
-
   if (file) {
     // Create a FileReader to convert file to base64 or data URL
     const reader = new FileReader();
@@ -648,25 +606,21 @@ const handleImageUpload = (event: Event) => {
       }
     };
     reader.readAsDataURL(file);
-
     // Reset input so the same file can be selected again
     if (imageInputRef.value) {
       imageInputRef.value.value = "";
     }
   }
 };
-
 onBeforeUnmount(() => {
   editor.value?.destroy();
 });
 </script>
-
 <style>
 .ProseMirror {
   outline: none;
   min-height: 200px;
 }
-
 .ProseMirror p.is-editor-empty:first-child::before {
   color: #9ca3af;
   content: attr(data-placeholder);

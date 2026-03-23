@@ -32,7 +32,6 @@
         </div>
       </label>
     </template>
-
     <!-- Horizontal Layout -->
     <template v-else-if="labelPosition === 'horizontal'">
       <div class="flex items-center gap-6">
@@ -69,10 +68,8 @@
     </template>
   </div>
 </template>
-
 <script setup lang="ts">
 import { computed } from "vue";
-
 const props = withDefaults(
   defineProps<{
     modelValue?: boolean;
@@ -100,21 +97,17 @@ const props = withDefaults(
     containerClass: "",
   }
 );
-
 const emit = defineEmits<{
   "update:modelValue": [value: boolean];
   change: [value: boolean];
 }>();
-
 const switchId = computed(() => `switch-${Math.random().toString(36).substring(2, 11)}`);
-
 const labelTextClass = computed(() => {
   if (props.disabled) {
     return "text-gray-400";
   }
   return "text-gray-900";
 });
-
 const handleChange = (event: Event) => {
   if (props.disabled) return;
   const target = event.target as HTMLInputElement;

@@ -25,17 +25,14 @@
     </template>
   </div>
 </template>
-
 <script setup lang="ts">
 import { ref } from "vue";
 import Icon from "@/components/atoms/Icon.vue";
-
 export interface AccordionItem {
   title: string;
   content?: string;
   [key: string]: any;
 }
-
 const props = withDefaults(
   defineProps<{
     items: AccordionItem[];
@@ -47,18 +44,14 @@ const props = withDefaults(
     allowMultiple: false,
   }
 );
-
 const emit = defineEmits<{
   toggle: [index: number, isOpen: boolean];
   "update:openIndex": [index: number | number[]];
 }>();
-
 const openIndexes = ref<number[]>(props.openFirst ? [0] : []);
-
 const isOpen = (index: number) => {
   return openIndexes.value.includes(index);
 };
-
 const toggle = (index: number) => {
   if (props.allowMultiple) {
     // 允許多個同時展開

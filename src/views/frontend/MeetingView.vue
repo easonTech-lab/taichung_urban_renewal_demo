@@ -57,7 +57,6 @@
     <FooterSection />
   </div>
 </template>
-
 <script setup lang="ts">
 import { ref, computed, reactive } from "vue";
 import { useTablePagination } from "@/composables/useTablePagination";
@@ -71,7 +70,6 @@ import Table, { type TableColumn } from "@/components/atoms/Table.vue";
 import Dropdown, { type DropdownItem } from "@/components/atoms/Dropdown.vue";
 import DateRangePicker, { type DateRange } from "@/components/atoms/DateRangePicker.vue";
 import type { MeetingItem } from "@/types/frontend/frontend.d";
-
 // Props
 const props = withDefaults(
   defineProps<{
@@ -81,13 +79,14 @@ const props = withDefaults(
     pageSize: 10,
   }
 );
-
 // Tabs
 const activeTab = ref(0);
-const tabItems: TabItem[] = [{ label: "全部" }, { label: "都更案件" }, { label: "危老案件" }];
-
-// Stage Dropdown
 const selectedStage = ref<string>("all");
+  // Date Range
+const dateRange = ref<DateRange | null>(null);
+const appliedDateRange = ref<DateRange | null>(null); // 應用於過濾的日期範圍（點擊搜尋後才應用）
+const tabItems: TabItem[] = [{ label: "全部" }, { label: "都更案件" }, { label: "危老案件" }];
+// Stage Dropdown
 const stageOptions: DropdownItem[] = [
   { label: "全部案件階段", value: "all" },
   { label: "都更大會", value: "urban-renewal-meeting" },
@@ -95,16 +94,6 @@ const stageOptions: DropdownItem[] = [
   { label: "案件申請", value: "case-application" },
   { label: "公辦公聽會", value: "public-hearing" },
 ];
-
-const selectedStageText = computed(() => {
-  const option = stageOptions.find((opt) => opt.value === selectedStage.value);
-  return option?.label || "全部案件階段";
-});
-
-// Date Range
-const dateRange = ref<DateRange | null>(null);
-const appliedDateRange = ref<DateRange | null>(null); // 應用於過濾的日期範圍（點擊搜尋後才應用）
-
 // Table Data
 const allData: MeetingItem[] = [
   {
@@ -188,7 +177,6 @@ const allData: MeetingItem[] = [
     category: "dangerous",
   },
 ];
-
 // Table Columns（項次 5% / 議程 40% / 案件階段 15% / 會議日期 15% / 動作 10%）
 const tableColumns: TableColumn[] = [
   { key: "index", label: "項次", width: "5%" },
@@ -197,10 +185,12 @@ const tableColumns: TableColumn[] = [
   { key: "date", label: "會議日期", width: "15%" },
   { key: "action", label: "動作", width: "10%" },
 ];
-
+const selectedStageText = computed(() => {
+  const option = stageOptions.find((opt) => opt.value === selectedStage.value);
+  return option?.label || "全部案件階段";
+});
 // Pagination
 const pageSize = computed(() => props.pageSize);
-
 // Filtered Data (before pagination)
 const filteredDataAll = computed(() => {
   let data = [...allData];
@@ -254,28 +244,23 @@ const filteredDataAll = computed(() => {
 
   return data;
 });
-
 const paginationState = reactive(useTablePagination({
   rows: filteredDataAll,
   pageSize,
 }));
-
 // Event Handlers
 const handleTabChange = (index: number) => {
   activeTab.value = index;
   paginationState.resetPage(); // Reset to first page when filter changes
 };
-
 const handleStageChange = (item: DropdownItem) => {
   selectedStage.value = item.value as string;
   paginationState.resetPage(); // Reset to first page when filter changes
 };
-
 const handleDateRangeChange = (range: DateRange | null) => {
   dateRange.value = range;
   paginationState.resetPage(); // Reset to first page when filter changes
 };
-
 const handleSearch = () => {
   // 將當前選擇的日期範圍應用到過濾
   appliedDateRange.value = dateRange.value ? { ...dateRange.value } : null;
@@ -284,11 +269,9 @@ const handleSearch = () => {
   // 滾動到表格頂部
   window.scrollTo({ top: 0, behavior: "smooth" });
 };
-
 const handlePageChange = (page: number) => {
   paginationState.handlePageChange(page);
 };
-
 const handleDownload = (row: any) => {
   console.log("Download:", row);
   if (row.fileUrl) {

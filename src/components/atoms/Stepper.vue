@@ -66,13 +66,10 @@
     </li>
   </ol>
 </template>
-
 <script setup lang="ts">
 import { ref } from "vue";
 import Icon from "@/components/atoms/Icon.vue";
-
 export type StepperStatus = "completed" | "current" | "pending";
-
 export interface StepperStep {
   title: string;
   description?: string;
@@ -83,7 +80,6 @@ export interface StepperStep {
   children?: StepperStep[]; // 子步驟（accordion 模式）
   [key: string]: any; // 允許其他屬性
 }
-
 const props = withDefaults(
   defineProps<{
     steps: StepperStep[];
@@ -96,14 +92,11 @@ const props = withDefaults(
     variant: "default",
   }
 );
-
 const emit = defineEmits<{
   "step-toggle": [index: number, expanded: boolean];
 }>();
-
 // 內部展開狀態管理
 const expandedSteps = ref<Set<number>>(new Set());
-
 // 切換步驟展開/收合
 const toggleStep = (index: number) => {
   const step = props.steps[index];
@@ -122,12 +115,10 @@ const toggleStep = (index: number) => {
 
   emit("step-toggle", index, !isExpanded);
 };
-
 // 檢查步驟是否展開
 const isStepExpanded = (index: number): boolean => {
   return expandedSteps.value.has(index) || props.steps[index]?.expanded === true;
 };
-
 // 根據狀態獲取圖標容器的 class
 const getStepIconClass = (status?: StepperStatus): string => {
   switch (status) {
@@ -140,7 +131,6 @@ const getStepIconClass = (status?: StepperStatus): string => {
       return "bg-white text-gray-400";
   }
 };
-
 // 根據狀態獲取標題的 class
 const getStepTitleClass = (status?: StepperStatus): string => {
   switch (status) {
@@ -153,17 +143,14 @@ const getStepTitleClass = (status?: StepperStatus): string => {
       return "text-gray-500";
   }
 };
-
 // 根據狀態獲取圖標顏色
 const getIconColor = (status?: StepperStatus): string => {
   if (status === "pending") return "#9ca3af";
   return "currentColor";
 };
-
 const getStepIcon = (step: StepperStep): string => {
   if (step.icon) return step.icon;
   if (step.status === "completed") return "stepCheck";
   return "setpUncheck";
 };
-
 </script>

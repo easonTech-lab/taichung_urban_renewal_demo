@@ -6,19 +6,16 @@
         <Breadcrumb :items="breadcrumbItems" />
         <h1 class="text-3xl font-bold leading-[30px] text-gray-900">{{ isFromCaseDetail ? '編輯都更案件' : '新增都更案件' }}</h1>
       </div>
-
       <div class="flex flex-col gap-4">
         <StageProgressBar
           :steps="['基本資料', '都市更新審議資料表', '容積獎勵項目及額度']"
           :active-index="1"
         />
-
         <div class="flex flex-col gap-10 rounded-lg bg-white p-8 shadow-sm">
           <div class="flex items-center gap-3">
             <div class="h-7 w-1 rounded bg-primary-600"></div>
             <h2 class="text-2xl font-medium text-gray-900">都市更新審議資料表</h2>
           </div>
-
           <div class="flex flex-col gap-6">
             <div class="flex w-[744px] flex-col gap-4 border-b border-gray-300 pb-6">
               <Input
@@ -38,10 +35,8 @@
                 containerClass="w-full"
               />
             </div>
-
             <div class="flex flex-col gap-6">
               <h3 class="text-xl font-bold text-blue-700">土地使用及環境設計資料</h3>
-
               <div class="flex w-[744px] flex-col gap-6 border-b border-gray-300 pb-6">
                 <div
                   v-for="entry in formData.landUseEntries"
@@ -84,7 +79,6 @@
                     />
                   </div>
                 </div>
-
                 <Input
                   v-model="formData.averageFloorAreaRatio"
                   label="法定平均容積率（％）"
@@ -94,7 +88,6 @@
                   containerClass="w-[364px]"
                 />
               </div>
-
               <div class="grid w-[744px] grid-cols-[repeat(2,364px)] gap-4 border-b border-gray-300 pb-6">
                 <Input
                   v-for="field in floorAreaFields"
@@ -107,7 +100,6 @@
                   containerClass="w-[364px]"
                 />
               </div>
-
               <div class="flex w-[744px] flex-col gap-4 border-b border-gray-300 pb-6">
                 <p class="text-lg font-medium text-gray-900">各樓層使用概況</p>
                 <div class="grid grid-cols-[repeat(2,364px)] gap-4">
@@ -157,7 +149,6 @@
                   </div>
                 </div>
               </div>
-
               <div class="grid w-[744px] grid-cols-[repeat(2,364px)] gap-x-6 gap-y-4 border-b border-gray-300 pb-6">
                 <div class="flex flex-col gap-4">
                   <Input
@@ -213,7 +204,6 @@
                   containerClass="w-[364px]"
                 />
               </div>
-
               <div class="grid w-[744px] grid-cols-[repeat(2,364px)] gap-4">
                 <Input
                   v-model="formData.basementFloorArea"
@@ -257,7 +247,6 @@
                 />
               </div>
             </div>
-
             <div class="flex flex-col gap-6">
               <h3 class="text-xl font-bold text-blue-700">更新前後戶數</h3>
               <div class="flex w-[364px] flex-col gap-4">
@@ -279,7 +268,6 @@
                 />
               </div>
             </div>
-
             <div class="flex flex-col gap-6">
               <h3 class="text-xl font-bold text-blue-700">安置戶數</h3>
               <div class="grid w-[744px] grid-cols-[repeat(2,364px)] gap-4">
@@ -301,7 +289,6 @@
                 />
               </div>
             </div>
-
             <div class="flex flex-col gap-6">
               <h3 class="text-xl font-bold text-blue-700">其他設施及情形</h3>
               <div class="flex flex-col gap-6">
@@ -343,10 +330,8 @@
                 </div>
               </div>
             </div>
-
             <div class="flex flex-col gap-6">
               <h3 class="text-xl font-bold text-blue-700">申請資料</h3>
-
               <div class="flex flex-col gap-6">
                 <h4 class="text-lg font-medium text-gray-900">實施者資料</h4>
                 <div class="grid w-[744px] grid-cols-[repeat(2,364px)] gap-4">
@@ -384,7 +369,6 @@
                   />
                 </div>
               </div>
-
               <div class="flex flex-col gap-6">
                 <div class="flex flex-col gap-10">
                   <div v-for="(unit, index) in planningUnits" :key="unit.id" class="flex flex-col gap-6">
@@ -451,7 +435,6 @@
             </div>
           </div>
         </div>
-
         <div class="flex justify-center gap-6">
           <template v-if="isFromCaseDetail">
             <ButtonCTA variant="outline" size="xl" :to="cancelTarget">取消</ButtonCTA>
@@ -467,10 +450,9 @@
     </div>
   </div>
 </template>
-
 <script setup lang="ts">
-import { computed, onMounted, reactive, ref } from "vue";
 import { useRoute } from "vue-router";
+import { computed, onMounted, reactive, ref } from "vue";
 import { useFormUnsavedCheck } from "@/composables/useFormUnsavedCheck";
 import Input from "@/components/atoms/Input.vue";
 import Radio from "@/components/atoms/Radio.vue";
@@ -479,69 +461,21 @@ import ButtonCTA from "@/components/atoms/ButtonCTA.vue";
 import Breadcrumb from "@/components/atoms/Breadcrumb.vue";
 import StageProgressBar from "@/components/molecules/StageProgressBar.vue";
 import SidebarSection from "@/components/sections/backend/SidebarSection.vue";
-
-/** 從案件詳情按鈕進入為編輯，從新增流程進入為新增 */
-const isFromCaseDetail = ref(false);
-const route = useRoute();
-const cancelTarget = computed(() => {
-  const returnTo = route.query?.returnTo;
-  if (typeof returnTo === "string" && returnTo.trim()) {
-    return returnTo;
-  }
-  return { path: "/case-management" };
-});
-
-const breadcrumbItems = computed(() => {
-  const base = [
-    { label: "首頁", to: "/" },
-    { label: "我的案件", to: "/case-management" },
-    { label: "都市更新案件", to: "/case-management" },
-  ];
-  if (isFromCaseDetail.value) {
-    return [...base, { label: "編輯都更案件" }];
-  }
-  return [...base, { label: "新增都更案件", to: "/case-management/add/business-plan" }, { label: "都市更新審議資料表" }];
-});
-
-const floorAreaFields = [
-  { key: "industrialVolume", label: "工業使用容積（m²）", placeholder: "請輸入工業使用容積，無則填無" },
-  { key: "legalFloorAreaRatio", label: "法定容積率（％）", placeholder: "請輸入法定平均容積率" },
-  { key: "residentialVolume", label: "住宅使用容積（m²）", placeholder: "請輸入住宅用容積，無則填無" },
-  { key: "residentialUnits", label: "住宅單元（戶）", placeholder: "請輸入住宅單元，無則填無" },
-  { key: "commercialVolume", label: "商業使用容積（m²）", placeholder: "請輸入商業使用容積，無則填無" },
-  { key: "commercialUnits", label: "商業單元（戶）", placeholder: "請輸入商業單元，無則填無" },
-  { key: "otherVolume", label: "其他使用容積（m²）", placeholder: "請輸入其他使用容積，無則填無" },
-  { key: "otherUnits", label: "其他單元（戶）", placeholder: "請輸入其他單元，無則填無" },
-] as const;
-
-const facilityFields = [
-  { key: "hasPublicFacilities", label: "是否有提供公益設施" },
-  { key: "hasRoadPlan", label: "是否有開闢道路計畫情形" },
-  { key: "hasSidewalkPlan", label: "是否有留設人行步道及騎樓情形" },
-  { key: "hasOtherArea", label: "是否有其他需補充面積" },
-] as const;
-
-const facilityDetailFields: Record<FacilityKey, Array<{ key: string; label: string; placeholder: string; fullWidth?: boolean }>> = {
-  hasPublicFacilities: [
-    { key: "publicFacilityType", label: "種類", placeholder: "請輸入公益設施種類" },
-    { key: "publicFacilityFloor", label: "樓層（F）", placeholder: "請輸入公益設施樓層" },
-    { key: "publicFacilityArea", label: "面積（m²）", placeholder: "請輸入公益設施面積" },
-  ],
-  hasRoadPlan: [
-    { key: "roadPlanDetail", label: "情形", placeholder: "請輸入開闢道路計畫情形" },
-    { key: "roadPlanArea", label: "面積（m²）", placeholder: "請輸入公益設施面積" },
-  ],
-  hasSidewalkPlan: [
-    { key: "sidewalkPlanDetail", label: "情形", placeholder: "請輸入留設人行步道及騎樓情形" },
-    { key: "sidewalkPlanArea", label: "面積（m²）", placeholder: "請輸入公益設施面積" },
-  ],
-  hasOtherArea: [
-    { key: "otherAreaSize", label: "面積（m²）", placeholder: "請輸入面積", fullWidth: true },
-  ],
-} as const;
-
 type FacilityKey = (typeof facilityFields)[number]["key"];
-
+/** 從案件詳情按鈕進入為編輯，從新增流程進入為新增 */
+const route = useRoute();
+const isFromCaseDetail = ref(false);
+const planningUnits = reactive([
+  {
+    id: 1,
+    designerName: "",
+    officeName: "",
+    businessScope: "",
+    officePhone: "",
+    officeFax: "",
+    officeAddress: "",
+  },
+]);
 const formData = reactive<Record<string, any>>({
   caseName: "擬訂臺中市豐原區三村段三小段20地號(等)3筆土地都市更新事業計畫案",
   baseLandNumber: "",
@@ -606,17 +540,84 @@ const formData = reactive<Record<string, any>>({
   executorPhone: "",
   executorFax: "",
 });
-
+const floorAreaFields = [
+  { key: "industrialVolume", label: "工業使用容積（m²）", placeholder: "請輸入工業使用容積，無則填無" },
+  { key: "legalFloorAreaRatio", label: "法定容積率（％）", placeholder: "請輸入法定平均容積率" },
+  { key: "residentialVolume", label: "住宅使用容積（m²）", placeholder: "請輸入住宅用容積，無則填無" },
+  { key: "residentialUnits", label: "住宅單元（戶）", placeholder: "請輸入住宅單元，無則填無" },
+  { key: "commercialVolume", label: "商業使用容積（m²）", placeholder: "請輸入商業使用容積，無則填無" },
+  { key: "commercialUnits", label: "商業單元（戶）", placeholder: "請輸入商業單元，無則填無" },
+  { key: "otherVolume", label: "其他使用容積（m²）", placeholder: "請輸入其他使用容積，無則填無" },
+  { key: "otherUnits", label: "其他單元（戶）", placeholder: "請輸入其他單元，無則填無" },
+] as const;
+const facilityFields = [
+  { key: "hasPublicFacilities", label: "是否有提供公益設施" },
+  { key: "hasRoadPlan", label: "是否有開闢道路計畫情形" },
+  { key: "hasSidewalkPlan", label: "是否有留設人行步道及騎樓情形" },
+  { key: "hasOtherArea", label: "是否有其他需補充面積" },
+] as const;
+const facilityDetailFields: Record<FacilityKey, Array<{ key: string; label: string; placeholder: string; fullWidth?: boolean }>> = {
+  hasPublicFacilities: [
+    { key: "publicFacilityType", label: "種類", placeholder: "請輸入公益設施種類" },
+    { key: "publicFacilityFloor", label: "樓層（F）", placeholder: "請輸入公益設施樓層" },
+    { key: "publicFacilityArea", label: "面積（m²）", placeholder: "請輸入公益設施面積" },
+  ],
+  hasRoadPlan: [
+    { key: "roadPlanDetail", label: "情形", placeholder: "請輸入開闢道路計畫情形" },
+    { key: "roadPlanArea", label: "面積（m²）", placeholder: "請輸入公益設施面積" },
+  ],
+  hasSidewalkPlan: [
+    { key: "sidewalkPlanDetail", label: "情形", placeholder: "請輸入留設人行步道及騎樓情形" },
+    { key: "sidewalkPlanArea", label: "面積（m²）", placeholder: "請輸入公益設施面積" },
+  ],
+  hasOtherArea: [
+    { key: "otherAreaSize", label: "面積（m²）", placeholder: "請輸入面積", fullWidth: true },
+  ],
+} as const;
 const STORAGE_KEY_CASE_FOR_APPLICATION = "caseDetailForApplication";
-
+const planningUnitLabels = ["一", "二", "三", "四", "五"];
+const cancelTarget = computed(() => {
+  const returnTo = route.query?.returnTo;
+  if (typeof returnTo === "string" && returnTo.trim()) {
+    return returnTo;
+  }
+  return { path: "/case-management" };
+});
+const breadcrumbItems = computed(() => {
+  const base = [
+    { label: "首頁", to: "/" },
+    { label: "我的案件", to: "/case-management" },
+    { label: "都市更新案件", to: "/case-management" },
+  ];
+  if (isFromCaseDetail.value) {
+    return [...base, { label: "編輯都更案件" }];
+  }
+  return [...base, { label: "新增都更案件", to: "/case-management/add/business-plan" }, { label: "都市更新審議資料表" }];
+});
+const isExcavationRequired = computed(() => formData.basementFloorArea?.toString().trim().length > 0);
 const buildReviewTableSnapshot = () =>
   JSON.stringify({
     formData,
     planningUnits,
   });
-
 const { hasUnsavedChanges: hasReviewTableChanges, captureInitial: captureReviewTableInitial } = useFormUnsavedCheck(buildReviewTableSnapshot, isFromCaseDetail);
-
+const addPlanningUnit = () => {
+  planningUnits.push({
+    id: Date.now(),
+    designerName: "",
+    officeName: "",
+    businessScope: "",
+    officePhone: "",
+    officeFax: "",
+    officeAddress: "",
+  });
+};
+const handleSidebarItemSelect = (item: string) => {
+  console.log("Selected item:", item);
+};
+const handleRadioChange = (key: FacilityKey, value: string) => {
+  formData[key] = value;
+};
 onMounted(() => {
   try {
     const raw = sessionStorage.getItem(STORAGE_KEY_CASE_FOR_APPLICATION);
@@ -634,40 +635,4 @@ onMounted(() => {
     }
   }
 });
-
-const planningUnitLabels = ["一", "二", "三", "四", "五"];
-
-const planningUnits = reactive([
-  {
-    id: 1,
-    designerName: "",
-    officeName: "",
-    businessScope: "",
-    officePhone: "",
-    officeFax: "",
-    officeAddress: "",
-  },
-]);
-
-const addPlanningUnit = () => {
-  planningUnits.push({
-    id: Date.now(),
-    designerName: "",
-    officeName: "",
-    businessScope: "",
-    officePhone: "",
-    officeFax: "",
-    officeAddress: "",
-  });
-};
-
-const isExcavationRequired = computed(() => formData.basementFloorArea?.toString().trim().length > 0);
-
-const handleSidebarItemSelect = (item: string) => {
-  console.log("Selected item:", item);
-};
-
-const handleRadioChange = (key: FacilityKey, value: string) => {
-  formData[key] = value;
-};
 </script>

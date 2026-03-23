@@ -48,10 +48,8 @@
     </p>
   </div>
 </template>
-
 <script setup lang="ts">
 import { computed, ref } from "vue";
-
 const props = withDefaults(
   defineProps<{
     modelValue?: string;
@@ -79,14 +77,11 @@ const props = withDefaults(
     error: false,
   }
 );
-
 const emit = defineEmits<{
   "update:modelValue": [value: string];
 }>();
-
 const inputId = ref(`timepicker-${Math.random().toString(36).substring(2, 11)}`);
 const inputRef = ref<HTMLInputElement | null>(null);
-
 const inputClasses = computed(() => {
   if (props.error || props.errorMessage) {
     return "border-red-300 focus:border-red-500 focus:ring-2 focus:ring-red-500";
@@ -96,12 +91,10 @@ const inputClasses = computed(() => {
   }
   return "border-gray-300 focus:border-primary-500 focus:ring-2 focus:ring-primary-500";
 });
-
 const labelClasses = computed(() => {
   if (props.error || props.errorMessage) return "text-red-600";
   return "text-gray-900";
 });
-
 const sizeClasses = computed(() => {
   const sizeMap = {
     sm: "px-4 py-3 text-sm",
@@ -110,12 +103,10 @@ const sizeClasses = computed(() => {
   };
   return sizeMap[props.size];
 });
-
 const handleInput = (event: Event) => {
   const target = event.target as HTMLInputElement;
   emit("update:modelValue", target.value);
 };
-
 const handleClick = () => {
   const el = inputRef.value;
   if (el && typeof (el as HTMLInputElement & { showPicker?: () => void }).showPicker === "function") {

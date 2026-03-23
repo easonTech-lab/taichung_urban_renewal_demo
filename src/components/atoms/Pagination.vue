@@ -18,7 +18,6 @@
           <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m15 19-7-7 7-7" />
         </svg>
       </component>
-
       <!-- 頁碼和省略號 -->
       <template v-for="(item, index) in paginationItems" :key="index">
         <!-- 頁碼按鈕 -->
@@ -44,7 +43,6 @@
           ...
         </span>
       </template>
-
       <!-- 下一頁按鈕 -->
       <component
         :is="nextTo ? 'router-link' : 'a'"
@@ -68,7 +66,6 @@
 
 <script setup lang="ts">
 import { computed } from "vue";
-
 export interface PaginationProps {
   currentPage: number;
   totalPages: number;
@@ -80,7 +77,7 @@ export interface PaginationProps {
   nextTo?: string; // 下一頁的 router-link 路徑
   getPageLink?: (page: number) => string | undefined; // 自訂頁碼連結
 }
-
+type PaginationItem = { type: "page"; page: number } | { type: "ellipsis"; page?: never };
 const props = withDefaults(defineProps<PaginationProps>(), {
   ariaLabel: "分頁導航",
   previousLabel: "上一頁",
@@ -88,16 +85,12 @@ const props = withDefaults(defineProps<PaginationProps>(), {
   pageSize: 5,
   getPageLink: (_page: number): string | undefined => undefined,
 });
-
 const emit = defineEmits<{
   "update:currentPage": [page: number];
   "page-change": [page: number];
   previous: [];
   next: [];
 }>();
-
-type PaginationItem = { type: "page"; page: number } | { type: "ellipsis"; page?: never };
-
 // 計算分頁項目（包括頁碼和省略號）
 const paginationItems = computed<PaginationItem[]>(() => {
   const items: PaginationItem[] = [];
@@ -148,20 +141,17 @@ const paginationItems = computed<PaginationItem[]>(() => {
 
   return items;
 });
-
 const handlePageClick = (page: number | undefined) => {
   if (page !== undefined && page !== props.currentPage && page >= 1 && page <= props.totalPages) {
     emit("update:currentPage", page);
     emit("page-change", page);
   }
 };
-
 // 輔助函數：安全地獲取頁碼連結
 const getPageLinkSafe = (page: number | undefined): string | undefined => {
   if (page === undefined) return undefined;
   return props.getPageLink(page);
 };
-
 const handlePrevious = () => {
   if (props.currentPage > 1) {
     const newPage = props.currentPage - 1;
@@ -170,7 +160,6 @@ const handlePrevious = () => {
     emit("previous");
   }
 };
-
 const handleNext = () => {
   if (props.currentPage < props.totalPages) {
     const newPage = props.currentPage + 1;

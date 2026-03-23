@@ -16,7 +16,6 @@
         >
           {{ item.label }}
         </router-link>
-
         <!-- External Link -->
         <a
           v-else-if="item.href && !item.disabled"
@@ -31,7 +30,6 @@
         >
           {{ item.label }}
         </a>
-
         <!-- Button -->
         <a
           v-else-if="!item.disabled"
@@ -46,7 +44,6 @@
         >
           {{ item.label }}
         </a>
-
         <!-- Disabled -->
         <a v-else class="flex h-full w-full cursor-not-allowed items-center justify-center rounded-t-lg p-4 text-center whitespace-nowrap text-gray-400 dark:text-gray-600">
           {{ item.label }}
@@ -56,10 +53,8 @@
     </ul>
   </div>
 </template>
-
 <script setup lang="ts">
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch, type ComponentPublicInstance } from "vue";
-
 export interface TabItem {
   label: string;
   to?: string; // Vue Router 路徑
@@ -67,7 +62,6 @@ export interface TabItem {
   disabled?: boolean; // 是否禁用
   [key: string]: any; // 允許其他屬性
 }
-
 const props = withDefaults(
   defineProps<{
     items: TabItem[];
@@ -79,17 +73,11 @@ const props = withDefaults(
     displayOnly: false,
   }
 );
-
 const emit = defineEmits<{
   "update:modelValue": [index: number];
   "tab-change": [index: number, item: TabItem];
   "tab-click": [index: number, item: TabItem, event: Event];
 }>();
-
-const activeIndex = computed(() => {
-  return props.modelValue ?? 0;
-});
-
 const tabsListRef = ref<HTMLElement | null>(null);
 const tabItemRefs = ref<HTMLElement[]>([]);
 const indicatorStyle = ref<Record<string, string>>({
@@ -97,7 +85,9 @@ const indicatorStyle = ref<Record<string, string>>({
   left: "0px",
   width: "0px",
 });
-
+const activeIndex = computed(() => {
+  return props.modelValue ?? 0;
+});
 const setTabItemRef = (el: Element | ComponentPublicInstance | null, index: number) => {
   if (!el) return;
   if (el instanceof Element) {
@@ -109,7 +99,6 @@ const setTabItemRef = (el: Element | ComponentPublicInstance | null, index: numb
     tabItemRefs.value[index] = dom as HTMLElement;
   }
 };
-
 const updateIndicator = () => {
   const tabsList = tabsListRef.value;
   const activeTab = tabItemRefs.value[activeIndex.value];
@@ -131,7 +120,6 @@ const updateIndicator = () => {
     width: `${Math.max(0, boundedWidth)}px`,
   };
 };
-
 const handleClick = (index: number, event: Event) => {
   const item = props.items[index];
   if (props.displayOnly) {
@@ -146,16 +134,6 @@ const handleClick = (index: number, event: Event) => {
   emit("tab-change", index, item);
   emit("tab-click", index, item, event);
 };
-
-onMounted(() => {
-  nextTick(updateIndicator);
-  window.addEventListener("resize", updateIndicator);
-});
-
-onBeforeUnmount(() => {
-  window.removeEventListener("resize", updateIndicator);
-});
-
 watch(
   () => [activeIndex.value, props.items.length],
   () => {
@@ -163,4 +141,11 @@ watch(
   },
   { immediate: true }
 );
+onMounted(() => {
+  nextTick(updateIndicator);
+  window.addEventListener("resize", updateIndicator);
+});
+onBeforeUnmount(() => {
+  window.removeEventListener("resize", updateIndicator);
+});
 </script>

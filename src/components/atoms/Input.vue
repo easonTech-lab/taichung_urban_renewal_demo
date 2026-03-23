@@ -19,7 +19,6 @@
         v-bind="$attrs"
       />
     </template>
-
     <!-- Horizontal Layout -->
     <template v-else-if="labelPosition === 'horizontal'">
       <div class="flex w-full items-center gap-2">
@@ -41,7 +40,6 @@
         />
       </div>
     </template>
-
     <p v-if="error || errorMessage" class="mt-2.5 text-sm text-red-600">
       <span v-if="errorTitle" class="font-medium">{{ errorTitle }}</span>
       <span v-if="errorTitle && errorMessage"> </span>
@@ -49,10 +47,8 @@
     </p>
   </div>
 </template>
-
 <script setup lang="ts">
 import { computed, watch } from "vue";
-
 const props = withDefaults(
   defineProps<{
     label?: string;
@@ -84,28 +80,10 @@ const props = withDefaults(
     containerClass: "",
   }
 );
-
 const emit = defineEmits<{
   "update:modelValue": [value: string];
   "clear-error": []; // 通知父組件清除錯誤
 }>();
-
-// 監聽輸入變化，當用戶開始輸入時自動清除錯誤
-watch(
-  () => props.modelValue,
-  (newValue, oldValue) => {
-    // 當用戶開始輸入（值發生變化）且有錯誤時，通知父組件清除錯誤
-    if (props.clearErrorOnInput && (props.error || props.errorMessage) && newValue !== oldValue) {
-      emit("clear-error");
-    }
-  }
-);
-
-const handleInput = (event: Event) => {
-  const target = event.target as HTMLInputElement;
-  emit("update:modelValue", target.value);
-};
-
 const inputId = computed(() => `input-${Math.random().toString(36).substring(2, 11)}`);
 
 const inputClasses = computed(() => {
@@ -122,14 +100,12 @@ const inputClasses = computed(() => {
   // 預設狀態
   return "bg-gray-50 border-gray-300 placeholder:text-gray-500 focus:border-primary-500 focus:ring-2 focus:ring-primary-500";
 });
-
 const labelClasses = computed(() => {
   if (props.error || props.errorMessage) {
     return "text-red-600";
   }
   return "text-gray-900";
 });
-
 // 尺寸類別
 const sizeClasses = computed(() => {
   const sizeMap = {
@@ -139,4 +115,18 @@ const sizeClasses = computed(() => {
   };
   return sizeMap[props.size];
 });
+// 監聽輸入變化，當用戶開始輸入時自動清除錯誤
+watch(
+  () => props.modelValue,
+  (newValue, oldValue) => {
+    // 當用戶開始輸入（值發生變化）且有錯誤時，通知父組件清除錯誤
+    if (props.clearErrorOnInput && (props.error || props.errorMessage) && newValue !== oldValue) {
+      emit("clear-error");
+    }
+  }
+);
+const handleInput = (event: Event) => {
+  const target = event.target as HTMLInputElement;
+  emit("update:modelValue", target.value);
+};
 </script>

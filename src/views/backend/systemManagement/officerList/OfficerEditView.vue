@@ -67,7 +67,6 @@
     </div>
   </div>
 </template>
-
 <script setup lang="ts">
 import { ref, computed, onMounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
@@ -77,29 +76,11 @@ import Input from "@/components/atoms/Input.vue";
 import ButtonCTA from "@/components/atoms/ButtonCTA.vue";
 import Breadcrumb, { type BreadcrumbItem } from "@/components/atoms/Breadcrumb.vue";
 import SidebarSection from "@/components/sections/backend/SidebarSection.vue";
-
-const router = useRouter();
 const route = useRoute();
-
-const isViewMode = computed(() => route.query.mode === "view");
-const pageTitle = computed(() => (isViewMode.value ? "幹事資訊" : "編輯幹事"));
-const breadcrumbItems = computed<BreadcrumbItem[]>(() => [
-  { label: "首頁", to: "/" },
-  { label: "系統管理" },
-  { label: "幹事名單管理", to: "/officer-list-management" },
-  { label: pageTitle.value },
-]);
-
-const OFFICER_EDIT_STORAGE_KEY = "officer-edit-data";
-
-const getStringValue = (value: string | string[] | undefined) => {
-  return typeof value === "string" ? value : "";
-}
-
+const router = useRouter();
 const officerFromStorage = () => {
   const raw = sessionStorage.getItem(OFFICER_EDIT_STORAGE_KEY);
   if (!raw) return null;
-
   try {
     const officer = JSON.parse(raw) as Record<string, string | string[]>;
     return {
@@ -115,7 +96,6 @@ const officerFromStorage = () => {
     return null;
   }
 }
-
 const initialData = officerFromStorage();
 const form = ref(
   initialData ?? {
@@ -128,12 +108,22 @@ const form = ref(
     education: [],
   }
 );
-
+const OFFICER_EDIT_STORAGE_KEY = "officer-edit-data";
+const isViewMode = computed(() => route.query.mode === "view");
+const pageTitle = computed(() => (isViewMode.value ? "幹事資訊" : "編輯幹事"));
+const breadcrumbItems = computed<BreadcrumbItem[]>(() => [
+  { label: "首頁", to: "/" },
+  { label: "系統管理" },
+  { label: "幹事名單管理", to: "/officer-list-management" },
+  { label: pageTitle.value },
+]);
+const getStringValue = (value: string | string[] | undefined) => {
+  return typeof value === "string" ? value : "";
+}
 const buildEducationList = (value: string[]) => {
   const items = value.map((item) => item.trim()).filter(Boolean);
   return items.length > 0 ? items : [""];
 };
-
 const educationList = ref<string[]>(buildEducationList(form.value.education));
 const buildOfficerSnapshot = () =>
   JSON.stringify({
@@ -145,12 +135,9 @@ const buildOfficerSnapshot = () =>
     title: form.value.title.trim(),
     education: educationList.value.map((item) => item.trim()).filter(Boolean),
   });
-const { hasUnsavedChanges: hasOfficerChanges, captureInitial: captureOfficerInitial } = useFormUnsavedCheck(buildOfficerSnapshot);
-
 const handleSidebarItemSelect = (itemName: string) => {
   console.log("Selected sidebar item:", itemName);
 }
-
 const handleGoBack = () => {
   const returnTo = typeof route.query.returnTo === "string" ? route.query.returnTo : "";
   if (returnTo) {
@@ -159,11 +146,9 @@ const handleGoBack = () => {
   }
   router.push("/officer-list-management");
 }
-
 const handleAddEducation = () => {
   educationList.value.push("");
 }
-
 const handleSave = () => {
   // TODO: API 儲存
   form.value.education = educationList.value.map((item) => item.trim()).filter(Boolean);
@@ -171,11 +156,10 @@ const handleSave = () => {
   console.log("Save officer:", form.value);
   router.push("/officer-list-management");
 }
-
 const handleCancel = () => {
   router.push("/officer-list-management");
 }
-
+const { hasUnsavedChanges: hasOfficerChanges, captureInitial: captureOfficerInitial } = useFormUnsavedCheck(buildOfficerSnapshot);
 onMounted(() => {
   if (!initialData) {
     router.replace("/officer-list-management");

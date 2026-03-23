@@ -111,7 +111,6 @@
     />
   </div>
 </template>
-
 <script setup lang="ts">
 import { ref, computed, onMounted, nextTick } from "vue";
 import { useRouter, useRoute, onBeforeRouteLeave } from "vue-router";
@@ -127,11 +126,10 @@ import DatePicker from "@/components/atoms/DatePicker.vue";
 import UnsavedChangesModal from "@/components/molecules/UnsavedChangesModal.vue";
 import SidebarSection from "@/components/sections/backend/SidebarSection.vue";
 import InputDropdown from "@/components/atoms/InputDropdown.vue";
-
-const router = useRouter();
 const route = useRoute();
+const router = useRouter();
 const unsavedDialog = useUnsavedChangesDialog();
-
+const skipNextLeaveCheck = ref(false);
 const form = ref({
   stage: "",
   meetingDate: "",
@@ -139,7 +137,6 @@ const form = ref({
   meetingPlace: "",
   participants: "",
 });
-
 const stageOptions = [
   { label: "都更幹事2", value: "officer2" },
   { label: "都更幹事會", value: "officer-meeting" },
@@ -147,12 +144,68 @@ const stageOptions = [
   { label: "公辦公聽會", value: "public-hearing" },
   { label: "專案小組", value: "project-team" },
 ];
-
 /** 使用者已從彈窗選擇離開，略過下一次 onBeforeRouteLeave 的攔截，避免點一次退出卻彈兩次 */
-const skipNextLeaveCheck = ref(false);
 const isSubmitDisabled = computed(() => !form.value.stage?.trim());
 const { hasUnsavedChanges, captureInitial } = useFormUnsavedCheck(() => buildFormSnapshot());
-
+const buildFormSnapshot = () => {
+  return JSON.stringify({
+    stage: form.value.stage,
+    meetingDate: form.value.meetingDate,
+    meetingTime: form.value.meetingTime,
+    meetingPlace: form.value.meetingPlace,
+    participants: form.value.participants,
+  });
+}
+const getTodayString = () => {
+  const d = new Date();
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
+}
+const getCurrentTimeString = () => {
+  const d = new Date();
+  const h = String(d.getHours()).padStart(2, "0");
+  const min = String(d.getMinutes()).padStart(2, "0");
+  return `${h}:${min}`;
+}
+const goToProgress = () => {
+  router.push({
+    path: "/case-detail",
+    query: {
+      from: route.query?.from,
+      admin: route.query?.admin,
+      caseType: route.query?.caseType,
+      tab: "progress",
+    },
+  });
+};
+const handleSidebarItemSelect = (_itemName: string) => {};
+const handleGoBack = () => {
+  unsavedDialog.requestUnsavedConfirmation(hasUnsavedChanges.value, goToProgress);
+};
+const handleCancel = () => {
+  unsavedDialog.requestUnsavedConfirmation(hasUnsavedChanges.value, goToProgress);
+};
+const handleExitWithoutSaving = () => {
+  skipNextLeaveCheck.value = true;
+  unsavedDialog.runPendingAction();
+};
+const handleSaveFromUnsavedModal = () => {
+  const fn = unsavedDialog.takePendingAction();
+  unsavedDialog.closeUnsavedChangesModal();
+  captureInitial();
+  skipNextLeaveCheck.value = true;
+  fn?.();
+};
+const handleSubmit = () => {
+  // TODO: 送出表單後導回案件進度
+  captureInitial();
+  goToProgress();
+};
+const handleAddReviewItem = () => {
+  // TODO: 開啟新增審查項目 Drawer 或導向對應流程
+};
 onBeforeRouteLeave((_to, _from, next) => {
   if (skipNextLeaveCheck.value) {
     skipNextLeaveCheck.value = false;
@@ -165,7 +218,6 @@ onBeforeRouteLeave((_to, _from, next) => {
   }
   unsavedDialog.requestUnsavedConfirmation(true, () => next());
 });
-
 onMounted(() => {
   form.value.meetingDate = getTodayString();
   form.value.meetingTime = getCurrentTimeString();
@@ -184,74 +236,4 @@ onMounted(() => {
     captureInitial();
   });
 });
-
-const buildFormSnapshot = () => {
-  return JSON.stringify({
-    stage: form.value.stage,
-    meetingDate: form.value.meetingDate,
-    meetingTime: form.value.meetingTime,
-    meetingPlace: form.value.meetingPlace,
-    participants: form.value.participants,
-  });
-}
-
-const getTodayString = () => {
-  const d = new Date();
-  const y = d.getFullYear();
-  const m = String(d.getMonth() + 1).padStart(2, "0");
-  const day = String(d.getDate()).padStart(2, "0");
-  return `${y}-${m}-${day}`;
-}
-
-const getCurrentTimeString = () => {
-  const d = new Date();
-  const h = String(d.getHours()).padStart(2, "0");
-  const min = String(d.getMinutes()).padStart(2, "0");
-  return `${h}:${min}`;
-}
-
-const goToProgress = () => {
-  router.push({
-    path: "/case-detail",
-    query: {
-      from: route.query?.from,
-      admin: route.query?.admin,
-      caseType: route.query?.caseType,
-      tab: "progress",
-    },
-  });
-};
-
-const handleSidebarItemSelect = (_itemName: string) => {};
-
-const handleGoBack = () => {
-  unsavedDialog.requestUnsavedConfirmation(hasUnsavedChanges.value, goToProgress);
-};
-
-const handleCancel = () => {
-  unsavedDialog.requestUnsavedConfirmation(hasUnsavedChanges.value, goToProgress);
-};
-
-const handleExitWithoutSaving = () => {
-  skipNextLeaveCheck.value = true;
-  unsavedDialog.runPendingAction();
-};
-
-const handleSaveFromUnsavedModal = () => {
-  const fn = unsavedDialog.takePendingAction();
-  unsavedDialog.closeUnsavedChangesModal();
-  captureInitial();
-  skipNextLeaveCheck.value = true;
-  fn?.();
-};
-
-const handleSubmit = () => {
-  // TODO: 送出表單後導回案件進度
-  captureInitial();
-  goToProgress();
-};
-
-const handleAddReviewItem = () => {
-  // TODO: 開啟新增審查項目 Drawer 或導向對應流程
-};
 </script>

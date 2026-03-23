@@ -103,7 +103,6 @@
     </div>
   </div>
 </template>
-
 <script setup lang="ts">
 import { ref, computed } from "vue";
 import { useRouter } from "vue-router";
@@ -114,8 +113,35 @@ import ButtonCTA from "@/components/atoms/ButtonCTA.vue";
 import Breadcrumb from "@/components/atoms/Breadcrumb.vue";
 import InputDropdown from "@/components/atoms/InputDropdown.vue";
 import SidebarSection from "@/components/sections/backend/SidebarSection.vue";
-
 const router = useRouter();
+const adminFormData = ref({
+  personnelType: "業務承辦人員",
+  name: "陳傑瑞",
+  account: "tmcg01mb",
+  officialEmail: "tt05@taichung.gov.tw",
+  officialExtension: "(04) 2228-9111#58030",
+  department: "秘書處",
+  division: "都市修復工程科",
+  reason: "都市更新",
+});
+const userFormData = ref({
+  name: "陳傑瑞",
+  idNumber: "A123456789",
+  account: "A123456789",
+  phone: "0911111111",
+  email: "1111111@gmail.com",
+});
+const personnelTypeOptions = [
+  { label: "業務承辦人員" },
+  { label: "審議委員" },
+  { label: "系統管理人員" },
+  { label: "府內人員" },
+  { label: "府外人員" },
+  { label: "局內人員" },
+  { label: "申請者" },
+];
+const departmentOptions = [{ label: "秘書處" }, { label: "都市修復工程科" }, { label: "住宅發展工程處" }, { label: "都市更新工程科" }, { label: "都計測量工程科" }];
+const divisionOptions = [{ label: "都市修復工程科" }, { label: "住宅發展工程處" }, { label: "都市更新工程科" }, { label: "都計測量工程科" }];
 const isAdmin = computed(() => {
   const userInfo = localStorage.getItem("userInfo");
   if (userInfo) {
@@ -128,40 +154,6 @@ const isAdmin = computed(() => {
   }
   return false;
 });
-
-const adminFormData = ref({
-  personnelType: "業務承辦人員",
-  name: "陳傑瑞",
-  account: "tmcg01mb",
-  officialEmail: "tt05@taichung.gov.tw",
-  officialExtension: "(04) 2228-9111#58030",
-  department: "秘書處",
-  division: "都市修復工程科",
-  reason: "都市更新",
-});
-
-const userFormData = ref({
-  name: "陳傑瑞",
-  idNumber: "A123456789",
-  account: "A123456789",
-  phone: "0911111111",
-  email: "1111111@gmail.com",
-});
-
-const personnelTypeOptions = [
-  { label: "業務承辦人員" },
-  { label: "審議委員" },
-  { label: "系統管理人員" },
-  { label: "府內人員" },
-  { label: "府外人員" },
-  { label: "局內人員" },
-  { label: "申請者" },
-];
-
-const departmentOptions = [{ label: "秘書處" }, { label: "都市修復工程科" }, { label: "住宅發展工程處" }, { label: "都市更新工程科" }, { label: "都計測量工程科" }];
-
-const divisionOptions = [{ label: "都市修復工程科" }, { label: "住宅發展工程處" }, { label: "都市更新工程科" }, { label: "都計測量工程科" }];
-
 const buildProfileSnapshot = () =>
   JSON.stringify(
     isAdmin.value
@@ -185,27 +177,21 @@ const buildProfileSnapshot = () =>
   );
 const { hasUnsavedChanges: hasProfileChanges, captureInitial: captureProfileInitial } = useFormUnsavedCheck(buildProfileSnapshot);
 captureProfileInitial();
-
 const handleSidebarItemSelect = (itemName: string) => {
   console.log("Selected sidebar item:", itemName);
 }
-
 const handlePersonnelTypeSelect = (item: any) => {
   adminFormData.value.personnelType = item.label;
 }
-
 const handleDepartmentSelect = (item: any) => {
   adminFormData.value.department = item.label;
 }
-
 const handleDivisionSelect = (item: any) => {
   adminFormData.value.division = item.label;
 }
-
 const handleChangePassword = () => {
   router.push("/change-password");
 }
-
 const handleSave = () => {
   // TODO: 實現儲存功能
   if (isAdmin.value) {

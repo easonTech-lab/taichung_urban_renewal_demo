@@ -44,7 +44,6 @@ import { computed } from "vue";
 import Icon from "@/components/atoms/Icon.vue";
 import Modal from "@/components/atoms/Modal.vue";
 import ButtonCTA from "@/components/atoms/ButtonCTA.vue";
-
 const props = withDefaults(
   defineProps<{
     modelValue: boolean;
@@ -59,23 +58,19 @@ const props = withDefaults(
     description: "",
   }
 );
-
 const emit = defineEmits<{
   "update:modelValue": [value: boolean];
   confirm: [];
   cancel: [];
 }>();
-
 const isOpen = computed({
   get: () => props.modelValue,
   set: (value: boolean) => emit("update:modelValue", value),
 });
-
 const handleCancel = () => {
   emit("update:modelValue", false);
   emit("cancel");
 }
-
 const handleConfirm = () => {
   emit("confirm");
 }

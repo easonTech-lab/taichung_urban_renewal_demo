@@ -6,7 +6,6 @@
         <span v-else class="block h-[54px]"></span>
       </div>
     </div>
-
     <div class="relative">
       <div v-for="(stage, index) in progressStages" :key="`${stage.name}-${index}`" class="relative">
         <div :style="gridTemplateStyle" class="grid h-20 items-center">
@@ -37,7 +36,6 @@
             </button>
           </div>
         </div>
-
         <div v-if="stage.isExpanded && stage.subStages && stage.subStages.length > 0" class="bg-blue-50 py-6">
           <div :style="gridTemplateStyle" class="grid">
             <div class="relative h-full">
@@ -55,20 +53,17 @@
     </div>
   </div>
 </template>
-
 <script setup lang="ts">
 import { computed } from "vue";
 import Icon from "@/components/atoms/Icon.vue";
 import Badge from "@/components/atoms/Badge.vue";
 import Stepper from "@/components/atoms/Stepper.vue";
 import type { ProgressStage } from "@/types/backend/caseManagement/common/CaseDetailView.d";
-
 type ColumnConfig = {
   key: string;
   label: string;
   width: number;
 };
-
 const props = defineProps<{
   progressStages: ProgressStage[];
   columns: ColumnConfig[];
@@ -77,7 +72,6 @@ const props = defineProps<{
   toggleStageExpand: (index: number) => void;
   handleViewDetails: (index: number) => void;
 }>();
-
 const gridTemplateStyle = computed(() => {
   return {
     gridTemplateColumns: props.columns.map((column) => `${column.width}fr`).join(" "),

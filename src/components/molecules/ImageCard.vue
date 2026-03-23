@@ -15,11 +15,9 @@
     </div>
   </div>
 </template>
-
 <script setup lang="ts">
 import Icon from "@/components/atoms/Icon.vue";
 import Image from "@/components/atoms/Image.vue";
-
 const props = withDefaults(
   defineProps<{
     index: number | string;
@@ -32,11 +30,9 @@ const props = withDefaults(
     aspectRatio: "301 / 180",
   }
 );
-
 const emit = defineEmits<{
   delete: [];
 }>();
-
 const handleDelete = () => {
   emit("delete");
 }

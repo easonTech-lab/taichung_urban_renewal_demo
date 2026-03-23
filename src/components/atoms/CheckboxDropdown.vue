@@ -79,13 +79,11 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from "vue";
 import Icon from "@/components/atoms/Icon.vue";
-
 export interface CheckboxDropdownItem {
   label: string;
   value: string | number;
   [key: string]: any;
 }
-
 const props = withDefaults(
   defineProps<{
     buttonText?: string;
@@ -105,32 +103,26 @@ const props = withDefaults(
     placeholder: "",
   }
 );
-
 const emit = defineEmits<{
   "update:modelValue": [value: (string | number)[]];
   change: [value: (string | number)[]];
   "item-click": [item: CheckboxDropdownItem, index: number];
   toggle: [isOpen: boolean];
 }>();
-
 const isOpen = ref(false);
 const buttonId = computed(() => `checkbox-dropdown-button-${Math.random().toString(36).substring(2, 11)}`);
 const dropdownId = computed(() => `checkbox-dropdown-${Math.random().toString(36).substring(2, 11)}`);
-
 const buttonClasses = computed(() => {
   return "bg-gray-50 border border-gray-300 text-gray-500 hover:bg-gray-100 focus:border-primary-500 focus:ring-primary-500 rounded-lg px-4 py-3 text-sm font-normal leading-[1.25]";
 });
-
 const displayText = computed(() => {
   if (props.buttonText) return props.buttonText;
   return props.placeholder || "";
 });
-
 const buttonTextClasses = computed(() => {
   const isPlaceholder = !props.buttonText || (!!props.placeholder && props.buttonText === props.placeholder);
   return isPlaceholder ? "text-gray-500" : "text-gray-900";
 });
-
 // 處理「全選」選項
 const processedItems = computed(() => {
   if (props.showSelectAll && props.items.length > 0 && props.items[0].value !== "select-all") {
@@ -138,12 +130,10 @@ const processedItems = computed(() => {
   }
   return props.items;
 });
-
 // 獲取當前選中的值陣列
 const selectedValues = computed(() => {
   return Array.isArray(props.modelValue) ? props.modelValue : [];
 });
-
 // 創建一個 computed 屬性，返回一個函數來檢查項目是否被選中
 // 這樣可以確保 Vue 3 正確追蹤 selectedValues 的變化
 const isItemChecked = computed(() => {
@@ -153,7 +143,6 @@ const isItemChecked = computed(() => {
     return selected.includes(value);
   };
 });
-
 // 檢查全選是否為半選狀態（部分選中）
 const isIndeterminate = computed(() => {
   if (props.items.length === 0) return false;
@@ -161,13 +150,11 @@ const isIndeterminate = computed(() => {
   const selectedCount = props.items.filter((item) => selected.includes(item.value)).length;
   return selectedCount > 0 && selectedCount < props.items.length;
 });
-
 // 切換下拉選單顯示/隱藏
 const toggle = () => {
   isOpen.value = !isOpen.value;
   emit("toggle", isOpen.value);
 };
-
 // 關閉下拉選單
 const close = () => {
   if (isOpen.value) {
@@ -175,7 +162,6 @@ const close = () => {
     emit("toggle", false);
   }
 };
-
 // 處理項目點擊
 const handleItemClick = (item: CheckboxDropdownItem, index: number, event: Event) => {
   event.preventDefault();
@@ -210,7 +196,6 @@ const handleItemClick = (item: CheckboxDropdownItem, index: number, event: Event
   emit("change", newSelected);
   emit("item-click", item, index);
 };
-
 // 處理點擊外部關閉下拉選單
 const handleClickOutside = (event: Event) => {
   const target = event.target as HTMLElement;
@@ -221,16 +206,13 @@ const handleClickOutside = (event: Event) => {
     close();
   }
 };
-
 const isAllSelected = computed(() => {
   if (props.items.length === 0) return false;
   return props.items.every((item) => selectedValues.value.includes(item.value));
 });
-
 onMounted(() => {
   document.addEventListener("click", handleClickOutside);
 });
-
 onUnmounted(() => {
   document.removeEventListener("click", handleClickOutside);
 });

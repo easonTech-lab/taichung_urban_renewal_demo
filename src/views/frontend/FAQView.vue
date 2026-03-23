@@ -206,7 +206,6 @@
     <FooterSection />
   </div>
 </template>
-
 <script setup lang="ts">
 import { ref, computed, nextTick, onMounted, onBeforeUnmount } from "vue";
 import Empty from "@/components/atoms/Empty.vue";
@@ -214,7 +213,6 @@ import Breadcrumb from "@/components/atoms/Breadcrumb.vue";
 import SearchInput from "@/components/atoms/SearchInput.vue";
 import FooterSection from "@/components/sections/global/FooterSection.vue";
 import type { FAQCategory, FAQQuestion } from "@/types/frontend/frontend.d";
-
 const faqCategories: FAQCategory[] = [
   {
     title: "我適合哪種重建或改善方式？",
@@ -303,17 +301,16 @@ const faqCategories: FAQCategory[] = [
     ],
   },
 ];
-
 const searchQuery = ref("");
 const appliedSearchQuery = ref(""); // 應用於過濾的搜尋關鍵字（點擊搜尋後才應用）
 const activeCategoryIndexes = ref<number[]>([0]); // 改為數組，但一次只能展開一個
 const activeQuestionId = ref<string | null>(null);
-
+// 暫存最近一次 Tab 方向，方便觀察焦點移動順序
+let lastTabDirection: "forward" | "backward" | null = null;
 // 初始化時選擇第一個分類的第一個問題
 if (faqCategories.length > 0 && faqCategories[0].questions.length > 0) {
   activeQuestionId.value = faqCategories[0].questions[0].id;
 }
-
 // 當前顯示的分類（用於右側顯示，優先顯示第一個展開的分類）
 const activeCategory = computed(() => {
   if (activeCategoryIndexes.value.length > 0) {
@@ -321,12 +318,6 @@ const activeCategory = computed(() => {
   }
   return null;
 });
-
-// 檢查分類是否展開
-const isCategoryOpen = (index: number) => {
-  return activeCategoryIndexes.value.includes(index);
-};
-
 // 獲取所有匹配搜尋的問題（跨分類）
 const allMatchingQuestions = computed(() => {
   if (!appliedSearchQuery.value.trim()) return [];
@@ -349,7 +340,6 @@ const allMatchingQuestions = computed(() => {
 
   return matching;
 });
-
 // 按分類分組的搜索結果
 const groupedSearchResults = computed(() => {
   if (!appliedSearchQuery.value.trim() || allMatchingQuestions.value.length === 0) return [];
@@ -365,25 +355,25 @@ const groupedSearchResults = computed(() => {
     questions,
   }));
 });
-
 // 當前分類的問題列表（無搜索時顯示當前分類的問題）
 const currentQuestions = computed(() => {
   if (!activeCategory.value) return [];
   return activeCategory.value.questions;
 });
-
+// 檢查分類是否展開
+const isCategoryOpen = (index: number) => {
+  return activeCategoryIndexes.value.includes(index);
+};
 // 去除 HTML 標籤，提取純文字
 const stripHtmlTags = (html: string): string => {
   const tmp = document.createElement("div");
   tmp.innerHTML = html;
   return tmp.textContent || tmp.innerText || "";
 };
-
 // 產生左側子問題按鈕的 DOM id，供鍵盤聚焦時查找元素
 const getQuestionNavId = (categoryIndex: number, questionIndex: number) => {
   return `faq-nav-question-${categoryIndex}-${questionIndex}`;
 };
-
 // 展開分類後，將焦點移到第一個子問題按鈕
 const focusFirstQuestionButton = (categoryIndex: number) => {
   const firstQuestionButton = document.getElementById(getQuestionNavId(categoryIndex, 0));
@@ -391,7 +381,6 @@ const focusFirstQuestionButton = (categoryIndex: number) => {
     firstQuestionButton.focus();
   }
 };
-
 //點擊分類標題展開/收起
 const selectCategory = (index: number) => {
   const currentIndex = activeCategoryIndexes.value.indexOf(index);
@@ -411,12 +400,10 @@ const selectCategory = (index: number) => {
     }
   }
 };
-
 // 左側導覽點擊時，直接切換右側目前顯示的問題
 const selectNavQuestion = (questionId: string) => {
   activeQuestionId.value = questionId;
 };
-
 // 右側問題標題點擊時，切換展開/收起狀態
 const selectQuestion = (questionId: string) => {
   // 如果點擊的是已展開的問題，則收起
@@ -426,7 +413,6 @@ const selectQuestion = (questionId: string) => {
     activeQuestionId.value = questionId;
   }
 };
-
 // 由搜尋按鈕觸發查詢，並同步重設 FAQ 的展開狀態
 const handleSearch = () => {
   const query = searchQuery.value.trim();
@@ -443,9 +429,6 @@ const handleSearch = () => {
   }
 };
 
-// 暫存最近一次 Tab 方向，方便觀察焦點移動順序
-let lastTabDirection: "forward" | "backward" | null = null;
-
 // 將目前聚焦元素整理成較易讀的除錯字串
 const describeFocusTarget = (target: EventTarget | null) => {
   if (!(target instanceof HTMLElement)) return "unknown";
@@ -458,29 +441,24 @@ const describeFocusTarget = (target: EventTarget | null) => {
   const text = (target.innerText || target.textContent || "").trim().replace(/\s+/g, " ").slice(0, 60);
   return `${tag}${id}${className}${text ? ` -> ${text}` : ""}`;
 };
-
 // 監聽 Tab / Shift+Tab，記錄本次焦點移動方向
 const handleTabKeydown = (event: KeyboardEvent) => {
   if (event.key !== "Tab") return;
   lastTabDirection = event.shiftKey ? "backward" : "forward";
 };
-
 // 焦點移入新元素時，在 console 印出目前聚焦到的目標
 const handleFocusIn = (event: FocusEvent) => {
   if (!lastTabDirection) return;
   console.log("[FAQ Tab Focus]", `direction=${lastTabDirection}`, `target=${describeFocusTarget(event.target)}`);
 };
-
 // 頁面掛載時啟用 FAQ 的 Tab 焦點除錯監聽
 onMounted(() => {
   window.addEventListener("keydown", handleTabKeydown, true);
   window.addEventListener("focusin", handleFocusIn, true);
 });
-
 // 頁面卸載時移除除錯監聽，避免影響其他頁面
 onBeforeUnmount(() => {
   window.removeEventListener("keydown", handleTabKeydown, true);
   window.removeEventListener("focusin", handleFocusIn, true);
 });
-
 </script>

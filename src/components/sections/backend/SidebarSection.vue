@@ -46,14 +46,14 @@
     </div>
   </aside>
 </template>
-
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
+import { ref, computed, onMounted, onUnmounted, watch } from "vue";
 import { useSidebarMenuConfig } from "@/composables/useSidebarMenuConfig";
 import Icon from "@/components/atoms/Icon.vue";
 import SidebarAccordion, { type SidebarSubItem } from "@/components/atoms/SidebarAccordion.vue";
-
+const route = useRoute();
+const router = useRouter();
 const props = withDefaults(
   defineProps<{
     backdropClosable?: boolean;
@@ -62,13 +62,12 @@ const props = withDefaults(
     backdropClosable: false,
   }
 );
-
-const router = useRouter();
-const route = useRoute();
 const emit = defineEmits<{
   "item-select": [itemName: string];
 }>();
-
+const selectedItem = ref<string>("");
+const expandedIndex = ref<number | null>(null);
+const isSidebarOpen = ref(false);
 const isAdmin = computed(() => {
   try {
     const userInfo = localStorage.getItem("userInfo");
@@ -81,10 +80,6 @@ const isAdmin = computed(() => {
   }
   return false;
 });
-
-const selectedItem = ref<string>("");
-const expandedIndex = ref<number | null>(null);
-const isSidebarOpen = ref(false);
 const sidebarId = computed(() => `sidebar-${Math.random().toString(36).substring(2, 11)}`);
 const sidebarMenuConfig = computed(() => useSidebarMenuConfig(isAdmin.value));
 const menuItems = computed(() => {
@@ -98,16 +93,21 @@ const menuItems = computed(() => {
     })) as SidebarSubItem[],
   }));
 });
-
+// 監聽路由變化和身份變化
+watch(
+  [() => route.path, isAdmin],
+  () => {
+    updateSelectedItem();
+  },
+  { immediate: true }
+);
 const toggleSidebar = () => {
   isSidebarOpen.value = !isSidebarOpen.value;
 }
-
 const closeSidebar = () => {
   if (!props.backdropClosable) return;
   isSidebarOpen.value = false;
 }
-
 const handleAccordionToggle = (index: number, isExpanded: boolean) => {
   if (isExpanded) {
     expandedIndex.value = index;
@@ -117,7 +117,6 @@ const handleAccordionToggle = (index: number, isExpanded: boolean) => {
     }
   }
 }
-
 const updateSelectedItem = () => {
   const config = sidebarMenuConfig.value;
   const isCaseDetailRoute = ["/case-detail", "/case-stage-detail"].includes(route.path);
@@ -174,31 +173,9 @@ const updateSelectedItem = () => {
     expandedIndex.value = defaultExpandedIndex;
   }
 }
-
 const checkUserRole = () => {
   updateSelectedItem();
 }
-
-onMounted(() => {
-  updateSelectedItem();
-  window.addEventListener("storage", checkUserRole);
-  window.addEventListener("login-status-changed", checkUserRole);
-});
-
-onUnmounted(() => {
-  window.removeEventListener("storage", checkUserRole);
-  window.removeEventListener("login-status-changed", checkUserRole);
-});
-
-// 監聽路由變化和身份變化
-watch(
-  [() => route.path, isAdmin],
-  () => {
-    updateSelectedItem();
-  },
-  { immediate: true }
-);
-
 const selectItem = (itemName: string) => {
   selectedItem.value = itemName;
   const config = sidebarMenuConfig.value;
@@ -212,8 +189,16 @@ const selectItem = (itemName: string) => {
     }
   }
 }
-
 const handleSubItemClick = (itemName: string) => {
   selectItem(itemName);
 }
+onMounted(() => {
+  updateSelectedItem();
+  window.addEventListener("storage", checkUserRole);
+  window.addEventListener("login-status-changed", checkUserRole);
+});
+onUnmounted(() => {
+  window.removeEventListener("storage", checkUserRole);
+  window.removeEventListener("login-status-changed", checkUserRole);
+});
 </script>

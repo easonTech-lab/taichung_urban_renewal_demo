@@ -2,7 +2,6 @@
   <div class="min-h-screen bg-indigo-50">
     <!-- Sidebar -->
     <SidebarSection :backdrop-closable="!showUnsavedToast" @item-select="handleSidebarItemSelect" />
-
     <!-- Main Content -->
     <div class="flex flex-1 flex-col gap-10 p-4 sm:ml-[328px] sm:p-10">
       <!-- Breadcrumb and Title -->
@@ -15,14 +14,12 @@
           <ButtonCTA v-if="isAdminUser" variant="red-outline" size="l" class="flex items-center gap-2 !min-w-0" @click="handleDeleteCase">刪除案件</ButtonCTA>
         </div>
       </div>
-
       <!-- Tabs Navigation -->
       <div class="flex items-center overflow-hidden rounded-t-lg">
         <button v-for="(tab, index) in tabs" :key="index" :class="getTabClass(index)" @click="handleTabClick(index)">
           <span :class="getTabTextClass(index)">{{ tab.label }}</span>
         </button>
       </div>
-
       <!-- Tab Content -->
       <div>
         <CaseInfoTab
@@ -55,7 +52,6 @@
         />
       </div>
     </div>
-
     <div class="fixed bottom-6 z-[90]" :style="deleteToastStyle">
       <Toast v-model="showDeleteToast" :message="deleteToastMessage" :show-actions="false" :show-close="false" :auto-close="true">
         <template #icon>
@@ -63,7 +59,6 @@
         </template>
       </Toast>
     </div>
-
     <ConfirmDeleteModal
       v-model="confirmDeleteOpen"
       :message="confirmDeleteMessage"
@@ -72,7 +67,6 @@
       @confirm="handleConfirmDelete"
       @cancel="handleCloseConfirmDelete"
     />
-
     <!-- 人民陳情：隱藏檔案 input，點上傳檔案時直接開啟選檔 -->
     <input
       ref="complaintFileInputRef"
@@ -83,7 +77,6 @@
       tabindex="-1"
       @change="handleComplaintFileInputChange"
     />
-
     <Modal v-model="showUploadComplaintWarning" size="md" backdrop-class="bg-gray-600/80" :show-close-button="true">
       <template #body>
         <div class="flex flex-col items-center gap-4 px-6 py-5">
@@ -99,10 +92,9 @@
     </Modal>
   </div>
 </template>
-
 <script setup lang="ts">
-import { useRoute, useRouter } from "vue-router";
 import { ref, computed, watch } from "vue";
+import { useRoute, useRouter } from "vue-router";
 import Icon from "@/components/atoms/Icon.vue";
 import Toast from "@/components/atoms/Toast.vue";
 import ButtonCTA from "@/components/atoms/ButtonCTA.vue";
@@ -115,118 +107,20 @@ import ProgressTab from "@/views/backend/caseManagement/common/tabs/ProgressTab.
 import CaseInfoTab from "@/views/backend/caseManagement/common/tabs/CaseInfoTab.vue";
 import ComplaintsTab from "@/views/backend/caseManagement/common/tabs/ComplaintsTab.vue";
 import type { ComplaintRow, ComplaintSection, OfficerItem, OfficerTableRow, ProjectFile } from "@/types/backend/caseManagement/common/CaseDetailView.d";
-
 const route = useRoute();
 const router = useRouter();
-const tabs = computed(() => {
-  if (isAdminUser.value) {
-    return [
-      { label: "案件資訊", value: "info" },
-      { label: "人民陳情", value: "complaints" },
-      { label: "案件進度", value: "progress" },
-      { label: "專案檔案", value: "files" },
-    ];
-  }
-  return [
-    { label: "案件資訊", value: "info" },
-    { label: "案件進度", value: "progress" },
-    { label: "專案檔案", value: "files" },
-  ];
-});
-
-const activeTab = ref<string>("info");
-const activeTabIndex = computed(() => {
-  const index = tabs.value.findIndex((tab) => tab.value === activeTab.value);
-  return index === -1 ? 0 : index;
-});
-const validTabValues = computed(() => tabs.value.map((tab) => tab.value));
-const isAdminUser = computed(() => {
-  const userInfo = localStorage.getItem("userInfo");
-  if (!userInfo) return false;
-  try {
-    const user = JSON.parse(userInfo);
-    return user.role === "admin";
-  } catch {
-    return false;
-  }
-});
-
-const syncTabFromRoute = () => {
-  const queryTab = route.query?.tab as string | undefined;
-  if (queryTab && validTabValues.value.includes(queryTab)) {
-    activeTab.value = queryTab;
-  }
-}
-
-const getTabClass = (index: number): string => {
-  const isActive = index === activeTabIndex.value;
-  const baseClasses = ["flex flex-1 flex-col items-center justify-center p-4 transition-colors"];
-
-  if (isActive) {
-    baseClasses.push("bg-indigo-50 border-l border-r border-t border-primary-500 rounded-tl-lg rounded-tr-lg");
-  } else {
-    baseClasses.push("bg-gray-50 border-b border-primary-600");
-  }
-
-  return baseClasses.join(" ");
-}
-
-const getTabTextClass = (index: number): string => {
-  const isActive = index === activeTabIndex.value;
-  return isActive ? "text-base font-medium text-primary-500" : "text-base font-medium text-gray-500";
-}
-
-const handleTabClick = (index: number) => {
-  const nextTab = tabs.value[index]?.value || "info";
-  activeTab.value = nextTab;
-  router.replace({
-    path: route.path,
-    query: {
-      ...route.query,
-      tab: nextTab,
-    },
-  });
-}
-
-const handleSidebarItemSelect = (itemName: string) => {
-  console.log("Selected sidebar item:", itemName);
-}
-
-const handleUnsavedToast = (visible: boolean) => {
-  showUnsavedToast.value = visible;
-}
-
-watch(
-  () => tabs.value,
-  () => {
-    syncTabFromRoute();
-  },
-  { immediate: true }
-);
-
-watch(
-  () => route.query?.tab,
-  () => {
-    syncTabFromRoute();
-  }
-);
-
+const showDeleteToast = ref(false);
+const showUnsavedToast = ref(false);
 const confirmDeleteOpen = ref(false);
+const confirmDeleteLabel = ref("刪除");
+const deleteToastMessage = ref("檔案已刪除");
+const showUploadComplaintWarning = ref(false);
+const uploadComplaintWarningMessage = ref("");
 const confirmDeleteMessage = ref("確認刪除此項目");
 const confirmDeleteDescription = ref("內容將完全刪除無法復原");
-const confirmDeleteLabel = ref("刪除");
 const confirmDeleteAction = ref<(() => void) | null>(null);
-const showDeleteToast = ref(false);
-const deleteToastMessage = ref("檔案已刪除");
-const showUnsavedToast = ref(false);
-const deleteToastStyle = {
-  left: "50%",
-  transform: "translateX(-50%)",
-  width: "min(1420px, calc(100vw - 2rem))",
-  maxWidth: "min(1420px, calc(100vw - 2rem))",
-  minWidth: "min(1420px, calc(100vw - 2rem))",
-};
-
+const uploadTargetSection = ref<ComplaintSection | null>(null);
+const complaintFileInputRef = ref<HTMLInputElement | null>(null);
 const caseInfo = ref({
   name: "臺中市東區行政段645地號等21筆土地 都市更新事業計畫及權利變換計畫案",
   number: "abc13456788999",
@@ -236,7 +130,6 @@ const caseInfo = ref({
   email: "abc@gmail.com",
   address: "台中市文心路二段588號",
 });
-
 const officerTableRows = ref<OfficerTableRow[]>([
   {
     name: "張泓明",
@@ -269,19 +162,11 @@ const officerTableRows = ref<OfficerTableRow[]>([
     background: "國立臺北大學都市計劃研究所博士",
   },
 ]);
-
-const caseOfficerNames = computed(() => {
-  const fromList = officerList.value.map((o) => o.selectedOfficer).filter(Boolean).join("、");
-  if (fromList) return fromList;
-  return officerTableRows.value.map((r) => r.name).join("、");
-});
-
 const officerList = ref<OfficerItem[]>(
   Array.from({ length: 5 }, () => ({
     selectedOfficer: "",
   }))
 );
-
 const complaintSections = ref<ComplaintSection[]>([
   {
     title: "書面受理資料",
@@ -344,7 +229,6 @@ const complaintSections = ref<ComplaintSection[]>([
     ],
   },
 ]);
-
 const allFiles = ref<ProjectFile[]>([
   {
     fileName: "小組審查文件.pdf",
@@ -395,7 +279,102 @@ const allFiles = ref<ProjectFile[]>([
     fileSize: "107 KB",
   },
 ]);
+const activeTab = ref<string>("info");
+const deleteToastStyle = {
+  left: "50%",
+  transform: "translateX(-50%)",
+  width: "min(1420px, calc(100vw - 2rem))",
+  maxWidth: "min(1420px, calc(100vw - 2rem))",
+  minWidth: "min(1420px, calc(100vw - 2rem))",
+};
+const COMPLAINT_FILE_MAX_SIZE_MB = 30;
+const activeTabIndex = computed(() => {
+  const index = tabs.value.findIndex((tab) => tab.value === activeTab.value);
+  return index === -1 ? 0 : index;
+});
+const validTabValues = computed(() => tabs.value.map((tab) => tab.value));
+const isAdminUser = computed(() => {
+  const userInfo = localStorage.getItem("userInfo");
+  if (!userInfo) return false;
+  try {
+    const user = JSON.parse(userInfo);
+    return user.role === "admin";
+  } catch {
+    return false;
+  }
+});
+const tabs = computed(() => {
+  if (isAdminUser.value) {
+    return [
+      { label: "案件資訊", value: "info" },
+      { label: "人民陳情", value: "complaints" },
+      { label: "案件進度", value: "progress" },
+      { label: "專案檔案", value: "files" },
+    ];
+  }
+  return [
+    { label: "案件資訊", value: "info" },
+    { label: "案件進度", value: "progress" },
+    { label: "專案檔案", value: "files" },
+  ];
+});
+const caseOfficerNames = computed(() => {
+  const fromList = officerList.value.map((o) => o.selectedOfficer).filter(Boolean).join("、");
+  if (fromList) return fromList;
+  return officerTableRows.value.map((r) => r.name).join("、");
+});
+watch(
+  () => tabs.value,
+  () => {
+    syncTabFromRoute();
+  },
+  { immediate: true }
+);
+watch(
+  () => route.query?.tab,
+  () => {
+    syncTabFromRoute();
+  }
+);
+const syncTabFromRoute = () => {
+  const queryTab = route.query?.tab as string | undefined;
+  if (queryTab && validTabValues.value.includes(queryTab)) {
+    activeTab.value = queryTab;
+  }
+}
+const getTabClass = (index: number): string => {
+  const isActive = index === activeTabIndex.value;
+  const baseClasses = ["flex flex-1 flex-col items-center justify-center p-4 transition-colors"];
 
+  if (isActive) {
+    baseClasses.push("bg-indigo-50 border-l border-r border-t border-primary-500 rounded-tl-lg rounded-tr-lg");
+  } else {
+    baseClasses.push("bg-gray-50 border-b border-primary-600");
+  }
+
+  return baseClasses.join(" ");
+}
+const getTabTextClass = (index: number): string => {
+  const isActive = index === activeTabIndex.value;
+  return isActive ? "text-base font-medium text-primary-500" : "text-base font-medium text-gray-500";
+}
+const handleTabClick = (index: number) => {
+  const nextTab = tabs.value[index]?.value || "info";
+  activeTab.value = nextTab;
+  router.replace({
+    path: route.path,
+    query: {
+      ...route.query,
+      tab: nextTab,
+    },
+  });
+}
+const handleSidebarItemSelect = (itemName: string) => {
+  console.log("Selected sidebar item:", itemName);
+}
+const handleUnsavedToast = (visible: boolean) => {
+  showUnsavedToast.value = visible;
+}
 const handleDeleteCase = () => {
   openConfirmDelete({
     message: "確認刪除此案件",
@@ -413,11 +392,9 @@ const handleDeleteCase = () => {
     },
   });
 };
-
 const handleSaveOfficerList = (items: OfficerItem[]) => {
   officerList.value = items.map((item) => ({ ...item }));
 };
-
 const handleRequestRemoveOfficer = (row: OfficerTableRow) => {
   openConfirmDelete({
     message: "確認將該幹事從名單移除",
@@ -430,7 +407,6 @@ const handleRequestRemoveOfficer = (row: OfficerTableRow) => {
     },
   });
 };
-
 const handleRequestDeleteComplaint = (row: ComplaintRow) => {
   openConfirmDelete({
     message: "確認刪除檔案",
@@ -445,14 +421,6 @@ const handleRequestDeleteComplaint = (row: ComplaintRow) => {
     },
   });
 };
-
-const complaintFileInputRef = ref<HTMLInputElement | null>(null);
-const uploadTargetSection = ref<ComplaintSection | null>(null);
-const showUploadComplaintWarning = ref(false);
-const uploadComplaintWarningMessage = ref("");
-
-const COMPLAINT_FILE_MAX_SIZE_MB = 30;
-
 const formatUploadedAt = (date: Date): string => {
   const y = date.getFullYear() - 1911;
   const m = String(date.getMonth() + 1).padStart(2, "0");
@@ -461,12 +429,10 @@ const formatUploadedAt = (date: Date): string => {
   const min = String(date.getMinutes()).padStart(2, "0");
   return `${y}/${m}/${d} ${h}:${min}`;
 };
-
 const handleUploadComplaint = (section: ComplaintSection) => {
   uploadTargetSection.value = section;
   complaintFileInputRef.value?.click();
 };
-
 const handleComplaintFileInputChange = (event: Event) => {
   const input = event.target as HTMLInputElement;
   const files = input.files;
@@ -503,11 +469,9 @@ const handleComplaintFileInputChange = (event: Event) => {
   }
   input.value = "";
 };
-
 const handleDownloadComplaint = (row: ComplaintRow) => {
   console.log("Download complaint file:", row);
 };
-
 const handleRequestDeleteProjectFile = (file: ProjectFile) => {
   openConfirmDelete({
     message: "確認刪除此檔案",
@@ -520,11 +484,9 @@ const handleRequestDeleteProjectFile = (file: ProjectFile) => {
     },
   });
 };
-
 const handleDownloadFile = (file: ProjectFile) => {
   console.log("Download file:", file);
 };
-
 const openConfirmDelete = (options: { message: string; description?: string; confirmLabel?: string; onConfirm: () => void }) => {
   confirmDeleteMessage.value = options.message;
   confirmDeleteDescription.value = options.description ?? "";
@@ -532,12 +494,10 @@ const openConfirmDelete = (options: { message: string; description?: string; con
   confirmDeleteAction.value = options.onConfirm;
   confirmDeleteOpen.value = true;
 };
-
 const handleConfirmDelete = () => {
   confirmDeleteAction.value?.();
   handleCloseConfirmDelete();
 };
-
 const handleCloseConfirmDelete = () => {
   confirmDeleteOpen.value = false;
   confirmDeleteAction.value = null;

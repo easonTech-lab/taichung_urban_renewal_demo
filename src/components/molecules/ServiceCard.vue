@@ -20,10 +20,8 @@
     </div>
   </a>
 </template>
-
 <script setup lang="ts">
 import Icon from "@/components/atoms/Icon.vue";
-
 defineProps<{
   title: string;
   iconName: string;

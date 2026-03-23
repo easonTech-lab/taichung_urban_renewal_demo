@@ -15,7 +15,6 @@
       </div>
       <Icon :name="isExpanded ? 'chevronUp' : 'chevronDown'" :size="24" class="shrink-0 text-gray-800" aria-hidden="true" />
     </button>
-
     <!-- Submenu (子選單項) -->
     <div v-if="isExpanded" :id="`sidebar-accordion-${accordionId}`" class="flex flex-col gap-1.5 py-0 pl-12 pr-0" role="region" :aria-label="`${title}的子選單`">
       <slot name="submenu">
@@ -33,16 +32,13 @@
     </div>
   </div>
 </template>
-
 <script setup lang="ts">
 import { ref, computed } from "vue";
 import Icon from "@/components/atoms/Icon.vue";
-
 export interface SidebarSubItem {
   label: string;
   value: string;
 }
-
 const props = withDefaults(
   defineProps<{
     title: string;
@@ -64,30 +60,25 @@ const props = withDefaults(
     selectedItem: undefined,
   }
 );
-
 const emit = defineEmits<{
   toggle: [isExpanded: boolean];
   "sub-item-click": [value: string];
 }>();
-
-const accordionId = computed(() => Math.random().toString(36).substring(2, 11));
-
 // 如果提供了 expanded prop，使用它；否則使用內部狀態
 const internalExpanded = ref(props.defaultExpanded);
+const accordionId = computed(() => Math.random().toString(36).substring(2, 11));
 const isExpanded = computed(() => {
   if (props.expanded !== undefined) {
     return props.expanded;
   }
   return internalExpanded.value;
 });
-
 // 根據是否有選中的子項目來決定 icon 顏色
 const computedIconColor = computed(() => {
   const hasSelectedSubItem = props.subItems?.some((subItem) => subItem.value === props.selectedItem) || false;
   // text-gray-800: #1F2937, text-gray-500: #6B7280
   return hasSelectedSubItem ? "#1F2937" : "#6B7280";
 });
-
 const toggle = () => {
   const newValue = !isExpanded.value;
   if (props.expanded === undefined) {
@@ -96,11 +87,9 @@ const toggle = () => {
   }
   emit("toggle", newValue);
 };
-
 const handleSubItemClick = (value: string) => {
   emit("sub-item-click", value);
 };
-
 // 暴露方法供父組件調用
 defineExpose({
   expand: () => {

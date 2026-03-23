@@ -63,19 +63,16 @@
     </Teleport>
   </div>
 </template>
-
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted, nextTick } from "vue";
 import Icon from "@/components/atoms/Icon.vue";
-
 export interface DropdownItem {
   label: string;
   to?: string; // Vue Router 路徑
   href?: string; // 外部連結
   class?: string; // 自訂 class
   [key: string]: any; // 允許其他屬性
-}
-
+};
 const props = withDefaults(
   defineProps<{
     buttonText?: string;
@@ -89,9 +86,7 @@ const props = withDefaults(
     placeholder: "",
   }
 );
-
 const emit = defineEmits(["item-click", "toggle"]);
-
 const isOpen = ref(false);
 const buttonRef = ref<HTMLElement | null>(null);
 const itemRefs = ref<HTMLElement[]>([]);
@@ -99,21 +94,17 @@ const menuStyle = ref<Record<string, string>>({});
 const instanceId = `dropdown-${Math.random().toString(36).substring(2, 11)}`;
 const buttonId = `${instanceId}-button`;
 const dropdownId = `${instanceId}-menu`;
-
 const buttonClasses = computed(() => {
   return "bg-gray-50 border border-gray-300 text-gray-500 hover:bg-gray-100 focus:border-primary-500 focus:ring-primary-500 rounded-lg px-4 py-3 text-sm font-normal leading-[1.25]";
 });
-
 const displayText = computed(() => {
   if (props.buttonText) return props.buttonText;
   return props.placeholder || "";
 });
-
 const buttonTextClasses = computed(() => {
   const isPlaceholder = !props.buttonText || (!!props.placeholder && props.buttonText === props.placeholder);
   return isPlaceholder ? "text-gray-500" : "text-gray-900";
 });
-
 const updateMenuPosition = () => {
   if (!buttonRef.value) return;
   const rect = buttonRef.value.getBoundingClientRect();
@@ -124,12 +115,10 @@ const updateMenuPosition = () => {
     left: `${leftPx}px`,
   };
 }
-
 const setItemRef = (el: Element | null, index: number) => {
   if (!el) return;
   itemRefs.value[index] = el as HTMLElement;
 }
-
 const focusItem = (index: number) => {
   const itemsCount = props.items.length;
   if (itemsCount === 0) return;
@@ -137,7 +126,6 @@ const focusItem = (index: number) => {
   const normalizedIndex = ((index % itemsCount) + itemsCount) % itemsCount;
   itemRefs.value[normalizedIndex]?.focus();
 }
-
 const openAndFocusItem = async (index = 0) => {
   if (!isOpen.value) {
     updateMenuPosition();
@@ -147,26 +135,22 @@ const openAndFocusItem = async (index = 0) => {
   }
   focusItem(index);
 }
-
 const toggle = () => {
   const willOpen = !isOpen.value;
   if (willOpen) updateMenuPosition();
   isOpen.value = willOpen;
   emit("toggle", isOpen.value);
 }
-
 const close = () => {
   if (isOpen.value) {
     isOpen.value = false;
     emit("toggle", false);
   }
 }
-
 const closeAndFocusButton = () => {
   close();
   buttonRef.value?.focus();
 }
-
 const handleItemClick = (item: DropdownItem, index: number, event: Event) => {
   if (!item.to && !item.href) {
     event.preventDefault();
@@ -174,7 +158,6 @@ const handleItemClick = (item: DropdownItem, index: number, event: Event) => {
   emit("item-click", item, index);
   close();
 }
-
 const handleClickOutside = (event: Event) => {
   const target = event.target as HTMLElement;
   const dropdownElement = document.getElementById(dropdownId);
@@ -184,17 +167,14 @@ const handleClickOutside = (event: Event) => {
     close();
   }
 }
-
 const handleScrollOrResize = () => {
   if (isOpen.value) close();
 }
-
 onMounted(() => {
   document.addEventListener("click", handleClickOutside);
   window.addEventListener("scroll", handleScrollOrResize, true);
   window.addEventListener("resize", handleScrollOrResize);
 });
-
 onUnmounted(() => {
   document.removeEventListener("click", handleClickOutside);
   window.removeEventListener("scroll", handleScrollOrResize, true);

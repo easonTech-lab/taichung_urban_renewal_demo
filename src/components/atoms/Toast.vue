@@ -9,12 +9,10 @@
             <path d="M12 17h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
           </svg>
         </slot>
-
         <p class="text-base font-normal text-gray-50">
           <slot>{{ message }}</slot>
         </p>
       </div>
-
       <div class="flex items-center gap-4">
         <div v-if="showActions" class="flex items-center gap-4">
           <button type="button" class="h-8 rounded-lg border border-primary-700 px-3 text-xs font-medium text-primary-700" @click="$emit('secondary')">
@@ -24,11 +22,9 @@
             {{ primaryLabel }}
           </button>
         </div>
-
         <button v-if="showRestore" type="button" class="text-xs font-medium text-primary-50 hover:underline" @click="$emit('restore')">
           {{ restoreLabel }}
         </button>
-
         <button
           v-if="showClose"
           type="button"
@@ -45,10 +41,8 @@
     </div>
   </transition>
 </template>
-
 <script setup lang="ts">
 import { onMounted, onUnmounted, watch } from "vue";
-
 const props = withDefaults(
   defineProps<{
     id?: string;
@@ -79,7 +73,6 @@ const props = withDefaults(
     duration: 2000,
   }
 );
-
 const emit = defineEmits<{
   (e: "update:modelValue", value: boolean): void;
   (e: "close"): void;
@@ -87,21 +80,17 @@ const emit = defineEmits<{
   (e: "secondary"): void;
   (e: "restore"): void;
 }>();
-
 const handleClose = () => {
   emit("update:modelValue", false);
   emit("close");
 };
-
 let closeTimer: number | null = null;
-
 const clearTimer = () => {
   if (closeTimer !== null) {
     window.clearTimeout(closeTimer);
     closeTimer = null;
   }
 };
-
 const startTimer = () => {
   clearTimer();
   if (!props.autoClose) return;
@@ -112,16 +101,12 @@ const startTimer = () => {
     emit("close");
   }, durationMs);
 };
-
-onMounted(startTimer);
-
 watch(
   () => [props.autoClose, props.duration],
   () => {
     startTimer();
   }
 );
-
 watch(
   () => props.modelValue,
   (isOpen) => {
@@ -132,24 +117,21 @@ watch(
     }
   }
 );
-
+onMounted(startTimer);
 onUnmounted(() => {
   clearTimer();
 });
 </script>
-
 <style scoped>
 :global(.toast-slide-enter-active),
 :global(.toast-slide-leave-active) {
   transition: transform 200ms ease, opacity 200ms ease;
 }
-
 :global(.toast-slide-enter-from),
 :global(.toast-slide-leave-to) {
   transform: translateY(16px);
   opacity: 0;
 }
-
 :global(.toast-slide-enter-to),
 :global(.toast-slide-leave-from) {
   transform: translateY(0);

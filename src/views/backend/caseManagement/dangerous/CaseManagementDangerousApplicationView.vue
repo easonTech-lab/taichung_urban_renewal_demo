@@ -6,19 +6,16 @@
         <Breadcrumb :items="breadcrumbItems" />
         <h1 class="text-3xl font-bold leading-[30px] text-gray-900">{{ isFromCaseDetail ? '編輯危老重建案件' : '新增危老重建案件' }}</h1>
       </div>
-
       <div class="flex flex-col gap-4">
         <StageProgressBar
           :steps="['公開基本資料', '危老申請書', '危老審查獎勵']"
           :active-index="1"
         />
-
         <div class="flex flex-col gap-10 rounded-lg bg-white p-8 shadow-sm">
           <div class="flex items-center gap-3">
             <div class="h-7 w-1 rounded bg-primary-600"></div>
             <h2 class="text-2xl font-medium text-gray-900">危老申請書</h2>
           </div>
-
           <div class="flex flex-col gap-8">
             <div class="flex flex-col gap-6 border-b border-gray-300 pb-6">
               <h3 class="text-xl font-bold text-blue-700">起造人資料</h3>
@@ -40,7 +37,6 @@
                 </div>
               </div>
             </div>
-
             <div class="flex flex-col gap-6 border-b border-gray-300 pb-6">
               <h3 class="text-xl font-bold text-blue-700">規劃單位</h3>
               <div class="grid w-[744px] grid-cols-[repeat(2,364px)] gap-4">
@@ -55,7 +51,6 @@
                 </div>
               </div>
             </div>
-
             <div class="flex flex-col gap-6 border-b border-gray-300 pb-6">
               <h3 class="text-xl font-bold text-blue-700">重建計畫範圍內土地座落</h3>
               <div class="flex flex-col gap-4">
@@ -77,7 +72,6 @@
                 </ButtonCTA>
               </div>
             </div>
-
             <div class="flex flex-col gap-6 border-b border-gray-300 pb-6">
               <h3 class="text-xl font-bold text-blue-700">基地概要</h3>
               <div class="grid w-[744px] grid-cols-[repeat(2,364px)] gap-4">
@@ -100,7 +94,6 @@
                 </div>
               </div>
             </div>
-
             <div class="flex flex-col gap-6 border-b border-gray-300 pb-6">
               <h3 class="text-xl font-bold text-blue-700">符合條件</h3>
               <div class="flex flex-col gap-4">
@@ -110,7 +103,6 @@
                 <Radio v-model="formData.condition" name="dangerous-conditions" value="condition-4" label="符合條件四：其他經主管機關認定之情形" />
               </div>
             </div>
-
             <div class="flex flex-col gap-6 border-b border-gray-300 pb-6">
               <h3 class="text-xl font-bold text-blue-700">土地及建築物所有權人</h3>
               <div class="grid w-[744px] grid-cols-[repeat(2,364px)] gap-4">
@@ -134,7 +126,6 @@
                 />
               </div>
             </div>
-
             <div class="flex flex-col gap-6 border-b border-gray-300 pb-6">
               <h3 class="text-xl font-bold text-blue-700">建築物基本資料</h3>
               <div class="flex flex-col gap-6">
@@ -149,26 +140,22 @@
                     <p class="text-base leading-tight text-gray-500">例：住宅、商業</p>
                   </div>
                 </div>
-
                 <div class="flex w-[752px] flex-wrap items-start gap-6">
                   <Input v-model="formData.preRebuildBuildingCount" label="重建前棟數" placeholder="請輸入重建前棟數" size="lg" required containerClass="w-[364px]" />
                   <Input v-model="formData.preRebuildFloorCount" label="重建前樓層數" placeholder="請輸入重建前樓層數" size="lg" required containerClass="w-[364px]" />
                   <Input v-model="formData.preRebuildHouseholdCount" label="重建前戶數" placeholder="請輸入重建前戶數" size="lg" required containerClass="w-[364px]" />
                 </div>
-
                 <div class="flex w-[752px] flex-wrap items-start gap-6">
                   <Input v-model="formData.postRebuildBuildingCount" label="重建後棟數" placeholder="請輸入重建後棟數" size="lg" required containerClass="w-[364px]" />
                   <Input v-model="formData.postRebuildFloorCount" label="重建後樓層數" placeholder="請輸入重建後樓層數" size="lg" required containerClass="w-[364px]" />
                   <Input v-model="formData.postRebuildHouseholdCount" label="重建後戶數" placeholder="請輸入重建後戶數" size="lg" required containerClass="w-[364px]" />
                 </div>
-
                 <div class="flex w-[752px] flex-wrap items-start gap-6">
                   <Input v-model="formData.designFAR" label="設計容積率（％）" placeholder="請輸入設計容積率" size="lg" required containerClass="w-[364px]" />
                   <Input v-model="formData.psercbId" label="PSERCB初評案件編號" placeholder="請輸入PSERCB初評案件編號" size="lg" required containerClass="w-[364px]" />
                 </div>
               </div>
             </div>
-
             <div class="flex flex-col gap-4">
               <h3 class="text-xl font-bold text-blue-700">其他政府規定事項</h3>
               <p class="text-base text-gray-900">此欄空白</p>
@@ -176,7 +163,6 @@
           </div>
         </div>
       </div>
-
       <div class="flex items-center justify-center gap-6">
         <template v-if="isFromCaseDetail">
           <ButtonCTA variant="outline" size="xl" :to="cancelTarget">取消</ButtonCTA>
@@ -191,7 +177,6 @@
     </div>
   </div>
 </template>
-
 <script setup lang="ts">
 import { computed, onMounted, ref } from "vue";
 import { useRoute } from "vue-router";
@@ -205,31 +190,9 @@ import StageProgressBar from "@/components/molecules/StageProgressBar.vue";
 import SidebarSection from "@/components/sections/backend/SidebarSection.vue";
 import InputDropdown, { type InputDropdownItem } from "@/components/atoms/InputDropdown.vue";
 import type { DangerousApplicationFormData } from "@/types/backend/caseManagement/dangerous/CaseManagementDangerousApplicationView.d";
-
-const isFromCaseDetail = ref(false);
-const route = useRoute();
-const cancelTarget = computed(() => {
-  const returnTo = route.query?.returnTo;
-  if (typeof returnTo === "string" && returnTo.trim()) {
-    return returnTo;
-  }
-  return { path: "/case-management-dangerous" };
-});
-
-const breadcrumbItems = computed(() => [
-  { label: "首頁", to: "/" },
-  { label: "我的案件", to: "/case-management" },
-  { label: "危老重建案件", to: "/case-management-dangerous" },
-  { label: isFromCaseDetail.value ? "編輯危老重建案件" : "新增危老重建案件" },
-]);
-
-const builderTypeOptions: InputDropdownItem[] = [{ label: "法人（公司行號）" }, { label: "自然人" }];
-const districtOptions: InputDropdownItem[] = [];
-const landOwnerOptions: InputDropdownItem[] = [];
-const buildingOwnerOptions: InputDropdownItem[] = [];
-
 type DropdownStringKey = "builderType" | "district" | "landOwner" | "buildingOwner";
-
+const route = useRoute();
+const isFromCaseDetail = ref(false);
 const formData = ref<DangerousApplicationFormData>({
   builderType: "",
   designerName: "",
@@ -263,6 +226,24 @@ const formData = ref<DangerousApplicationFormData>({
   designFAR: "",
   psercbId: "",
 });
+const builderTypeOptions: InputDropdownItem[] = [{ label: "法人（公司行號）" }, { label: "自然人" }];
+const districtOptions: InputDropdownItem[] = [];
+const landOwnerOptions: InputDropdownItem[] = [];
+const buildingOwnerOptions: InputDropdownItem[] = [];
+const STORAGE_KEY_CASE_FOR_APPLICATION = "caseDetailForApplication";
+const cancelTarget = computed(() => {
+  const returnTo = route.query?.returnTo;
+  if (typeof returnTo === "string" && returnTo.trim()) {
+    return returnTo;
+  }
+  return { path: "/case-management-dangerous" };
+});
+const breadcrumbItems = computed(() => [
+  { label: "首頁", to: "/" },
+  { label: "我的案件", to: "/case-management" },
+  { label: "危老重建案件", to: "/case-management-dangerous" },
+  { label: isFromCaseDetail.value ? "編輯危老重建案件" : "新增危老重建案件" },
+]);
 const buildDangerousApplicationSnapshot = () =>
   JSON.stringify({
     ...formData.value,
@@ -299,9 +280,12 @@ const buildDangerousApplicationSnapshot = () =>
     buildingLineDate: formData.value.buildingLineDate ? new Date(formData.value.buildingLineDate).toISOString() : null,
   });
 const { hasUnsavedChanges: hasDangerousApplicationChanges, captureInitial: captureDangerousApplicationInitial } = useFormUnsavedCheck(buildDangerousApplicationSnapshot, isFromCaseDetail);
-
-const STORAGE_KEY_CASE_FOR_APPLICATION = "caseDetailForApplication";
-
+const handleSidebarItemSelect = (itemName: string) => {
+  console.log("Selected sidebar item:", itemName);
+};
+const handleDropdownChange = (key: DropdownStringKey, item: InputDropdownItem) => {
+  formData.value[key] = item.label;
+};
 onMounted(() => {
   try {
     const raw = sessionStorage.getItem(STORAGE_KEY_CASE_FOR_APPLICATION);
@@ -325,12 +309,4 @@ onMounted(() => {
   }
   captureDangerousApplicationInitial();
 });
-
-const handleSidebarItemSelect = (itemName: string) => {
-  console.log("Selected sidebar item:", itemName);
-};
-
-const handleDropdownChange = (key: DropdownStringKey, item: InputDropdownItem) => {
-  formData.value[key] = item.label;
-};
 </script>

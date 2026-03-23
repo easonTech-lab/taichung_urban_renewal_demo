@@ -3,7 +3,6 @@
     <div class="flex min-h-[calc(100vh-88px)] items-center justify-center px-4 py-[120px]">
       <div class="w-full max-w-[428px] rounded-lg border border-gray-200 bg-white p-8">
         <h1 class="text-2xl font-medium leading-6 text-gray-900">登入</h1>
-
         <form class="mt-10 flex w-full flex-col gap-4" @submit.prevent="handleLogin" aria-label="登入表單">
           <Input
             v-model="formData.username"
@@ -49,7 +48,6 @@
               <img :src="captchaImageUrl" alt="驗證碼圖片，請輸入圖片中顯示的文字或數字" class="h-full w-full rounded object-cover" aria-label="驗證碼圖片" />
             </div>
           </div>
-
           <div class="mt-4 w-full">
             <ButtonCTA :disabled="!isFormValid" :variant="isFormValid ? 'primary' : 'gray'" type="submit" class="h-[40px] w-full">登入</ButtonCTA>
           </div>
@@ -62,41 +60,34 @@
     </div>
   </div>
 </template>
-
 <script setup lang="ts">
 import { ref, computed } from "vue";
 import { useRouter } from "vue-router";
 import Input from "@/components/atoms/Input.vue";
 import Checkbox from "@/components/atoms/Checkbox.vue";
 import ButtonCTA from "@/components/atoms/ButtonCTA.vue";
-
 const router = useRouter();
 const captchaImageUrl = ref("https://via.placeholder.com/125x49?text=驗證碼");
 const mockCaptcha = "1234";
-
 // 假帳密資料
 const mockUsers = [
   { username: "adm", password: "adm" },
   { username: "user", password: "user" },
 ];
-
 const formData = ref({
   username: "",
   password: "",
   captcha: "",
   rememberMe: false,
 });
-
 const errors = ref({
   username: "",
   password: "",
   captcha: "",
 });
-
 const isFormValid = computed(() => {
   return formData.value.username.trim() !== "" && formData.value.password.trim() !== "" && formData.value.captcha.trim() !== "";
 });
-
 // 清除錯誤訊息
 const clearErrors = () => {
   errors.value = {
@@ -105,12 +96,10 @@ const clearErrors = () => {
     captcha: "",
   };
 };
-
 // 設置錯誤訊息
 const setError = (field: "username" | "password" | "captcha", message: string) => {
   errors.value[field] = message;
 };
-
 const handleLogin = () => {
   // 清除之前的錯誤
   clearErrors();
@@ -167,7 +156,6 @@ const handleLogin = () => {
     router.push("/case-management-admin");
   }
 };
-
 const handleForgotPassword = () => {
   router.push("/forgot-password");
 };

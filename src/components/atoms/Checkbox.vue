@@ -20,10 +20,8 @@
     </div>
   </div>
 </template>
-
 <script setup lang="ts">
 import { computed, watch, onMounted, ref } from "vue";
-
 const props = withDefaults(
   defineProps<{
     label?: string;
@@ -46,15 +44,12 @@ const props = withDefaults(
     labelClass: "",
   }
 );
-
 const emit = defineEmits<{
   "update:modelValue": [value: boolean];
   change: [event: Event];
 }>();
-
-const inputId = computed(() => `checkbox-${Math.random().toString(36).substring(2, 11)}`);
 const checkboxRef = ref<HTMLInputElement | null>(null);
-
+const inputId = computed(() => `checkbox-${Math.random().toString(36).substring(2, 11)}`);
 // 設置 indeterminate 狀態
 watch(
   () => props.indeterminate,
@@ -65,16 +60,14 @@ watch(
   },
   { immediate: true }
 );
-
-onMounted(() => {
-  if (checkboxRef.value && props.indeterminate) {
-    checkboxRef.value.indeterminate = true;
-  }
-});
-
 const handleChange = (event: Event) => {
   const target = event.target as HTMLInputElement;
   emit("update:modelValue", target.checked);
   emit("change", event);
 };
+onMounted(() => {
+  if (checkboxRef.value && props.indeterminate) {
+    checkboxRef.value.indeterminate = true;
+  }
+});
 </script>

@@ -8,10 +8,8 @@
     :fetchpriority="fetchPriority"
   />
 </template>
-
 <script setup lang="ts">
 import { computed } from "vue";
-
 const props = withDefaults(
   defineProps<{
     src: string;
@@ -29,7 +27,6 @@ const props = withDefaults(
     fetchPriority: "auto",
   }
 );
-
 const imageClass = computed(() => {
   return props.class ? props.class : "h-auto max-w-full";
 });

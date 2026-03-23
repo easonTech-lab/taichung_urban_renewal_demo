@@ -112,13 +112,7 @@
       <template #footer>
         <div class="flex w-full justify-end gap-4">
           <ButtonCTA variant="outline" size="xl" class="w-[124px]" @click="handleCancelChangeAccount">取消</ButtonCTA>
-          <ButtonCTA
-            :variant="canSaveAdminAccount ? 'primary' : 'gray'"
-            size="xl"
-            class="w-[124px]"
-            :disabled="!canSaveAdminAccount"
-            @click="handleSaveChangeAccount"
-          >
+          <ButtonCTA :variant="canSaveAdminAccount ? 'primary' : 'gray'" size="xl" class="w-[124px]" :disabled="!canSaveAdminAccount" @click="handleSaveChangeAccount">
             儲存
           </ButtonCTA>
         </div>
@@ -137,12 +131,7 @@
     <Modal v-model="showCannotDeleteAdminModal" size="md" :static="false" :show-close-button="false" close-action="emit" backdrop-class="bg-gray-600/80">
       <template #header>
         <div class="flex w-full items-center justify-end px-4 pt-4">
-          <button
-            type="button"
-            class="flex h-6 w-6 items-center justify-center text-gray-400 hover:text-gray-500"
-            aria-label="關閉"
-            @click="showCannotDeleteAdminModal = false"
-          >
+          <button type="button" class="flex h-6 w-6 items-center justify-center text-gray-400 hover:text-gray-500" aria-label="關閉" @click="showCannotDeleteAdminModal = false">
             <Icon name="close" :size="20" aria-hidden="true" />
           </button>
         </div>
@@ -193,19 +182,17 @@ import SidebarSection from "@/components/sections/backend/SidebarSection.vue";
 import Table, { type TableColumn } from "@/components/atoms/Table.vue";
 import ConfirmDeleteModal from "@/components/molecules/ConfirmDeleteModal.vue";
 import type { HandlerAccount } from "@/types/backend/systemManagement/internalStaff/internalStaffAccountManagement.d";
-
 // State
-const router = useRouter();
 const route = useRoute();
+const router = useRouter();
 const pageSize = ref<number>(10);
-const showDeleteModal = ref<boolean>(false);
-const showCannotDeleteAdminModal = ref<boolean>(false);
-const showToast = ref<boolean>(false);
 const toastMessage = ref("儲存成功");
-const deleteTarget = ref<HandlerAccount | null>(null);
-const showChangeAccountDrawer = ref<boolean>(false);
+const showToast = ref<boolean>(false);
+const showDeleteModal = ref<boolean>(false);
 const selectedAccountEmail = ref<string>("");
-
+const showChangeAccountDrawer = ref<boolean>(false);
+const deleteTarget = ref<HandlerAccount | null>(null);
+const showCannotDeleteAdminModal = ref<boolean>(false);
 // Current Admin Account
 const currentAdminAccount = ref<{
   name: string;
@@ -214,7 +201,6 @@ const currentAdminAccount = ref<{
   name: "張森",
   email: "abc123@taichung.gov.tw",
 });
-
 // Available Accounts for Selection
 const availableAccounts = ref<Array<{ name: string; email: string }>>([
   {
@@ -230,11 +216,6 @@ const availableAccounts = ref<Array<{ name: string; email: string }>>([
     email: "321xyz@taichung.gov.tw",
   },
 ]);
-const hasAvailableAccounts = computed(() => availableAccounts.value.length > 0);
-const buildAdminAccountSnapshot = () => JSON.stringify({ email: selectedAccountEmail.value.trim() });
-const { hasUnsavedChanges: hasAdminAccountChanges, captureInitial: captureAdminAccountInitial } = useFormUnsavedCheck(buildAdminAccountSnapshot);
-const canSaveAdminAccount = computed(() => hasAvailableAccounts.value && hasAdminAccountChanges.value);
-
 // Mock Data
 const handlerAccounts = ref<HandlerAccount[]>([
   {
@@ -314,8 +295,13 @@ const handlerAccounts = ref<HandlerAccount[]>([
     status: false,
   },
 ]);
-const hasAnyHandlers = computed(() => handlerAccounts.value.length > 0);
-
+const paginationState = reactive(
+  useTablePagination({
+    rows: handlerAccounts,
+    pageSize,
+    slice: false,
+  })
+);
 // Table Columns
 const tableColumns: TableColumn[] = [
   {
@@ -359,29 +345,23 @@ const tableColumns: TableColumn[] = [
     width: "10%",
   },
 ];
-
-const paginationState = reactive(useTablePagination({
-  rows: handlerAccounts,
-  pageSize,
-  slice: false,
-}));
-
+const hasAnyHandlers = computed(() => handlerAccounts.value.length > 0);
+const hasAvailableAccounts = computed(() => availableAccounts.value.length > 0);
+const canSaveAdminAccount = computed(() => hasAvailableAccounts.value && hasAdminAccountChanges.value);
+const buildAdminAccountSnapshot = () => JSON.stringify({ email: selectedAccountEmail.value.trim() });
 // Event Handlers
 const handleSidebarItemSelect = (itemName: string) => {
   console.log("Selected sidebar item:", itemName);
 };
-
 const handleChangeAccount = () => {
   selectedAccountEmail.value = currentAdminAccount.value.email;
   captureAdminAccountInitial();
   showChangeAccountDrawer.value = true;
 };
-
 const handleCancelChangeAccount = () => {
   showChangeAccountDrawer.value = false;
   selectedAccountEmail.value = "";
 };
-
 const handleSaveChangeAccount = () => {
   const selectedAccount = availableAccounts.value.find((account) => account.email === selectedAccountEmail.value);
   if (selectedAccount) {
@@ -398,18 +378,15 @@ const handleSaveChangeAccount = () => {
   toastMessage.value = "儲存成功";
   showToast.value = true;
 };
-
 const handleAddHandler = () => {
   router.push("/internal-staff-account-management/add");
 };
-
 const handleStatusChange = (row: Record<string, any>, value: boolean) => {
   const item = row as HandlerAccount;
   item.status = value;
   console.log("Status changed for:", item, "New status:", value);
   // TODO: Implement status change logic
 };
-
 const handleEdit = (row: Record<string, any>) => {
   const item = row as HandlerAccount;
   // 導航到編輯頁面，使用 query 參數傳遞數據
@@ -421,7 +398,6 @@ const handleEdit = (row: Record<string, any>) => {
     },
   });
 };
-
 const handleDelete = (row: Record<string, any>) => {
   const item = row as HandlerAccount;
   if (item.email === currentAdminAccount.value.email) {
@@ -431,12 +407,10 @@ const handleDelete = (row: Record<string, any>) => {
   deleteTarget.value = item;
   showDeleteModal.value = true;
 };
-
 const handleCloseDeleteModal = () => {
   showDeleteModal.value = false;
   deleteTarget.value = null;
 };
-
 const handleConfirmDelete = () => {
   if (deleteTarget.value) {
     const index = handlerAccounts.value.findIndex((account) => account.email === deleteTarget.value?.email);
@@ -450,14 +424,11 @@ const handleConfirmDelete = () => {
   }
   handleCloseDeleteModal();
 };
-
 const handleRouteToast = () => {
   if (route.query.toast !== "success") return;
-
   const message = typeof route.query.message === "string" && route.query.message.trim() ? route.query.message : "新增成功";
   toastMessage.value = message;
   showToast.value = true;
-
   const nextQuery = { ...route.query };
   delete nextQuery.toast;
   delete nextQuery.message;
@@ -466,7 +437,7 @@ const handleRouteToast = () => {
     query: nextQuery,
   });
 };
-
+const { hasUnsavedChanges: hasAdminAccountChanges, captureInitial: captureAdminAccountInitial } = useFormUnsavedCheck(buildAdminAccountSnapshot);
 onMounted(() => {
   handleRouteToast();
 });

@@ -9,7 +9,6 @@
           <Icon name="arrowRightOutline" :size="20" color="#374151" class="h-5 w-5" aria-hidden="true" />
         </router-link>
       </div>
-
       <!-- Meeting List Card -->
       <div class="relative flex w-full shrink-0 flex-col items-start rounded-lg bg-white p-6 shadow-sm">
         <div
@@ -31,7 +30,6 @@
               {{ meeting.name }}
             </div>
           </div>
-
           <!-- Download Section -->
           <div class="relative mt-4 flex h-14 w-full shrink-0 flex-col items-start justify-center gap-0 p-4 sm:mt-0 sm:w-[120px] sm:items-end">
             <a
@@ -50,11 +48,9 @@
     </div>
   </section>
 </template>
-
 <script setup lang="ts">
 import { RouterLink } from "vue-router";
 import Icon from "@/components/atoms/Icon.vue";
-
 interface MeetingItem {
   id: number;
   date: string;
@@ -63,7 +59,6 @@ interface MeetingItem {
   fileSize: string;
   isMedium?: boolean;
 }
-
 const meetings: MeetingItem[] = [
   {
     id: 1,

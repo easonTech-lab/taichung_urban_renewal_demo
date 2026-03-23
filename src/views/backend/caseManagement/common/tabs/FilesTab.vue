@@ -5,14 +5,12 @@
         <div class="h-7 w-1 rounded bg-primary-600"></div>
         <h2 class="text-2xl font-medium leading-6 text-gray-900">專案檔案</h2>
       </div>
-
       <div v-if="hasAnyFiles" class="mt-6 flex flex-col gap-4">
         <div class="flex flex-wrap items-center gap-3">
           <Dropdown :button-text="selectedFileStage" placeholder="全部案件階段" :items="fileStageOptions" @item-click="handleFileStageChange" />
           <Dropdown :button-text="selectedFileCategory" placeholder="檔案類別" :items="fileCategoryOptions" @item-click="handleFileCategoryChange" />
         </div>
       </div>
-
       <div v-if="hasAnyFiles" class="mt-6">
         <Table
           v-if="filteredFiles.length > 0"
@@ -40,26 +38,22 @@
     </div>
   </div>
 </template>
-
 <script setup lang="ts">
 import { ref, computed, reactive } from "vue";
 import { useTablePagination } from "@/composables/useTablePagination";
 import Icon from "@/components/atoms/Icon.vue";
-import Table, { type TableColumn } from "@/components/atoms/Table.vue";
 import Empty from "@/components/atoms/Empty.vue";
+import Table, { type TableColumn } from "@/components/atoms/Table.vue";
 import Dropdown, { type DropdownItem } from "@/components/atoms/Dropdown.vue";
 import type { ProjectFile } from "@/types/backend/caseManagement/common/CaseDetailView.d";
-
 const props = defineProps<{ files: ProjectFile[] }>();
 const emit = defineEmits<{
   download: [file: ProjectFile];
   "request-delete": [file: ProjectFile];
 }>();
-
 const selectedFileStage = ref<string>("全部案件階段");
 const selectedFileCategory = ref<string>("檔案類別");
 const filePageSize = ref(10);
-
 const fileStageOptions: DropdownItem[] = [
   { label: "全部案件階段", value: "全部案件階段" },
   { label: "案件申請", value: "案件申請" },
@@ -75,7 +69,6 @@ const fileCategoryOptions: DropdownItem[] = [
   { label: "幹事上傳", value: "幹事上傳" },
   { label: "承辦上傳", value: "承辦上傳" },
 ];
-
 const fileTableColumns: TableColumn[] = [
   {
     key: "fileName",
@@ -112,9 +105,7 @@ const fileTableColumns: TableColumn[] = [
     width: "8%",
   },
 ];
-
 const hasAnyFiles = computed(() => props.files.length > 0);
-
 const filteredFiles = computed(() => {
   let files = [...props.files];
   if (selectedFileStage.value && selectedFileStage.value !== "全部案件階段") {
@@ -125,26 +116,21 @@ const filteredFiles = computed(() => {
   }
   return files;
 });
-
 const filePaginationState = reactive(useTablePagination({
   rows: filteredFiles,
   pageSize: filePageSize,
 }));
-
 const handleFileStageChange = (item: DropdownItem) => {
   selectedFileStage.value = item.value || "全部案件階段";
   filePaginationState.resetPage();
 }
-
 const handleFileCategoryChange = (item: DropdownItem) => {
   selectedFileCategory.value = item.value || "檔案類別";
   filePaginationState.resetPage();
 }
-
 const handleFileDownload = (file: ProjectFile) => {
   emit("download", file);
 }
-
 const handleFileDelete = (file: ProjectFile) => {
   emit("request-delete", file);
 }

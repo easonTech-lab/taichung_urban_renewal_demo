@@ -21,16 +21,13 @@
     </div>
   </section>
 </template>
-
 <script setup lang="ts">
 import Icon from "@/components/atoms/Icon.vue";
 import FAQColumn from "@/components/molecules/FAQColumn.vue";
-
 interface FAQItem {
   title: string;
   questions: string[];
 }
-
 const faqData: FAQItem[] = [
   {
     title: "我適合哪種重建或改善方式？",

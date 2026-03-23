@@ -29,7 +29,6 @@
     <FooterSection />
   </div>
 </template>
-
 <script setup lang="ts">
 import DownloadSection from "@/components/sections/frontend/home/DownloadSection.vue";
 import FAQSection from "@/components/sections/frontend/home/FAQSection.vue";

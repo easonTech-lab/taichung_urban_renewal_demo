@@ -6,7 +6,6 @@
         {{ title }}
       </h3>
     </div>
-
     <!-- Questions -->
     <div
       v-for="(question, index) in questions"
@@ -24,7 +23,6 @@
     </div>
   </div>
 </template>
-
 <script setup lang="ts">
 defineProps<{
   title: string;

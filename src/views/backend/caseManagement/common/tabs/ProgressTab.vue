@@ -5,18 +5,10 @@
         <div class="h-7 w-1 rounded bg-primary-600"></div>
         <h2 class="text-2xl font-medium leading-6 text-gray-900">案件各階段進度</h2>
       </div>
-      <ButtonCTA
-        v-if="isAdminUser"
-        variant="outline"
-        size="xs"
-        left-icon="editOutline"
-        class="!h-9 !min-w-[96px] px-3 py-2 text-sm"
-        @click="handleOpenEditStageDrawer"
-      >
+      <ButtonCTA v-if="isAdminUser" variant="outline" size="xs" left-icon="editOutline" class="!h-9 !min-w-[96px] px-3 py-2 text-sm" @click="handleOpenEditStageDrawer">
         編輯階段
       </ButtonCTA>
     </div>
-
     <CaseProgressTable
       :columns="stageColumns"
       :progress-stages="progressStages"
@@ -26,15 +18,10 @@
       :handle-view-details="handleViewDetails"
     />
   </div>
-
   <Drawer v-model="showEditStageDrawer" title="編輯案件階段" width="xl">
     <template #default>
       <div class="flex flex-col">
-        <div
-          v-for="(item, index) in editStageItems"
-          :key="item.id"
-          class="flex items-center gap-5 border-b border-gray-300 py-5"
-        >
+        <div v-for="(item, index) in editStageItems" :key="item.id" class="flex items-center gap-5 border-b border-gray-300 py-5">
           <div class="flex flex-1 items-center gap-3">
             <Icon name="barsOutline" :size="24" class="text-gray-500" />
             <span class="text-base text-gray-500">{{ index + 1 }}</span>
@@ -43,15 +30,7 @@
           <button class="px-3 py-4 text-base text-primary-600" @click="handleOpenRemoveStage(item)">移除</button>
         </div>
         <div class="pt-6">
-          <ButtonCTA
-            variant="outline"
-            size="xl"
-            left-icon="plus"
-            class="w-full"
-            @click="handleAddCaseStage"
-          >
-            新增案件階段
-          </ButtonCTA>
+          <ButtonCTA variant="outline" size="xl" left-icon="plus" class="w-full" @click="handleAddCaseStage"> 新增案件階段 </ButtonCTA>
         </div>
       </div>
     </template>
@@ -62,7 +41,6 @@
       </div>
     </template>
   </Drawer>
-
   <ConfirmDeleteModal
     v-model="showRemoveStageModal"
     message="確認刪除此案件階段"
@@ -73,7 +51,6 @@
     @cancel="handleCancelRemoveStage"
   />
 </template>
-
 <script setup lang="ts">
 import { onMounted, ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
@@ -85,27 +62,15 @@ import Drawer from "@/components/atoms/Drawer.vue";
 import ButtonCTA from "@/components/atoms/ButtonCTA.vue";
 import CaseProgressTable from "@/components/molecules/CaseProgressTable.vue";
 import ConfirmDeleteModal from "@/components/molecules/ConfirmDeleteModal.vue";
-
+type BaseStage = Omit<ProgressStage, "subStages">;
+type StageStatus = ProgressStage["status"];
 const props = defineProps<{
   isAdminUser: boolean;
   /** 該案件的幹事名單（用於新增案件階段時帶入參與幹事） */
   caseOfficerNames?: string;
 }>();
-
 const router = useRouter();
 const route = useRoute();
-
-const subStageTitles = ["階段開放", "審核中", "召開會議", "函發會議記錄", "已完成"];
-const STORAGE_KEY = "caseStageStatusOverrides";
-
-const stageColumns = [
-  { key: "icon", label: "", width: 120 },
-  { key: "stageName", label: "案件階段", width: 126 },
-  { key: "status", label: "階段狀態", width: 286 },
-  { key: "reviewDate", label: "審議日期", width: 118 },
-  { key: "reviewTime", label: "審議時間", width: 150 },
-  { key: "action", label: "操作", width: 184 },
-];
 const editStageItems = ref([
   { id: 1, label: "案件申請" },
   { id: 2, label: "公辦公聽會" },
@@ -117,31 +82,6 @@ const progressStages = ref<ProgressStage[]>([]);
 const showEditStageDrawer = ref(false);
 const showRemoveStageModal = ref(false);
 const stageToRemoveId = ref<number | null>(null);
-
-const buildSubStages = (status: ProgressStage["status"]): StepperStep[] => {
-  if (status === "completed") {
-    return subStageTitles.map((title) => ({
-      title,
-      status: "completed",
-      icon: "stepCheck",
-    }));
-  }
-  if (status === "current") {
-    return subStageTitles.map((title, index) => ({
-      title,
-      status: index === 0 ? "completed" : index === 1 ? "current" : "pending",
-      icon: index === 0 ? "stepCheck" : "setpUncheck",
-    }));
-  }
-  return subStageTitles.map((title) => ({
-    title,
-    status: "pending",
-    icon: "setpUncheck",
-  }));
-};
-
-type BaseStage = Omit<ProgressStage, "subStages">;
-
 const baseStages: BaseStage[] = [
   {
     name: "最終核定",
@@ -204,39 +144,63 @@ const baseStages: BaseStage[] = [
     isExpanded: false,
   },
 ];
-const buildEditStageSnapshot = () =>
-  JSON.stringify(editStageItems.value.map((item) => ({ id: item.id, label: item.label.trim() })));
+const subStageTitles = ["階段開放", "審核中", "召開會議", "函發會議記錄", "已完成"];
+const STORAGE_KEY = "caseStageStatusOverrides";
+const stageColumns = [
+  { key: "icon", label: "", width: 120 },
+  { key: "stageName", label: "案件階段", width: 126 },
+  { key: "status", label: "階段狀態", width: 286 },
+  { key: "reviewDate", label: "審議日期", width: 118 },
+  { key: "reviewTime", label: "審議時間", width: 150 },
+  { key: "action", label: "操作", width: 184 },
+];
+const buildSubStages = (status: ProgressStage["status"]): StepperStep[] => {
+  if (status === "completed") {
+    return subStageTitles.map((title) => ({
+      title,
+      status: "completed",
+      icon: "stepCheck",
+    }));
+  }
+  if (status === "current") {
+    return subStageTitles.map((title, index) => ({
+      title,
+      status: index === 0 ? "completed" : index === 1 ? "current" : "pending",
+      icon: index === 0 ? "stepCheck" : "setpUncheck",
+    }));
+  }
+  return subStageTitles.map((title) => ({
+    title,
+    status: "pending",
+    icon: "setpUncheck",
+  }));
+};
+const buildEditStageSnapshot = () => JSON.stringify(editStageItems.value.map((item) => ({ id: item.id, label: item.label.trim() })));
 const { hasUnsavedChanges: hasStageChanges, captureInitial: captureStageInitial } = useFormUnsavedCheck(buildEditStageSnapshot);
-
 const handleOpenEditStageDrawer = () => {
   captureStageInitial();
   showEditStageDrawer.value = true;
-}
-
+};
 const handleOpenRemoveStage = (item: { id: number; label: string }) => {
   stageToRemoveId.value = item.id;
   showRemoveStageModal.value = true;
-}
-
+};
 const handleConfirmRemoveStage = () => {
   if (stageToRemoveId.value !== null) {
     editStageItems.value = editStageItems.value.filter((item) => item.id !== stageToRemoveId.value);
   }
   showRemoveStageModal.value = false;
   stageToRemoveId.value = null;
-}
-
+};
 const handleCancelRemoveStage = () => {
   showRemoveStageModal.value = false;
   stageToRemoveId.value = null;
-}
-
+};
 const getStageIcon = (status: ProgressStage["status"]) => {
   if (status === "completed") return "stepCheck";
   if (status === "current") return "setpUncheck";
   return "stepUncheckGray";
-}
-
+};
 const getStatusBadgeVariant = (status: ProgressStage["status"]) => {
   switch (status) {
     case "completed":
@@ -247,12 +211,10 @@ const getStatusBadgeVariant = (status: ProgressStage["status"]) => {
     default:
       return "gray";
   }
-}
-
+};
 const toggleStageExpand = (index: number) => {
   progressStages.value[index].isExpanded = !progressStages.value[index].isExpanded;
-}
-
+};
 const loadStageOverrides = (): Record<string, { status: string }> => {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
@@ -261,12 +223,10 @@ const loadStageOverrides = (): Record<string, { status: string }> => {
   } catch {
     return {};
   }
-}
-
-type StageStatus = ProgressStage["status"];
-
+};
 const mapOverrideStatus = (
-  status: string): {
+  status: string
+): {
   status: StageStatus;
   statusText: string;
   subStageStatus: StageStatus;
@@ -284,8 +244,7 @@ const mapOverrideStatus = (
     return { status: "pending" as const, statusText: "案件廢止", subStageStatus: "pending" as const };
   }
   return { status: "pending", statusText: "未開始", subStageStatus: "pending" };
-}
-
+};
 const buildProgressStages = () => {
   const overrides = loadStageOverrides();
   progressStages.value = baseStages.map((stage) => {
@@ -304,13 +263,7 @@ const buildProgressStages = () => {
       subStages: buildSubStages(mapped.subStageStatus),
     };
   });
-}
-
-onMounted(() => {
-  buildProgressStages();
-  captureStageInitial();
-});
-
+};
 const handleViewDetails = (index: number) => {
   const stageName = progressStages.value[index]?.name || "";
   router.push({
@@ -322,7 +275,6 @@ const handleViewDetails = (index: number) => {
     },
   });
 };
-
 const handleAddCaseStage = () => {
   showEditStageDrawer.value = false;
   const query: Record<string, string | undefined> = {
@@ -335,4 +287,8 @@ const handleAddCaseStage = () => {
   }
   router.push({ path: "/add-case-stage", query });
 };
+onMounted(() => {
+  buildProgressStages();
+  captureStageInitial();
+});
 </script>

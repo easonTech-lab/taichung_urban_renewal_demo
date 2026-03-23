@@ -61,7 +61,11 @@
 <script setup lang="ts">
 import { ref, computed } from "vue";
 import Icon from "@/components/atoms/Icon.vue";
-
+export type FileUploadErrorType = "size" | "format";
+export type FileUploadErrorPayload = {
+  type: FileUploadErrorType;
+  maxSize?: number;
+};
 const props = withDefaults(
   defineProps<{
     modelValue?: File[];
@@ -85,21 +89,12 @@ const props = withDefaults(
     containerClass: "",
   }
 );
-
-export type FileUploadErrorType = "size" | "format";
-
-export type FileUploadErrorPayload = {
-  type: FileUploadErrorType;
-  maxSize?: number;
-};
-
 const emit = defineEmits<{
   "update:modelValue": [files: File[]];
   "file-selected": [files: File[]];
   "file-error": [payload: FileUploadErrorPayload];
   "file-removed": [index: number];
 }>();
-
 const fileInputRef = ref<HTMLInputElement | null>(null);
 const isDragging = ref(false);
 const maxSizeBytes = computed(() => props.maxSize * 1024 * 1024);
@@ -107,7 +102,6 @@ const files = computed({
   get: () => props.modelValue || [],
   set: (value) => emit("update:modelValue", value),
 });
-
 const isAcceptValid = (file: File): boolean => {
   if (!props.accept || props.accept === "*") return true;
   const acceptList = props.accept.split(",").map((s) => s.trim().toLowerCase());
@@ -119,12 +113,10 @@ const isAcceptValid = (file: File): boolean => {
     return type === rule || name.endsWith(rule);
   });
 }
-
 /** 必須在使用者點擊的同一同步執行緒裡呼叫 input.click()，否則部分瀏覽器不會開選檔視窗 */
 const onSelectFileClick = () => {
   fileInputRef.value?.click();
 }
-
 const validateFile = (
   file: File): { valid: true } | { valid: false; payload: FileUploadErrorPayload } => {
   if (!isAcceptValid(file)) {
@@ -135,7 +127,6 @@ const validateFile = (
   }
   return { valid: true };
 }
-
 const handleFileChange = (event: Event) => {
   const target = event.target as HTMLInputElement;
   const selectedFiles = target.files;
@@ -174,7 +165,6 @@ const handleFileChange = (event: Event) => {
     emit("file-selected", validFiles);
   }
 }
-
 const handleDrop = (event: DragEvent) => {
   isDragging.value = false;
   const droppedFiles = event.dataTransfer?.files;
@@ -207,7 +197,6 @@ const handleDrop = (event: DragEvent) => {
     emit("file-selected", validFiles);
   }
 }
-
 const handleRemoveFile = (index: number) => {
   const newFiles = files.value.filter((_, i) => i !== index);
   files.value = newFiles;

@@ -8,11 +8,9 @@
     </div>
   </section>
 </template>
-
 <script setup lang="ts">
 import { ref } from "vue";
 import ServiceCard from "@/components/molecules/ServiceCard.vue";
-
 const services = ref([
   { title: "公聽會", iconName: "pubhearing", href: "/events" },
   { title: "公開展覽", iconName: "exhibition", href: "/exhibitions" },

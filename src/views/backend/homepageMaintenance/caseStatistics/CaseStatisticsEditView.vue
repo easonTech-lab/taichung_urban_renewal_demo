@@ -38,7 +38,6 @@
       </div>
     </div>
   </div>
-
   <Modal v-model="showDuplicateModal" size="md" backdrop-class="bg-gray-600/80" :show-close-button="true" close-action="emit">
     <template #body>
       <div class="flex w-full flex-col items-center gap-4 px-6 py-5">
@@ -53,7 +52,6 @@
     </template>
   </Modal>
 </template>
-
 <script setup lang="ts">
 import { ref, computed, onMounted } from "vue";
 import { useRouter, useRoute } from "vue-router";
@@ -66,46 +64,21 @@ import Breadcrumb from "@/components/atoms/Breadcrumb.vue";
 import SidebarSection from "@/components/sections/backend/SidebarSection.vue";
 import InputDropdown, { type InputDropdownItem } from "@/components/atoms/InputDropdown.vue";
 import type { CaseStatisticsFormData } from "@/types/backend/homepageMaintenance/caseStatistics.d";
-
-const router = useRouter();
 const route = useRoute();
-
-const isEditMode = computed(() => route.name === "case-statistics-edit");
-const formTitle = computed(() => (isEditMode.value ? "編輯案件件數" : "新增年度"));
-const breadcrumbItems = [
-  { label: "首頁", to: "/" },
-  { label: "首頁維護", to: "/case-statistics" },
-  { label: "案件統計維護" },
-];
-
+const router = useRouter();
 const annualCount = ref<CaseStatisticsFormData["annualCount"]>("");
 const yearValue = ref<CaseStatisticsFormData["year"]>("");
 const selectedCategory = ref<CaseStatisticsFormData["category"]>("");
 const showDuplicateModal = ref(false);
-
-const categoryOptions: InputDropdownItem[] = [
-  { label: "都更案件", value: "都更案件" },
-  { label: "危老案件", value: "危老案件" },
-];
-
-const isSaveDisabled = computed(() => {
-  return !selectedCategory.value || !yearValue.value.trim() || !annualCount.value.trim();
-});
-const buildFormSnapshot = () =>
-  JSON.stringify({
-    category: selectedCategory.value.trim(),
-    year: yearValue.value.trim(),
-    annualCount: annualCount.value.trim(),
-  });
-const { hasUnsavedChanges, captureInitial } = useFormUnsavedCheck(buildFormSnapshot);
-const canSave = computed(() => !isSaveDisabled.value && hasUnsavedChanges.value);
-
 const caseData = ref({
   caseCategory: "都更案件",
   year: "114",
   annualCount: "103",
 });
-
+const categoryOptions: InputDropdownItem[] = [
+  { label: "都更案件", value: "都更案件" },
+  { label: "危老案件", value: "危老案件" },
+];
 const existingStatistics: CaseStatisticsFormData[] = [
   { year: "114", category: "都更案件", annualCount: "103" },
   { year: "114", category: "危老案件", annualCount: "55" },
@@ -114,20 +87,28 @@ const existingStatistics: CaseStatisticsFormData[] = [
   { year: "112", category: "都更案件", annualCount: "75" },
   { year: "112", category: "危老案件", annualCount: "22" },
 ];
-
+const breadcrumbItems = [{ label: "首頁", to: "/" }, { label: "首頁維護", to: "/case-statistics" }, { label: "案件統計維護" }];
+const isEditMode = computed(() => route.name === "case-statistics-edit");
+const formTitle = computed(() => (isEditMode.value ? "編輯案件件數" : "新增年度"));
+const isSaveDisabled = computed(() => {
+  return !selectedCategory.value || !yearValue.value.trim() || !annualCount.value.trim();
+});
+const canSave = computed(() => !isSaveDisabled.value && hasUnsavedChanges.value);
 const handleSidebarItemSelect = (itemName: string) => {
   console.log("Selected sidebar item:", itemName);
-}
-
+};
+const buildFormSnapshot = () =>
+  JSON.stringify({
+    category: selectedCategory.value.trim(),
+    year: yearValue.value.trim(),
+    annualCount: annualCount.value.trim(),
+  });
 const handleGoBack = () => {
   router.back();
-}
-
+};
 const handleSave = () => {
   if (!isEditMode.value) {
-    const hasDuplicate = existingStatistics.some(
-      (item) => item.category === selectedCategory.value && item.year === yearValue.value.trim()
-    );
+    const hasDuplicate = existingStatistics.some((item) => item.category === selectedCategory.value && item.year === yearValue.value.trim());
     if (hasDuplicate) {
       showDuplicateModal.value = true;
       return;
@@ -148,12 +129,11 @@ const handleSave = () => {
     },
   });
   captureInitial();
-}
-
+};
 const handleCategoryChange = (item: InputDropdownItem) => {
   selectedCategory.value = item.label;
-}
-
+};
+const { hasUnsavedChanges, captureInitial } = useFormUnsavedCheck(buildFormSnapshot);
 onMounted(() => {
   if (isEditMode.value) {
     // 從路由查詢參數獲取數據（如果有的話）

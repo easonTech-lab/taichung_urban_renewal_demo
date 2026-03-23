@@ -52,12 +52,10 @@
     </form>
   </div>
 </template>
-
 <script setup lang="ts">
 import { ref, watch, computed } from "vue";
 import Icon from "@/components/atoms/Icon.vue";
 import ButtonCTA from "@/components/atoms/ButtonCTA.vue";
-
 const props = withDefaults(
   defineProps<{
     modelValue?: string;
@@ -100,10 +98,8 @@ const props = withDefaults(
     autoSearch: false, // 預設不自動搜尋
   }
 );
-
 // Vue 2.7 的 defineEmits 需要明確聲明
 const emit = defineEmits(["update:modelValue", "submit", "input"]);
-
 const searchValue = ref(props.modelValue || "");
 const inputId = computed(() => `search-input-${Math.random().toString(36).substring(2, 11)}`);
 const hasValue = computed(() => searchValue.value && searchValue.value.trim().length > 0);
@@ -113,7 +109,6 @@ const inputClasses = computed(() => {
   }
   return "bg-white border border-gray-300 placeholder:text-gray-500 text-gray-900";
 });
-
 watch(
   () => props.modelValue,
   (newValue) => {
@@ -121,7 +116,6 @@ watch(
   },
   { immediate: true }
 );
-
 const handleInput = (event: Event) => {
   const value = (event.target as HTMLInputElement).value;
   searchValue.value = value;
@@ -131,13 +125,11 @@ const handleInput = (event: Event) => {
     emit("input", value);
   }
 }
-
 const handleSubmit = () => {
   if (!props.disabled) {
     emit("submit", searchValue.value);
   }
 }
-
 const handleClear = () => {
   searchValue.value = "";
   emit("update:modelValue", "");

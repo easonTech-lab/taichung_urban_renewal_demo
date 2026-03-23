@@ -21,7 +21,6 @@
           </div>
         </div>
       </div>
-
       <!-- 電子領標專區 -->
       <div class="mt-6 flex items-center justify-between rounded-lg bg-white px-6 py-4 shadow-sm">
         <div>
@@ -39,7 +38,6 @@
     </section>
   </div>
 </template>
-
 <script setup lang="ts">
 import Icon from "@/components/atoms/Icon.vue";
 import StatCard from "@/components/molecules/StatCard.vue";

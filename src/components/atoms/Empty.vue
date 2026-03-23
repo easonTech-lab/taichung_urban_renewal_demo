@@ -13,9 +13,7 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import ButtonCTA from "@/components/atoms/ButtonCTA.vue";
-
 export type EmptyType = "search" | "case" | "case-management";
-
 const props = withDefaults(
   defineProps<{
     type?: EmptyType;
@@ -34,22 +32,10 @@ const props = withDefaults(
     buttonText: undefined,
   }
 );
-
 const emit = defineEmits<{
   "button-click": [];
 }>();
-
 const baseUrl = import.meta.env.BASE_URL || "/";
-
-const resolveAssetPath = (path: string) => {
-  if (/^(https?:)?\/\//.test(path) || path.startsWith("data:")) {
-    return path;
-  }
-  const normalizedBase = baseUrl.endsWith("/") ? baseUrl : `${baseUrl}/`;
-  const normalizedPath = path.startsWith("/") ? path.slice(1) : path;
-  return `${normalizedBase}${normalizedPath}`;
-};
-
 // 根據 type 自動決定是否顯示按鈕
 const shouldShowButton = computed(() => {
   if (props.showButton !== undefined) {
@@ -57,7 +43,6 @@ const shouldShowButton = computed(() => {
   }
   return props.type === "case-management";
 });
-
 // 根據 type 自動生成圖片路徑和預設訊息
 const imageSrc = computed(() => {
   if (props.imageSrc) {
@@ -71,7 +56,6 @@ const imageSrc = computed(() => {
   }
   return resolveAssetPath(`/empty-${props.type}.png`);
 });
-
 const message = computed(() => {
   if (props.message !== undefined) {
     return props.message;
@@ -84,7 +68,6 @@ const message = computed(() => {
   }
   return "查無相關案件";
 });
-
 const altText = computed(() => {
   if (props.altText) {
     return props.altText;
@@ -97,14 +80,12 @@ const altText = computed(() => {
   }
   return "查無案件";
 });
-
 const buttonText = computed(() => {
   if (props.buttonText !== undefined) {
     return props.buttonText;
   }
   return "新增案件";
 });
-
 // 根據 type 決定容器樣式
 const containerClass = computed(() => {
   if (props.type === "case-management") {
@@ -115,7 +96,14 @@ const containerClass = computed(() => {
   }
   return "flex h-[694px] flex-col items-center justify-center gap-4";
 });
-
+const resolveAssetPath = (path: string) => {
+  if (/^(https?:)?\/\//.test(path) || path.startsWith("data:")) {
+    return path;
+  }
+  const normalizedBase = baseUrl.endsWith("/") ? baseUrl : `${baseUrl}/`;
+  const normalizedPath = path.startsWith("/") ? path.slice(1) : path;
+  return `${normalizedBase}${normalizedPath}`;
+};
 const handleButtonClick = () => {
   emit("button-click");
 };

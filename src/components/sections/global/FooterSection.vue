@@ -7,7 +7,6 @@
         <div class="h-9 w-36">
           <img src="/logo.png" alt="臺中市都市發展局" class="h-full w-full object-cover" />
         </div>
-
         <!-- 聯絡資訊 -->
         <div class="flex flex-col gap-6 font-sans text-sm font-normal leading-[1.5] tracking-[1.4px] text-gray-800">
           <div>
@@ -23,7 +22,6 @@
             <p>8:30-12:00 , 13:30-17:00</p>
           </div>
         </div>
-
         <!-- 政策連結 -->
         <div class="flex items-center justify-center gap-2 md:justify-start">
           <RouterLink
@@ -51,7 +49,6 @@
           </RouterLink>
         </div>
       </div>
-
       <!-- 右側：標章、統計資訊和版權 -->
       <div class="flex w-full flex-col items-center gap-4 md:w-[288px] md:items-end">
         <!-- 標章 -->
@@ -86,5 +83,3 @@
     </div>
   </footer>
 </template>
-
-<script setup lang="ts"></script>

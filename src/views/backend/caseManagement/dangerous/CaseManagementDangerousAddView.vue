@@ -6,19 +6,16 @@
         <Breadcrumb :items="breadcrumbItems" />
         <h1 class="text-3xl font-bold leading-[30px] text-gray-900">新增危老重建案件</h1>
       </div>
-
       <div class="flex flex-col gap-4">
         <StageProgressBar
           :steps="['公開基本資料', '危老申請書', '危老審查獎勵']"
           :active-index="0"
         />
-
         <div class="flex flex-col gap-10 rounded-lg bg-white p-8 shadow-sm">
           <div class="flex items-center gap-3">
             <div class="h-7 w-1 rounded bg-primary-600"></div>
             <h2 class="text-2xl font-medium text-gray-900">基本資料</h2>
           </div>
-
           <div class="flex flex-col gap-8">
             <div class="flex w-[744px] flex-col gap-4 border-b border-gray-300 pb-6">
               <h3 class="text-xl font-bold text-blue-700">基本資訊</h3>
@@ -27,7 +24,6 @@
                 <p class="text-sm leading-tight text-gray-500">例：擬訂臺中市OO區OO段OO小段OO地號(等)OO筆土地重建計畫案</p>
               </div>
             </div>
-
             <div class="flex flex-col gap-6 border-b border-gray-300 pb-6">
               <h3 class="text-xl font-bold text-blue-700">基地資料</h3>
               <div class="flex flex-col gap-6">
@@ -45,7 +41,6 @@
                 </ButtonCTA>
               </div>
             </div>
-
             <div class="flex flex-col gap-6 border-b border-gray-300 pb-6">
               <div class="grid w-[744px] grid-cols-[repeat(2,364px)] gap-4">
                 <Input v-model="formData.totalFloorArea" label="總樓地板面積（m²）" placeholder="請輸入總樓地板面積" size="lg" required containerClass="w-[364px]" />
@@ -100,7 +95,6 @@
           </div>
         </div>
       </div>
-
       <div class="flex items-center justify-center gap-6">
         <ButtonCTA variant="outline" size="xl" @click="handleDraft">暫存</ButtonCTA>
         <ButtonCTA
@@ -144,7 +138,6 @@
     </div>
   </div>
 </template>
-
 <script setup lang="ts">
 import { computed, ref } from "vue";
 import { useRouter } from "vue-router";
@@ -156,14 +149,9 @@ import Breadcrumb from "@/components/atoms/Breadcrumb.vue";
 import ImageCard from "@/components/molecules/ImageCard.vue";
 import StageProgressBar from "@/components/molecules/StageProgressBar.vue";
 import SidebarSection from "@/components/sections/backend/SidebarSection.vue";
-const breadcrumbItems = [
-  { label: "首頁", to: "/" },
-  { label: "我的案件", to: "/case-management" },
-  { label: "危老重建案件", to: "/case-management-dangerous" },
-  { label: "新增危老重建案件" },
-];
 const router = useRouter();
-
+const renderInputRef = ref<HTMLInputElement | null>(null);
+const demolitionInputRef = ref<HTMLInputElement | null>(null);
 const formData = ref({
   caseName: "",
   baseLandEntries: [
@@ -184,21 +172,23 @@ const formData = ref({
   demolitionImages: [] as string[],
 });
 const showDraftNameWarningModal = ref(false);
-const hasTextValue = (value: string) => value.trim() !== "";
+const breadcrumbItems = [
+  { label: "首頁", to: "/" },
+  { label: "我的案件", to: "/case-management" },
+  { label: "危老重建案件", to: "/case-management-dangerous" },
+  { label: "新增危老重建案件" },
+];
 const canGoNextToApplication = computed(() => {
   if (!hasTextValue(formData.value.caseName)) {
     return false;
   }
-
   const hasValidBaseLandEntries = formData.value.baseLandEntries.length > 0 &&
     formData.value.baseLandEntries.every((entry) =>
       [entry.zone, entry.legalCoverage, entry.baseArea, entry.actualCoverage].every(hasTextValue)
     );
-
   if (!hasValidBaseLandEntries) {
     return false;
   }
-
   return [
     formData.value.totalFloorArea,
     formData.value.buildingFloors,
@@ -208,14 +198,10 @@ const canGoNextToApplication = computed(() => {
     formData.value.motorParking,
   ].every(hasTextValue);
 });
-
-const renderInputRef = ref<HTMLInputElement | null>(null);
-const demolitionInputRef = ref<HTMLInputElement | null>(null);
-
+const hasTextValue = (value: string) => value.trim() !== "";
 const handleSidebarItemSelect = (itemName: string) => {
   console.log("Selected sidebar item:", itemName);
 };
-
 const handleDraft = () => {
   if (!hasTextValue(formData.value.caseName)) {
     showDraftNameWarningModal.value = true;
@@ -229,7 +215,6 @@ const handleDraft = () => {
     },
   });
 };
-
 const addBaseLandEntry = () => {
   formData.value.baseLandEntries.push({
     zone: "",
@@ -238,7 +223,6 @@ const addBaseLandEntry = () => {
     actualCoverage: "",
   });
 };
-
 const triggerImageUpload = (target: "render" | "demolition") => {
   if (target === "render") {
     renderInputRef.value?.click();
@@ -246,27 +230,21 @@ const triggerImageUpload = (target: "render" | "demolition") => {
   }
   demolitionInputRef.value?.click();
 };
-
 const handleImageUpload = (target: "render" | "demolition", event: Event) => {
   const input = event.target as HTMLInputElement;
   const files = input.files;
   if (!files || files.length === 0) return;
-
   const urls = Array.from(files).map((file) => URL.createObjectURL(file));
-
   if (target === "render") {
     formData.value.renderImages.push(...urls);
   } else {
     formData.value.demolitionImages.push(...urls);
   }
-
   input.value = "";
 };
-
 const handleRemoveRenderImage = (index: number) => {
   formData.value.renderImages.splice(index, 1);
 };
-
 const handleRemoveDemolitionImage = (index: number) => {
   formData.value.demolitionImages.splice(index, 1);
 };

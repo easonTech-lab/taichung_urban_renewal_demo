@@ -3,12 +3,9 @@
     <slot>{{ text }}</slot>
   </span>
 </template>
-
 <script setup lang="ts">
 import { computed } from "vue";
-
 type BadgeVariant = "primary" | "success" | "danger" | "warning" | "info" | "gray";
-
 const props = withDefaults(
   defineProps<{
     variant?: BadgeVariant;
@@ -18,7 +15,6 @@ const props = withDefaults(
     variant: "primary",
   }
 );
-
 const badgeClasses = computed(() => {
   const variants: Record<BadgeVariant, string> = {
     primary: "bg-primary-100 text-primary-800",

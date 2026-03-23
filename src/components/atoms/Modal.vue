@@ -29,7 +29,6 @@
               </h3>
             </template>
           </div>
-
           <!-- Modal body -->
           <div v-if="$slots.default || $slots.body" class="space-y-4 py-4 md:space-y-6 md:py-6">
             <!-- 優先使用 body slot，如果沒有則使用默認 slot -->
@@ -47,11 +46,9 @@
     </div>
   </Teleport>
 </template>
-
 <script setup lang="ts">
 import { computed, watch, onMounted, onUnmounted } from "vue";
 import ButtonCTA from "@/components/atoms/ButtonCTA.vue";
-
 const props = withDefaults(
   defineProps<{
     modelValue: boolean; // v-model 支持
@@ -73,16 +70,13 @@ const props = withDefaults(
     backdropClass: "bg-black/50",
   }
 );
-
 const emit = defineEmits<{
   "update:modelValue": [value: boolean];
   close: [];
   open: [];
   "close-click": [];
 }>();
-
 const modalId = computed(() => `modal-${Math.random().toString(36).substring(2, 11)}`);
-
 // Modal 大小類別
 const sizeClasses = computed(() => {
   const sizes: Record<string, string> = {
@@ -94,13 +88,11 @@ const sizeClasses = computed(() => {
   };
   return sizes[props.size] || sizes.lg;
 });
-
 // 處理關閉
 const handleClose = () => {
   emit("update:modelValue", false);
   emit("close");
 };
-
 const handleCloseClick = () => {
   emit("close-click");
   if (props.closeAction === "emit") {
@@ -109,21 +101,18 @@ const handleCloseClick = () => {
   }
   handleClose();
 };
-
 // 處理 backdrop 點擊
 const handleBackdropClick = () => {
   if (!props.static) {
     handleClose();
   }
 };
-
 // 處理 ESC 鍵
 const handleEscape = (event: KeyboardEvent) => {
   if (event.key === "Escape" && props.modelValue && !props.static) {
     handleClose();
   }
 };
-
 // 監聽 modelValue 變化
 watch(
   () => props.modelValue,
@@ -139,11 +128,9 @@ watch(
   },
   { immediate: true }
 );
-
 onMounted(() => {
   document.addEventListener("keydown", handleEscape);
 });
-
 onUnmounted(() => {
   document.removeEventListener("keydown", handleEscape);
   // 確保組件卸載時恢復 body 滾動

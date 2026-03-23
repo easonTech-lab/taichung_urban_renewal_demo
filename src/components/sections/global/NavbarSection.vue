@@ -34,7 +34,6 @@
     </div>
   </nav>
 </template>
-
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
@@ -42,11 +41,9 @@ import { useSidebarMenuConfig } from "@/composables/useSidebarMenuConfig";
 import * as routerModule from "@/router/index";
 import ButtonCTA from "@/components/atoms/ButtonCTA.vue";
 import AvatarDropdown, { type AvatarDropdownItem } from "@/components/atoms/AvatarDropdown.vue";
-
 const router = useRouter();
 const route = useRoute();
 const userInfo = ref<string | null>(localStorage.getItem("userInfo"));
-
 const navRoutes = computed(() => getNavRoutes());
 const isLoggedIn = computed(() => !!userInfo.value);
 const isAuthPage = computed(() => {
@@ -84,7 +81,12 @@ const navLinkClass = computed(() => {
     ? "text-base font-medium leading-normal text-gray-900 hover:text-primary-700"
     : "text-sm font-medium text-gray-900 hover:text-primary-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500";
 });
-
+watch(
+  () => route.path,
+  () => {
+    checkLoginStatus();
+  }
+);
 const getNavRoutes = (): Array<{ path: string; label: string }> => {
   const routes = routerModule.routes;
   return routes
@@ -96,36 +98,15 @@ const getNavRoutes = (): Array<{ path: string; label: string }> => {
       label: route.meta?.navLabel || route.name,
     }));
 }
-
 const checkLoginStatus = () => {
   userInfo.value = localStorage.getItem("userInfo");
 }
-
-watch(
-  () => route.path,
-  () => {
-    checkLoginStatus();
-  }
-);
-
-onMounted(() => {
-  checkLoginStatus();
-  window.addEventListener("storage", checkLoginStatus);
-  window.addEventListener("login-status-changed", checkLoginStatus);
-});
-
-onUnmounted(() => {
-  window.removeEventListener("storage", checkLoginStatus);
-  window.removeEventListener("login-status-changed", checkLoginStatus);
-});
-
 const handleLogout = () => {
   localStorage.removeItem("userInfo");
   userInfo.value = null;
   window.dispatchEvent(new Event("login-status-changed"));
   router.push("/login");
 }
-
 const handleAvatarItemClick = (item: AvatarDropdownItem) => {
   const config = useSidebarMenuConfig(isAdmin.value);
   const match = config.find((menu) => menu.title === item.label);
@@ -134,4 +115,13 @@ const handleAvatarItemClick = (item: AvatarDropdownItem) => {
     router.push(routeTarget);
   }
 }
+onMounted(() => {
+  checkLoginStatus();
+  window.addEventListener("storage", checkLoginStatus);
+  window.addEventListener("login-status-changed", checkLoginStatus);
+});
+onUnmounted(() => {
+  window.removeEventListener("storage", checkLoginStatus);
+  window.removeEventListener("login-status-changed", checkLoginStatus);
+});
 </script>
