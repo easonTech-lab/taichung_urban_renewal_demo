@@ -90,23 +90,6 @@ const displayText = computed(() => {
 const displayTextClasses = computed(() => {
   return internalValue.value ? "text-sm text-gray-900" : "text-sm text-gray-400";
 });
-// Watch modelValue changes
-watch(
-  () => props.modelValue,
-  (newValue) => {
-    internalValue.value = convertToDateString(newValue);
-  },
-  { immediate: true }
-);
-// Watch internal value changes
-watch(
-  () => internalValue.value,
-  (newValue) => {
-    const date = convertFromDateString(newValue);
-    emit("update:modelValue", date);
-    emit("input", newValue);
-  }
-);
 // Convert Date to YYYY-MM-DD string format for HTML5 date input
 const convertToDateString = (value: string | Date | null): string => {
   if (!value) return "";
@@ -124,6 +107,23 @@ const convertFromDateString = (value: string): Date | null => {
   if (isNaN(date.getTime())) return null;
   return date;
 };
+// Watch modelValue changes
+watch(
+  () => props.modelValue,
+  (newValue) => {
+    internalValue.value = convertToDateString(newValue);
+  },
+  { immediate: true }
+);
+// Watch internal value changes
+watch(
+  () => internalValue.value,
+  (newValue) => {
+    const date = convertFromDateString(newValue);
+    emit("update:modelValue", date);
+    emit("input", newValue);
+  }
+);
 const handleChange = (event: Event) => {
   const target = event.target as HTMLInputElement;
   const date = convertFromDateString(target.value);

@@ -93,21 +93,13 @@ const menuItems = computed(() => {
     })) as SidebarSubItem[],
   }));
 });
-// 監聽路由變化和身份變化
-watch(
-  [() => route.path, isAdmin],
-  () => {
-    updateSelectedItem();
-  },
-  { immediate: true }
-);
 const toggleSidebar = () => {
   isSidebarOpen.value = !isSidebarOpen.value;
-}
+};
 const closeSidebar = () => {
   if (!props.backdropClosable) return;
   isSidebarOpen.value = false;
-}
+};
 const handleAccordionToggle = (index: number, isExpanded: boolean) => {
   if (isExpanded) {
     expandedIndex.value = index;
@@ -116,7 +108,7 @@ const handleAccordionToggle = (index: number, isExpanded: boolean) => {
       expandedIndex.value = null;
     }
   }
-}
+};
 const updateSelectedItem = () => {
   const config = sidebarMenuConfig.value;
   const isCaseDetailRoute = ["/case-detail", "/case-stage-detail"].includes(route.path);
@@ -172,10 +164,10 @@ const updateSelectedItem = () => {
   if (defaultExpandedIndex !== -1) {
     expandedIndex.value = defaultExpandedIndex;
   }
-}
+};
 const checkUserRole = () => {
   updateSelectedItem();
-}
+};
 const selectItem = (itemName: string) => {
   selectedItem.value = itemName;
   const config = sidebarMenuConfig.value;
@@ -188,10 +180,18 @@ const selectItem = (itemName: string) => {
       return;
     }
   }
-}
+};
 const handleSubItemClick = (itemName: string) => {
   selectItem(itemName);
-}
+};
+// 監聽路由變化和身份變化
+watch(
+  [() => route.path, isAdmin],
+  () => {
+    updateSelectedItem();
+  },
+  { immediate: true }
+);
 onMounted(() => {
   updateSelectedItem();
   window.addEventListener("storage", checkUserRole);

@@ -323,6 +323,45 @@ const caseOfficerNames = computed(() => {
   if (fromList) return fromList;
   return officerTableRows.value.map((r) => r.name).join("、");
 });
+const syncTabFromRoute = () => {
+  const queryTab = route.query?.tab as string | undefined;
+  if (queryTab && validTabValues.value.includes(queryTab)) {
+    activeTab.value = queryTab;
+  }
+};
+const getTabClass = (index: number): string => {
+  const isActive = index === activeTabIndex.value;
+  const baseClasses = ["flex flex-1 flex-col items-center justify-center p-4 transition-colors"];
+
+  if (isActive) {
+    baseClasses.push("bg-indigo-50 border-l border-r border-t border-primary-500 rounded-tl-lg rounded-tr-lg");
+  } else {
+    baseClasses.push("bg-gray-50 border-b border-primary-600");
+  }
+
+  return baseClasses.join(" ");
+};
+const getTabTextClass = (index: number): string => {
+  const isActive = index === activeTabIndex.value;
+  return isActive ? "text-base font-medium text-primary-500" : "text-base font-medium text-gray-500";
+};
+const handleTabClick = (index: number) => {
+  const nextTab = tabs.value[index]?.value || "info";
+  activeTab.value = nextTab;
+  router.replace({
+    path: route.path,
+    query: {
+      ...route.query,
+      tab: nextTab,
+    },
+  });
+};
+const handleSidebarItemSelect = (itemName: string) => {
+  console.log("Selected sidebar item:", itemName);
+};
+const handleUnsavedToast = (visible: boolean) => {
+  showUnsavedToast.value = visible;
+};
 watch(
   () => tabs.value,
   () => {
@@ -336,45 +375,6 @@ watch(
     syncTabFromRoute();
   }
 );
-const syncTabFromRoute = () => {
-  const queryTab = route.query?.tab as string | undefined;
-  if (queryTab && validTabValues.value.includes(queryTab)) {
-    activeTab.value = queryTab;
-  }
-}
-const getTabClass = (index: number): string => {
-  const isActive = index === activeTabIndex.value;
-  const baseClasses = ["flex flex-1 flex-col items-center justify-center p-4 transition-colors"];
-
-  if (isActive) {
-    baseClasses.push("bg-indigo-50 border-l border-r border-t border-primary-500 rounded-tl-lg rounded-tr-lg");
-  } else {
-    baseClasses.push("bg-gray-50 border-b border-primary-600");
-  }
-
-  return baseClasses.join(" ");
-}
-const getTabTextClass = (index: number): string => {
-  const isActive = index === activeTabIndex.value;
-  return isActive ? "text-base font-medium text-primary-500" : "text-base font-medium text-gray-500";
-}
-const handleTabClick = (index: number) => {
-  const nextTab = tabs.value[index]?.value || "info";
-  activeTab.value = nextTab;
-  router.replace({
-    path: route.path,
-    query: {
-      ...route.query,
-      tab: nextTab,
-    },
-  });
-}
-const handleSidebarItemSelect = (itemName: string) => {
-  console.log("Selected sidebar item:", itemName);
-}
-const handleUnsavedToast = (visible: boolean) => {
-  showUnsavedToast.value = visible;
-}
 const handleDeleteCase = () => {
   openConfirmDelete({
     message: "確認刪除此案件",

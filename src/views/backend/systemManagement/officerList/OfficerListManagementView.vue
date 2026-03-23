@@ -231,7 +231,6 @@ import type { OfficerData, OfficerItem } from "@/types/backend/systemManagement/
 const router = useRouter();
 const activeTab = ref(0);
 const showToast = ref(false);
-const officerListUnsavedCheck = useFormUnsavedCheck(() => buildOfficerListSnapshot());
 // Drawer state
 const isDrawerOpen = ref(false);
 /** 添加年度側拉選單的年度列表（從現有 tab 帶入） */
@@ -357,6 +356,7 @@ const normalizeOfficerList = (list: OfficerItem[]) => {
     .filter((item) => item.selectedOfficer !== "" && item.selectedOfficer !== "未選擇");
 };
 const buildOfficerListSnapshot = () => JSON.stringify(normalizeOfficerList(officerList.value));
+const officerListUnsavedCheck = useFormUnsavedCheck(() => buildOfficerListSnapshot());
 // Event Handlers
 const handleSidebarItemSelect = (itemName: string) => {
   console.log("Selected sidebar item:", itemName);

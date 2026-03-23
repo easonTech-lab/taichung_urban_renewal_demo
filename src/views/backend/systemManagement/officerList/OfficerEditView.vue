@@ -78,6 +78,10 @@ import Breadcrumb, { type BreadcrumbItem } from "@/components/atoms/Breadcrumb.v
 import SidebarSection from "@/components/sections/backend/SidebarSection.vue";
 const route = useRoute();
 const router = useRouter();
+const OFFICER_EDIT_STORAGE_KEY = "officer-edit-data";
+const getStringValue = (value: string | string[] | undefined) => {
+  return typeof value === "string" ? value : "";
+};
 const officerFromStorage = () => {
   const raw = sessionStorage.getItem(OFFICER_EDIT_STORAGE_KEY);
   if (!raw) return null;
@@ -108,7 +112,6 @@ const form = ref(
     education: [],
   }
 );
-const OFFICER_EDIT_STORAGE_KEY = "officer-edit-data";
 const officerUnsavedCheck = useFormUnsavedCheck(() => buildOfficerSnapshot());
 const isViewMode = computed(() => route.query.mode === "view");
 const pageTitle = computed(() => (isViewMode.value ? "幹事資訊" : "編輯幹事"));
@@ -118,9 +121,6 @@ const breadcrumbItems = computed<BreadcrumbItem[]>(() => [
   { label: "幹事名單管理", to: "/officer-list-management" },
   { label: pageTitle.value },
 ]);
-const getStringValue = (value: string | string[] | undefined) => {
-  return typeof value === "string" ? value : "";
-}
 const buildEducationList = (value: string[]) => {
   const items = value.map((item) => item.trim()).filter(Boolean);
   return items.length > 0 ? items : [""];

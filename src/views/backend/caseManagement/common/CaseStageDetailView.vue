@@ -478,23 +478,6 @@ const statusDisplay = computed(() => {
   }
   return { icon: "stepUncheckGray", statusText: "未開始", description: "階段未開放" };
 });
-watch(
-  () => selectedStatus.value,
-  (status) => {
-    if (status === "in-progress") {
-      resetProgressItems();
-    }
-  },
-  { immediate: true }
-);
-watch(
-  () => showAddItemDrawer.value,
-  (isOpen) => {
-    if (isOpen) {
-      addItemUnsavedCheck.captureInitial();
-    }
-  }
-);
 const handleSidebarItemSelect = (itemName: string) => {
   console.log("Selected sidebar item:", itemName);
 };
@@ -518,6 +501,23 @@ const resetProgressItems = () => {
     enabled: false,
   }));
 };
+watch(
+  () => selectedStatus.value,
+  (status) => {
+    if (status === "in-progress") {
+      resetProgressItems();
+    }
+  },
+  { immediate: true }
+);
+watch(
+  () => showAddItemDrawer.value,
+  (isOpen) => {
+    if (isOpen) {
+      addItemUnsavedCheck.captureInitial();
+    }
+  }
+);
 const handleToggleProgressItem = (label: string, value: boolean) => {
   progressItems.value = progressItems.value.map((item) => ({
     ...item,

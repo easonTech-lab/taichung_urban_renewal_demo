@@ -243,6 +243,35 @@ const mockHandlerAccountsData = [
     supervisorEmail: "abc123@taichung.gov.tw",
   },
 ];
+// Mock data for editing (實際應該從 API 或 store 獲取)
+// 注意：這裡的數據結構需要與管理頁面的數據結構匹配
+// 將管理頁面的數據格式轉換為編輯頁面需要的格式
+const convertPermissionsFormat = (permissions: Array<{ category: string; functions: string[] }>) => {
+  const result: any = {
+    caseManagement: { function1: false, function2: false, function3: false },
+    homepageMaintenance: { function1: false, function2: false, function3: false },
+    myAccount: { function1: false, function2: false, function3: false },
+  };
+
+  permissions.forEach((perm) => {
+    const keyMap: Record<string, string> = {
+      案件管理功能: "caseManagement",
+      首頁維護功能: "homepageMaintenance",
+      我的帳號功能: "myAccount",
+    };
+    const key = keyMap[perm.category];
+    if (key) {
+      perm.functions.forEach((_, index) => {
+        const funcKey = `function${index + 1}` as "function1" | "function2" | "function3";
+        if (result[key] && result[key][funcKey] !== undefined) {
+          result[key][funcKey] = true;
+        }
+      });
+    }
+  });
+
+  return result;
+};
 // 轉換為編輯頁面需要的格式
 const mockHandlerAccounts: Record<string, any> = {};
 mockHandlerAccountsData.forEach((account) => {
@@ -305,14 +334,6 @@ watch(
   },
   { deep: true }
 );
-// 監聽路由變化，當進入編輯模式時載入數據
-watch(
-  () => [isEditMode.value, route.query.email],
-  () => {
-    loadEditData();
-  },
-  { immediate: true }
-);
 const buildFormSnapshot = () =>
   JSON.stringify({
     name: formData.value.name.trim(),
@@ -344,35 +365,6 @@ const handleSelectAllPermissions = (value: boolean) => {
 };
 const handleCancel = () => {
   router.back();
-};
-// Mock data for editing (實際應該從 API 或 store 獲取)
-// 注意：這裡的數據結構需要與管理頁面的數據結構匹配
-// 將管理頁面的數據格式轉換為編輯頁面需要的格式
-const convertPermissionsFormat = (permissions: Array<{ category: string; functions: string[] }>) => {
-  const result: any = {
-    caseManagement: { function1: false, function2: false, function3: false },
-    homepageMaintenance: { function1: false, function2: false, function3: false },
-    myAccount: { function1: false, function2: false, function3: false },
-  };
-
-  permissions.forEach((perm) => {
-    const keyMap: Record<string, string> = {
-      案件管理功能: "caseManagement",
-      首頁維護功能: "homepageMaintenance",
-      我的帳號功能: "myAccount",
-    };
-    const key = keyMap[perm.category];
-    if (key) {
-      perm.functions.forEach((_, index) => {
-        const funcKey = `function${index + 1}` as "function1" | "function2" | "function3";
-        if (result[key] && result[key][funcKey] !== undefined) {
-          result[key][funcKey] = true;
-        }
-      });
-    }
-  });
-
-  return result;
 };
 // 載入編輯數據
 const loadEditData = () => {
@@ -444,6 +436,14 @@ const loadEditData = () => {
     console.warn(`Account not found for email: ${email}`);
   }
 };
+// 監聽路由變化，當進入編輯模式時載入數據
+watch(
+  () => [isEditMode.value, route.query.email],
+  () => {
+    loadEditData();
+  },
+  { immediate: true }
+);
 const handleCreate = () => {
   console.log("Create account:", formData.value);
   // TODO: Implement create logic

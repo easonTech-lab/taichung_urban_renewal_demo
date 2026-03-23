@@ -81,12 +81,6 @@ const navLinkClass = computed(() => {
     ? "text-base font-medium leading-normal text-gray-900 hover:text-primary-700"
     : "text-sm font-medium text-gray-900 hover:text-primary-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500";
 });
-watch(
-  () => route.path,
-  () => {
-    checkLoginStatus();
-  }
-);
 const getNavRoutes = (): Array<{ path: string; label: string }> => {
   const routes = routerModule.routes;
   return routes
@@ -97,16 +91,16 @@ const getNavRoutes = (): Array<{ path: string; label: string }> => {
       path: route.path,
       label: route.meta?.navLabel || route.name,
     }));
-}
+};
 const checkLoginStatus = () => {
   userInfo.value = localStorage.getItem("userInfo");
-}
+};
 const handleLogout = () => {
   localStorage.removeItem("userInfo");
   userInfo.value = null;
   window.dispatchEvent(new Event("login-status-changed"));
   router.push("/login");
-}
+};
 const handleAvatarItemClick = (item: AvatarDropdownItem) => {
   const config = useSidebarMenuConfig(isAdmin.value);
   const match = config.find((menu) => menu.title === item.label);
@@ -114,7 +108,13 @@ const handleAvatarItemClick = (item: AvatarDropdownItem) => {
   if (routeTarget && routeTarget !== "#") {
     router.push(routeTarget);
   }
-}
+};
+watch(
+  () => route.path,
+  () => {
+    checkLoginStatus();
+  }
+);
 onMounted(() => {
   checkLoginStatus();
   window.addEventListener("storage", checkLoginStatus);
