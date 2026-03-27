@@ -63,6 +63,7 @@ import ButtonCTA from "@/components/atoms/ButtonCTA.vue";
 import Breadcrumb from "@/components/atoms/Breadcrumb.vue";
 import SidebarSection from "@/components/sections/backend/SidebarSection.vue";
 import InputDropdown, { type InputDropdownItem } from "@/components/atoms/InputDropdown.vue";
+import { fetchCaseStatisticById, saveCaseStatistic } from "@/services/backend/homepageMaintenance/caseStatisticsService";
 import type { CaseStatisticsFormData } from "@/types/backend/homepageMaintenance/caseStatistics.d";
 const route = useRoute();
 const router = useRouter();
@@ -70,11 +71,8 @@ const annualCount = ref<CaseStatisticsFormData["annualCount"]>("");
 const yearValue = ref<CaseStatisticsFormData["year"]>("");
 const selectedCategory = ref<CaseStatisticsFormData["category"]>("");
 const showDuplicateModal = ref(false);
-const caseData = ref({
-  caseCategory: "都更案件",
-  year: "114",
-  annualCount: "103",
-});
+const editingStatistics = ref<{ annualCount: number; caseCategory: string; year: string } | null>(null);
+const statisticsId = computed(() => (typeof route.params.id === "string" ? route.params.id : ""));
 const categoryOptions: InputDropdownItem[] = [
   { label: "都更案件", value: "都更案件" },
   { label: "危老案件", value: "危老案件" },
@@ -106,7 +104,7 @@ const buildFormSnapshot = () =>
 const handleGoBack = () => {
   router.back();
 };
-const handleSave = () => {
+const handleSave = async () => {
   if (!isEditMode.value) {
     const hasDuplicate = existingStatistics.some((item) => item.category === selectedCategory.value && item.year === yearValue.value.trim());
     if (hasDuplicate) {
@@ -114,13 +112,11 @@ const handleSave = () => {
       return;
     }
   }
-  // TODO: Implement save logic
-  console.log("Saving:", {
+  await saveCaseStatistic({
     category: selectedCategory.value,
-    reportingYear: yearValue.value,
+    year: yearValue.value,
     annualCount: annualCount.value,
-  });
-  // After saving, navigate back and trigger success toast on list page
+  }, statisticsId.value || undefined);
   router.push({
     path: "/case-statistics",
     query: {
@@ -134,23 +130,26 @@ const handleCategoryChange = (item: InputDropdownItem) => {
   selectedCategory.value = item.label;
 };
 const statisticsFormUnsavedCheck = useFormUnsavedCheck(buildFormSnapshot);
-onMounted(() => {
+
+const normalizeCaseStatistic = (item: Record<string, any>) => ({
+  id: String(item.id),
+  year: String(item.year ?? ""),
+  caseCategory: item.caseCategory ?? item.typeLabel ?? "",
+  annualCount: item.annualCount ?? item.caseCount ?? 0,
+});
+
+onMounted(async () => {
   if (isEditMode.value) {
-    // 從路由查詢參數獲取數據（如果有的話）
-    if (route.query.category) {
-      caseData.value.caseCategory = route.query.category as string;
+    const response = await fetchCaseStatisticById(statisticsId.value);
+    const item = response.data.data.find((statisticItem: { id: string | number }) => String(statisticItem.id) === statisticsId.value);
+    editingStatistics.value = item ? normalizeCaseStatistic(item) : null;
+    if (!editingStatistics.value) {
+      router.replace("/case-statistics");
+      return;
     }
-    if (route.query.year) {
-      caseData.value.year = route.query.year as string;
-    }
-    if (route.query.annualCount) {
-      caseData.value.annualCount = route.query.annualCount as string;
-      annualCount.value = route.query.annualCount as string;
-    } else {
-      annualCount.value = caseData.value.annualCount;
-    }
-    selectedCategory.value = caseData.value.caseCategory;
-    yearValue.value = caseData.value.year;
+    annualCount.value = editingStatistics.value.annualCount.toString();
+    selectedCategory.value = editingStatistics.value.caseCategory;
+    yearValue.value = editingStatistics.value.year;
   } else {
     selectedCategory.value = "";
     yearValue.value = "";

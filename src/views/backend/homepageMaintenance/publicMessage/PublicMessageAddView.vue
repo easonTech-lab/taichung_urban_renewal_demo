@@ -88,6 +88,7 @@ import RadioGroup from "@/components/atoms/RadioGroup.vue";
 import RichTextEditor from "@/components/atoms/RichTextEditor.vue";
 import UnsavedChangesModal from "@/components/molecules/UnsavedChangesModal.vue";
 import SidebarSection from "@/components/sections/backend/SidebarSection.vue";
+import { fetchPublicMessageById, savePublicMessage } from "@/services/backend/homepageMaintenance/publicMessageService";
 import type { PublicMessageFormData } from "@/types/backend/homepageMaintenance/publicMessageManagement.d";
 
 const router = useRouter();
@@ -103,6 +104,7 @@ const formData = ref<PublicMessageFormData>({
 
 const showUploadWarningModal = ref(false);
 const uploadWarningMessage = ref("");
+const editingMessage = ref<{ title?: string; category?: string; content?: string } | null>(null);
 
 const categoryOptions = [
   { label: "最新消息", value: "latest-news" },
@@ -110,7 +112,8 @@ const categoryOptions = [
   { label: "會議公告", value: "meeting-announcement" },
 ];
 
-const isEditMode = computed(() => route.query.edit === "true");
+const messageId = computed(() => (typeof route.params.id === "string" ? route.params.id : ""));
+const isEditMode = computed(() => Boolean(messageId.value));
 
 const isPublishDisabled = computed(() => {
   if (!formData.value.title.trim()) return true;
@@ -121,9 +124,8 @@ const isPublishDisabled = computed(() => {
 
 const publicMessageFormUnsavedCheck = useFormUnsavedCheck(() => buildFormSnapshot(), isEditMode);
 
-const handleSaveDraft = () => {
-  // TODO: Implement save draft functionality
-  console.log("暫存", formData.value);
+const handleSaveDraft = async () => {
+  await savePublicMessage({ ...formData.value, status: "draft" }, messageId.value || undefined);
   router.push({
     path: "/public-message-management",
     query: {
@@ -133,9 +135,8 @@ const handleSaveDraft = () => {
   });
 };
 
-const handlePublish = () => {
-  // TODO: Implement publish functionality
-  console.log("發布", formData.value);
+const handlePublish = async () => {
+  await savePublicMessage({ ...formData.value, status: "published" }, messageId.value || undefined);
   router.push({
     path: "/public-message-management",
     query: {
@@ -151,17 +152,24 @@ const categoryValueMap: Record<string, string> = {
   會議公告: "meeting-announcement",
 };
 
-onMounted(() => {
-  if (!isEditMode.value) return;
-  if (route.query.title) {
-    formData.value.title = (route.query.title as string) ?? "";
-  }
-  if (route.query.category) {
-    const label = route.query.category as string;
-    formData.value.category = categoryValueMap[label] ?? label;
-  }
-  if (route.query.content) {
-    formData.value.content = (route.query.content as string) ?? "";
+const normalizePublicMessageItem = (item: Record<string, any>) => ({
+  id: String(item.id),
+  title: item.title ?? "",
+  category: item.categoryLabel ?? item.category ?? "",
+  content: item.content ?? item.summary ?? "",
+});
+
+onMounted(async () => {
+  if (isEditMode.value) {
+    const response = await fetchPublicMessageById(messageId.value);
+    editingMessage.value = response.data.data ? normalizePublicMessageItem(response.data.data) : null;
+    if (!editingMessage.value) {
+      router.replace("/public-message-management");
+      return;
+    }
+    formData.value.title = editingMessage.value.title ?? "";
+    formData.value.category = categoryValueMap[editingMessage.value.category ?? ""] ?? editingMessage.value.category ?? "";
+    formData.value.content = editingMessage.value.content ?? "";
   }
   publicMessageFormUnsavedCheck.captureInitial();
 });
@@ -207,9 +215,9 @@ const handleExitWithoutSaving = () => {
   unsavedDialog.runPendingAction();
 };
 
-const handleSaveFromUnsavedModal = () => {
+const handleSaveFromUnsavedModal = async () => {
   unsavedDialog.closeUnsavedChangesModal();
-  handlePublish();
+  await handlePublish();
 };
 
 const handleFileError = (payload: { type: "size" | "format"; maxSize?: number }) => {

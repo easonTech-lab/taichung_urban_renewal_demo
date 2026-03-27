@@ -103,6 +103,7 @@ import Breadcrumb from "@/components/atoms/Breadcrumb.vue";
 import RichTextEditor from "@/components/atoms/RichTextEditor.vue";
 import UnsavedChangesModal from "@/components/molecules/UnsavedChangesModal.vue";
 import SidebarSection from "@/components/sections/backend/SidebarSection.vue";
+import { fetchFAQById, saveFAQ } from "@/services/backend/homepageMaintenance/faqService";
 import type { FaqFormData } from "@/types/backend/homepageMaintenance/faqManagement.d";
 
 const router = useRouter();
@@ -123,7 +124,9 @@ const categoryOptions = ref([
 
 const showNewCategory = ref(false);
 const newCategoryName = ref("");
-const isEditMode = computed(() => route.query.edit === "true");
+const editingFaq = ref<{ question?: string; category?: string; answer?: string } | null>(null);
+const faqId = computed(() => (typeof route.params.id === "string" ? route.params.id : ""));
+const isEditMode = computed(() => Boolean(faqId.value));
 const isNewCategoryValid = computed(() => newCategoryName.value.trim().length > 0);
 const answerTextLength = computed(() => getPlainTextLength(formData.value.answer));
 const isAnswerOverLimit = computed(() => answerTextLength.value > 200);
@@ -140,17 +143,25 @@ const navigateToFAQList = () => {
   router.push("/faq-management");
 };
 
-onMounted(() => {
-  if (!isEditMode.value) return;
-  if (route.query.title) {
-    formData.value.title = route.query.title as string;
-  }
-  if (route.query.category) {
-    const label = route.query.category as string;
-    formData.value.category = normalizeCategoryValue(label);
-  }
-  if (route.query.answer) {
-    formData.value.answer = route.query.answer as string;
+const normalizeFaqItem = (item: Record<string, any>) => ({
+  id: String(item.id),
+  question: item.question ?? "",
+  category: item.categoryName ?? item.category ?? "",
+  answer: item.answer ?? "",
+});
+
+onMounted(async () => {
+  if (isEditMode.value) {
+    const response = await fetchFAQById(faqId.value);
+    const item = response.data.data.content.find((faqItem: { id: string | number }) => String(faqItem.id) === faqId.value);
+    editingFaq.value = item ? normalizeFaqItem(item) : null;
+    if (!editingFaq.value) {
+      router.replace("/faq-management");
+      return;
+    }
+    formData.value.title = editingFaq.value.question ?? "";
+    formData.value.category = normalizeCategoryValue(editingFaq.value.category ?? "");
+    formData.value.answer = editingFaq.value.answer ?? "";
   }
   faqFormUnsavedCheck.captureInitial();
 });
@@ -186,9 +197,9 @@ const handleExitWithoutSaving = () => {
   unsavedDialog.runPendingAction();
 };
 
-const handleSaveFromUnsavedModal = () => {
+const handleSaveFromUnsavedModal = async () => {
   unsavedDialog.closeUnsavedChangesModal();
-  handlePublish();
+  await handlePublish();
 };
 
 const handleAddCategory = () => {
@@ -208,9 +219,8 @@ const handleCreateCategory = () => {
   showNewCategory.value = false;
 };
 
-const handleSaveDraft = () => {
-  // TODO: Implement save draft functionality
-  console.log("暫存", formData.value);
+const handleSaveDraft = async () => {
+  await saveFAQ({ ...formData.value, status: "draft" }, faqId.value || undefined);
   router.push({
     path: "/faq-management",
     query: {
@@ -220,9 +230,8 @@ const handleSaveDraft = () => {
   });
 };
 
-const handlePublish = () => {
-  // TODO: Implement publish functionality
-  console.log("發布", formData.value);
+const handlePublish = async () => {
+  await saveFAQ({ ...formData.value, status: "published" }, faqId.value || undefined);
   router.push({
     path: "/faq-management",
     query: {

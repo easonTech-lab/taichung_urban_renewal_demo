@@ -1,4 +1,5 @@
 export interface CaseStatisticsItem {
+  id: string;
   index: number;
   year: string;
   caseCategory: string;

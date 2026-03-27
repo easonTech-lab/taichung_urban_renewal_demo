@@ -12,9 +12,9 @@
             <div class="h-7 w-1 rounded bg-primary-600"></div>
             <h2 class="text-2xl font-medium leading-6 text-gray-900">歷年案件統計</h2>
           </div>
-          <ButtonCTA v-if="hasAnyStatistics" variant="outline" size="sm" left-icon="plus" @click="handleAddYear"> 新增年度 </ButtonCTA>
+          <ButtonCTA v-if="isDataLoaded && hasAnyStatistics" variant="outline" size="sm" left-icon="plus" @click="handleAddYear"> 新增年度 </ButtonCTA>
         </div>
-        <div v-if="hasAnyStatistics" class="flex flex-col gap-6">
+        <div v-if="isDataLoaded && hasAnyStatistics" class="flex flex-col gap-6">
           <Tabs :items="tabItems" :model-value="activeTab" @tab-click="handleTabClick" />
           <div class="relative z-10 flex flex-wrap items-center gap-3 pb-2">
             <div class="flex items-center gap-2">
@@ -35,7 +35,7 @@
             </div>
           </div>
         </div>
-        <div v-if="hasAnyStatistics" class="overflow-x-auto">
+        <div v-if="isDataLoaded && hasAnyStatistics" class="overflow-x-auto">
           <div class="min-w-[460px] rounded-lg border border-gray-300 bg-white">
           <Table
             v-if="filteredStatistics.length > 0"
@@ -57,7 +57,7 @@
           <Empty v-else type="search" :show-button="false" class="py-12" />
           </div>
         </div>
-        <div v-else class="rounded-lg border border-gray-300 bg-white">
+        <div v-else-if="isDataLoaded" class="rounded-lg border border-gray-300 bg-white">
           <Empty type="case-management" message="尚未新增統計" button-text="新增統計" @button-click="handleAddYear" />
         </div>
       </div>
@@ -87,10 +87,12 @@ import SidebarSection from "@/components/sections/backend/SidebarSection.vue";
 import ConfirmDeleteModal from "@/components/molecules/ConfirmDeleteModal.vue";
 import Table, { type TableColumn } from "@/components/atoms/Table.vue";
 import Dropdown, { type DropdownItem } from "@/components/atoms/Dropdown.vue";
+import { fetchCaseStatisticsList } from "@/services/backend/homepageMaintenance/caseStatisticsService";
 import type { CaseStatisticsItem } from "@/types/backend/homepageMaintenance/caseStatistics.d";
 const route = useRoute();
 const router = useRouter();
 const activeTab = ref<number>(0);
+const isDataLoaded = ref(false);
 const selectedStartYear = ref<string>("");
 const selectedEndYear = ref<string>("");
 const appliedStartYear = ref<string>("");
@@ -118,18 +120,17 @@ const yearOptions: DropdownItem[] = Array.from({ length: 20 }, (_, i) => {
   return { label: year.toString(), value: year.toString() };
 });
 // Mock Data
-const allStatistics: CaseStatisticsItem[] = [
-  { index: 1, year: "114", caseCategory: "都更案件", annualCount: 103, cumulativeCount: 455, growthRate: "降低" },
-  { index: 2, year: "114", caseCategory: "危老案件", annualCount: 55, cumulativeCount: 103, growthRate: "降低" },
-  { index: 3, year: "113", caseCategory: "都更案件", annualCount: 98, cumulativeCount: 322, growthRate: "成長" },
-  { index: 4, year: "113", caseCategory: "危老案件", annualCount: 22, cumulativeCount: 55, growthRate: "成長" },
-  { index: 5, year: "112", caseCategory: "都更案件", annualCount: 75, cumulativeCount: 178, growthRate: "降低" },
-  { index: 6, year: "112", caseCategory: "都更案件", annualCount: 75, cumulativeCount: 178, growthRate: "持平" },
-  { index: 7, year: "112", caseCategory: "都更案件", annualCount: 75, cumulativeCount: 178, growthRate: "持平" },
-  { index: 8, year: "112", caseCategory: "危老案件", annualCount: 22, cumulativeCount: 22, growthRate: "成長" },
-  { index: 9, year: "112", caseCategory: "危老案件", annualCount: 22, cumulativeCount: 22, growthRate: "持平" },
-  { index: 10, year: "112", caseCategory: "危老案件", annualCount: 22, cumulativeCount: 22, growthRate: "持平" },
-];
+const allStatistics = ref<CaseStatisticsItem[]>([]);
+
+const normalizeCaseStatistic = (item: Record<string, any>): CaseStatisticsItem => ({
+  id: String(item.id),
+  index: item.index ?? 0,
+  year: String(item.year ?? ""),
+  caseCategory: item.caseCategory ?? item.typeLabel ?? "",
+  annualCount: item.annualCount ?? item.caseCount ?? 0,
+  cumulativeCount: item.cumulativeCount ?? item.accumulatedCount ?? 0,
+  growthRate: item.growthRate ?? item.growthStatus?.description ?? "持平",
+});
 // Table Columns
 const tableColumns: TableColumn[] = [
   {
@@ -170,7 +171,7 @@ const tableColumns: TableColumn[] = [
   },
 ];
 const filteredStatistics = computed(() => {
-  let stats = [...allStatistics];
+  let stats = [...allStatistics.value];
   // Filter by tab
   if (activeTab.value === 1) {
     // 都更案件
@@ -192,7 +193,7 @@ const paginationState = reactive(useTablePagination({
   rows: filteredStatistics,
   pageSize,
 }));
-const hasAnyStatistics = computed(() => allStatistics.length > 0);
+const hasAnyStatistics = computed(() => allStatistics.value.length > 0);
 const startYearOptions = computed(() => {
   if (!selectedEndYear.value) return yearOptions;
   const endYear = parseInt(selectedEndYear.value, 10);
@@ -253,20 +254,17 @@ const handleResetFilters = () => {
   appliedEndYear.value = "";
   paginationState.resetPage();
 };
+const loadCaseStatistics = async () => {
+  const response = await fetchCaseStatisticsList();
+  allStatistics.value = response.data.data.map(normalizeCaseStatistic);
+  isDataLoaded.value = true;
+};
 const handleAddYear = () => {
   router.push("/case-statistics/add");
 };
 const handleEdit = (row: Record<string, any>) => {
   const item = row as CaseStatisticsItem;
-  // 導航到編輯頁面，傳遞案件數據
-  router.push({
-    path: "/case-statistics/edit",
-    query: {
-      category: item.caseCategory,
-      year: item.year,
-      annualCount: item.annualCount.toString(),
-    },
-  });
+  router.push(`/case-statistics/edit/${item.id}`);
 };
 const handleDelete = (row: Record<string, any>) => {
   const item = row as CaseStatisticsItem;
@@ -296,5 +294,8 @@ const maybeShowReturnToast = () => {
     query: { ...route.query, toast: undefined, msg: undefined },
   });
 };
-onMounted(maybeShowReturnToast);
+onMounted(async () => {
+  await loadCaseStatistics();
+  maybeShowReturnToast();
+});
 </script>

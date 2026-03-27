@@ -135,8 +135,8 @@ const filteredData = computed(() => {
   }
   return data;
 });
-const tableRows = computed(() => filteredData.value);
 const pageSize = computed(() => props.pageSize);
+const tableRows = computed(() => filteredData.value);
 const paginationState = reactive(
   useTablePagination({
     rows: tableRows,

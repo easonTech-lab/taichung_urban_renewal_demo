@@ -12,12 +12,12 @@
             <div class="h-7 w-1 rounded bg-primary-600"></div>
             <h2 class="text-2xl font-medium leading-6 text-gray-900">下載專區列表</h2>
           </div>
-          <ButtonCTA v-if="hasAnyDownloads" variant="outline" size="sm" left-icon="plus" @click="handleAddDownload"> 新增資料下載 </ButtonCTA>
+          <ButtonCTA v-if="isDataLoaded && hasAnyDownloads" variant="outline" size="sm" left-icon="plus" @click="handleAddDownload"> 新增資料下載 </ButtonCTA>
         </div>
-        <div v-if="hasAnyDownloads" class="w-[160px]">
+        <div v-if="isDataLoaded && hasAnyDownloads" class="w-[160px]">
           <Dropdown :button-text="selectedCategory" placeholder="全部案件類別" :items="categoryOptions" @item-click="handleCategoryChange" />
         </div>
-        <div v-if="hasAnyDownloads" class="rounded-lg border border-gray-300 bg-white">
+        <div v-if="isDataLoaded && hasAnyDownloads" class="rounded-lg border border-gray-300 bg-white">
           <Table
             v-if="filteredDownloads.length > 0"
             :columns="tableColumns"
@@ -45,7 +45,7 @@
           </Table>
           <Empty v-else type="search" :show-button="false" class="py-12" />
         </div>
-        <div v-else class="rounded-lg border border-gray-300 bg-white">
+        <div v-else-if="isDataLoaded" class="rounded-lg border border-gray-300 bg-white">
           <Empty type="case-management" message="尚未新增資料下載" button-text="新增資料下載" @button-click="handleAddDownload" />
         </div>
       </div>
@@ -77,13 +77,14 @@ import Breadcrumb from "@/components/atoms/Breadcrumb.vue";
 import SidebarSection from "@/components/sections/backend/SidebarSection.vue";
 import ConfirmDeleteModal from "@/components/molecules/ConfirmDeleteModal.vue";
 import Table, { type TableColumn } from "@/components/atoms/Table.vue";
-
+import { fetchDownloadsList } from "@/services/backend/homepageMaintenance/downloadsService";
 import type { DownloadItem } from "@/types/backend/homepageMaintenance/downloadsManagement.d";
 
 const router = useRouter();
 const route = useRoute();
 
 const pageSize = ref<number>(10);
+const isDataLoaded = ref(false);
 const selectedCategory = ref<string>("");
 const showDeleteModal = ref(false);
 const deleteTarget = ref<DownloadItem | null>(null);
@@ -106,50 +107,17 @@ const categoryOptions = [
   { label: "整建維護", value: "整建維護" },
 ];
 
-const allDownloads = ref<DownloadItem[]>([
-  {
-    fileName: "都市更新申請書範本（含事業計畫書、概要書）",
-    category: "都市更新類",
-    publishDate: "114/11/09",
-    status: true,
-    tabStatus: "published",
-  },
-  {
-    fileName: "結構安全性初評申請表",
-    category: "危老類",
-    publishDate: "114/10/30",
-    status: false,
-    tabStatus: "unpublished",
-  },
-  {
-    fileName: "老街區認定與補助條件說明文件",
-    category: "老舊街區",
-    publishDate: "114/10/30",
-    status: false,
-    tabStatus: "unpublished",
-  },
-  {
-    fileName: "整建維護補助申請表",
-    category: "整建維護",
-    publishDate: "114/10/12",
-    status: false,
-    tabStatus: "unpublished",
-  },
-  {
-    fileName: "同意書格式範例（住戶簽署用）",
-    category: "都市更新類",
-    publishDate: "114/10/12",
-    status: false,
-    tabStatus: "unpublished",
-  },
-  {
-    fileName: "全體同意書格式（危老專用）",
-    category: "危老類",
-    publishDate: "114/10/12",
-    status: false,
-    tabStatus: "unpublished",
-  },
-]);
+const allDownloads = ref<DownloadItem[]>([]);
+
+const normalizeDownloadItem = (item: Record<string, any>): DownloadItem => ({
+  id: String(item.id),
+  fileName: item.fileName ?? item.title ?? "",
+  category: item.categoryLabel ?? item.category ?? "",
+  publishDate: item.publishDate ?? item.createTime ?? "",
+  text: item.text ?? "",
+  status: String(item.status ?? "") === "PUBLISHED",
+  tabStatus: String(item.status ?? "") === "PUBLISHED" ? "published" : "unpublished",
+});
 
 const hasAnyDownloads = computed(() => allDownloads.value.length > 0);
 
@@ -216,14 +184,7 @@ const handleRowClick = (row: Record<string, any>) => {
 
 const handleEdit = (row: Record<string, any>) => {
   const item = row as DownloadItem;
-  router.push({
-    path: "/downloads-management/add",
-    query: {
-      edit: "true",
-      title: item.fileName,
-      category: item.category,
-    },
-  });
+  router.push(`/downloads-management/edit/${item.id}`);
 };
 
 const handleCloseDeleteModal = () => {
@@ -240,6 +201,12 @@ const handleConfirmDelete = () => {
   showDeleteToast.value = true;
 };
 
+const loadDownloads = async () => {
+  const response = await fetchDownloadsList();
+  allDownloads.value = response.data.data.content.map(normalizeDownloadItem);
+  isDataLoaded.value = true;
+};
+
 const maybeShowReturnToast = () => {
   const toastType = route.query.toast as string | undefined;
   if (toastType !== "success") return;
@@ -249,7 +216,10 @@ const maybeShowReturnToast = () => {
   router.replace({ path: route.path, query: { ...route.query, toast: undefined, msg: undefined } });
 };
 
-onMounted(maybeShowReturnToast);
+onMounted(async () => {
+  await loadDownloads();
+  maybeShowReturnToast();
+});
 
 watch(
   () => route.query.toast,

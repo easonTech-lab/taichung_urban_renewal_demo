@@ -466,7 +466,7 @@ export const routes: RouteRecordRaw[] = [
     },
   },
   {
-    path: "/case-statistics/edit",
+    path: "/case-statistics/edit/:id",
     name: "case-statistics-edit",
     component: () => import("@/views/backend/homepageMaintenance/caseStatistics/CaseStatisticsEditView.vue"),
     meta: {
@@ -513,6 +513,19 @@ export const routes: RouteRecordRaw[] = [
     },
   },
   {
+    path: "/faq-management/edit/:id",
+    name: "faq-management-edit",
+    component: () => import("@/views/backend/homepageMaintenance/faq/FAQAddView.vue"),
+    meta: {
+      breadcrumb: {
+        label: "常見問題維護",
+        parent: {
+          label: "首頁維護",
+        },
+      },
+    },
+  },
+  {
     path: "/downloads-management",
     name: "downloads-management",
     component: () => import("@/views/backend/homepageMaintenance/downloads/DownloadsManagementView.vue"),
@@ -547,6 +560,19 @@ export const routes: RouteRecordRaw[] = [
     },
   },
   {
+    path: "/downloads-management/edit/:id",
+    name: "downloads-management-edit",
+    component: () => import("@/views/backend/homepageMaintenance/downloads/DownloadsAddView.vue"),
+    meta: {
+      breadcrumb: {
+        label: "下載專區維護",
+        parent: {
+          label: "首頁維護",
+        },
+      },
+    },
+  },
+  {
     path: "/public-message-management",
     name: "public-message-management",
     component: () => import("@/views/backend/homepageMaintenance/publicMessage/PublicMessageManagementView.vue"),
@@ -570,6 +596,19 @@ export const routes: RouteRecordRaw[] = [
   {
     path: "/public-message-management/add",
     name: "public-message-management-add",
+    component: () => import("@/views/backend/homepageMaintenance/publicMessage/PublicMessageAddView.vue"),
+    meta: {
+      breadcrumb: {
+        label: "公開消息維護",
+        parent: {
+          label: "首頁維護",
+        },
+      },
+    },
+  },
+  {
+    path: "/public-message-management/edit/:id",
+    name: "public-message-management-edit",
     component: () => import("@/views/backend/homepageMaintenance/publicMessage/PublicMessageAddView.vue"),
     meta: {
       breadcrumb: {
@@ -616,7 +655,7 @@ export const routes: RouteRecordRaw[] = [
     },
   },
   {
-    path: "/officer-list-management/edit",
+    path: "/officer-list-management/edit/:id",
     name: "officer-list-management-edit",
     component: () => import("@/views/backend/systemManagement/officerList/OfficerEditView.vue"),
     meta: {

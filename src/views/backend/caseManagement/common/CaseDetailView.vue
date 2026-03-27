@@ -132,30 +132,35 @@ const caseInfo = ref({
 });
 const officerTableRows = ref<OfficerTableRow[]>([
   {
+    id: "officer-1",
     name: "張泓明",
     gender: "男",
     title: "內政部地政司代理司長",
     background: "日本東京大學地震研究所 博士；銘傳大學都市規劃與防災學 碩士",
   },
   {
+    id: "officer-2",
     name: "林靖君",
     gender: "女",
     title: "專家委員",
     background: "元智大學化學工程學系；美國奧克拉荷馬州州立大學環境工程碩士",
   },
   {
+    id: "officer-3",
     name: "郭依佳",
     gender: "女",
     title: "專家委員",
     background: "元智大學化學工程學系；美國奧克拉荷馬州州立大學環境工程碩士",
   },
   {
+    id: "officer-4",
     name: "朱秀秋",
     gender: "女",
     title: "中山大學公共事務管理研究所教授兼管理學院副院長",
     background: "美國北卡羅萊納州立大學景觀規劃博士",
   },
   {
+    id: "officer-5",
     name: "曾彰豪",
     gender: "男",
     title: "逢甲大學土地管理學系副教授",

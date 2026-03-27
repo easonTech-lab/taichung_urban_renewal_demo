@@ -12,12 +12,12 @@
             <div class="h-7 w-1 rounded bg-primary-600"></div>
             <h2 class="text-2xl font-medium leading-6 text-gray-900">公開消息列表</h2>
           </div>
-          <ButtonCTA v-if="hasAnyMessages" variant="outline" size="sm" left-icon="plus" @click="handleAddMessage"> 新增公開消息 </ButtonCTA>
+          <ButtonCTA v-if="isDataLoaded && hasAnyMessages" variant="outline" size="sm" left-icon="plus" @click="handleAddMessage"> 新增公開消息 </ButtonCTA>
         </div>
-        <div v-if="hasAnyMessages" class="w-[160px]">
+        <div v-if="isDataLoaded && hasAnyMessages" class="w-[160px]">
           <Dropdown :button-text="selectedCategory" placeholder="全部類別" :items="categoryOptions" @item-click="handleCategoryChange" />
         </div>
-        <div v-if="hasAnyMessages" class="rounded-lg border border-gray-300 bg-white">
+        <div v-if="isDataLoaded && hasAnyMessages" class="rounded-lg border border-gray-300 bg-white">
           <Table
             v-if="filteredMessages.length > 0"
             :columns="tableColumns"
@@ -49,7 +49,7 @@
           </Table>
           <Empty v-else type="search" :show-button="false" class="py-12" />
         </div>
-        <div v-else class="rounded-lg border border-gray-300 bg-white">
+        <div v-else-if="isDataLoaded" class="rounded-lg border border-gray-300 bg-white">
           <Empty type="case-management" message="尚未新增公開消息" button-text="新增公開消息" @button-click="handleAddMessage" />
         </div>
       </div>
@@ -86,12 +86,14 @@ import Breadcrumb from "@/components/atoms/Breadcrumb.vue";
 import SidebarSection from "@/components/sections/backend/SidebarSection.vue";
 import ConfirmDeleteModal from "@/components/molecules/ConfirmDeleteModal.vue";
 import Table, { type TableColumn } from "@/components/atoms/Table.vue";
+import { fetchPublicMessageList } from "@/services/backend/homepageMaintenance/publicMessageService";
 import type { PublicMessageItem } from "@/types/backend/homepageMaintenance/publicMessageManagement.d";
 
 const router = useRouter();
 const route = useRoute();
 
 const pageSize = ref<number>(10);
+const isDataLoaded = ref(false);
 const selectedCategory = ref<string>("");
 const showDeleteModal = ref(false);
 const deleteTarget = ref<PublicMessageItem | null>(null);
@@ -113,58 +115,25 @@ const categoryOptions = [
   { label: "新聞快訊", value: "新聞快訊" },
 ];
 
-const allMessages = ref<PublicMessageItem[]>([
-  {
-    title: "臺中市都市更新相關推動成果公告",
-    category: "",
-    publishDate: "",
-    status: false,
-    tabStatus: "draft",
-    isExpanded: true,
-  },
-  {
-    title: "本處辦理「114年度老屋新用計畫2.0」潭子區老屋第2次進駐者徵選，入選結果公告。",
-    category: "最新消息",
-    publishDate: "114/11/09",
-    status: true,
-    tabStatus: "published",
-  },
-  {
-    title: "本處辦理「114年度老屋新用計畫2.0」南區老屋第2次進駐者徵選，入選結果公告。",
-    category: "最新消息",
-    publishDate: "114/10/30",
-    status: false,
-    tabStatus: "unpublished",
-  },
-  {
-    title: "西屯區都更幹事會第二次召開",
-    category: "最新消息",
-    publishDate: "114/10/30",
-    status: false,
-    tabStatus: "unpublished",
-  },
-  {
-    title: "協合里都更審查會議時間公告",
-    category: "會議公告",
-    publishDate: "114/10/12",
-    status: false,
-    tabStatus: "unpublished",
-  },
-  {
-    title: "大雅區都更幹事會第一次召開",
-    category: "會議公告",
-    publishDate: "114/10/12",
-    status: false,
-    tabStatus: "unpublished",
-  },
-  {
-    title: "民眾表達推動任務研議",
-    category: "新聞快訊",
-    publishDate: "114/10/12",
-    status: false,
-    tabStatus: "unpublished",
-  },
-]);
+const allMessages = ref<PublicMessageItem[]>([]);
+
+const normalizeNewsStatus = (newsStatus: string) => {
+  if (newsStatus === "DRAFT") return { status: false, tabStatus: "draft" as const };
+  if (newsStatus === "PUBLISHED") return { status: true, tabStatus: "published" as const };
+  return { status: false, tabStatus: "unpublished" as const };
+};
+
+const normalizePublicMessageItem = (item: Record<string, any>): PublicMessageItem => {
+  const normalizedStatus = normalizeNewsStatus(String(item.newsStatus ?? ""));
+  return {
+    id: String(item.id),
+    title: item.title ?? "",
+    category: item.categoryLabel ?? item.category ?? "",
+    publishDate: item.publishDate ?? "",
+    content: item.content ?? item.summary ?? "",
+    ...normalizedStatus,
+  };
+};
 
 const hasAnyMessages = computed(() => allMessages.value.length > 0);
 
@@ -213,15 +182,7 @@ const handleRowClick = (row: Record<string, any>) => {
 
 const handleEdit = (row: Record<string, any>) => {
   const item = row as PublicMessageItem;
-  router.push({
-    path: "/public-message-management/add",
-    query: {
-      edit: "true",
-      title: item.title,
-      category: item.category,
-      content: (item as any).content ?? "",
-    },
-  });
+  router.push(`/public-message-management/edit/${item.id}`);
 }
 
 const handleStatusChange = (row: Record<string, any>, value: boolean) => {
@@ -257,6 +218,12 @@ const handleConfirmDelete = () => {
   showToast.value = true;
 };
 
+const loadPublicMessages = async () => {
+  const response = await fetchPublicMessageList();
+  allMessages.value = response.data.data.content.map(normalizePublicMessageItem);
+  isDataLoaded.value = true;
+};
+
 const maybeShowReturnToast = () => {
   const toastType = route.query.toast as string | undefined;
   if (toastType !== "success") return;
@@ -266,7 +233,10 @@ const maybeShowReturnToast = () => {
   router.replace({ path: route.path, query: { ...route.query, toast: undefined, msg: undefined } });
 };
 
-onMounted(maybeShowReturnToast);
+onMounted(async () => {
+  await loadPublicMessages();
+  maybeShowReturnToast();
+});
 
 watch(
   () => route.query.toast,

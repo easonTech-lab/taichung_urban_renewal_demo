@@ -1,4 +1,5 @@
 export interface FaqItem {
+  id: string;
   index: number;
   question: string;
   category: string;
@@ -6,6 +7,7 @@ export interface FaqItem {
   status: boolean;
   tabStatus: "all" | "published" | "draft" | "unpublished";
   isExpanded?: boolean;
+  answer?: string;
 }
 
 export interface FaqFormData {

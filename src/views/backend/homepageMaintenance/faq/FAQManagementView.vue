@@ -12,9 +12,9 @@
             <div class="h-7 w-1 rounded bg-primary-600"></div>
             <h2 class="text-2xl font-medium leading-6 text-gray-900">常見問題列表</h2>
           </div>
-          <ButtonCTA v-if="hasAnyFAQs" variant="outline" size="sm" left-icon="plus" @click="handleAddQuestion"> 新增問題 </ButtonCTA>
+          <ButtonCTA v-if="isDataLoaded && hasAnyFAQs" variant="outline" size="sm" left-icon="plus" @click="handleAddQuestion"> 新增問題 </ButtonCTA>
         </div>
-        <div v-if="hasAnyFAQs" class="rounded-lg border border-gray-300 bg-white">
+        <div v-if="isDataLoaded && hasAnyFAQs" class="rounded-lg border border-gray-300 bg-white">
           <Table
             v-if="filteredFAQs.length > 0"
             :columns="tableColumns"
@@ -43,7 +43,7 @@
           </Table>
           <Empty v-else type="search" :show-button="false" class="py-12" />
         </div>
-        <div v-else class="rounded-lg border border-gray-300 bg-white">
+        <div v-else-if="isDataLoaded" class="rounded-lg border border-gray-300 bg-white">
           <Empty type="case-management" message="尚未新增常見問題" button-text="新增問題" @button-click="handleAddQuestion" />
         </div>
       </div>
@@ -82,12 +82,14 @@ import Breadcrumb from "@/components/atoms/Breadcrumb.vue";
 import SidebarSection from "@/components/sections/backend/SidebarSection.vue";
 import ConfirmDeleteModal from "@/components/molecules/ConfirmDeleteModal.vue";
 import Table, { type TableColumn } from "@/components/atoms/Table.vue";
+import { fetchFAQList } from "@/services/backend/homepageMaintenance/faqService";
 import type { FaqItem } from "@/types/backend/homepageMaintenance/faqManagement.d";
 
 const router = useRouter();
 const route = useRoute();
 
 const pageSize = ref<number>(10);
+const isDataLoaded = ref(false);
 const showSuccessToast = ref(false);
 const toastMessage = ref("新增成功");
 const showDeleteModal = ref(false);
@@ -101,65 +103,26 @@ const toastStyle = {
   minWidth: "min(1420px, calc(100vw - 2rem))",
 };
 
-const allFAQs = ref<FaqItem[]>([
-  {
-    index: 1,
-    question: "都更、危老、整建維護差在哪？",
-    category: "",
-    publishDate: "",
-    status: false,
-    tabStatus: "draft",
-    isExpanded: true,
-  },
-  {
-    index: 2,
-    question: "都更、危老、整建維護差在哪？",
-    category: "我適合哪種重建方式？",
-    publishDate: "114/11/09",
-    status: true,
-    tabStatus: "published",
-  },
-  {
-    index: 3,
-    question: "房子幾歲了才算老？該選哪一種方式？",
-    category: "我適合哪種重建方式？",
-    publishDate: "114/10/30",
-    status: false,
-    tabStatus: "unpublished",
-  },
-  {
-    index: 4,
-    question: "需要準備什麼資料、文件？",
-    category: "要怎麼申請？需要準備什麼？",
-    publishDate: "114/10/30",
-    status: false,
-    tabStatus: "unpublished",
-  },
-  {
-    index: 5,
-    question: "同意比例要多少才可以啟動？",
-    category: "要怎麼申請？需要準備什麼？",
-    publishDate: "114/10/12",
-    status: false,
-    tabStatus: "unpublished",
-  },
-  {
-    index: 6,
-    question: "危老可以拿到多少容積獎勵？",
-    category: "有什麼補助或政府協助？",
-    publishDate: "114/10/12",
-    status: false,
-    tabStatus: "unpublished",
-  },
-  {
-    index: 7,
-    question: "有沒有免費顧問或推動師可協助？",
-    category: "有什麼補助或政府協助？",
-    publishDate: "114/10/12",
-    status: false,
-    tabStatus: "unpublished",
-  },
-]);
+const allFAQs = ref<FaqItem[]>([]);
+
+const normalizeFaqStatus = (status: string) => {
+  if (status === "DRAFT") return { status: false, tabStatus: "draft" as const };
+  if (status === "PUBLISHED") return { status: true, tabStatus: "published" as const };
+  return { status: false, tabStatus: "unpublished" as const };
+};
+
+const normalizeFaqItem = (item: Record<string, any>): FaqItem => {
+  const normalizedStatus = normalizeFaqStatus(String(item.status ?? ""));
+  return {
+    id: String(item.id),
+    index: item.index ?? item.sortOrder ?? 0,
+    question: item.question ?? "",
+    category: item.categoryName ?? item.category ?? "",
+    publishDate: item.publishDate ?? "",
+    answer: item.answer ?? "",
+    ...normalizedStatus,
+  };
+};
 
 const hasAnyFAQs = computed(() => allFAQs.value.length > 0);
 
@@ -207,15 +170,7 @@ const handleRowClick = (row: Record<string, any>) => {
 
 const handleEdit = (row: Record<string, any>) => {
   const item = row as FaqItem;
-  router.push({
-    path: "/faq-management/add",
-    query: {
-      edit: "true",
-      title: item.question,
-      category: item.category,
-      answer: "",
-    },
-  });
+  router.push(`/faq-management/edit/${item.id}`);
 }
 
 const handleDelete = (row: Record<string, any>) => {
@@ -239,6 +194,12 @@ const handleConfirmDelete = () => {
   showSuccessToast.value = true;
 };
 
+const loadFAQs = async () => {
+  const response = await fetchFAQList();
+  allFAQs.value = response.data.data.content.map(normalizeFaqItem);
+  isDataLoaded.value = true;
+};
+
 const maybeShowReturnToast = () => {
   const toastType = route.query.toast as string | undefined;
   if (toastType !== "success") return;
@@ -248,7 +209,10 @@ const maybeShowReturnToast = () => {
   router.replace({ path: route.path, query: { ...route.query, toast: undefined, msg: undefined } });
 };
 
-onMounted(maybeShowReturnToast);
+onMounted(async () => {
+  await loadFAQs();
+  maybeShowReturnToast();
+});
 
 watch(
   () => route.query.toast,

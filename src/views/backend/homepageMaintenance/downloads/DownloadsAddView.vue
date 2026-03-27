@@ -82,6 +82,7 @@ import Modal from "@/components/atoms/Modal.vue";
 import RichTextEditor from "@/components/atoms/RichTextEditor.vue";
 import UnsavedChangesModal from "@/components/molecules/UnsavedChangesModal.vue";
 import SidebarSection from "@/components/sections/backend/SidebarSection.vue";
+import { fetchDownloadById, saveDownload } from "@/services/backend/homepageMaintenance/downloadsService";
 import type { DownloadFormData } from "@/types/backend/homepageMaintenance/downloadsManagement.d";
 
 const router = useRouter();
@@ -97,6 +98,7 @@ const formData = ref<DownloadFormData>({
 
 const showUploadWarningModal = ref(false);
 const uploadWarningMessage = ref("");
+const editingDownload = ref<{ fileName?: string; category?: string; text?: string } | null>(null);
 
 const categoryOptions = [
   { label: "都市更新類", value: "urban-renewal" },
@@ -112,7 +114,8 @@ const categoryValueMap: Record<string, string> = {
   整建維護: "renovation-maintenance",
 };
 
-const isEditMode = computed(() => route.query.edit === "true");
+const downloadId = computed(() => (typeof route.params.id === "string" ? route.params.id : ""));
+const isEditMode = computed(() => Boolean(downloadId.value));
 
 const isPublishDisabled = computed(() => {
   if (!formData.value.title.trim()) return true;
@@ -122,9 +125,8 @@ const isPublishDisabled = computed(() => {
 
 const downloadsFormUnsavedCheck = useFormUnsavedCheck(() => buildFormSnapshot());
 
-const handleSaveDraft = () => {
-  // TODO: Implement save draft functionality
-  console.log("暫存", formData.value);
+const handleSaveDraft = async () => {
+  await saveDownload({ ...formData.value, status: "draft" }, downloadId.value || undefined);
   router.push({
     path: "/downloads-management",
     query: {
@@ -134,10 +136,9 @@ const handleSaveDraft = () => {
   });
 };
 
-const handlePublish = () => {
-  // TODO: Implement publish functionality
+const handlePublish = async () => {
   const isEdit = isEditMode.value;
-  console.log(isEdit ? "儲存" : "發布", formData.value);
+  await saveDownload({ ...formData.value, status: "published" }, downloadId.value || undefined);
   router.push({
     path: "/downloads-management",
     query: {
@@ -147,16 +148,25 @@ const handlePublish = () => {
   });
 };
 
-onMounted(() => {
-  if (route.query.title) {
-    formData.value.title = (route.query.title as string) ?? "";
-  }
-  if (route.query.category) {
-    const categoryLabel = route.query.category as string;
-    formData.value.category = categoryValueMap[categoryLabel] || categoryLabel;
-  }
-  if (route.query.text) {
-    formData.value.text = (route.query.text as string) ?? "";
+const normalizeDownloadItem = (item: Record<string, any>) => ({
+  id: String(item.id),
+  fileName: item.fileName ?? item.title ?? "",
+  category: item.categoryLabel ?? item.category ?? "",
+  text: item.text ?? "",
+});
+
+onMounted(async () => {
+  if (isEditMode.value) {
+    const response = await fetchDownloadById(downloadId.value);
+    const item = response.data.data.content.find((downloadItem: { id: string | number }) => String(downloadItem.id) === downloadId.value);
+    editingDownload.value = item ? normalizeDownloadItem(item) : null;
+    if (!editingDownload.value) {
+      router.replace("/downloads-management");
+      return;
+    }
+    formData.value.title = editingDownload.value.fileName;
+    formData.value.category = categoryValueMap[editingDownload.value.category] || editingDownload.value.category;
+    formData.value.text = editingDownload.value.text ?? "";
   }
   downloadsFormUnsavedCheck.captureInitial();
 });
@@ -203,12 +213,12 @@ const handleExitWithoutSaving = () => {
   unsavedDialog.runPendingAction();
 };
 
-const handleSaveFromUnsavedModal = () => {
+const handleSaveFromUnsavedModal = async () => {
   unsavedDialog.closeUnsavedChangesModal();
   if (isEditMode.value) {
-    handlePublish();
+    await handlePublish();
   } else {
-    handleSaveDraft();
+    await handleSaveDraft();
   }
 };
 

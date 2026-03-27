@@ -39,6 +39,7 @@ export interface OfficerItem {
 }
 
 export interface OfficerTableRow {
+  id: string;
   name: string;
   gender: string;
   title: string;

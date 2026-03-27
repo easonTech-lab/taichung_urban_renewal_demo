@@ -463,20 +463,8 @@ const handleToastDraft = () => {
   }
 };
 const handleOfficerProfile = (row: OfficerTableRow) => {
-  sessionStorage.setItem(
-    "officer-edit-data",
-    JSON.stringify({
-      name: row.name,
-      gender: row.gender,
-      title: row.title,
-      education: row.background
-        .split(/[；;]/)
-        .map((item) => item.trim())
-        .filter(Boolean),
-    })
-  );
   router.push({
-    path: "/officer-list-management/edit",
+    path: `/officer-list-management/edit/${row.id}`,
     query: {
       mode: "view",
       returnTo: route.fullPath,

@@ -15,13 +15,13 @@
             </div>
             <p class="pl-4 text-xl font-normal leading-5 text-gray-400">在此管理幹事名單及資訊</p>
           </div>
-          <div v-if="hasAnyOfficers" class="flex gap-3">
+          <div v-if="isDataLoaded && hasAnyOfficers" class="flex gap-3">
             <ButtonCTA variant="outline" size="sm" left-icon="manage" @click="handleManageList"> 管理名單 </ButtonCTA>
             <ButtonCTA variant="outline" size="sm" right-icon="download" @click="handleExportList"> 匯出名單 </ButtonCTA>
           </div>
         </div>
-        <Tabs v-if="hasAnyOfficers" :items="tabItems" :model-value="activeTab" @tab-click="handleTabClick" />
-        <div v-if="allOfficers.length === 0" class="flex flex-col items-center justify-center py-8">
+        <Tabs v-if="isDataLoaded && hasAnyOfficers" :items="tabItems" :model-value="activeTab" @tab-click="handleTabClick" />
+        <div v-if="isDataLoaded && allOfficers.length === 0" class="flex flex-col items-center justify-center py-8">
           <Empty
             class="!h-auto !gap-6 py-6"
             type="case"
@@ -31,7 +31,7 @@
             @button-click="handleAddOfficer"
           />
         </div>
-        <div v-else class="flex flex-col gap-0">
+        <div v-else-if="isDataLoaded" class="flex flex-col gap-0">
           <Table
             :columns="tableColumns"
             :rows="paginationState.paginatedRows"
@@ -208,7 +208,7 @@
   </div>
 </template>
 <script setup lang="ts">
-import { ref, computed, reactive } from "vue";
+import { ref, computed, reactive, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import { useFormUnsavedCheck } from "@/composables/useFormUnsavedCheck";
 import { useTablePagination } from "@/composables/useTablePagination";
@@ -227,9 +227,11 @@ import InputDropdown, { type InputDropdownItem } from "@/components/atoms/InputD
 import ConfirmDeleteModal from "@/components/molecules/ConfirmDeleteModal.vue";
 import UnsavedChangesModal from "@/components/molecules/UnsavedChangesModal.vue";
 import type { OfficerData, OfficerItem } from "@/types/backend/systemManagement/officerList/officerListManagement.d";
+import { fetchOfficerList } from "@/services/backend/systemManagement/officerService";
 // Tabs（年度 + 添加年度，儲存後會更新）
 const router = useRouter();
 const activeTab = ref(0);
+const isDataLoaded = ref(false);
 const showToast = ref(false);
 // Drawer state
 const isDrawerOpen = ref(false);
@@ -244,58 +246,31 @@ const deleteTarget = ref<OfficerData | null>(null);
 const tabItems = ref<TabItem[]>([{ label: "115" }, { label: "114" }, { label: "113" }, { label: "添加年度" }]);
 /** 年度欄位驗證錯誤（儲存時觸發，輸入時重置） */
 const yearErrorMap = ref<Map<number, "format" | "duplicate">>(new Map());
-const OFFICER_EDIT_STORAGE_KEY = "officer-edit-data";
-// Mock Officer Data
-const allOfficers = ref<OfficerData[]>([
-  {
-    index: 1,
-    name: "張源明",
-    gender: "男",
-    title: "內政部地政司代理司長",
-    education: ["日本東京大學地震研究所 博士", "銘傳大學都市規劃與防災學 碩士"],
-    email: "tmcg01mb@gmail.com",
-    phone: "0922289911",
-    address: "臺中市西屯區文心路二段588號",
-  } as OfficerData & { email?: string; phone?: string; address?: string },
-  {
-    index: 2,
-    name: "林珮君",
-    gender: "男",
-    title: "專家委員",
-    education: ["元智大學化學工程學系", "美國奧克拉荷馬州州立大學環境工程碩士", "總統府副秘書長", "行政院秘書長", "臺中縣副縣長", "臺北市政府環境保護局局長"],
-  },
-  {
-    index: 3,
-    name: "郭依佳",
-    gender: "男",
-    title: "專家委員",
-    education: ["元智大學化學工程學系", "美國奧克拉荷馬州州立大學環境工程碩士", "總統府副秘書長", "行政院秘書長", "臺中縣副縣長", "臺北市政府環境保護局局長"],
-  },
-  {
-    index: 4,
-    name: "朱秀秋",
-    gender: "男",
-    title: "專家委員",
-    education: ["元智大學化學工程學系", "美國奧克拉荷馬州州立大學環境工程碩士", "總統府副秘書長", "行政院秘書長", "臺中縣副縣長", "臺北市政府環境保護局局長"],
-  },
-  { index: 5, name: "朱秀秋", gender: "男", title: "中山大學公共事務管理研究所教授兼管理學院副院長", education: ["美國北卡羅萊納州立大學景觀規劃博士"] },
-  { index: 6, name: "朱秀秋", gender: "男", title: "中山大學公共事務管理研究所教授兼管理學院副院長", education: ["美國北卡羅萊納州立大學景觀規劃博士"] },
-  { index: 7, name: "朱秀秋", gender: "男", title: "中山大學公共事務管理研究所教授兼管理學院副院長", education: ["美國北卡羅萊納州立大學景觀規劃博士"] },
-  { index: 8, name: "朱秀秋", gender: "男", title: "中山大學公共事務管理研究所教授兼管理學院副院長", education: ["美國北卡羅萊納州立大學景觀規劃博士"] },
-  { index: 9, name: "朱秀秋", gender: "男", title: "中山大學公共事務管理研究所教授兼管理學院副院長", education: ["美國北卡羅萊納州立大學景觀規劃博士"] },
-  { index: 10, name: "朱秀秋", gender: "男", title: "中山大學公共事務管理研究所教授兼管理學院副院長", education: ["美國北卡羅萊納州立大學景觀規劃博士"] },
-]);
+const allOfficers = ref<OfficerData[]>([]);
+
+const normalizeOfficerItem = (item: Record<string, any>): OfficerData => ({
+  id: String(item.id),
+  index: item.index ?? 0,
+  name: item.name ?? "",
+  gender: item.gender ?? "",
+  title: item.title ?? "",
+  education: Array.isArray(item.education) ? item.education : [],
+  email: item.email ?? "",
+  phone: item.phone ?? "",
+  address: item.address ?? "",
+});
 const TOTAL_OFFICER_SLOTS = 20;
 const officerTableRows = ref(
   Array.from({ length: TOTAL_OFFICER_SLOTS }, (_, index) => {
     const officer = allOfficers.value[index];
     if (officer) return { ...officer, isPlaceholder: false };
     return {
+      id: `placeholder-${index + 1}`,
       index: index + 1,
       name: "未選擇",
       gender: "",
       title: "-",
-      education: [],
+      education: [] as string[],
       isPlaceholder: true,
     };
   })
@@ -312,6 +287,24 @@ const paginationState = reactive(useTablePagination({
   total: computed(() => officerTableRows.value.length),
   slice: false,
 }));
+const loadOfficers = async () => {
+  const response = await fetchOfficerList();
+  allOfficers.value = response.data.data.map(normalizeOfficerItem);
+  officerTableRows.value = Array.from({ length: TOTAL_OFFICER_SLOTS }, (_, index) => {
+    const officer = allOfficers.value[index];
+    if (officer) return { ...officer, isPlaceholder: false };
+    return {
+      id: `placeholder-${index + 1}`,
+      index: index + 1,
+      name: "未選擇",
+      gender: "",
+      title: "-",
+      education: [] as string[],
+      isPlaceholder: true,
+    };
+  });
+  isDataLoaded.value = true;
+};
 // Available officers (mock data - should come from internal staff accounts)
 const allAvailableOfficers: InputDropdownItem[] = [{ label: "陳傑瑞" }, { label: "張森" }, { label: "吳偉翔" }, { label: "林美華" }, { label: "王小明" }, { label: "李大同" }];
 // Get available officers for a specific index (excluding the current selection)
@@ -446,19 +439,7 @@ const handleConfirmDeleteOfficer = () => {
 };
 const handleOfficerProfileCard = (row: OfficerData & { email?: string; phone?: string; address?: string }) => {
   if ((row as OfficerData & { isPlaceholder?: boolean }).isPlaceholder) return;
-  // TODO: 後續串接後端後，改為帶 officer id 進編輯頁並由編輯頁重新取資料。
-  // 目前因尚未有後端 API，暫以 sessionStorage 傳遞 mock 編輯資料。
-  const officer = {
-    name: row.name || "",
-    gender: row.gender || "",
-    email: row.email ?? "",
-    phone: row.phone ?? "",
-    address: row.address ?? "",
-    title: row.title || "",
-    education: row.education ?? [],
-  };
-  sessionStorage.setItem(OFFICER_EDIT_STORAGE_KEY, JSON.stringify(officer));
-  router.push("/officer-list-management/edit");
+  router.push(`/officer-list-management/edit/${row.id}`);
 };
 // 添加年度 Drawer
 const handleAddYear = () => {
@@ -519,4 +500,8 @@ const handleAddYearSave = () => {
   initialYearSnapshot.value = buildYearSnapshot();
   isAddYearDrawerOpen.value = false;
 };
+
+onMounted(async () => {
+  await loadOfficers();
+});
 </script>

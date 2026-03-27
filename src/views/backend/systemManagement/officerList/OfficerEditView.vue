@@ -76,33 +76,23 @@ import Input from "@/components/atoms/Input.vue";
 import ButtonCTA from "@/components/atoms/ButtonCTA.vue";
 import Breadcrumb, { type BreadcrumbItem } from "@/components/atoms/Breadcrumb.vue";
 import SidebarSection from "@/components/sections/backend/SidebarSection.vue";
+import { fetchOfficerById, saveOfficer } from "@/services/backend/systemManagement/officerService";
 const route = useRoute();
 const router = useRouter();
-const OFFICER_EDIT_STORAGE_KEY = "officer-edit-data";
-const getStringValue = (value: string | string[] | undefined) => {
-  return typeof value === "string" ? value : "";
-};
-const officerFromStorage = () => {
-  const raw = sessionStorage.getItem(OFFICER_EDIT_STORAGE_KEY);
-  if (!raw) return null;
-  try {
-    const officer = JSON.parse(raw) as Record<string, string | string[]>;
-    return {
-      name: getStringValue(officer.name),
-      gender: getStringValue(officer.gender),
-      email: getStringValue(officer.email),
-      phone: getStringValue(officer.phone),
-      address: getStringValue(officer.address),
-      title: getStringValue(officer.title),
-      education: Array.isArray(officer.education) ? officer.education : [],
-    };
-  } catch {
-    return null;
-  }
-}
-const initialData = officerFromStorage();
+const initialData = ref<{
+  id: string;
+  name: string;
+  gender: string;
+  email?: string;
+  phone?: string;
+  address?: string;
+  title: string;
+  education: string[];
+} | null>(null);
+const officerId = computed(() => (typeof route.params.id === "string" ? route.params.id : ""));
 const form = ref(
-  initialData ?? {
+  initialData.value ?? {
+    id: "",
     name: "",
     gender: "",
     email: "",
@@ -125,6 +115,18 @@ const buildEducationList = (value: string[]) => {
   const items = value.map((item) => item.trim()).filter(Boolean);
   return items.length > 0 ? items : [""];
 };
+
+const normalizeOfficerItem = (item: Record<string, any>) => ({
+  id: String(item.id),
+  name: item.name ?? "",
+  gender: item.gender ?? "",
+  email: item.email ?? "",
+  phone: item.phone ?? "",
+  address: item.address ?? "",
+  title: item.title ?? "",
+  education: Array.isArray(item.education) ? item.education : [],
+});
+
 const educationList = ref<string[]>(buildEducationList(form.value.education));
 const buildOfficerSnapshot = () =>
   JSON.stringify({
@@ -150,22 +152,27 @@ const handleGoBack = () => {
 const handleAddEducation = () => {
   educationList.value.push("");
 }
-const handleSave = () => {
-  // TODO: API 儲存
+const handleSave = async () => {
   form.value.education = educationList.value.map((item) => item.trim()).filter(Boolean);
+  await saveOfficer(form.value, officerId.value || undefined);
   officerUnsavedCheck.captureInitial();
-  console.log("Save officer:", form.value);
   router.push("/officer-list-management");
 }
 const handleCancel = () => {
   router.push("/officer-list-management");
 }
-onMounted(() => {
-  if (!initialData) {
+onMounted(async () => {
+  const response = await fetchOfficerById(officerId.value);
+  initialData.value = response.data.data ? normalizeOfficerItem(response.data.data) : null;
+  if (!initialData.value) {
     router.replace("/officer-list-management");
     return;
   }
+  form.value = {
+    ...initialData.value,
+    education: [...initialData.value.education],
+  };
+  educationList.value = buildEducationList(form.value.education);
   officerUnsavedCheck.captureInitial();
-  sessionStorage.removeItem(OFFICER_EDIT_STORAGE_KEY);
 });
 </script>
