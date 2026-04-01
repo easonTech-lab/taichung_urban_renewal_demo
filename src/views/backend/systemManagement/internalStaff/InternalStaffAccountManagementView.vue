@@ -182,6 +182,8 @@ import SidebarSection from "@/components/sections/backend/SidebarSection.vue";
 import Table, { type TableColumn } from "@/components/atoms/Table.vue";
 import ConfirmDeleteModal from "@/components/molecules/ConfirmDeleteModal.vue";
 import type { HandlerAccount } from "@/types/backend/systemManagement/internalStaff/internalStaffAccountManagement.d";
+import { apiGetHandlerAccountList } from "@/api/backend/systemManagement/internalStaffService";
+import type { SystemUserApiItem } from "@/types/api/backend/systemManagement/internalStaffService";
 // State
 const route = useRoute();
 const router = useRouter();
@@ -216,85 +218,7 @@ const availableAccounts = ref<Array<{ name: string; email: string }>>([
     email: "321xyz@taichung.gov.tw",
   },
 ]);
-// Mock Data
-const handlerAccounts = ref<HandlerAccount[]>([
-  {
-    name: "陳傑瑞",
-    email: "tt05@taichung.gov.tw",
-    department: "都市修復工程科",
-    group: "業務承辦人員",
-    permissions: [
-      {
-        category: "案件管理功能",
-        functions: ["功能", "功能"],
-      },
-      {
-        category: "首頁維護功能",
-        functions: ["功能", "功能", "功能"],
-      },
-      {
-        category: "我的帳號功能",
-        functions: ["功能", "功能"],
-      },
-    ],
-    status: true,
-  },
-  {
-    name: "張森",
-    email: "abc123@taichung.gov.tw",
-    department: "住宅發展工程處",
-    group: "系統管理人員",
-    permissions: [
-      {
-        category: "案件管理功能",
-        functions: ["功能", "功能"],
-      },
-      {
-        category: "首頁維護功能",
-        functions: ["功能", "功能", "功能"],
-      },
-      {
-        category: "我的帳號功能",
-        functions: ["功能", "功能"],
-      },
-    ],
-    status: true,
-  },
-  {
-    name: "吳偉翔",
-    email: "321xyz@taichung.gov.tw",
-    department: "都市更新工程科",
-    group: "府內人員",
-    permissions: [
-      {
-        category: "案件管理功能",
-        functions: ["功能", "功能"],
-      },
-      {
-        category: "首頁維護功能",
-        functions: ["功能", "功能", "功能"],
-      },
-    ],
-    status: false,
-  },
-  {
-    name: "林美華",
-    email: "may@taichung.gov.tw",
-    department: "都計測量工程科",
-    group: "府外人員",
-    permissions: [
-      {
-        category: "案件管理功能",
-        functions: ["功能", "功能"],
-      },
-      {
-        category: "首頁維護功能",
-        functions: ["功能", "功能", "功能"],
-      },
-    ],
-    status: false,
-  },
-]);
+const handlerAccounts = ref<HandlerAccount[]>([]);
 const paginationState = reactive(
   useTablePagination({
     rows: handlerAccounts,
@@ -438,7 +362,38 @@ const handleRouteToast = () => {
     query: nextQuery,
   });
 };
-onMounted(() => {
+const normalizeHandlerAccount = (item: SystemUserApiItem): HandlerAccount => {
+  const roleLabel = item.role === "ADMIN" ? "系統管理人員" : "業務承辦人員";
+  const department = item.role === "ADMIN" ? "住宅發展工程處" : "都市修復工程科";
+  const permissions =
+    item.role === "ADMIN"
+      ? [
+          { category: "案件管理功能", functions: ["功能", "功能"] },
+          { category: "首頁維護功能", functions: ["功能", "功能", "功能"] },
+          { category: "我的帳號功能", functions: ["功能", "功能"] },
+        ]
+      : [
+          { category: "案件管理功能", functions: ["功能", "功能"] },
+          { category: "首頁維護功能", functions: ["功能", "功能"] },
+        ];
+
+  return {
+    name: item.realName,
+    email: item.email,
+    department,
+    group: roleLabel,
+    permissions,
+    status: item.status === 1,
+  };
+};
+
+const loadHandlerAccounts = async () => {
+  const response = await apiGetHandlerAccountList();
+  handlerAccounts.value = response.data.data.map(normalizeHandlerAccount);
+};
+
+onMounted(async () => {
+  await loadHandlerAccounts();
   handleRouteToast();
 });
 </script>

@@ -63,7 +63,8 @@ import ButtonCTA from "@/components/atoms/ButtonCTA.vue";
 import Breadcrumb from "@/components/atoms/Breadcrumb.vue";
 import SidebarSection from "@/components/sections/backend/SidebarSection.vue";
 import InputDropdown, { type InputDropdownItem } from "@/components/atoms/InputDropdown.vue";
-import { fetchCaseStatisticById, saveCaseStatistic } from "@/services/backend/homepageMaintenance/caseStatisticsService";
+import { apiGetCaseStatisticById, apiPostCaseStatistic, apiPutCaseStatistic } from "@/api/backend/homepageMaintenance/caseStatisticsService";
+import type { CaseStatisticApiItem } from "@/types/api/backend/homepageMaintenance/caseStatisticsService";
 import type { CaseStatisticsFormData } from "@/types/backend/homepageMaintenance/caseStatistics.d";
 const route = useRoute();
 const router = useRouter();
@@ -112,11 +113,20 @@ const handleSave = async () => {
       return;
     }
   }
-  await saveCaseStatistic({
-    category: selectedCategory.value,
-    year: yearValue.value,
-    annualCount: annualCount.value,
-  }, statisticsId.value || undefined);
+  if (statisticsId.value) {
+    await apiPutCaseStatistic({
+      id: statisticsId.value,
+      year: Number(yearValue.value),
+      type: selectedCategory.value === "都更案件" ? "URBAN_RENEWAL" : "DANGEROUS_OLD",
+      caseCount: Number(annualCount.value),
+    });
+  } else {
+    await apiPostCaseStatistic({
+      year: Number(yearValue.value),
+      type: selectedCategory.value === "都更案件" ? "URBAN_RENEWAL" : "DANGEROUS_OLD",
+      caseCount: Number(annualCount.value),
+    });
+  }
   router.push({
     path: "/case-statistics",
     query: {
@@ -131,16 +141,16 @@ const handleCategoryChange = (item: InputDropdownItem) => {
 };
 const statisticsFormUnsavedCheck = useFormUnsavedCheck(buildFormSnapshot);
 
-const normalizeCaseStatistic = (item: Record<string, any>) => ({
+const normalizeCaseStatistic = (item: CaseStatisticApiItem) => ({
   id: String(item.id),
   year: String(item.year ?? ""),
-  caseCategory: item.caseCategory ?? item.typeLabel ?? "",
-  annualCount: item.annualCount ?? item.caseCount ?? 0,
+  caseCategory: item.type === "URBAN_RENEWAL" ? "都更案件" : "危老案件",
+  annualCount: item.caseCount ?? 0,
 });
 
 onMounted(async () => {
   if (isEditMode.value) {
-    const response = await fetchCaseStatisticById(statisticsId.value);
+    const response = await apiGetCaseStatisticById(statisticsId.value);
     const item = response.data.data.find((statisticItem: { id: string | number }) => String(statisticItem.id) === statisticsId.value);
     editingStatistics.value = item ? normalizeCaseStatistic(item) : null;
     if (!editingStatistics.value) {

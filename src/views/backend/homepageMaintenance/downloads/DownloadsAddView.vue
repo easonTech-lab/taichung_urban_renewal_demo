@@ -82,7 +82,8 @@ import Modal from "@/components/atoms/Modal.vue";
 import RichTextEditor from "@/components/atoms/RichTextEditor.vue";
 import UnsavedChangesModal from "@/components/molecules/UnsavedChangesModal.vue";
 import SidebarSection from "@/components/sections/backend/SidebarSection.vue";
-import { fetchDownloadById, saveDownload } from "@/services/backend/homepageMaintenance/downloadsService";
+import { apiGetDownloadById, apiPostDownload, apiPutDownload } from "@/api/backend/homepageMaintenance/downloadsService";
+import type { DownloadApiItem } from "@/types/api/backend/homepageMaintenance/downloadsService";
 import type { DownloadFormData } from "@/types/backend/homepageMaintenance/downloadsManagement.d";
 
 const router = useRouter();
@@ -126,7 +127,11 @@ const isPublishDisabled = computed(() => {
 const downloadsFormUnsavedCheck = useFormUnsavedCheck(() => buildFormSnapshot());
 
 const handleSaveDraft = async () => {
-  await saveDownload({ ...formData.value, status: "draft" }, downloadId.value || undefined);
+  if (downloadId.value) {
+    await apiPutDownload({ ...formData.value, status: "draft", id: downloadId.value });
+  } else {
+    await apiPostDownload({ ...formData.value, status: "draft" });
+  }
   router.push({
     path: "/downloads-management",
     query: {
@@ -138,7 +143,11 @@ const handleSaveDraft = async () => {
 
 const handlePublish = async () => {
   const isEdit = isEditMode.value;
-  await saveDownload({ ...formData.value, status: "published" }, downloadId.value || undefined);
+  if (downloadId.value) {
+    await apiPutDownload({ ...formData.value, status: "published", id: downloadId.value });
+  } else {
+    await apiPostDownload({ ...formData.value, status: "published" });
+  }
   router.push({
     path: "/downloads-management",
     query: {
@@ -148,16 +157,16 @@ const handlePublish = async () => {
   });
 };
 
-const normalizeDownloadItem = (item: Record<string, any>) => ({
+const normalizeDownloadItem = (item: DownloadApiItem) => ({
   id: String(item.id),
-  fileName: item.fileName ?? item.title ?? "",
+  fileName: item.fileName ?? "",
   category: item.categoryLabel ?? item.category ?? "",
-  text: item.text ?? "",
+  text: "",
 });
 
 onMounted(async () => {
   if (isEditMode.value) {
-    const response = await fetchDownloadById(downloadId.value);
+    const response = await apiGetDownloadById(downloadId.value);
     const item = response.data.data.content.find((downloadItem: { id: string | number }) => String(downloadItem.id) === downloadId.value);
     editingDownload.value = item ? normalizeDownloadItem(item) : null;
     if (!editingDownload.value) {

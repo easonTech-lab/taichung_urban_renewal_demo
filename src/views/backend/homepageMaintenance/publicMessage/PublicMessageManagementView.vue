@@ -86,7 +86,8 @@ import Breadcrumb from "@/components/atoms/Breadcrumb.vue";
 import SidebarSection from "@/components/sections/backend/SidebarSection.vue";
 import ConfirmDeleteModal from "@/components/molecules/ConfirmDeleteModal.vue";
 import Table, { type TableColumn } from "@/components/atoms/Table.vue";
-import { fetchPublicMessageList } from "@/services/backend/homepageMaintenance/publicMessageService";
+import { apiGetPublicMessageList } from "@/api/backend/homepageMaintenance/publicMessageService";
+import type { PublicMessageApiItem } from "@/types/api/backend/homepageMaintenance/publicMessageService";
 import type { PublicMessageItem } from "@/types/backend/homepageMaintenance/publicMessageManagement.d";
 
 const router = useRouter();
@@ -123,12 +124,12 @@ const normalizeNewsStatus = (newsStatus: string) => {
   return { status: false, tabStatus: "unpublished" as const };
 };
 
-const normalizePublicMessageItem = (item: Record<string, any>): PublicMessageItem => {
+const normalizePublicMessageItem = (item: PublicMessageApiItem): PublicMessageItem => {
   const normalizedStatus = normalizeNewsStatus(String(item.newsStatus ?? ""));
   return {
     id: String(item.id),
     title: item.title ?? "",
-    category: item.categoryLabel ?? item.category ?? "",
+    category: item.categoryLabel ?? item.newsCategory ?? "",
     publishDate: item.publishDate ?? "",
     content: item.content ?? item.summary ?? "",
     ...normalizedStatus,
@@ -219,7 +220,7 @@ const handleConfirmDelete = () => {
 };
 
 const loadPublicMessages = async () => {
-  const response = await fetchPublicMessageList();
+  const response = await apiGetPublicMessageList();
   allMessages.value = response.data.data.content.map(normalizePublicMessageItem);
   isDataLoaded.value = true;
 };

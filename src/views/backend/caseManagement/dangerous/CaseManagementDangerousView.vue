@@ -71,7 +71,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, reactive } from "vue";
+import { ref, computed, watch, reactive, onMounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useTablePagination } from "@/composables/useTablePagination";
 import Icon from "@/components/atoms/Icon.vue";
@@ -84,6 +84,8 @@ import Table, { type TableColumn } from "@/components/atoms/Table.vue";
 import Dropdown, { type DropdownItem } from "@/components/atoms/Dropdown.vue";
 import ButtonDropdown, { type ButtonDropdownItem } from "@/components/atoms/ButtonDropdown.vue";
 import type { CaseItem } from "@/types/backend/caseManagement/dangerous/caseManagementDangerous.d";
+import { apiGetDangerousCasesList } from "@/api/backend/caseManagement/dangerousCasesService";
+import type { DangerousCaseApiItem } from "@/types/api/backend/caseManagement/dangerousCasesService";
 const route = useRoute();
 const router = useRouter();
 const showDeleteToast = ref(false);
@@ -100,79 +102,7 @@ const addCaseOptions: ButtonDropdownItem[] = [
   { label: "第二次變更", value: "second-amendment" },
   { label: "申請審議(簡化案件)", value: "simplified-case" },
 ];
-// Mock Data - 危老重建案件
-const allCases: CaseItem[] = [
-  {
-    caseNumber: "111-1-1",
-    caseName: "擬訂臺中市豐原區三村段三小段20地號(等)3筆土地重建計畫案",
-    caseCategory: "危老重建",
-    caseStage: "專案小組",
-    caseStatus: "進行中",
-  },
-  {
-    caseNumber: "111-2-1",
-    caseName: "擬訂臺中市豐原區三村段三小段20地號(等)3筆土地重建計畫案",
-    caseCategory: "危老重建",
-    caseStage: "專案小組",
-    caseStatus: "進行中",
-  },
-  {
-    caseNumber: "111-3-1",
-    caseName: "擬訂臺中市豐原區三村段三小段20地號(等)3筆土地重建計畫案",
-    caseCategory: "危老重建",
-    caseStage: "專案小組",
-    caseStatus: "已中斷",
-  },
-  {
-    caseNumber: "111-4-1",
-    caseName: "擬訂臺中市豐原區三村段三小段20地號(等)3筆土地重建計畫案",
-    caseCategory: "危老重建",
-    caseStage: "專案小組",
-    caseStatus: "已完成",
-  },
-  {
-    caseNumber: "111-5-1",
-    caseName: "擬訂臺中市豐原區三村段三小段20地號(等)3筆土地重建計畫案",
-    caseCategory: "危老重建",
-    caseStage: "專案小組",
-    caseStatus: "進行中",
-  },
-  {
-    caseNumber: "111-6-1",
-    caseName: "擬訂臺中市豐原區三村段三小段20地號(等)3筆土地重建計畫案",
-    caseCategory: "危老重建",
-    caseStage: "專案小組",
-    caseStatus: "進行中",
-  },
-  {
-    caseNumber: "111-7-1",
-    caseName: "擬訂臺中市豐原區三村段三小段20地號(等)3筆土地重建計畫案",
-    caseCategory: "危老重建",
-    caseStage: "專案小組",
-    caseStatus: "進行中",
-  },
-  {
-    caseNumber: "111-8-1",
-    caseName: "擬訂臺中市豐原區三村段三小段20地號(等)3筆土地重建計畫案",
-    caseCategory: "危老重建",
-    caseStage: "專案小組",
-    caseStatus: "進行中",
-  },
-  {
-    caseNumber: "111-9-1",
-    caseName: "擬訂臺中市豐原區三村段三小段20地號(等)3筆土地重建計畫案",
-    caseCategory: "危老重建",
-    caseStage: "專案小組",
-    caseStatus: "進行中",
-  },
-  {
-    caseNumber: "111-10-1",
-    caseName: "擬訂臺中市豐原區三村段三小段20地號(等)3筆土地重建計畫案",
-    caseCategory: "危老重建",
-    caseStage: "專案小組",
-    caseStatus: "進行中",
-  },
-];
+const allCases = ref<CaseItem[]>([]);
 const tableColumns: TableColumn[] = [
   { key: "caseNumber", label: "案件編號", width: "8%", cellClass: "text-base text-gray-900" },
   { key: "caseName", label: "案件名稱", width: "50%", cellClass: "text-base text-gray-900" },
@@ -181,9 +111,9 @@ const tableColumns: TableColumn[] = [
   { key: "caseStatus", label: "案件狀態", width: "15%" },
 ];
 const isAdmin = computed(() => route.name === "case-management-dangerous-admin" || route.path.includes("-admin"));
-const hasAnyCases = computed(() => allCases.length > 0);
+const hasAnyCases = computed(() => allCases.value.length > 0);
 const filteredCases = computed(() => {
-  let cases = [...allCases];
+  let cases = [...allCases.value];
   if (selectedStage.value && selectedStage.value !== "全部案件階段") {
     cases = cases.filter((item) => item.caseStage === selectedStage.value);
   }
@@ -225,6 +155,25 @@ const handleAddCaseOption = (item: ButtonDropdownItem, index: number) => {
     },
   });
 };
+
+const normalizeDangerousCase = (item: DangerousCaseApiItem): CaseItem => ({
+  caseNumber: String(item.id),
+  caseName: item.caseName,
+  caseCategory: "危老重建",
+  caseStage: item.stage ?? "",
+  caseStatus: item.status ?? "",
+});
+
+const loadDangerousCases = async () => {
+  const response = await apiGetDangerousCasesList(0, 100);
+  const items = response.data?.content ?? [];
+  allCases.value = items.map(normalizeDangerousCase);
+  totalCases.value = response.data?.totalElements ?? items.length;
+};
+
+onMounted(async () => {
+  await loadDangerousCases();
+});
 const handleEmptyStateAddCase = () => {
   router.push({
     name: "case-management-dangerous-add",

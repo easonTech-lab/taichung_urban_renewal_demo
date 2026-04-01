@@ -227,7 +227,8 @@ import InputDropdown, { type InputDropdownItem } from "@/components/atoms/InputD
 import ConfirmDeleteModal from "@/components/molecules/ConfirmDeleteModal.vue";
 import UnsavedChangesModal from "@/components/molecules/UnsavedChangesModal.vue";
 import type { OfficerData, OfficerItem } from "@/types/backend/systemManagement/officerList/officerListManagement.d";
-import { fetchOfficerList } from "@/services/backend/systemManagement/officerService";
+import { apiGetOfficerList } from "@/api/backend/systemManagement/officerService";
+import type { OfficerApiItem } from "@/types/api/backend/systemManagement/officerService";
 // Tabs（年度 + 添加年度，儲存後會更新）
 const router = useRouter();
 const activeTab = ref(0);
@@ -248,7 +249,7 @@ const tabItems = ref<TabItem[]>([{ label: "115" }, { label: "114" }, { label: "1
 const yearErrorMap = ref<Map<number, "format" | "duplicate">>(new Map());
 const allOfficers = ref<OfficerData[]>([]);
 
-const normalizeOfficerItem = (item: Record<string, any>): OfficerData => ({
+const normalizeOfficerItem = (item: OfficerApiItem): OfficerData => ({
   id: String(item.id),
   index: item.index ?? 0,
   name: item.name ?? "",
@@ -288,7 +289,7 @@ const paginationState = reactive(useTablePagination({
   slice: false,
 }));
 const loadOfficers = async () => {
-  const response = await fetchOfficerList();
+  const response = await apiGetOfficerList();
   allOfficers.value = response.data.data.map(normalizeOfficerItem);
   officerTableRows.value = Array.from({ length: TOTAL_OFFICER_SLOTS }, (_, index) => {
     const officer = allOfficers.value[index];

@@ -76,7 +76,8 @@ import Input from "@/components/atoms/Input.vue";
 import ButtonCTA from "@/components/atoms/ButtonCTA.vue";
 import Breadcrumb, { type BreadcrumbItem } from "@/components/atoms/Breadcrumb.vue";
 import SidebarSection from "@/components/sections/backend/SidebarSection.vue";
-import { fetchOfficerById, saveOfficer } from "@/services/backend/systemManagement/officerService";
+import { apiGetOfficerById, apiPostOfficer, apiPutOfficer } from "@/api/backend/systemManagement/officerService";
+import type { OfficerApiItem } from "@/types/api/backend/systemManagement/officerService";
 const route = useRoute();
 const router = useRouter();
 const initialData = ref<{
@@ -116,7 +117,7 @@ const buildEducationList = (value: string[]) => {
   return items.length > 0 ? items : [""];
 };
 
-const normalizeOfficerItem = (item: Record<string, any>) => ({
+const normalizeOfficerItem = (item: OfficerApiItem) => ({
   id: String(item.id),
   name: item.name ?? "",
   gender: item.gender ?? "",
@@ -154,7 +155,11 @@ const handleAddEducation = () => {
 }
 const handleSave = async () => {
   form.value.education = educationList.value.map((item) => item.trim()).filter(Boolean);
-  await saveOfficer(form.value, officerId.value || undefined);
+  if (officerId.value) {
+    await apiPutOfficer(form.value, officerId.value);
+  } else {
+    await apiPostOfficer(form.value);
+  }
   officerUnsavedCheck.captureInitial();
   router.push("/officer-list-management");
 }
@@ -162,7 +167,7 @@ const handleCancel = () => {
   router.push("/officer-list-management");
 }
 onMounted(async () => {
-  const response = await fetchOfficerById(officerId.value);
+  const response = await apiGetOfficerById(officerId.value);
   initialData.value = response.data.data ? normalizeOfficerItem(response.data.data) : null;
   if (!initialData.value) {
     router.replace("/officer-list-management");

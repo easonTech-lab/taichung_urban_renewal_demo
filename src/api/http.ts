@@ -1,6 +1,7 @@
 import axios, { AxiosHeaders, type AxiosError, type AxiosInstance } from "axios";
 
-const baseURL = import.meta.env.VITE_API_BASE_URL ?? "";
+const useMock = import.meta.env.VITE_USE_MOCK === "true";
+const baseURL = useMock ? "" : (import.meta.env.VITE_API_BASE_URL ?? "");
 
 const http: AxiosInstance = axios.create({
   baseURL,

@@ -75,7 +75,7 @@
   </div>
 </template>
 <script setup lang="ts">
-import { ref, computed, watch, reactive } from "vue";
+import { ref, computed, watch, reactive, onMounted } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import { useTablePagination } from "@/composables/useTablePagination";
 import Badge from "@/components/atoms/Badge.vue";
@@ -89,6 +89,8 @@ import Dropdown, { type DropdownItem } from "@/components/atoms/Dropdown.vue";
 import ButtonDropdown, { type ButtonDropdownItem } from "@/components/atoms/ButtonDropdown.vue";
 import CheckboxDropdown, { type CheckboxDropdownItem } from "@/components/atoms/CheckboxDropdown.vue";
 import type { CaseItem } from "@/types/backend/caseManagement/urbanRenewal/caseManagement.d";
+import { apiGetUrbanCasesList } from "@/api/backend/caseManagement/urbanCasesService";
+import type { UrbanCaseApiItem } from "@/types/api/backend/caseManagement/urbanCasesService";
 const router = useRouter();
 const route = useRoute();
 const pageSize = ref<number>(10);
@@ -114,51 +116,7 @@ const addCaseOptions: ButtonDropdownItem[] = [
   { label: "申請審議(事權併送)", value: "concurrent-submission" },
   { label: "變更案", value: "amendment" },
 ];
-// Mock Data
-const allCases: CaseItem[] = [
-  {
-    caseNumber: "B202308220001",
-    caseName: "臺中市東區行政段645地號等21筆土地 都市更新事業計畫及權利變換計畫案",
-    caseCategory: "都市更新",
-    caseStage: "案件申請",
-    caseStatus: "進行中",
-  },
-  {
-    caseNumber: "B202308220001",
-    caseName: "臺中市東區行政段645地號等21筆土地 都市更新事業計畫及權利變換計畫案",
-    caseCategory: "都市更新",
-    caseStage: "公辦公聽會",
-    caseStatus: "進行中",
-  },
-  {
-    caseNumber: "B202308220001",
-    caseName: "臺中市東區行政段645地號等21筆土地 都市更新事業計畫及權利變換計畫案",
-    caseCategory: "都市更新",
-    caseStage: "專案小組",
-    caseStatus: "已中斷",
-  },
-  {
-    caseNumber: "B202308220001",
-    caseName: "臺中市東區行政段645地號等21筆土地 都市更新事業計畫及權利變換計畫案",
-    caseCategory: "都市更新",
-    caseStage: "都更大會",
-    caseStatus: "已完成",
-  },
-  {
-    caseNumber: "B202308220001",
-    caseName: "臺中市東區行政段645地號等21筆土地 都市更新事業計畫及權利變換計畫案",
-    caseCategory: "都市更新",
-    caseStage: "都更大會",
-    caseStatus: "進行中",
-  },
-  {
-    caseNumber: "B202308220001",
-    caseName: "臺中市東區行政段645地號等21筆土地 都市更新事業計畫及權利變換計畫案",
-    caseCategory: "都市更新",
-    caseStage: "公辦公聽會",
-    caseStatus: "進行中",
-  },
-];
+const allCases = ref<CaseItem[]>([]);
 const tableColumns: TableColumn[] = [
   { key: "caseNumber", label: "案件編號", width: "12%" },
   { key: "caseName", label: "案件名稱", width: "46%" },
@@ -167,12 +125,19 @@ const tableColumns: TableColumn[] = [
   { key: "caseStatus", label: "案件狀態", width: "15%" },
 ];
 const isAdmin = computed(() => route.name === "case-management-admin");
-const hasAnyCases = computed(() => allCases.length > 0);
+const hasAnyCases = computed(() => allCases.value.length > 0);
 const filteredCases = computed(() => {
   if (selectedStages.value.length === 0) {
     return [];
   }
-  return allCases.filter((item) => selectedStages.value.includes(item.caseStage));
+  return allCases.value.filter((item) => {
+    const stageMatch = selectedStages.value.includes(item.caseStage);
+    const statusMatch =
+      selectedStatus.value === "" ||
+      selectedStatus.value === "全部案件狀態" ||
+      item.caseStatus === selectedStatus.value;
+    return stageMatch && statusMatch;
+  });
 });
 const selectedStageText = computed(() => {
   // 全不選
@@ -243,6 +208,24 @@ const handleEmptyStateAddCase = () => {
     },
   });
 };
+
+const normalizeUrbanCase = (item: UrbanCaseApiItem): CaseItem => ({
+  caseNumber: String(item.id),
+  caseName: item.caseName,
+  caseCategory: "都市更新",
+  caseStage: item.stage ?? "",
+  caseStatus: item.status ?? "",
+});
+
+const loadUrbanCases = async () => {
+  const response = await apiGetUrbanCasesList(0, 100);
+  const items = response.data?.content ?? [];
+  allCases.value = items.map(normalizeUrbanCase);
+};
+
+onMounted(async () => {
+  await loadUrbanCases();
+});
 const handleRowClick = () => {
   // Navigate to case detail page with source route information
   router.push({

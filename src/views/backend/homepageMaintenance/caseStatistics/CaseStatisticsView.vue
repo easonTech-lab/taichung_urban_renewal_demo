@@ -87,7 +87,8 @@ import SidebarSection from "@/components/sections/backend/SidebarSection.vue";
 import ConfirmDeleteModal from "@/components/molecules/ConfirmDeleteModal.vue";
 import Table, { type TableColumn } from "@/components/atoms/Table.vue";
 import Dropdown, { type DropdownItem } from "@/components/atoms/Dropdown.vue";
-import { fetchCaseStatisticsList } from "@/services/backend/homepageMaintenance/caseStatisticsService";
+import { apiGetCaseStatisticsList } from "@/api/backend/homepageMaintenance/caseStatisticsService";
+import type { CaseStatisticApiItem } from "@/types/api/backend/homepageMaintenance/caseStatisticsService";
 import type { CaseStatisticsItem } from "@/types/backend/homepageMaintenance/caseStatistics.d";
 const route = useRoute();
 const router = useRouter();
@@ -122,14 +123,14 @@ const yearOptions: DropdownItem[] = Array.from({ length: 20 }, (_, i) => {
 // Mock Data
 const allStatistics = ref<CaseStatisticsItem[]>([]);
 
-const normalizeCaseStatistic = (item: Record<string, any>): CaseStatisticsItem => ({
+const normalizeCaseStatistic = (item: CaseStatisticApiItem): CaseStatisticsItem => ({
   id: String(item.id),
-  index: item.index ?? 0,
+  index: 0,
   year: String(item.year ?? ""),
-  caseCategory: item.caseCategory ?? item.typeLabel ?? "",
-  annualCount: item.annualCount ?? item.caseCount ?? 0,
-  cumulativeCount: item.cumulativeCount ?? item.accumulatedCount ?? 0,
-  growthRate: item.growthRate ?? item.growthStatus?.description ?? "持平",
+  caseCategory: item.type === "URBAN_RENEWAL" ? "都更案件" : "危老案件",
+  annualCount: item.caseCount ?? 0,
+  cumulativeCount: item.accumulatedCount ?? 0,
+  growthRate: item.growthStatus?.description ?? "持平",
 });
 // Table Columns
 const tableColumns: TableColumn[] = [
@@ -255,8 +256,11 @@ const handleResetFilters = () => {
   paginationState.resetPage();
 };
 const loadCaseStatistics = async () => {
-  const response = await fetchCaseStatisticsList();
-  allStatistics.value = response.data.data.map(normalizeCaseStatistic);
+  const response = await apiGetCaseStatisticsList();
+  allStatistics.value = response.data.data.map((item, index) => ({
+    ...normalizeCaseStatistic(item),
+    index: index + 1,
+  }));
   isDataLoaded.value = true;
 };
 const handleAddYear = () => {

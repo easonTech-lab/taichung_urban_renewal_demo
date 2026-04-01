@@ -103,7 +103,8 @@ import Breadcrumb from "@/components/atoms/Breadcrumb.vue";
 import RichTextEditor from "@/components/atoms/RichTextEditor.vue";
 import UnsavedChangesModal from "@/components/molecules/UnsavedChangesModal.vue";
 import SidebarSection from "@/components/sections/backend/SidebarSection.vue";
-import { fetchFAQById, saveFAQ } from "@/services/backend/homepageMaintenance/faqService";
+import { apiGetFAQById, apiPostFAQ, apiPutFAQ } from "@/api/backend/homepageMaintenance/faqService";
+import type { FAQApiItem } from "@/types/api/backend/homepageMaintenance/faqService";
 import type { FaqFormData } from "@/types/backend/homepageMaintenance/faqManagement.d";
 
 const router = useRouter();
@@ -117,9 +118,9 @@ const formData = ref<FaqFormData>({
 });
 
 const categoryOptions = ref([
-  { label: "我適合哪種重建方式？", value: "reconstruction-type" },
-  { label: "要怎麼申請？需要準備什麼？", value: "application-process" },
-  { label: "有什麼補助或政府協助？", value: "subsidy-assistance" },
+  { label: "我適合哪種重建方式？", value: "RECONSTRUCTION_METHOD" },
+  { label: "要怎麼申請？需要準備什麼？", value: "APPLICATION_PROCESS" },
+  { label: "有什麼補助或政府協助？", value: "SUBSIDY_ASSISTANCE" },
 ]);
 
 const showNewCategory = ref(false);
@@ -143,7 +144,7 @@ const navigateToFAQList = () => {
   router.push("/faq-management");
 };
 
-const normalizeFaqItem = (item: Record<string, any>) => ({
+const normalizeFaqItem = (item: FAQApiItem) => ({
   id: String(item.id),
   question: item.question ?? "",
   category: item.categoryName ?? item.category ?? "",
@@ -152,7 +153,7 @@ const normalizeFaqItem = (item: Record<string, any>) => ({
 
 onMounted(async () => {
   if (isEditMode.value) {
-    const response = await fetchFAQById(faqId.value);
+    const response = await apiGetFAQById(faqId.value);
     const item = response.data.data.content.find((faqItem: { id: string | number }) => String(faqItem.id) === faqId.value);
     editingFaq.value = item ? normalizeFaqItem(item) : null;
     if (!editingFaq.value) {
@@ -219,8 +220,22 @@ const handleCreateCategory = () => {
   showNewCategory.value = false;
 };
 
+const buildPayload = (status: "DRAFT" | "PUBLISHED") => ({
+  question: formData.value.title,
+  category: formData.value.category || "RECONSTRUCTION_METHOD",
+  answer: formData.value.answer,
+  status,
+  sortOrder: 0,
+  isTop: 0,
+  internalRemark: "",
+});
+
 const handleSaveDraft = async () => {
-  await saveFAQ({ ...formData.value, status: "draft" }, faqId.value || undefined);
+  if (faqId.value) {
+    await apiPutFAQ({ ...buildPayload("DRAFT"), id: faqId.value });
+  } else {
+    await apiPostFAQ(buildPayload("DRAFT"));
+  }
   router.push({
     path: "/faq-management",
     query: {
@@ -231,7 +246,11 @@ const handleSaveDraft = async () => {
 };
 
 const handlePublish = async () => {
-  await saveFAQ({ ...formData.value, status: "published" }, faqId.value || undefined);
+  if (faqId.value) {
+    await apiPutFAQ({ ...buildPayload("PUBLISHED"), id: faqId.value });
+  } else {
+    await apiPostFAQ(buildPayload("PUBLISHED"));
+  }
   router.push({
     path: "/faq-management",
     query: {

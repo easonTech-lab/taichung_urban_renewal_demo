@@ -91,50 +91,66 @@ const currentUserProfile = {
   realName: "張森",
   email: "abc123@taichung.gov.tw",
   phone: "0912345678",
+  role: "ADMIN",
   status: 1,
-  isInitialPassword: 0,
-  createTime: "2026-03-24 15:00:00",
 };
 
 const urbanCases = [
   {
-    id: 1,
-    caseNumber: "B202308220001",
+    id: "CASE2026001",
     caseName: "擬訂臺中市豐原區三村段三村小段21地號等21筆土地 都市更新事業計畫及權利變換計畫案",
-    applicant: "陳傑瑞",
-    stage: "都更大會",
-    status: "IN_PROGRESS",
-    statusLabel: "進行中",
-    applyDate: "2026-03-24",
+    stage: "案件申請",
+    status: "進行中",
+    updatedAt: "2026-03-24T10:00:00",
   },
   {
-    id: 2,
-    caseNumber: "111-1-1",
-    caseName: "西屯區危老重建示範案",
-    applicant: "張森",
-    stage: "公開展覽",
-    status: "PENDING",
-    statusLabel: "待審核",
-    applyDate: "2026-03-20",
+    id: "CASE2026002",
+    caseName: "西屯區都市更新示範案",
+    stage: "公辦公聽會",
+    status: "進行中",
+    updatedAt: "2026-03-20T10:00:00",
   },
 ];
 
-const reviewerAssignments: Record<string, Array<{ reviewerId: number; reviewerName: string; department: string }>> = {
+const dangerousCases = [
+  {
+    id: "DANG2026001",
+    caseName: "擬訂臺中市豐原區三村段三小段20地號(等)3筆土地重建計畫案",
+    stage: "專案小組",
+    status: "進行中",
+    updatedAt: "2026-03-18T10:00:00",
+  },
+  {
+    id: "DANG2026002",
+    caseName: "擬訂臺中市豐原區三村段三小段20地號(等)3筆土地重建計畫案",
+    stage: "專案小組",
+    status: "已中斷",
+    updatedAt: "2026-03-16T10:00:00",
+  },
+  {
+    id: "DANG2026003",
+    caseName: "擬訂臺中市豐原區三村段三小段20地號(等)3筆土地重建計畫案",
+    stage: "專案小組",
+    status: "已完成",
+    updatedAt: "2026-03-12T10:00:00",
+  },
+];
+
+const reviewerAssignments: Record<string, Array<{ id: number; name: string; department: string; title: string }>> = {
   "1": [
-    { reviewerId: 1, reviewerName: "張源明", department: "內政部地政司" },
-    { reviewerId: 2, reviewerName: "林珮君", department: "專家委員" },
+    { id: 101, name: "張源明", department: "審查一組", title: "幹事" },
+    { id: 105, name: "林珮君", department: "審查二組", title: "幹事" },
   ],
-  "2": [{ reviewerId: 3, reviewerName: "郭依佳", department: "專家委員" }],
+  "2": [{ id: 108, name: "郭依佳", department: "審查二組", title: "幹事" }],
 };
 
-const reviewHistoryByFileId: Record<string, unknown[]> = {
+const reviewHistoryByFileId: Record<string, Array<{ result: string; comment: string; reviewer: string; createTime: string }>> = {
   "1": [
     {
-      id: 1,
-      reviewerName: "張源明",
-      reviewResult: "PASS",
-      reviewComment: "資料完整，建議通過。",
-      reviewTime: "2026-03-24 14:20:00",
+      result: "PASS",
+      comment: "資料完整，建議通過。",
+      reviewer: "admin_user",
+      createTime: "2026-03-24 14:20:00",
     },
   ],
 };
@@ -184,31 +200,42 @@ const matchIdPath = (pathname: string, prefix: string) => {
 const paginate = <T>(items: T[], page: number, size: number) => {
   const start = page * size;
   const content = items.slice(start, start + size);
+  const totalPages = Math.max(1, Math.ceil(items.length / size));
+  const numberOfElements = content.length;
+  const isFirst = page === 0;
+  const isLast = start + size >= items.length;
   return {
     content,
-    totalPages: Math.max(1, Math.ceil(items.length / size)),
+    totalPages,
     totalElements: items.length,
-    last: start + size >= items.length,
+    last: isLast,
     size,
     number: page,
+    numberOfElements,
+    first: isFirst,
+    empty: numberOfElements === 0,
+    pageable: {
+      sort: { sorted: true, unsorted: false, empty: false },
+      pageNumber: page,
+      pageSize: size,
+      offset: start,
+      paged: true,
+      unpaged: false,
+    },
   };
 };
 
 const createFaqAdminItems = () =>
   faqMockData.map((item) => ({
     id: item.id,
-    index: item.index,
     question: item.question,
     answer: item.answer ?? "",
-    category: item.category,
     categoryName: item.category,
-    categoryKey: faqCategoryKeyMap[item.category] ?? "RECONSTRUCTION_METHOD",
-    publishDate: item.publishDate,
+    category: faqCategoryKeyMap[item.category] ?? "RECONSTRUCTION_METHOD",
     status: item.tabStatus === "draft" ? "DRAFT" : item.status ? "PUBLISHED" : "OFFLINE",
     statusLabel: item.tabStatus === "draft" ? "暫存中" : item.status ? "已上架" : "已下架",
     isTop: item.index === 1 ? 1 : 0,
     sortOrder: item.index,
-    tabStatus: item.tabStatus,
   }));
 
 const createFaqFrontendGroups = () =>
@@ -238,52 +265,39 @@ const createNewsAdminItems = () =>
     title: item.title,
     summary: item.content || item.title,
     content: item.content || `<p>${item.title}</p>`,
-    category: item.category,
-    categoryLabel: item.category,
     newsCategory: newsCategoryKeyMap[item.category] ?? "LATEST_NEWS",
+    categoryLabel: item.category,
     publishDate: item.publishDate,
     newsStatus: item.tabStatus === "draft" ? "DRAFT" : item.status ? "PUBLISHED" : "ARCHIVED",
     statusLabel: item.tabStatus === "draft" ? "暫存中" : item.status ? "已上架" : "已下架",
     isTop: index === 0 ? 1 : 0,
     internalRemark: "",
-    tabStatus: item.tabStatus,
-    status: item.status,
   }));
 
 const createDownloadItems = () =>
   downloadsMockData.map((item) => ({
     id: item.id,
     fileName: item.fileName,
-    title: item.fileName,
-    category: downloadCategoryKeyMap[item.category] ?? "URBAN_RENEWAL",
-    categoryLabel: item.category,
     fileSize: "1.2 MB",
     filePath: `/files/${item.id}.pdf`,
     status: item.status ? "PUBLISHED" : "OFFLINE",
     statusDisplayName: item.status ? "已發佈" : "未發佈",
-    publishDate: item.publishDate,
     createTime: item.publishDate,
-    tabStatus: item.tabStatus,
-    text: item.text ?? "",
+    category: downloadCategoryKeyMap[item.category] ?? "URBAN_RENEWAL",
+    categoryLabel: item.category,
   }));
 
 const createStatisticsItems = () =>
   caseStatisticsMockData.map((item) => ({
     id: item.id,
-    index: item.index,
     year: Number(item.year),
     type: item.caseCategory === "都更案件" ? "URBAN_RENEWAL" : "DANGEROUS_OLD",
-    typeLabel: item.caseCategory,
-    caseCategory: item.caseCategory,
     caseCount: item.annualCount,
-    annualCount: item.annualCount,
     accumulatedCount: item.cumulativeCount,
-    cumulativeCount: item.cumulativeCount,
     growthStatus: {
       description: item.growthRate,
       color: growthStatusColorMap[item.growthRate],
     },
-    growthRate: item.growthRate,
   }));
 
 const createSystemUserItems = () =>
@@ -293,7 +307,6 @@ const createSystemUserItems = () =>
     role: item.role,
     realName: item.realName,
     email: item.email,
-    phone: item.phone,
     status: item.status,
     isInitialPassword: item.isInitialPassword,
     createTime: item.createTime,
@@ -412,9 +425,19 @@ const handleNewsRoutes = async (req: IncomingMessage, pathname: string, searchPa
   const newsItems = createNewsAdminItems();
 
   if (req.method === "GET" && pathname === "/api/news/latest") {
+    const latestItems = newsItems
+      .filter((item) => item.newsStatus === "PUBLISHED")
+      .slice(0, 2)
+      .map((item) => ({
+        id: item.id,
+        title: item.title,
+        summary: item.summary,
+        categoryLabel: item.categoryLabel,
+        publishDate: item.publishDate,
+      }));
     return {
       statusCode: 200,
-      body: createResultWithMsg("操作成功", cloneData(newsItems.filter((item) => item.newsStatus === "PUBLISHED").slice(0, 2))),
+      body: createResultWithMsg("操作成功", cloneData(latestItems)),
     };
   }
 
@@ -428,9 +451,16 @@ const handleNewsRoutes = async (req: IncomingMessage, pathname: string, searchPa
       const matchesCategory = !category || item.newsCategory === category;
       return matchesStatus && matchesCategory;
     });
+    const listItems = filteredItems.map((item) => ({
+      id: item.id,
+      title: item.title,
+      summary: item.summary,
+      categoryLabel: item.categoryLabel,
+      publishDate: item.publishDate,
+    }));
     return {
       statusCode: 200,
-      body: createResultWithMsg("操作成功", cloneData(paginate(filteredItems, page, size))),
+      body: createResultWithMsg("操作成功", cloneData(paginate(listItems, page, size))),
     };
   }
 
@@ -463,7 +493,7 @@ const handleDownloadRoutes = async (req: IncomingMessage, pathname: string, sear
     const keyword = searchParams.get("keyword")?.trim() ?? "";
     const category = searchParams.get("category")?.trim();
     const filteredItems = downloadItems.filter((item) => {
-      const matchesKeyword = !keyword || item.fileName.includes(keyword) || item.title.includes(keyword);
+      const matchesKeyword = !keyword || item.fileName.includes(keyword);
       const matchesCategory = !category || item.category === category || item.categoryLabel === category;
       return matchesKeyword && matchesCategory;
     });
@@ -611,54 +641,77 @@ const handleCaseRoutes = async (req: IncomingMessage, pathname: string, searchPa
     const payload = await getRequestBody(req);
     return {
       statusCode: 200,
-      body: createResultWithMessage("案件建立成功", {
-        id: 999,
-        ...payload,
+      body: createResultWithMessage("建立成功", {
+        id: 1024,
+        applicantName: payload?.applicantName ?? "王小明",
+        phone: payload?.phone ?? "0912345678",
+        status: "IN_PROGRESS",
+        statusDisplayName: "進行中",
+        createdAt: "2026-03-09 17:00:00",
+        updatedAt: "2026-03-09 17:00:00",
+        fileUrls: Array.isArray(payload?.fileUrls) ? payload.fileUrls : [],
       }),
     };
   }
 
   const caseStatusMatch = pathname.match(/^\/api\/cases\/([^/]+)\/status$/);
   if (req.method === "PATCH" && caseStatusMatch) {
-    return { statusCode: 200, body: createResultWithMessage("案件狀態更新成功", null) };
+    return { statusCode: 200, body: createResultWithMessage("更新成功", null) };
   }
 
   const caseId = matchIdPath(pathname, "/api/cases/");
   if (req.method === "DELETE" && caseId) {
-    return { statusCode: 200, body: createResultWithMessage("案件刪除成功", null) };
+    return { statusCode: 200, body: createResultWithMessage("刪除成功", null) };
   }
 
   if (req.method === "GET" && pathname === "/api/urban-cases") {
     const page = Number(searchParams.get("page") ?? 0);
     const size = Number(searchParams.get("size") ?? 10);
-    return { statusCode: 200, body: createResultWithMessage("操作成功", cloneData(paginate(urbanCases, page, size))) };
+    return { statusCode: 200, body: cloneData(paginate(urbanCases, page, size)) };
+  }
+
+  if (req.method === "GET" && pathname === "/api/dangerous-cases") {
+    const page = Number(searchParams.get("page") ?? 0);
+    const size = Number(searchParams.get("size") ?? 10);
+    return { statusCode: 200, body: cloneData(paginate(dangerousCases, page, size)) };
   }
 
   const urbanCaseId = matchIdPath(pathname, "/api/urban-cases/");
   if (req.method === "GET" && urbanCaseId && !pathname.endsWith("/import-reviewers")) {
+    const caseItem = urbanCases.find((item) => String(item.id) === urbanCaseId) ?? null;
     return {
       statusCode: 200,
-      body: createResultWithMessage("操作成功", cloneData(urbanCases.find((item) => String(item.id) === urbanCaseId) ?? null)),
+      body: caseItem
+        ? {
+            id: caseItem.id,
+            caseName: caseItem.caseName,
+            description: "具體詳細內容描述...",
+            stage: caseItem.stage,
+            status: caseItem.status,
+            applicantName: "王大明",
+            createdAt: "2026-01-01T08:00:00",
+          }
+        : null,
     };
   }
 
   if (req.method === "DELETE" && urbanCaseId) {
-    return { statusCode: 200, body: createResultWithMessage("操作成功", null) };
+    return { statusCode: 204, body: null };
   }
 
   const importReviewersMatch = pathname.match(/^\/api\/urban-cases\/([^/]+)\/import-reviewers$/);
   if (req.method === "POST" && importReviewersMatch) {
-    return { statusCode: 200, body: createResultWithMessage("導入成功", reviewerAssignments[importReviewersMatch[1]] ?? []) };
+    return { statusCode: 200, body: "導入成功" };
   }
 
   const assignReviewerMatch = pathname.match(/^\/api\/admin\/reviewers\/assign\/([^/]+)$/);
   if (req.method === "PUT" && assignReviewerMatch) {
-    return { statusCode: 200, body: createResultWithMessage("儲存成功", null) };
+    return { statusCode: 200, body: createResultWithMessage("更新成功", null) };
   }
 
   const removeReviewerMatch = pathname.match(/^\/api\/admin\/reviewers\/case\/([^/]+)\/member\/([^/]+)$/);
   if (req.method === "DELETE" && removeReviewerMatch) {
-    return { statusCode: 200, body: createResultWithMessage("移除成功", null) };
+    return { statusCode: 200, body: createResultWithMessage("刪除成功", null) };
   }
 
   const getReviewerCaseMatch = pathname.match(/^\/api\/admin\/reviewers\/case\/([^/]+)$/);
@@ -671,11 +724,11 @@ const handleCaseRoutes = async (req: IncomingMessage, pathname: string, searchPa
 
   const fileReviewMatch = pathname.match(/^\/api\/admin\/reviews\/file\/([^/]+)$/);
   if (req.method === "POST" && fileReviewMatch) {
-    return { statusCode: 200, body: createResultWithMessage("審查結果已送出", null) };
+    return { statusCode: 200, body: createResultWithMessage("操作成功", null) };
   }
 
   if (req.method === "POST" && pathname === "/api/admin/reviews/batch") {
-    return { statusCode: 200, body: createResultWithMessage("批次審查結果已送出", null) };
+    return { statusCode: 200, body: createResultWithMessage("操作成功", null) };
   }
 
   const reviewHistoryMatch = pathname.match(/^\/api\/admin\/reviews\/history\/([^/]+)$/);
@@ -688,7 +741,7 @@ const handleCaseRoutes = async (req: IncomingMessage, pathname: string, searchPa
 
   const stageFinalizeMatch = pathname.match(/^\/api\/admin\/reviews\/case\/([^/]+)\/stage-finalize$/);
   if (req.method === "PUT" && stageFinalizeMatch) {
-    return { statusCode: 200, body: createResultWithMessage("案件階段結案完成", null) };
+    return { statusCode: 200, body: createResultWithMessage("操作成功", null) };
   }
 
   return null;

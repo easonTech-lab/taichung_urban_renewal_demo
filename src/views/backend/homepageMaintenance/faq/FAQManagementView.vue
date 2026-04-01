@@ -82,7 +82,8 @@ import Breadcrumb from "@/components/atoms/Breadcrumb.vue";
 import SidebarSection from "@/components/sections/backend/SidebarSection.vue";
 import ConfirmDeleteModal from "@/components/molecules/ConfirmDeleteModal.vue";
 import Table, { type TableColumn } from "@/components/atoms/Table.vue";
-import { fetchFAQList } from "@/services/backend/homepageMaintenance/faqService";
+import { apiGetFAQList } from "@/api/backend/homepageMaintenance/faqService";
+import type { FAQApiItem } from "@/types/api/backend/homepageMaintenance/faqService";
 import type { FaqItem } from "@/types/backend/homepageMaintenance/faqManagement.d";
 
 const router = useRouter();
@@ -111,11 +112,11 @@ const normalizeFaqStatus = (status: string) => {
   return { status: false, tabStatus: "unpublished" as const };
 };
 
-const normalizeFaqItem = (item: Record<string, any>): FaqItem => {
+const normalizeFaqItem = (item: FAQApiItem): FaqItem => {
   const normalizedStatus = normalizeFaqStatus(String(item.status ?? ""));
   return {
     id: String(item.id),
-    index: item.index ?? item.sortOrder ?? 0,
+    index: item.sortOrder ?? 0,
     question: item.question ?? "",
     category: item.categoryName ?? item.category ?? "",
     publishDate: item.publishDate ?? "",
@@ -195,7 +196,7 @@ const handleConfirmDelete = () => {
 };
 
 const loadFAQs = async () => {
-  const response = await fetchFAQList();
+  const response = await apiGetFAQList();
   allFAQs.value = response.data.data.content.map(normalizeFaqItem);
   isDataLoaded.value = true;
 };

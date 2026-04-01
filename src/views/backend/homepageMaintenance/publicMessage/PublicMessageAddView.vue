@@ -88,7 +88,8 @@ import RadioGroup from "@/components/atoms/RadioGroup.vue";
 import RichTextEditor from "@/components/atoms/RichTextEditor.vue";
 import UnsavedChangesModal from "@/components/molecules/UnsavedChangesModal.vue";
 import SidebarSection from "@/components/sections/backend/SidebarSection.vue";
-import { fetchPublicMessageById, savePublicMessage } from "@/services/backend/homepageMaintenance/publicMessageService";
+import { apiGetPublicMessageById, apiPostPublicMessage, apiPutPublicMessage } from "@/api/backend/homepageMaintenance/publicMessageService";
+import type { PublicMessageApiItem } from "@/types/api/backend/homepageMaintenance/publicMessageService";
 import type { PublicMessageFormData } from "@/types/backend/homepageMaintenance/publicMessageManagement.d";
 
 const router = useRouter();
@@ -107,9 +108,9 @@ const uploadWarningMessage = ref("");
 const editingMessage = ref<{ title?: string; category?: string; content?: string } | null>(null);
 
 const categoryOptions = [
-  { label: "最新消息", value: "latest-news" },
-  { label: "新聞快訊", value: "news-flash" },
-  { label: "會議公告", value: "meeting-announcement" },
+  { label: "最新消息", value: "LATEST_NEWS" },
+  { label: "新聞快訊", value: "ACTIVITY" },
+  { label: "會議公告", value: "MEETING_NOTICE" },
 ];
 
 const messageId = computed(() => (typeof route.params.id === "string" ? route.params.id : ""));
@@ -124,8 +125,21 @@ const isPublishDisabled = computed(() => {
 
 const publicMessageFormUnsavedCheck = useFormUnsavedCheck(() => buildFormSnapshot(), isEditMode);
 
+const buildPayload = (status: "DRAFT" | "PUBLISHED") => ({
+  title: formData.value.title,
+  content: formData.value.content,
+  newsCategory: formData.value.category,
+  isTop: 0,
+  newsStatus: status,
+  internalRemark: "",
+});
+
 const handleSaveDraft = async () => {
-  await savePublicMessage({ ...formData.value, status: "draft" }, messageId.value || undefined);
+  if (messageId.value) {
+    await apiPutPublicMessage({ ...buildPayload("DRAFT"), id: messageId.value });
+  } else {
+    await apiPostPublicMessage(buildPayload("DRAFT"));
+  }
   router.push({
     path: "/public-message-management",
     query: {
@@ -136,7 +150,11 @@ const handleSaveDraft = async () => {
 };
 
 const handlePublish = async () => {
-  await savePublicMessage({ ...formData.value, status: "published" }, messageId.value || undefined);
+  if (messageId.value) {
+    await apiPutPublicMessage({ ...buildPayload("PUBLISHED"), id: messageId.value });
+  } else {
+    await apiPostPublicMessage(buildPayload("PUBLISHED"));
+  }
   router.push({
     path: "/public-message-management",
     query: {
@@ -147,21 +165,21 @@ const handlePublish = async () => {
 };
 
 const categoryValueMap: Record<string, string> = {
-  最新消息: "latest-news",
-  新聞快訊: "news-flash",
-  會議公告: "meeting-announcement",
+  最新消息: "LATEST_NEWS",
+  新聞快訊: "ACTIVITY",
+  會議公告: "MEETING_NOTICE",
 };
 
-const normalizePublicMessageItem = (item: Record<string, any>) => ({
+const normalizePublicMessageItem = (item: PublicMessageApiItem) => ({
   id: String(item.id),
   title: item.title ?? "",
-  category: item.categoryLabel ?? item.category ?? "",
+  category: item.categoryLabel ?? item.newsCategory ?? "",
   content: item.content ?? item.summary ?? "",
 });
 
 onMounted(async () => {
   if (isEditMode.value) {
-    const response = await fetchPublicMessageById(messageId.value);
+    const response = await apiGetPublicMessageById(messageId.value);
     editingMessage.value = response.data.data ? normalizePublicMessageItem(response.data.data) : null;
     if (!editingMessage.value) {
       router.replace("/public-message-management");

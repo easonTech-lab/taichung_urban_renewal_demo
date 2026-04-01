@@ -77,7 +77,8 @@ import Breadcrumb from "@/components/atoms/Breadcrumb.vue";
 import SidebarSection from "@/components/sections/backend/SidebarSection.vue";
 import ConfirmDeleteModal from "@/components/molecules/ConfirmDeleteModal.vue";
 import Table, { type TableColumn } from "@/components/atoms/Table.vue";
-import { fetchDownloadsList } from "@/services/backend/homepageMaintenance/downloadsService";
+import { apiGetDownloadsList } from "@/api/backend/homepageMaintenance/downloadsService";
+import type { DownloadApiItem } from "@/types/api/backend/homepageMaintenance/downloadsService";
 import type { DownloadItem } from "@/types/backend/homepageMaintenance/downloadsManagement.d";
 
 const router = useRouter();
@@ -109,14 +110,14 @@ const categoryOptions = [
 
 const allDownloads = ref<DownloadItem[]>([]);
 
-const normalizeDownloadItem = (item: Record<string, any>): DownloadItem => ({
+const normalizeDownloadItem = (item: DownloadApiItem): DownloadItem => ({
   id: String(item.id),
-  fileName: item.fileName ?? item.title ?? "",
+  fileName: item.fileName ?? "",
   category: item.categoryLabel ?? item.category ?? "",
-  publishDate: item.publishDate ?? item.createTime ?? "",
-  text: item.text ?? "",
-  status: String(item.status ?? "") === "PUBLISHED",
-  tabStatus: String(item.status ?? "") === "PUBLISHED" ? "published" : "unpublished",
+  publishDate: item.createTime ?? "",
+  text: "",
+  status: item.status === "PUBLISHED",
+  tabStatus: item.status === "PUBLISHED" ? "published" : "unpublished",
 });
 
 const hasAnyDownloads = computed(() => allDownloads.value.length > 0);
@@ -202,7 +203,7 @@ const handleConfirmDelete = () => {
 };
 
 const loadDownloads = async () => {
-  const response = await fetchDownloadsList();
+  const response = await apiGetDownloadsList();
   allDownloads.value = response.data.data.content.map(normalizeDownloadItem);
   isDataLoaded.value = true;
 };
