@@ -52,6 +52,11 @@
             @page-change="paginationState.handlePageChange"
             @row-click="handleRowClick"
           >
+            <template #cell-caseName="{ row }">
+              <div class="min-w-0 whitespace-normal break-words leading-6">
+                {{ row.caseName }}
+              </div>
+            </template>
             <template #cell-caseStatus="{ row }">
               <Badge :variant="getStatusVariant(row.caseStatus)" :text="row.caseStatus" />
             </template>
@@ -104,11 +109,11 @@ const addCaseOptions: ButtonDropdownItem[] = [
 ];
 const allCases = ref<CaseItem[]>([]);
 const tableColumns: TableColumn[] = [
-  { key: "caseNumber", label: "案件編號", width: "8%", cellClass: "text-base text-gray-900" },
-  { key: "caseName", label: "案件名稱", width: "50%", cellClass: "text-base text-gray-900" },
+  { key: "caseNumber", label: "案件編號", width: "16%", cellClass: "text-base text-gray-900" },
+  { key: "caseName", label: "案件名稱", width: "40%", cellClass: "text-base text-gray-900" },
   { key: "caseCategory", label: "案件類別", width: "12%", cellClass: "text-base text-gray-500" },
-  { key: "caseStage", label: "案件階段", width: "15%", cellClass: "text-base text-gray-500" },
-  { key: "caseStatus", label: "案件狀態", width: "15%" },
+  { key: "caseStage", label: "案件階段", width: "18%", cellClass: "text-base text-gray-500" },
+  { key: "caseStatus", label: "案件狀態", width: "14%" },
 ];
 const isAdmin = computed(() => route.name === "case-management-dangerous-admin" || route.path.includes("-admin"));
 const hasAnyCases = computed(() => allCases.value.length > 0);

@@ -24,15 +24,59 @@
           </div>
           <div class="flex w-[744px] flex-col gap-4">
             <div class="flex gap-4">
-              <Input v-model="form.name" label="姓名" required size="lg" container-class="w-[364px] shrink-0" :disabled="isViewMode" />
-              <Input v-model="form.gender" label="性別" size="lg" container-class="w-[364px] shrink-0" :disabled="isViewMode" />
+              <Input
+                v-model="form.name"
+                label="姓名"
+                required
+                placeholder="請輸入姓名"
+                size="lg"
+                container-class="w-[364px] shrink-0"
+                :disabled="isViewMode"
+              />
+              <Input
+                v-model="form.gender"
+                label="性別"
+                placeholder="請選擇性別"
+                size="lg"
+                container-class="w-[364px] shrink-0"
+                :disabled="isViewMode"
+              />
             </div>
             <div class="flex gap-4">
-              <Input v-model="form.email" label="信箱" size="lg" type="email" container-class="w-[364px] shrink-0" :disabled="isViewMode" />
-              <Input v-model="form.phone" label="聯絡電話" size="lg" container-class="w-[364px] shrink-0" :disabled="isViewMode" />
+              <Input
+                v-model="form.email"
+                label="信箱"
+                placeholder="請輸入信箱"
+                size="lg"
+                type="email"
+                container-class="w-[364px] shrink-0"
+                :disabled="isViewMode"
+              />
+              <Input
+                v-model="form.phone"
+                label="聯絡電話"
+                placeholder="請輸入聯絡電話"
+                size="lg"
+                container-class="w-[364px] shrink-0"
+                :disabled="isViewMode"
+              />
             </div>
-            <Input v-model="form.address" label="聯絡地址" size="lg" container-class="w-full" :disabled="isViewMode" />
-            <Input v-model="form.title" label="現職" size="lg" container-class="w-full" :disabled="isViewMode" />
+            <Input
+              v-model="form.address"
+              label="聯絡地址"
+              placeholder="請輸入聯絡地址"
+              size="lg"
+              container-class="w-full"
+              :disabled="isViewMode"
+            />
+            <Input
+              v-model="form.title"
+              label="現職"
+              placeholder="請輸入現職"
+              size="lg"
+              container-class="w-full"
+              :disabled="isViewMode"
+            />
             <div class="flex flex-col gap-4">
               <Input
                 v-for="(_education, index) in educationList"
@@ -80,6 +124,7 @@ import { apiGetOfficerById, apiPostOfficer, apiPutOfficer } from "@/api/backend/
 import type { OfficerApiItem } from "@/types/api/backend/systemManagement/officerService";
 const route = useRoute();
 const router = useRouter();
+const isAddMode = computed(() => !officerId.value);
 const initialData = ref<{
   id: string;
   name: string;
@@ -105,7 +150,11 @@ const form = ref(
 );
 const officerUnsavedCheck = useFormUnsavedCheck(() => buildOfficerSnapshot());
 const isViewMode = computed(() => route.query.mode === "view");
-const pageTitle = computed(() => (isViewMode.value ? "幹事資訊" : "編輯幹事"));
+const pageTitle = computed(() => {
+  if (isViewMode.value) return "幹事資訊";
+  if (isAddMode.value) return "新增幹事";
+  return "編輯幹事";
+});
 const breadcrumbItems = computed<BreadcrumbItem[]>(() => [
   { label: "首頁", to: "/" },
   { label: "系統管理" },
@@ -167,6 +216,10 @@ const handleCancel = () => {
   router.push("/officer-list-management");
 }
 onMounted(async () => {
+  if (!officerId.value) {
+    officerUnsavedCheck.captureInitial();
+    return;
+  }
   const response = await apiGetOfficerById(officerId.value);
   initialData.value = response.data.data ? normalizeOfficerItem(response.data.data) : null;
   if (!initialData.value) {

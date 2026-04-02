@@ -21,14 +21,32 @@
   <Drawer v-model="showEditStageDrawer" title="編輯案件階段" width="xl">
     <template #default>
       <div class="flex flex-col">
-        <div v-for="(item, index) in editStageItems" :key="item.id" class="flex items-center gap-5 border-b border-gray-300 py-5">
-          <div class="flex flex-1 items-center gap-3">
-            <Icon name="barsOutline" :size="24" class="text-gray-500" />
-            <span class="text-base text-gray-500">{{ index + 1 }}</span>
-            <span class="text-lg text-gray-900">{{ item.label }}</span>
+        <VueDraggable
+          v-model="editStageItems"
+          item-key="id"
+          v-bind="editStageDragOptions"
+        >
+          <div
+            v-for="(item, index) in editStageItems"
+            :key="item.id"
+            class="flex items-center gap-5 border-b border-gray-300 py-5"
+          >
+            <div class="flex flex-1 items-center gap-3">
+              <button type="button" :class="[dragHandleClass, 'cursor-grab text-gray-500 active:cursor-grabbing']" aria-label="拖拉排序">
+                <Icon name="barsOutline" :size="24" class="text-gray-500" />
+              </button>
+              <span class="text-base text-gray-500">{{ index + 1 }}</span>
+              <span class="text-lg text-gray-900">{{ item.label }}</span>
+            </div>
+            <button
+              v-if="item.deletable"
+              class="px-3 py-4 text-base text-primary-600"
+              @click="handleOpenRemoveStage(item)"
+            >
+              移除
+            </button>
           </div>
-          <button class="px-3 py-4 text-base text-primary-600" @click="handleOpenRemoveStage(item)">移除</button>
-        </div>
+        </VueDraggable>
         <div class="pt-6">
           <ButtonCTA variant="outline" size="xl" left-icon="plus" class="w-full" @click="handleAddCaseStage"> 新增案件階段 </ButtonCTA>
         </div>
@@ -37,7 +55,7 @@
     <template #footer>
       <div class="flex w-full items-center justify-end gap-4">
         <ButtonCTA variant="outline" size="xl" class="w-[124px]" @click="showEditStageDrawer = false">取消</ButtonCTA>
-        <ButtonCTA :variant="stageUnsavedCheck.hasUnsavedChanges.value ? 'primary' : 'gray'" size="xl" class="w-[124px]" :disabled="!stageUnsavedCheck.hasUnsavedChanges.value">儲存</ButtonCTA>
+        <ButtonCTA :variant="stageUnsavedCheck.hasUnsavedChanges.value ? 'primary' : 'gray'" size="xl" class="w-[124px]" :disabled="!stageUnsavedCheck.hasUnsavedChanges.value" @click="handleSaveEditStage">儲存</ButtonCTA>
       </div>
     </template>
   </Drawer>
@@ -54,7 +72,10 @@
 <script setup lang="ts">
 import { onMounted, ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
+import { VueDraggable } from "vue-draggable-plus";
 import { useFormUnsavedCheck } from "@/composables/useFormUnsavedCheck";
+import { loadStoredCaseStageItems, saveStoredCaseStageItems, type CaseStageItem } from "@/utils/caseStageItems";
+import { createVerticalListDragOptions, DRAG_HANDLE_CLASS } from "@/utils/draggable";
 import type { StepperStep } from "@/components/atoms/Stepper.vue";
 import type { ProgressStage } from "@/types/backend/caseManagement/common/CaseDetailView.d";
 import Icon from "@/components/atoms/Icon.vue";
@@ -71,18 +92,14 @@ const props = defineProps<{
 }>();
 const router = useRouter();
 const route = useRoute();
-const editStageItems = ref([
-  { id: 1, label: "案件申請" },
-  { id: 2, label: "公辦公聽會" },
-  { id: 3, label: "都更幹事會" },
-  { id: 4, label: "專案小組" },
-  { id: 5, label: "都更大會" },
-]);
+const editStageItems = ref<CaseStageItem[]>([]);
 const progressStages = ref<ProgressStage[]>([]);
 const showEditStageDrawer = ref(false);
 const stageUnsavedCheck = useFormUnsavedCheck(() => buildEditStageSnapshot());
 const showRemoveStageModal = ref(false);
 const stageToRemoveId = ref<number | null>(null);
+const dragHandleClass = DRAG_HANDLE_CLASS;
+const editStageDragOptions = createVerticalListDragOptions(dragHandleClass);
 const baseStages: BaseStage[] = [
   {
     name: "最終核定",
@@ -177,11 +194,21 @@ const buildSubStages = (status: ProgressStage["status"]): StepperStep[] => {
   }));
 };
 const buildEditStageSnapshot = () => JSON.stringify(editStageItems.value.map((item) => ({ id: item.id, label: item.label.trim() })));
+const getStageCaseType = () => {
+  const caseType = route.query?.caseType;
+  if (typeof caseType === "string") return caseType;
+  if (Array.isArray(caseType)) return caseType[0] || undefined;
+  return undefined;
+};
+const syncEditStageItems = () => {
+  editStageItems.value = loadStoredCaseStageItems(getStageCaseType());
+};
 const handleOpenEditStageDrawer = () => {
+  syncEditStageItems();
   stageUnsavedCheck.captureInitial();
   showEditStageDrawer.value = true;
 };
-const handleOpenRemoveStage = (item: { id: number; label: string }) => {
+const handleOpenRemoveStage = (item: CaseStageItem) => {
   stageToRemoveId.value = item.id;
   showRemoveStageModal.value = true;
 };
@@ -195,6 +222,11 @@ const handleConfirmRemoveStage = () => {
 const handleCancelRemoveStage = () => {
   showRemoveStageModal.value = false;
   stageToRemoveId.value = null;
+};
+const handleSaveEditStage = () => {
+  saveStoredCaseStageItems(editStageItems.value, getStageCaseType());
+  stageUnsavedCheck.captureInitial();
+  showEditStageDrawer.value = false;
 };
 const getStageIcon = (status: ProgressStage["status"]) => {
   if (status === "completed") return "stepCheck";
@@ -288,6 +320,7 @@ const handleAddCaseStage = () => {
   router.push({ path: "/add-case-stage", query });
 };
 onMounted(() => {
+  syncEditStageItems();
   buildProgressStages();
   stageUnsavedCheck.captureInitial();
 });

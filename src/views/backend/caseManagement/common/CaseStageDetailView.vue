@@ -37,7 +37,7 @@
             <p class="text-base text-gray-900">張泓明、梁子瑞、蕭玉軒、楊淳宇</p>
           </div>
           <div class="flex flex-wrap items-center justify-between gap-6">
-            <div class="flex flex-1 items-center justify-between gap-4 rounded-lg bg-gray-50 p-4">
+            <div class="flex flex-1 items-center justify-between gap-4 rounded-lg p-4" :class="statusDisplay.containerClass">
               <div class="flex items-center gap-4">
                 <div class="flex items-center gap-4">
                   <Icon :name="statusDisplay.icon" :size="32" />
@@ -443,6 +443,7 @@ const statusOptions = [
   { label: "已撤案", value: "withdrawn" },
   { label: "案件廢止", value: "terminated" },
 ];
+const stageOrder = ["案件申請", "公辦公聽會", "都更幹事會", "專案小組", "都更大會", "最終核定"];
 const isEditMode = computed(() => editTargetId.value !== null);
 const addItemDrawerTitle = computed(() => (isEditMode.value ? "編輯" : "新增項目"));
 const isRevisionCategory = computed(() => addItemForm.value.category === "修正意見/會議記錄");
@@ -462,21 +463,59 @@ const isAddItemSaveDisabled = computed(() => {
   if (!addItemForm.value.deadline) return true;
   return addItemForm.value.uploadSelections.length === 0;
 });
+const getNextStageLabel = (currentStage: string) => {
+  const currentIndex = stageOrder.indexOf(currentStage);
+  if (currentIndex === -1 || currentIndex === stageOrder.length - 1) return "已完成";
+  return `進入下階段-${stageOrder[currentIndex + 1]}`;
+};
+const getCurrentProgressDescription = () => {
+  const enabledItem = progressItems.value.find((item) => item.enabled);
+  if (!enabledItem) return "階段未開放";
+  if (enabledItem.label === "階段開放") return "階段開放";
+  if (enabledItem.label === "審查中") return "審查中-承辦單位審查中";
+  if (enabledItem.label === "依意見修正補件") return "依意見修正補件";
+  return enabledItem.label;
+};
 const statusDisplay = computed(() => {
   const status = savedStatus.value;
   if (status === "completed") {
-    return { icon: "stepCheck", statusText: "已完成", description: "階段已完成" };
+    return {
+      icon: "stepCheck",
+      statusText: "已完成",
+      description: getNextStageLabel(stageTitle.value),
+      containerClass: "bg-green-50",
+    };
   }
   if (status === "in-progress") {
-    return { icon: "setpUncheck", statusText: "進行中", description: "階段進行中" };
+    return {
+      icon: "setpUncheck",
+      statusText: "進行中",
+      description: getCurrentProgressDescription(),
+      containerClass: "bg-blue-50",
+    };
   }
   if (status === "withdrawn") {
-    return { icon: "stepUncheckGray", statusText: "已撤案", description: "已撤案" };
+    return {
+      icon: "deleteCircle",
+      statusText: "已撤案",
+      description: "申請人撤回",
+      containerClass: "bg-pink-50",
+    };
   }
   if (status === "terminated") {
-    return { icon: "stepUncheckGray", statusText: "案件廢止", description: "案件廢止" };
+    return {
+      icon: "deleteCircle",
+      statusText: "案件廢止",
+      description: "案件廢止-階段中斷",
+      containerClass: "bg-pink-50",
+    };
   }
-  return { icon: "stepUncheckGray", statusText: "未開始", description: "階段未開放" };
+  return {
+    icon: "stepUncheckGray",
+    statusText: "未開始",
+    description: "未開始",
+    containerClass: "bg-gray-50",
+  };
 });
 const handleSidebarItemSelect = (itemName: string) => {
   console.log("Selected sidebar item:", itemName);
@@ -676,10 +715,7 @@ const handleSaveAddItem = () => {
   }
   const name = addItemForm.value.name.trim() || addItemForm.value.category;
   const uploadItems = isRevisionCategory.value
-    ? [
-        { label: "公文", status: "pending" as const },
-        { label: "修正意見", status: "pending" as const },
-      ]
+    ? [{ label: "公文", status: "pending" as const }]
     : uploadOptions
         .filter((option) => addItemForm.value.uploadSelections.includes(option.value))
         .map((option) => ({

@@ -6,6 +6,7 @@ export interface FAQApiItem {
   answer: string;
   isTop?: number;
   categoryName: string;
+  publishDate?: string;
   statusLabel?: string;
   category?: string;
   status?: string;

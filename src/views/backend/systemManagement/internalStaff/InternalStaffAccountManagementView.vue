@@ -26,22 +26,38 @@
         </div>
         <div class="flex flex-col gap-6">
           <div class="flex items-center justify-between">
-            <div class="flex flex-col gap-4">
-              <p class="text-base font-medium text-gray-800">承辦帳號</p>
-              <p v-if="hasAnyHandlers" class="text-base text-gray-600">已邀請 {{ handlerAccounts.length }} 位</p>
+            <div class="flex min-w-0 flex-1 flex-col gap-4">
+              <p class="text-base font-medium text-gray-800">內部人員名單</p>
+              <Tabs :items="accountTabItems" :model-value="activeAccountTab" @tab-click="handleAccountTabClick" />
             </div>
-            <ButtonCTA v-if="hasAnyHandlers" variant="primary" size="sm" @click="handleAddHandler">新增承辦</ButtonCTA>
+            <ButtonDropdown
+              v-if="hasAnyAccounts"
+              button-text="新增內部人員"
+              button-variant="primary"
+              button-size="sm"
+              :items="addAccountMenuItems"
+              align="right"
+              menu-width="w-[200px]"
+              :show-right-icon="false"
+              @item-click="handleAddAccountMenuClick"
+            />
           </div>
-          <div v-if="hasAnyHandlers" class="rounded-lg border border-gray-300 bg-white">
+          <div v-if="hasAnyAccounts" class="rounded-lg border border-gray-300 bg-white">
             <Table
-              :columns="tableColumns"
+              :columns="activeTableColumns"
               :rows="paginationState.paginatedRows"
               :pagination="paginationState.pagination"
-              row-key="email"
+              :row-key="activeRowKey"
               @page-change="paginationState.handlePageChange"
             >
               <template #cell-index="{ rowIndex }">
                 <p class="text-base text-gray-500">{{ (paginationState.currentPage - 1) * pageSize + rowIndex + 1 }}</p>
+              </template>
+              <template #cell-officerName="{ row }">
+                <div class="flex min-w-0 flex-col gap-0.5">
+                  <p class="text-sm font-normal leading-6 text-gray-800">{{ row.name }}</p>
+                  <p class="text-sm font-normal leading-6 text-gray-500">{{ row.gender }}</p>
+                </div>
               </template>
               <template #cell-permissions="{ row }">
                 <div class="text-base text-gray-600">
@@ -55,6 +71,13 @@
                   </div>
                 </div>
               </template>
+              <template #cell-education="{ row }">
+                <ul class="list-disc space-y-0.5 pl-4 text-sm font-normal leading-5 text-gray-500">
+                  <li v-for="(item, index) in row.education" :key="`${row.id}-education-${index}`" class="break-words">
+                    {{ item }}
+                  </li>
+                </ul>
+              </template>
               <template #cell-status="{ row }">
                 <div @click.stop @mousedown.prevent>
                   <Switch :model-value="row.status" :show-text="true" on-text="啟用" off-text="停權" @update:model-value="(value) => handleStatusChange(row, value)" />
@@ -62,14 +85,37 @@
               </template>
               <template #cell-action="{ row }">
                 <div class="flex items-center gap-2">
-                  <ButtonCTA variant="text" size="sm" icon-only left-icon="pencil" @click.stop="handleEdit(row)" aria-label="編輯承辦帳號" />
-                  <ButtonCTA variant="text" size="sm" icon-only left-icon="trashCan" @click.stop="handleDelete(row)" aria-label="移除承辦帳號" />
+                  <ButtonCTA
+                    variant="text"
+                    size="sm"
+                    icon-only
+                    left-icon="pencil"
+                    @click.stop="handleEdit(row)"
+                    :aria-label="activeAccountTab === 0 ? '編輯承辦帳號' : '編輯幹事帳號'"
+                  />
+                  <ButtonCTA
+                    variant="text"
+                    size="sm"
+                    icon-only
+                    left-icon="trashCan"
+                    @click.stop="handleDelete(row)"
+                    :aria-label="activeAccountTab === 0 ? '移除承辦帳號' : '移除幹事帳號'"
+                  />
                 </div>
               </template>
             </Table>
           </div>
           <div v-else class="flex flex-col items-center justify-center rounded-lg border border-gray-300 bg-white py-8">
-            <Empty class="!h-auto !gap-6 py-6" type="case" message="" button-text="新增承辦" :show-button="true" @button-click="handleAddHandler" />
+            <div class="flex flex-col items-center gap-6 py-6">
+              <Empty class="!h-auto !gap-6 py-0" type="case" message="" :show-button="false" />
+              <ButtonCTA
+                variant="outline"
+                size="sm"
+                @click="activeAccountTab === 0 ? handleAddHandler() : handleAddOfficer()"
+              >
+                {{ activeAccountTab === 0 ? "新增承辦" : "新增幹事" }}
+              </ButtonCTA>
+            </div>
           </div>
         </div>
       </div>
@@ -121,8 +167,8 @@
 
     <ConfirmDeleteModal
       v-model="showDeleteModal"
-      message="確認移除承辦帳號"
-      :description="deleteTarget ? `確定要移除「${deleteTarget.name}」的承辦帳號嗎？` : '內容將完全刪除無法復原'"
+      :message="activeAccountTab === 0 ? '確認移除承辦帳號' : '確認移除幹事帳號'"
+      :description="getDeleteDescription()"
       confirm-label="確認"
       @confirm="handleConfirmDelete"
       @cancel="handleCloseDeleteModal"
@@ -177,23 +223,38 @@ import Drawer from "@/components/atoms/Drawer.vue";
 import Switch from "@/components/atoms/Switch.vue";
 import Toast from "@/components/atoms/Toast.vue";
 import ButtonCTA from "@/components/atoms/ButtonCTA.vue";
+import ButtonDropdown, { type ButtonDropdownItem } from "@/components/atoms/ButtonDropdown.vue";
 import Breadcrumb from "@/components/atoms/Breadcrumb.vue";
 import SidebarSection from "@/components/sections/backend/SidebarSection.vue";
+import Tabs, { type TabItem } from "@/components/atoms/Tabs.vue";
 import Table, { type TableColumn } from "@/components/atoms/Table.vue";
 import ConfirmDeleteModal from "@/components/molecules/ConfirmDeleteModal.vue";
 import type { HandlerAccount } from "@/types/backend/systemManagement/internalStaff/internalStaffAccountManagement.d";
 import { apiGetHandlerAccountList } from "@/api/backend/systemManagement/internalStaffService";
 import type { SystemUserApiItem } from "@/types/api/backend/systemManagement/internalStaffService";
+import { apiGetOfficerList } from "@/api/backend/systemManagement/officerService";
+import type { OfficerApiItem } from "@/types/api/backend/systemManagement/officerService";
+
+interface OfficerAccountRow {
+  id: string;
+  name: string;
+  gender: string;
+  email: string;
+  title: string;
+  education: string[];
+  status: boolean;
+}
 // State
 const route = useRoute();
 const router = useRouter();
+const activeAccountTab = ref(0);
 const pageSize = ref<number>(10);
 const toastMessage = ref("儲存成功");
 const showToast = ref<boolean>(false);
 const showDeleteModal = ref<boolean>(false);
 const selectedAccountEmail = ref<string>("");
 const showChangeAccountDrawer = ref<boolean>(false);
-const deleteTarget = ref<HandlerAccount | null>(null);
+const deleteTarget = ref<HandlerAccount | OfficerAccountRow | null>(null);
 const showCannotDeleteAdminModal = ref<boolean>(false);
 // Current Admin Account
 const currentAdminAccount = ref<{
@@ -219,15 +280,24 @@ const availableAccounts = ref<Array<{ name: string; email: string }>>([
   },
 ]);
 const handlerAccounts = ref<HandlerAccount[]>([]);
+const officerAccounts = ref<OfficerAccountRow[]>([]);
+const addAccountMenuItems: ButtonDropdownItem[] = [
+  { label: "新增承辦", value: "handler" },
+  { label: "新增幹事", value: "officer" },
+];
+const accountTabItems: TabItem[] = [{ label: "承辦帳號" }, { label: "幹事帳號" }];
+const displayedAccounts = computed<(HandlerAccount | OfficerAccountRow)[]>(() => {
+  return activeAccountTab.value === 0 ? handlerAccounts.value : officerAccounts.value;
+});
+const activeRowKey = computed(() => (activeAccountTab.value === 0 ? "email" : "id"));
 const paginationState = reactive(
   useTablePagination({
-    rows: handlerAccounts,
+    rows: displayedAccounts,
     pageSize,
     slice: false,
   })
 );
-// Table Columns
-const tableColumns: TableColumn[] = [
+const handlerTableColumns: TableColumn[] = [
   {
     key: "index",
     label: "項次",
@@ -269,7 +339,47 @@ const tableColumns: TableColumn[] = [
     width: "10%",
   },
 ];
+const officerTableColumns: TableColumn[] = [
+  {
+    key: "index",
+    label: "項次",
+    width: "6%",
+  },
+  {
+    key: "officerName",
+    label: "幹事姓名",
+    width: "12%",
+  },
+  {
+    key: "email",
+    label: "信箱",
+    width: "16%",
+  },
+  {
+    key: "title",
+    label: "現職",
+    width: "18%",
+  },
+  {
+    key: "education",
+    label: "學經歷",
+    width: "28%",
+  },
+  {
+    key: "status",
+    label: "狀態",
+    width: "10%",
+  },
+  {
+    key: "action",
+    label: "動作",
+    width: "10%",
+  },
+];
+const activeTableColumns = computed(() => (activeAccountTab.value === 0 ? handlerTableColumns : officerTableColumns));
 const hasAnyHandlers = computed(() => handlerAccounts.value.length > 0);
+const hasAnyOfficers = computed(() => officerAccounts.value.length > 0);
+const hasAnyAccounts = computed(() => (activeAccountTab.value === 0 ? hasAnyHandlers.value : hasAnyOfficers.value));
 const hasAvailableAccounts = computed(() => availableAccounts.value.length > 0);
 const adminAccountUnsavedCheck = useFormUnsavedCheck(() => buildAdminAccountSnapshot());
 const canSaveAdminAccount = computed(() => hasAvailableAccounts.value && adminAccountUnsavedCheck.hasUnsavedChanges.value);
@@ -306,15 +416,34 @@ const handleSaveChangeAccount = () => {
 const handleAddHandler = () => {
   router.push("/internal-staff-account-management/add");
 };
+const handleAddOfficer = () => {
+  router.push("/officer-list-management/add");
+};
+const handleAccountTabClick = (index: number) => {
+  activeAccountTab.value = index;
+  paginationState.resetPage();
+};
+const handleAddAccountMenuClick = (item: ButtonDropdownItem) => {
+  if (item.value === "officer") {
+    handleAddOfficer();
+    return;
+  }
+  handleAddHandler();
+};
 const handleStatusChange = (row: Record<string, any>, value: boolean) => {
-  const item = row as HandlerAccount;
+  const item = row as HandlerAccount | OfficerAccountRow;
   item.status = value;
   console.log("Status changed for:", item, "New status:", value);
   // TODO: Implement status change logic
 };
 const handleEdit = (row: Record<string, any>) => {
+  if (activeAccountTab.value === 1) {
+    const item = row as OfficerAccountRow;
+    router.push(`/officer-list-management/edit/${item.id}`);
+    return;
+  }
+
   const item = row as HandlerAccount;
-  // 導航到編輯頁面，使用 query 參數傳遞數據
   router.push({
     path: "/internal-staff-account-management/add",
     query: {
@@ -324,6 +453,12 @@ const handleEdit = (row: Record<string, any>) => {
   });
 };
 const handleDelete = (row: Record<string, any>) => {
+  if (activeAccountTab.value === 1) {
+    deleteTarget.value = row as OfficerAccountRow;
+    showDeleteModal.value = true;
+    return;
+  }
+
   const item = row as HandlerAccount;
   if (item.email === currentAdminAccount.value.email) {
     showCannotDeleteAdminModal.value = true;
@@ -336,8 +471,24 @@ const handleCloseDeleteModal = () => {
   showDeleteModal.value = false;
   deleteTarget.value = null;
 };
+const getDeleteDescription = () => {
+  if (!deleteTarget.value) return "內容將完全刪除無法復原";
+
+  return activeAccountTab.value === 0
+    ? `確定要移除「${deleteTarget.value.name}」的承辦帳號嗎？`
+    : `確定要移除「${deleteTarget.value.name}」的幹事帳號嗎？`;
+};
 const handleConfirmDelete = () => {
   if (deleteTarget.value) {
+    if (activeAccountTab.value === 1) {
+      const officerTarget = deleteTarget.value as OfficerAccountRow;
+      officerAccounts.value = officerAccounts.value.filter((account) => account.id !== officerTarget.id);
+      toastMessage.value = "已刪除";
+      showToast.value = true;
+      handleCloseDeleteModal();
+      return;
+    }
+
     const index = handlerAccounts.value.findIndex((account) => account.email === deleteTarget.value?.email);
     if (index !== -1) {
       handlerAccounts.value.splice(index, 1);
@@ -386,14 +537,30 @@ const normalizeHandlerAccount = (item: SystemUserApiItem): HandlerAccount => {
     status: item.status === 1,
   };
 };
+const normalizeOfficerAccount = (item: OfficerApiItem, index: number): OfficerAccountRow => {
+  return {
+    id: String(item.id),
+    name: item.name ?? "",
+    gender: item.gender ?? "",
+    email: item.email ?? "",
+    title: item.title ?? "",
+    education: Array.isArray(item.education) ? item.education : [],
+    status: index % 3 !== 2,
+  };
+};
 
 const loadHandlerAccounts = async () => {
   const response = await apiGetHandlerAccountList();
   handlerAccounts.value = response.data.data.map(normalizeHandlerAccount);
 };
+const loadOfficerAccounts = async () => {
+  const response = await apiGetOfficerList();
+  const officerItems = Array.isArray(response.data.data) ? response.data.data : [];
+  officerAccounts.value = officerItems.map(normalizeOfficerAccount);
+};
 
 onMounted(async () => {
-  await loadHandlerAccounts();
+  await Promise.all([loadHandlerAccounts(), loadOfficerAccounts()]);
   handleRouteToast();
 });
 </script>

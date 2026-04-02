@@ -16,6 +16,26 @@ export interface DownloadItem {
   fileUrl?: string;
 }
 
+export interface DownloadListItem extends DownloadItem {
+  id: number;
+}
+
+export interface DownloadFileItem {
+  name: string;
+  type: "DOCX" | "PDF" | "ODT" | "XLS";
+  size: string;
+  fileUrl?: string;
+}
+
+export interface DownloadDetailItem extends DownloadListItem {
+  title: string;
+  updatedDate: string;
+  department: string;
+  views: number;
+  description: string;
+  files: DownloadFileItem[];
+}
+
 export interface MeetingItem {
   id: number;
   agenda: string;

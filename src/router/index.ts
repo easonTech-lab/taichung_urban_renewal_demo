@@ -171,6 +171,16 @@ export const routes: RouteRecordRaw[] = [
     },
   },
   {
+    path: "/downloads/:id",
+    name: "downloads-detail",
+    component: () => import("@/views/frontend/DownloadsDetailView.vue"),
+    meta: {
+      breadcrumb: {
+        label: "下載專區",
+      },
+    },
+  },
+  {
     path: "/e-services",
     name: "e-services",
     component: () => import("@/views/frontend/EServicesView.vue"),
@@ -650,6 +660,20 @@ export const routes: RouteRecordRaw[] = [
         parent: {
           label: "內部人員帳號管理",
           path: "/internal-staff-account-management",
+        },
+      },
+    },
+  },
+  {
+    path: "/officer-list-management/add",
+    name: "officer-list-management-add",
+    component: () => import("@/views/backend/systemManagement/officerList/OfficerEditView.vue"),
+    meta: {
+      breadcrumb: {
+        label: "新增幹事",
+        parent: {
+          label: "幹事名單管理",
+          path: "/officer-list-management",
         },
       },
     },

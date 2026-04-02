@@ -5,7 +5,7 @@
 ## 技術棧
 
 - **框架**: Vue 3.5 + TypeScript
-- **構建工具**: Vite 7
+- **構建工具**: Vite 8
 - **路由**: Vue Router 4
 - **狀態管理**: Pinia 2
 - **樣式**: Tailwind CSS 3
@@ -18,6 +18,7 @@
 ```
 src/
 ├── assets/          # 靜態資源（SVG 圖標等）
+├── api/             # API 請求函式
 ├── components/      # 組件
 │   ├── atoms/      # 原子組件（按鈕、輸入框、表格等）
 │   ├── molecules/  # 分子組件（卡片、列表項等）
@@ -28,6 +29,8 @@ src/
 ├── config/         # 配置文件
 ├── router/         # 路由配置
 ├── store/          # 狀態管理
+├── types/          # 型別定義
+├── utils/          # 共用工具函式
 ├── views/          # 頁面視圖
 │   ├── frontend/   # 前端頁面
 │   └── backend/    # 後端管理頁面
@@ -40,6 +43,14 @@ src/
 
 - Node.js >= 20
 - npm 或 yarn
+
+建議先使用：
+
+```bash
+nvm use
+```
+
+專案已透過 `.nvmrc` 固定 Node 版本。
 
 ### 安裝依賴
 
@@ -195,6 +206,23 @@ npm run format:check
 - 使用 Composition API (`<script setup>`)
 - 使用 Tailwind CSS 進行樣式設計
 - 遵循 Prettier 格式化規範
+- `script setup` 排序建議為：
+  `import -> use/props/emits -> ref/reactive -> 常數/變數 ->
+  computed -> watch -> lifecycle -> helper -> handlers`
+- 函式一律使用 `const` + 箭頭函式，不使用 `function` 宣告
+- composable 與 store 預設使用物件寫法，不預設做長解構
+
+### API 命名規格
+
+- API 請求函式統一放在 `src/api/`
+- 函式名稱需包含 `api + Method + 功能名稱`
+- 命名範例：
+  - `apiGetFAQList`
+  - `apiGetFAQById`
+  - `apiPostFAQ`
+  - `apiPutFAQ`
+- API 層只負責送 request 並回傳 promise，不在 API 層解包 `res`
+- `res` 處理、資料轉換與畫面映射統一留在 `.vue` 頁面處理
 
 ### 路由配置
 
