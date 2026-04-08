@@ -46,11 +46,12 @@
             </div>
           </div>
         </div>
-        <div class="rounded-lg border border-gray-300 bg-white">
+        <div class="rounded-lg bg-white">
           <Empty v-if="!hasAnyCases" type="case-management" message="尚無都市更新案件" @button-click="handleEmptyStateAddCase" />
           <Empty v-else-if="filteredCases.length === 0" type="search" :show-button="false" class="py-12" />
           <Table
             v-else
+            borderless
             :columns="tableColumns"
             :rows="paginationState.paginatedRows"
             :pagination="paginationState.pagination"

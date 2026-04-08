@@ -42,8 +42,9 @@
               @item-click="handleAddAccountMenuClick"
             />
           </div>
-          <div v-if="hasAnyAccounts" class="rounded-lg border border-gray-300 bg-white">
+          <div v-if="hasAnyAccounts" class="rounded-lg bg-white">
             <Table
+              borderless
               :columns="activeTableColumns"
               :rows="paginationState.paginatedRows"
               :pagination="paginationState.pagination"
