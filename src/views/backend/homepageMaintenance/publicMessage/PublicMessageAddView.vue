@@ -34,7 +34,15 @@
             </template>
           </RadioGroup>
           <RichTextEditor v-model="formData.content" label="內容(限200字)" placeholder="文字輸入" required :maxlength="200" />
-          <FileUpload v-model="formData.files" label="檔案上傳" :max-size="10" multiple required @file-error="handleFileError" />
+          <FileUpload
+            v-model="formData.files"
+            label="檔案上傳"
+            accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+            :max-size="10"
+            multiple
+            required
+            @file-error="handleFileError"
+          />
         </div>
       </div>
       <div class="flex items-center justify-center gap-4">
@@ -56,6 +64,7 @@
       @exit="handleExitWithoutSaving"
       @confirm="handleSaveFromUnsavedModal"
     />
+    <AlertModal v-model="showDraftTitleWarningModal" message="請先填寫標題，才能暫存內容" />
     <AlertModal v-model="showUploadWarningModal" :message="uploadWarningMessage" />
   </div>
 </template>
@@ -91,6 +100,7 @@ const formData = ref<PublicMessageFormData>({
   files: [],
 });
 
+const showDraftTitleWarningModal = ref(false);
 const showUploadWarningModal = ref(false);
 const uploadWarningMessage = ref("");
 const editingMessage = ref<{ title?: string; category?: string; content?: string } | null>(null);
@@ -123,6 +133,11 @@ const buildPayload = (status: "DRAFT" | "PUBLISHED") => ({
 });
 
 const handleSaveDraft = async () => {
+  if (!formData.value.title.trim()) {
+    showDraftTitleWarningModal.value = true;
+    return;
+  }
+
   if (messageId.value) {
     await apiPutPublicMessage({ ...buildPayload("DRAFT"), id: messageId.value });
   } else {
