@@ -63,7 +63,7 @@ import ButtonCTA from "@/components/atoms/ButtonCTA.vue";
 import Breadcrumb from "@/components/atoms/Breadcrumb.vue";
 import SidebarSection from "@/components/sections/backend/SidebarSection.vue";
 import InputDropdown, { type InputDropdownItem } from "@/components/atoms/InputDropdown.vue";
-import { apiGetCaseStatisticById, apiPostCaseStatistic, apiPutCaseStatistic } from "@/api/backend/homepageMaintenance/caseStatisticsService";
+import { apiGetCaseStatisticById, apiGetCaseStatisticsList, apiPostCaseStatistic, apiPutCaseStatistic } from "@/api/backend/homepageMaintenance/caseStatisticsService";
 import { getCaseStatisticsEditBreadcrumbItems } from "@/utils/breadcrumbs";
 import type { CaseStatisticApiItem } from "@/types/api/backend/homepageMaintenance/caseStatisticsService";
 import type { CaseStatisticsFormData } from "@/types/backend/homepageMaintenance/caseStatistics.d";
@@ -78,14 +78,6 @@ const statisticsId = computed(() => (typeof route.params.id === "string" ? route
 const categoryOptions: InputDropdownItem[] = [
   { label: "都更案件", value: "都更案件" },
   { label: "危老案件", value: "危老案件" },
-];
-const existingStatistics: CaseStatisticsFormData[] = [
-  { year: "114", category: "都更案件", annualCount: "103" },
-  { year: "114", category: "危老案件", annualCount: "55" },
-  { year: "113", category: "都更案件", annualCount: "98" },
-  { year: "113", category: "危老案件", annualCount: "22" },
-  { year: "112", category: "都更案件", annualCount: "75" },
-  { year: "112", category: "危老案件", annualCount: "22" },
 ];
 const breadcrumbItems = getCaseStatisticsEditBreadcrumbItems();
 const isEditMode = computed(() => route.name === "case-statistics-edit");
@@ -106,25 +98,32 @@ const buildFormSnapshot = () =>
 const handleGoBack = () => {
   router.back();
 };
+const selectedType = computed(() => (selectedCategory.value === "都更案件" ? "URBAN_RENEWAL" : "DANGEROUS_OLD"));
 const handleSave = async () => {
-  if (!isEditMode.value) {
-    const hasDuplicate = existingStatistics.some((item) => item.category === selectedCategory.value && item.year === yearValue.value.trim());
-    if (hasDuplicate) {
-      showDuplicateModal.value = true;
-      return;
-    }
+  const listResponse = await apiGetCaseStatisticsList();
+  const hasDuplicate = listResponse.data.data.some((item) => {
+    if (String(item.year ?? "") !== yearValue.value.trim()) return false;
+    if (item.type !== selectedType.value) return false;
+    if (isEditMode.value && String(item.id) === statisticsId.value) return false;
+    return true;
+  });
+
+  if (hasDuplicate) {
+    showDuplicateModal.value = true;
+    return;
   }
+
   if (statisticsId.value) {
     await apiPutCaseStatistic({
       id: statisticsId.value,
       year: Number(yearValue.value),
-      type: selectedCategory.value === "都更案件" ? "URBAN_RENEWAL" : "DANGEROUS_OLD",
+      type: selectedType.value,
       caseCount: Number(annualCount.value),
     });
   } else {
     await apiPostCaseStatistic({
       year: Number(yearValue.value),
-      type: selectedCategory.value === "都更案件" ? "URBAN_RENEWAL" : "DANGEROUS_OLD",
+      type: selectedType.value,
       caseCount: Number(annualCount.value),
     });
   }
