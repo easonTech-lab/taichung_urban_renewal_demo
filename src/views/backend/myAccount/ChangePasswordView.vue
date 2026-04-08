@@ -3,7 +3,7 @@
     <SidebarSection @item-select="handleSidebarItemSelect" />
     <div class="flex flex-1 flex-col gap-10 p-4 sm:ml-[328px] sm:p-10">
       <div class="flex flex-col gap-6">
-        <Breadcrumb />
+        <Breadcrumb :items="breadcrumbItems" />
         <div class="flex items-center gap-4">
           <ButtonCTA variant="none" icon-only left-icon="arrowLeftOutline" @click="handleGoBack" aria-label="返回上一頁" />
           <h1 class="text-3xl font-bold leading-[30px] text-gray-900">前一頁</h1>
@@ -89,6 +89,7 @@ import Input from "@/components/atoms/Input.vue";
 import ButtonCTA from "@/components/atoms/ButtonCTA.vue";
 import Breadcrumb from "@/components/atoms/Breadcrumb.vue";
 import SidebarSection from "@/components/sections/backend/SidebarSection.vue";
+import { getAccountBreadcrumbItems } from "@/utils/breadcrumbs";
 const router = useRouter();
 // Form Data
 const formData = ref({
@@ -109,6 +110,7 @@ const errorMessages = ref({
 });
 // Success Modal State
 const showSuccessModal = ref(false);
+const breadcrumbItems = computed(() => getAccountBreadcrumbItems());
 // 判斷按鈕是否應該被禁用
 const isSaveDisabled = computed(() => {
   // 如果正在提交，禁用按鈕

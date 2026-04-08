@@ -60,9 +60,10 @@ import { computed } from "vue";
 import { useRoute } from "vue-router";
 import Icon from "@/components/atoms/Icon.vue";
 import Tag from "@/components/atoms/Tag.vue";
-import Breadcrumb, { type BreadcrumbItem } from "@/components/atoms/Breadcrumb.vue";
+import Breadcrumb from "@/components/atoms/Breadcrumb.vue";
 import FooterSection from "@/components/sections/global/FooterSection.vue";
 import { frontendDownloads } from "@/mocks/frontend/downloads";
+import { getDownloadsDetailBreadcrumbItems } from "@/utils/breadcrumbs";
 import type { DownloadDetailItem, DownloadFileItem } from "@/types/frontend/frontend";
 
 const route = useRoute();
@@ -80,11 +81,7 @@ const downloadDetail = computed<DownloadDetailItem>(() => {
   return frontendDownloads.find((item) => item.id === downloadId.value) ?? frontendDownloads[0];
 });
 
-const breadcrumbItems = computed<BreadcrumbItem[]>(() => [
-  { label: "首頁", to: "/" },
-  { label: "下載專區", to: "/downloads" },
-  { label: downloadDetail.value.title },
-]);
+const breadcrumbItems = computed(() => getDownloadsDetailBreadcrumbItems(downloadDetail.value.title));
 
 const handleFileDownload = (file: DownloadFileItem) => {
   if (file.fileUrl && file.fileUrl !== "#") {

@@ -118,9 +118,10 @@ import { useFormUnsavedCheck } from "@/composables/useFormUnsavedCheck";
 import Icon from "@/components/atoms/Icon.vue";
 import Input from "@/components/atoms/Input.vue";
 import ButtonCTA from "@/components/atoms/ButtonCTA.vue";
-import Breadcrumb, { type BreadcrumbItem } from "@/components/atoms/Breadcrumb.vue";
+import Breadcrumb from "@/components/atoms/Breadcrumb.vue";
 import SidebarSection from "@/components/sections/backend/SidebarSection.vue";
 import { apiGetOfficerById, apiPostOfficer, apiPutOfficer } from "@/api/backend/systemManagement/officerService";
+import { getOfficerEditBreadcrumbItems } from "@/utils/breadcrumbs";
 import type { OfficerApiItem } from "@/types/api/backend/systemManagement/officerService";
 const route = useRoute();
 const router = useRouter();
@@ -155,12 +156,7 @@ const pageTitle = computed(() => {
   if (isAddMode.value) return "新增幹事";
   return "編輯幹事";
 });
-const breadcrumbItems = computed<BreadcrumbItem[]>(() => [
-  { label: "首頁", to: "/" },
-  { label: "系統管理" },
-  { label: "幹事名單管理", to: "/officer-list-management" },
-  { label: pageTitle.value },
-]);
+const breadcrumbItems = computed(() => getOfficerEditBreadcrumbItems(pageTitle.value));
 const buildEducationList = (value: string[]) => {
   const items = value.map((item) => item.trim()).filter(Boolean);
   return items.length > 0 ? items : [""];

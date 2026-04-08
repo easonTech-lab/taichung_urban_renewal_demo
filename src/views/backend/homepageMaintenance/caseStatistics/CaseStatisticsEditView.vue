@@ -64,6 +64,7 @@ import Breadcrumb from "@/components/atoms/Breadcrumb.vue";
 import SidebarSection from "@/components/sections/backend/SidebarSection.vue";
 import InputDropdown, { type InputDropdownItem } from "@/components/atoms/InputDropdown.vue";
 import { apiGetCaseStatisticById, apiPostCaseStatistic, apiPutCaseStatistic } from "@/api/backend/homepageMaintenance/caseStatisticsService";
+import { getCaseStatisticsEditBreadcrumbItems } from "@/utils/breadcrumbs";
 import type { CaseStatisticApiItem } from "@/types/api/backend/homepageMaintenance/caseStatisticsService";
 import type { CaseStatisticsFormData } from "@/types/backend/homepageMaintenance/caseStatistics.d";
 const route = useRoute();
@@ -86,7 +87,7 @@ const existingStatistics: CaseStatisticsFormData[] = [
   { year: "112", category: "都更案件", annualCount: "75" },
   { year: "112", category: "危老案件", annualCount: "22" },
 ];
-const breadcrumbItems = [{ label: "首頁", to: "/" }, { label: "首頁維護", to: "/case-statistics" }, { label: "案件統計維護" }];
+const breadcrumbItems = getCaseStatisticsEditBreadcrumbItems();
 const isEditMode = computed(() => route.name === "case-statistics-edit");
 const formTitle = computed(() => (isEditMode.value ? "編輯案件件數" : "新增年度"));
 const isSaveDisabled = computed(() => {

@@ -461,6 +461,7 @@ import ButtonCTA from "@/components/atoms/ButtonCTA.vue";
 import Breadcrumb from "@/components/atoms/Breadcrumb.vue";
 import StageProgressBar from "@/components/molecules/StageProgressBar.vue";
 import SidebarSection from "@/components/sections/backend/SidebarSection.vue";
+import { getUrbanCaseReviewBreadcrumbItems } from "@/utils/breadcrumbs";
 type FacilityKey = (typeof facilityFields)[number]["key"];
 /** 從案件詳情按鈕進入為編輯，從新增流程進入為新增 */
 const route = useRoute();
@@ -577,23 +578,13 @@ const facilityDetailFields: Record<FacilityKey, Array<{ key: string; label: stri
 } as const;
 const STORAGE_KEY_CASE_FOR_APPLICATION = "caseDetailForApplication";
 const planningUnitLabels = ["一", "二", "三", "四", "五"];
+const breadcrumbItems = computed(() => getUrbanCaseReviewBreadcrumbItems(route));
 const cancelTarget = computed(() => {
   const returnTo = route.query?.returnTo;
   if (typeof returnTo === "string" && returnTo.trim()) {
     return returnTo;
   }
   return { path: "/case-management" };
-});
-const breadcrumbItems = computed(() => {
-  const base = [
-    { label: "首頁", to: "/" },
-    { label: "我的案件", to: "/case-management" },
-    { label: "都市更新案件", to: "/case-management" },
-  ];
-  if (isFromCaseDetail.value) {
-    return [...base, { label: "編輯都更案件" }];
-  }
-  return [...base, { label: "新增都更案件", to: "/case-management/add/business-plan" }, { label: "都市更新審議資料表" }];
 });
 const isExcavationRequired = computed(() => formData.basementFloorArea?.toString().trim().length > 0);
 const buildReviewTableSnapshot = () =>

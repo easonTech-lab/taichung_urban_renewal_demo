@@ -491,6 +491,7 @@ import StageProgressBar from "@/components/molecules/StageProgressBar.vue";
 import SidebarSection from "@/components/sections/backend/SidebarSection.vue";
 import Tabs, { type TabItem } from "@/components/atoms/Tabs.vue";
 import InputDropdown, { type InputDropdownItem } from "@/components/atoms/InputDropdown.vue";
+import { getUrbanCaseAddBreadcrumbItems } from "@/utils/breadcrumbs";
 type StringFieldKey = {
   [Key in keyof typeof formData.value]: typeof formData.value[Key] extends string ? Key : never;
 }[keyof typeof formData.value];
@@ -573,6 +574,7 @@ const ordinanceOptions: InputDropdownItem[] = [];
 const indicatorStandardOptions: InputDropdownItem[] = [];
 const consentRateOptions: InputDropdownItem[] = [];
 const STORAGE_KEY_CASE_FOR_APPLICATION = "caseDetailForApplication";
+const breadcrumbItems = computed(() => getUrbanCaseAddBreadcrumbItems(route));
 const cancelTarget = computed(() => {
   const returnTo = route.query?.returnTo;
   if (typeof returnTo === "string" && returnTo.trim()) {
@@ -580,12 +582,6 @@ const cancelTarget = computed(() => {
   }
   return { path: "/case-management" };
 });
-const breadcrumbItems = computed(() => [
-  { label: "首頁", to: "/" },
-  { label: "案件管理", to: "/case-management" },
-  { label: "都市更新案件", to: "/case-management" },
-  { label: isFromCaseDetail.value ? "編輯都更案件" : "新增都更案件" },
-]);
 const canGoNextToReviewTable = computed(() => {
   const requiredTextFields = [
     formData.value.caseName,

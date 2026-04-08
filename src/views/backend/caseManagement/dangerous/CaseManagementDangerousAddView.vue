@@ -140,7 +140,7 @@
 </template>
 <script setup lang="ts">
 import { computed, ref } from "vue";
-import { useRouter } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import Icon from "@/components/atoms/Icon.vue";
 import Input from "@/components/atoms/Input.vue";
 import Modal from "@/components/atoms/Modal.vue";
@@ -149,6 +149,8 @@ import Breadcrumb from "@/components/atoms/Breadcrumb.vue";
 import ImageCard from "@/components/molecules/ImageCard.vue";
 import StageProgressBar from "@/components/molecules/StageProgressBar.vue";
 import SidebarSection from "@/components/sections/backend/SidebarSection.vue";
+import { getDangerousCaseAddBreadcrumbItems } from "@/utils/breadcrumbs";
+const route = useRoute();
 const router = useRouter();
 const renderInputRef = ref<HTMLInputElement | null>(null);
 const demolitionInputRef = ref<HTMLInputElement | null>(null);
@@ -172,12 +174,7 @@ const formData = ref({
   demolitionImages: [] as string[],
 });
 const showDraftNameWarningModal = ref(false);
-const breadcrumbItems = [
-  { label: "首頁", to: "/" },
-  { label: "我的案件", to: "/case-management" },
-  { label: "危老重建案件", to: "/case-management-dangerous" },
-  { label: "新增危老重建案件" },
-];
+const breadcrumbItems = computed(() => getDangerousCaseAddBreadcrumbItems(route));
 const canGoNextToApplication = computed(() => {
   if (!hasTextValue(formData.value.caseName)) {
     return false;
