@@ -170,14 +170,26 @@ const handleClickOutside = (event: Event) => {
 const handleScrollOrResize = () => {
   if (isOpen.value) close();
 }
+const handleWindowScroll = (event: Event) => {
+  const target = event.target as Node | null;
+  const dropdownElement = document.getElementById(dropdownId);
+  const buttonElement = document.getElementById(buttonId);
+
+  // 允許下拉選單內部自行捲動，不要因為選單本身的 scroll 事件而關閉。
+  if ((dropdownElement && target && dropdownElement.contains(target)) || (buttonElement && target && buttonElement.contains(target))) {
+    return;
+  }
+
+  handleScrollOrResize();
+}
 onMounted(() => {
   document.addEventListener("click", handleClickOutside);
-  window.addEventListener("scroll", handleScrollOrResize, true);
+  window.addEventListener("scroll", handleWindowScroll, true);
   window.addEventListener("resize", handleScrollOrResize);
 });
 onUnmounted(() => {
   document.removeEventListener("click", handleClickOutside);
-  window.removeEventListener("scroll", handleScrollOrResize, true);
+  window.removeEventListener("scroll", handleWindowScroll, true);
   window.removeEventListener("resize", handleScrollOrResize);
 });
 </script>
