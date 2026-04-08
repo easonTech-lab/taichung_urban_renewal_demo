@@ -34,7 +34,16 @@
             </template>
           </RadioGroup>
           <RichTextEditor v-model="formData.text" label="內容(限200字)" placeholder="文字輸入" :maxlength="200" required show-label />
-          <FileUpload v-model="formData.files" label="檔案上傳" :max-size="10" multiple required show-label @file-error="handleFileError" />
+          <FileUpload
+            v-model="formData.files"
+            label="檔案上傳"
+            accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+            :max-size="10"
+            multiple
+            required
+            show-label
+            @file-error="handleFileError"
+          />
         </div>
       </div>
       <div class="flex items-center justify-center gap-4">
@@ -51,6 +60,7 @@
       @exit="handleExitWithoutSaving"
       @confirm="handleSaveFromUnsavedModal"
     />
+    <AlertModal v-model="showDraftTitleWarningModal" message="請先填寫標題，才能暫存內容" />
     <AlertModal v-model="showUploadWarningModal" :message="uploadWarningMessage" />
   </div>
 </template>
@@ -85,6 +95,7 @@ const formData = ref<DownloadFormData>({
   files: [],
 });
 
+const showDraftTitleWarningModal = ref(false);
 const showUploadWarningModal = ref(false);
 const uploadWarningMessage = ref("");
 const editingDownload = ref<{ fileName?: string; category?: string; text?: string } | null>(null);
@@ -114,7 +125,21 @@ const isPublishDisabled = computed(() => {
 
 const downloadsFormUnsavedCheck = useFormUnsavedCheck(() => buildFormSnapshot());
 
+const applyUploadWarning = (payload: { type: "size" | "format"; maxSize?: number }) => {
+  if (payload.type === "size") {
+    uploadWarningMessage.value = `檔案大小需限 ${payload.maxSize ?? 10}MB，請重新確認`;
+  } else {
+    uploadWarningMessage.value = "檔案格式不符，請重新確認";
+  }
+  showUploadWarningModal.value = true;
+};
+
 const handleSaveDraft = async () => {
+  if (!formData.value.title.trim()) {
+    showDraftTitleWarningModal.value = true;
+    return;
+  }
+
   if (downloadId.value) {
     await apiPutDownload({ ...formData.value, status: "draft", id: downloadId.value });
   } else {
@@ -220,11 +245,7 @@ const handleSaveFromUnsavedModal = async () => {
 };
 
 const handleFileError = (payload: { type: "size" | "format"; maxSize?: number }) => {
-  if (payload.type === "size") {
-    uploadWarningMessage.value = `檔案大小需限 ${payload.maxSize ?? 10}MB，請重新確認`;
-  } else {
-    uploadWarningMessage.value = "檔案格式不符，請重新確認";
-  }
-  showUploadWarningModal.value = true;
+  console.log("[DownloadsAddView] file-error received", payload);
+  applyUploadWarning(payload);
 };
 </script>
