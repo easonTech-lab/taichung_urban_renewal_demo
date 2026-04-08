@@ -1,3 +1,10 @@
+/**
+ * Breadcrumb 維護原則：
+ * - 靜態、單一路徑的 breadcrumb 留在 router meta。
+ * - 有共用規則或條件判斷的 breadcrumb builder 放在這裡。
+ * - 需要動態 breadcrumb 的頁面，從這裡匯入 helper，
+ *   並將結果傳給 <Breadcrumb :items="..." />。
+ */
 const isAdminUser = () => {
   const userInfo = localStorage.getItem("userInfo");
   if (userInfo) {
