@@ -56,19 +56,7 @@
       @exit="handleExitWithoutSaving"
       @confirm="handleSaveFromUnsavedModal"
     />
-    <Modal v-model="showUploadWarningModal" size="md" backdrop-class="bg-gray-600/80" :show-close-button="true" close-action="emit">
-      <template #body>
-        <div class="flex w-full flex-col items-center gap-4 px-6 py-5">
-          <div class="flex h-6 w-6 items-center justify-center rounded-full bg-gray-400 text-xs font-medium text-white">!</div>
-          <p class="w-[311px] text-center text-base font-normal leading-[1.5] text-gray-600">{{ uploadWarningMessage }}</p>
-        </div>
-      </template>
-      <template #footer>
-        <div class="flex w-full items-center justify-center px-6 pb-6 pt-0">
-          <ButtonCTA variant="primary" size="xs" class="h-8 min-w-[120px]" @click="showUploadWarningModal = false">確認</ButtonCTA>
-        </div>
-      </template>
-    </Modal>
+    <AlertModal v-model="showUploadWarningModal" :message="uploadWarningMessage" />
   </div>
 </template>
 
@@ -83,9 +71,9 @@ import Radio from "@/components/atoms/Radio.vue";
 import ButtonCTA from "@/components/atoms/ButtonCTA.vue";
 import Breadcrumb from "@/components/atoms/Breadcrumb.vue";
 import FileUpload from "@/components/atoms/FileUpload.vue";
-import Modal from "@/components/atoms/Modal.vue";
 import RadioGroup from "@/components/atoms/RadioGroup.vue";
 import RichTextEditor from "@/components/atoms/RichTextEditor.vue";
+import AlertModal from "@/components/molecules/AlertModal.vue";
 import UnsavedChangesModal from "@/components/molecules/UnsavedChangesModal.vue";
 import SidebarSection from "@/components/sections/backend/SidebarSection.vue";
 import { apiGetPublicMessageById, apiPostPublicMessage, apiPutPublicMessage } from "@/api/backend/homepageMaintenance/publicMessageService";
