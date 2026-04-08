@@ -1,130 +1,5 @@
 import { createRouter, createWebHistory, type RouteRecordRaw } from "vue-router";
 
-const isAdminUser = () => {
-  const userInfo = localStorage.getItem("userInfo");
-  if (userInfo) {
-    try {
-      const user = JSON.parse(userInfo);
-      return user.role === "admin";
-    } catch {
-      return false;
-    }
-  }
-  return false;
-};
-
-const getAccountBreadcrumbItems = () => {
-  if (isAdminUser()) {
-    return [{ label: "首頁", to: "/" }, { label: "我的帳號" }, { label: "人員帳號管理" }];
-  }
-  return [{ label: "首頁", to: "/" }, { label: "我的帳號" }, { label: "編輯個人資料" }];
-};
-
-const getCaseDetailBreadcrumbItems = (route: any) => {
-  const fromRoute = route.query?.from as string | undefined;
-  const isFromAdmin = fromRoute?.includes("-admin") || route.query?.admin === "true" || isAdminUser();
-  const isDangerous = fromRoute?.includes("dangerous") || route.query?.caseType === "dangerous";
-  const tabLabelMap: Record<string, string> = {
-    info: "案件資訊",
-    complaints: "人民陳情",
-    progress: "案件進度",
-    files: "專案檔案",
-  };
-  const tabLabel = tabLabelMap[(route.query?.tab as string) || ""] || "案件詳情";
-  if (isFromAdmin) {
-    return [
-      { label: "首頁", to: "/" },
-      { label: "案件管理" },
-      {
-        label: isDangerous ? "危老重建案件管理" : "都市更新案件管理",
-        to: isDangerous ? "/case-management-dangerous-admin" : "/case-management-admin",
-      },
-      { label: tabLabel },
-    ];
-  }
-  return [
-    { label: "首頁", to: "/" },
-    { label: "我的案件" },
-    { label: isDangerous ? "危老重建案件" : "都市更新案件", to: isDangerous ? "/case-management-dangerous" : "/case-management" },
-    { label: tabLabel },
-  ];
-};
-
-const getCaseStageDetailBreadcrumbItems = (route: any) => {
-  const fromRoute = route.query?.from as string | undefined;
-  const isFromAdmin = fromRoute?.includes("-admin") || route.query?.admin === "true" || isAdminUser();
-  const isDangerous = fromRoute?.includes("dangerous") || route.query?.caseType === "dangerous";
-  const stageName = (route.query?.stage as string | undefined) || "階段詳細資料";
-  const progressLink = {
-    label: "案件進度",
-    to: {
-      path: "/case-detail",
-      query: {
-        from: fromRoute,
-        admin: route.query?.admin,
-        caseType: route.query?.caseType,
-        tab: "progress",
-      },
-    },
-  };
-  if (isFromAdmin) {
-    return [
-      { label: "首頁", to: "/" },
-      { label: "案件管理" },
-      {
-        label: isDangerous ? "危老重建案件管理" : "都市更新案件管理",
-        to: isDangerous ? "/case-management-dangerous-admin" : "/case-management-admin",
-      },
-      progressLink,
-      { label: stageName },
-    ];
-  }
-  return [
-    { label: "首頁", to: "/" },
-    { label: "我的案件" },
-    { label: isDangerous ? "危老重建案件" : "都市更新案件", to: isDangerous ? "/case-management-dangerous" : "/case-management" },
-    progressLink,
-    { label: stageName },
-  ];
-};
-
-const getAddCaseStageBreadcrumbItems = (route: any) => {
-  const fromRoute = route.query?.from as string | undefined;
-  const isFromAdmin = fromRoute?.includes("-admin") || route.query?.admin === "true" || isAdminUser();
-  const isDangerous = fromRoute?.includes("dangerous") || route.query?.caseType === "dangerous";
-  const progressLink = {
-    label: "案件進度",
-    to: {
-      path: "/case-detail",
-      query: {
-        from: fromRoute,
-        admin: route.query?.admin,
-        caseType: route.query?.caseType,
-        tab: "progress",
-      },
-    },
-  };
-  if (isFromAdmin) {
-    return [
-      { label: "首頁", to: "/" },
-      { label: "案件管理" },
-      {
-        label: isDangerous ? "危老重建案件管理" : "都市更新案件管理",
-        to: isDangerous ? "/case-management-dangerous-admin" : "/case-management-admin",
-      },
-      progressLink,
-      { label: "新增案件階段" },
-    ];
-  }
-  return [
-    { label: "首頁", to: "/" },
-    { label: "我的案件" },
-    { label: isDangerous ? "危老重建案件" : "都市更新案件", to: isDangerous ? "/case-management-dangerous" : "/case-management" },
-    progressLink,
-    { label: "新增案件階段" },
-  ];
-};
-
 // 導出路由配置，供組件使用
 export const routes: RouteRecordRaw[] = [
   {
@@ -234,30 +109,11 @@ export const routes: RouteRecordRaw[] = [
     path: "/case-management/add/business-plan",
     name: "case-management-add-business-plan",
     component: () => import("@/views/backend/caseManagement/urbanRenewal/CaseManagementAddBusinessPlanView.vue"),
-    meta: {
-      breadcrumb: {
-        label: "編輯都更案件",
-        parent: {
-          label: "都市更新案件",
-        },
-      },
-    },
   },
   {
     path: "/case-management/add/review-table",
     name: "case-management-add-review-table",
     component: () => import("@/views/backend/caseManagement/urbanRenewal/CaseManagementReviewTableView.vue"),
-    meta: {
-      breadcrumb: {
-        label: "編輯都更案件",
-        parent: {
-          label: "都市更新案件",
-          parent: {
-            label: "我的案件",
-          },
-        },
-      },
-    },
   },
   {
     path: "/case-management-admin",
@@ -306,39 +162,11 @@ export const routes: RouteRecordRaw[] = [
     path: "/case-management-dangerous/add",
     name: "case-management-dangerous-add",
     component: () => import("@/views/backend/caseManagement/dangerous/CaseManagementDangerousAddView.vue"),
-    meta: {
-      breadcrumb: {
-        label: "新增危老重建案件",
-        parent: {
-          label: "危老重建案件",
-          to: "/case-management-dangerous",
-          parent: {
-            label: "我的案件",
-          },
-        },
-      },
-    },
   },
   {
     path: "/case-management-dangerous/add/application",
     name: "case-management-dangerous-add-application",
     component: () => import("@/views/backend/caseManagement/dangerous/CaseManagementDangerousApplicationView.vue"),
-    meta: {
-      breadcrumb: {
-        label: "危老申請書",
-        parent: {
-          label: "新增危老重建案件",
-          to: "/case-management-dangerous/add",
-          parent: {
-            label: "危老重建案件",
-            to: "/case-management-dangerous",
-            parent: {
-              label: "我的案件",
-            },
-          },
-        },
-      },
-    },
   },
   {
     path: "/case-management-dangerous-admin",
@@ -365,25 +193,16 @@ export const routes: RouteRecordRaw[] = [
     path: "/case-detail",
     name: "case-detail",
     component: () => import("@/views/backend/caseManagement/common/CaseDetailView.vue"),
-    meta: {
-      breadcrumb: getCaseDetailBreadcrumbItems,
-    },
   },
   {
     path: "/case-stage-detail",
     name: "case-stage-detail",
     component: () => import("@/views/backend/caseManagement/common/CaseStageDetailView.vue"),
-    meta: {
-      breadcrumb: getCaseStageDetailBreadcrumbItems,
-    },
   },
   {
     path: "/add-case-stage",
     name: "add-case-stage",
     component: () => import("@/views/backend/caseManagement/common/AddCaseStageView.vue"),
-    meta: {
-      breadcrumb: getAddCaseStageBreadcrumbItems,
-    },
   },
   {
     path: "/profile",
@@ -408,16 +227,12 @@ export const routes: RouteRecordRaw[] = [
           order: 1,
         },
       ],
-      breadcrumb: getAccountBreadcrumbItems,
     },
   },
   {
     path: "/change-password",
     name: "change-password",
     component: () => import("@/views/backend/myAccount/ChangePasswordView.vue"),
-    meta: {
-      breadcrumb: getAccountBreadcrumbItems,
-    },
   },
   {
     path: "/data-analysis",

@@ -86,6 +86,8 @@
       @exit="handleExitWithoutSaving"
       @confirm="handleSaveFromUnsavedModal"
     />
+
+    <AlertModal v-model="showDraftTitleWarningModal" message="請先填寫標題，才能暫存內容" />
   </div>
 </template>
 
@@ -101,6 +103,7 @@ import ButtonCTA from "@/components/atoms/ButtonCTA.vue";
 import RadioGroup from "@/components/atoms/RadioGroup.vue";
 import Breadcrumb from "@/components/atoms/Breadcrumb.vue";
 import RichTextEditor from "@/components/atoms/RichTextEditor.vue";
+import AlertModal from "@/components/molecules/AlertModal.vue";
 import UnsavedChangesModal from "@/components/molecules/UnsavedChangesModal.vue";
 import SidebarSection from "@/components/sections/backend/SidebarSection.vue";
 import { apiGetFAQById, apiPostFAQ, apiPutFAQ } from "@/api/backend/homepageMaintenance/faqService";
@@ -124,6 +127,7 @@ const categoryOptions = ref([
 ]);
 
 const showNewCategory = ref(false);
+const showDraftTitleWarningModal = ref(false);
 const newCategoryName = ref("");
 const editingFaq = ref<{ question?: string; category?: string; answer?: string } | null>(null);
 const faqId = computed(() => (typeof route.params.id === "string" ? route.params.id : ""));
@@ -231,6 +235,11 @@ const buildPayload = (status: "DRAFT" | "PUBLISHED") => ({
 });
 
 const handleSaveDraft = async () => {
+  if (!formData.value.title.trim()) {
+    showDraftTitleWarningModal.value = true;
+    return;
+  }
+
   if (faqId.value) {
     await apiPutFAQ({ ...buildPayload("DRAFT"), id: faqId.value });
   } else {

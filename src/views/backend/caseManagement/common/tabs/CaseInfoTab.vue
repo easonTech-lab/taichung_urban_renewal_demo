@@ -82,8 +82,9 @@
           <ButtonCTA variant="outline" size="sm" left-icon="download" class="h-9 !min-w-0 px-3 py-2 text-sm" @click="handleExportOfficerList">匯出名單</ButtonCTA>
         </div>
       </div>
-      <div v-if="hasOfficerRows" class="rounded-lg border border-gray-300 bg-white">
+      <div v-if="hasOfficerRows" class="rounded-lg bg-white">
         <Table
+          borderless
           :columns="officerTableColumns"
           :rows="officerPaginationState.paginatedRows"
           :pagination="officerPaginationState.pagination"

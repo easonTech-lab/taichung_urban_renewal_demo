@@ -6,7 +6,7 @@
     <div class="flex flex-1 flex-col gap-10 p-4 sm:ml-[328px] sm:p-10">
       <!-- Breadcrumb and Title -->
       <div class="flex flex-col gap-6">
-        <Breadcrumb />
+        <Breadcrumb :items="breadcrumbItems" />
         <div class="flex items-center justify-between gap-6">
           <div class="min-w-0 flex-1">
             <h1 class="truncate text-3xl font-bold leading-[30px] text-gray-900">擬訂臺中市豐原區三村段三小段20地號(等)3筆土地重建計畫案</h1>
@@ -106,9 +106,11 @@ import FilesTab from "@/views/backend/caseManagement/common/tabs/FilesTab.vue";
 import ProgressTab from "@/views/backend/caseManagement/common/tabs/ProgressTab.vue";
 import CaseInfoTab from "@/views/backend/caseManagement/common/tabs/CaseInfoTab.vue";
 import ComplaintsTab from "@/views/backend/caseManagement/common/tabs/ComplaintsTab.vue";
+import { getCaseDetailBreadcrumbItems } from "@/utils/breadcrumbs";
 import type { ComplaintRow, ComplaintSection, OfficerItem, OfficerTableRow, ProjectFile } from "@/types/backend/caseManagement/common/CaseDetailView.d";
 const route = useRoute();
 const router = useRouter();
+const breadcrumbItems = computed(() => getCaseDetailBreadcrumbItems(route));
 const showDeleteToast = ref(false);
 const showUnsavedToast = ref(false);
 const confirmDeleteOpen = ref(false);

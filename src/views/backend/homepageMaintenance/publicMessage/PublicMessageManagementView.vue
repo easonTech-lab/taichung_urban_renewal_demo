@@ -17,9 +17,10 @@
         <div v-if="isDataLoaded && hasAnyMessages" class="w-[160px]">
           <Dropdown :button-text="selectedCategory" placeholder="全部類別" :items="categoryOptions" @item-click="handleCategoryChange" />
         </div>
-        <div v-if="isDataLoaded && hasAnyMessages" class="rounded-lg border border-gray-300 bg-white">
+        <div v-if="isDataLoaded && hasAnyMessages" class="rounded-lg bg-white">
           <Table
             v-if="filteredMessages.length > 0"
+            borderless
             :columns="tableColumns"
             :rows="paginationState.paginatedRows"
             :pagination="paginationState.pagination"
@@ -144,7 +145,7 @@ const tableColumns: TableColumn[] = [
   { key: "category", label: "類別", width: "11%" },
   { key: "publishDate", label: "發布日期", width: "12%", sortable: true },
   { key: "status", label: "狀態", width: "10%" },
-  { key: "action", label: "動作", width: "20%" },
+  { key: "action", label: "動作", width: "10%" },
 ];
 
 const filteredMessages = computed(() => {

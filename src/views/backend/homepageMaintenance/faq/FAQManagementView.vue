@@ -14,9 +14,10 @@
           </div>
           <ButtonCTA v-if="isDataLoaded && hasAnyFAQs" variant="outline" size="sm" left-icon="plus" @click="handleAddQuestion"> 新增問題 </ButtonCTA>
         </div>
-        <div v-if="isDataLoaded && hasAnyFAQs" class="rounded-lg border border-gray-300 bg-white">
+        <div v-if="isDataLoaded && hasAnyFAQs" class="rounded-lg bg-white">
           <Table
             v-if="filteredFAQs.length > 0"
+            borderless
             :columns="tableColumns"
             :rows="paginationState.paginatedRows"
             :pagination="paginationState.pagination"
@@ -133,7 +134,7 @@ const tableColumns: TableColumn[] = [
   { key: "category", label: "類別", width: "18%" },
   { key: "publishDate", label: "發布日期", width: "12%", sortable: true },
   { key: "status", label: "狀態", width: "10%" },
-  { key: "action", label: "動作", width: "20%" },
+  { key: "action", label: "動作", width: "10%" },
 ];
 
 const filteredFAQs = computed(() => {

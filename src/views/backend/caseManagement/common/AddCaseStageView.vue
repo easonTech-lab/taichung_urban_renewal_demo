@@ -3,7 +3,7 @@
     <SidebarSection @item-select="handleSidebarItemSelect" />
     <div class="flex flex-1 flex-col gap-10 p-4 sm:ml-[328px] sm:p-10">
       <div class="flex flex-col gap-6">
-        <Breadcrumb />
+        <Breadcrumb :items="breadcrumbItems" />
         <button
           type="button"
           class="flex w-full max-w-[501px] items-center gap-4 text-left"
@@ -183,6 +183,7 @@ import { useFormUnsavedCheck } from "@/composables/useFormUnsavedCheck";
 import { useUnsavedChangesDialog } from "@/composables/useUnsavedChangesDialog";
 import { apiGetOfficerList } from "@/api/backend/systemManagement/officerService";
 import { appendStoredCaseStageItem } from "@/utils/caseStageItems";
+import { getAddCaseStageBreadcrumbItems } from "@/utils/breadcrumbs";
 import Icon from "@/components/atoms/Icon.vue";
 import Input from "@/components/atoms/Input.vue";
 import Empty from "@/components/atoms/Empty.vue";
@@ -230,6 +231,7 @@ type ParticipantEditorItem = {
 };
 const route = useRoute();
 const router = useRouter();
+const breadcrumbItems = computed(() => getAddCaseStageBreadcrumbItems(route));
 const unsavedDialog = useUnsavedChangesDialog();
 const participantsUnsavedDialog = useUnsavedChangesDialog();
 const skipNextLeaveCheck = ref(false);

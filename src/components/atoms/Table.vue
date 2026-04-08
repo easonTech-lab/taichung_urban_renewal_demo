@@ -1,7 +1,7 @@
 <template>
   <div
-    class="relative overflow-x-auto rounded-lg bg-white shadow-sm"
-    :class="borderless ? '' : 'border border-gray-300'"
+    class="relative overflow-x-auto rounded-lg bg-white"
+    :class="borderless ? 'shadow-none' : 'border border-gray-300 shadow-sm'"
   >
     <table class="w-full table-fixed text-left text-sm text-gray-900 rtl:text-right" :style="{ minWidth: resolvedMinWidth }">
       <colgroup v-if="columns.some((c) => c.width)">
@@ -43,10 +43,10 @@
           <tr
             :class="[
               borderless ? '' : 'border-b border-gray-300',
-              'hover:bg-gray-50',
-              rowClickable ? 'focus:bg-gray-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-inset' : '',
+              'hover:bg-primary-50',
+              rowClickable ? 'focus:bg-primary-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-inset' : '',
               rowClickable ? 'cursor-pointer' : '',
-              (row as any).isExpanded ? 'bg-blue-50' : 'bg-white',
+              (row as any).isExpanded ? 'bg-primary-50' : 'bg-white',
             ]"
             :tabindex="rowClickable ? 0 : undefined"
             @click="rowClickable && handleRowClick(row, rowIndex, $event)"

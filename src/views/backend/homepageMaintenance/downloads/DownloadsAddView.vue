@@ -34,7 +34,16 @@
             </template>
           </RadioGroup>
           <RichTextEditor v-model="formData.text" label="內容(限200字)" placeholder="文字輸入" :maxlength="200" required show-label />
-          <FileUpload v-model="formData.files" label="檔案上傳" :max-size="10" multiple required show-label @file-error="handleFileError" />
+          <FileUpload
+            v-model="formData.files"
+            label="檔案上傳"
+            accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+            :max-size="10"
+            multiple
+            required
+            show-label
+            @file-error="handleFileError"
+          />
         </div>
       </div>
       <div class="flex items-center justify-center gap-4">
@@ -51,19 +60,8 @@
       @exit="handleExitWithoutSaving"
       @confirm="handleSaveFromUnsavedModal"
     />
-    <Modal v-model="showUploadWarningModal" size="md" backdrop-class="bg-gray-600/80" :show-close-button="true" close-action="emit">
-      <template #body>
-        <div class="flex w-full flex-col items-center gap-4 px-6 py-5">
-          <div class="flex h-6 w-6 items-center justify-center rounded-full bg-gray-400 text-xs font-medium text-white">!</div>
-          <p class="w-[311px] text-center text-base font-normal leading-[1.5] text-gray-600">{{ uploadWarningMessage }}</p>
-        </div>
-      </template>
-      <template #footer>
-        <div class="flex w-full items-center justify-center px-6 pb-6 pt-0">
-          <ButtonCTA variant="primary" size="xs" class="h-8 min-w-[120px]" @click="showUploadWarningModal = false">確認</ButtonCTA>
-        </div>
-      </template>
-    </Modal>
+    <AlertModal v-model="showDraftTitleWarningModal" message="請先填寫標題，才能暫存內容" />
+    <AlertModal v-model="showUploadWarningModal" :message="uploadWarningMessage" />
   </div>
 </template>
 <script setup lang="ts">
@@ -78,8 +76,8 @@ import Breadcrumb from "@/components/atoms/Breadcrumb.vue";
 import RadioGroup from "@/components/atoms/RadioGroup.vue";
 import Icon from "@/components/atoms/Icon.vue";
 import FileUpload from "@/components/atoms/FileUpload.vue";
-import Modal from "@/components/atoms/Modal.vue";
 import RichTextEditor from "@/components/atoms/RichTextEditor.vue";
+import AlertModal from "@/components/molecules/AlertModal.vue";
 import UnsavedChangesModal from "@/components/molecules/UnsavedChangesModal.vue";
 import SidebarSection from "@/components/sections/backend/SidebarSection.vue";
 import { apiGetDownloadById, apiPostDownload, apiPutDownload } from "@/api/backend/homepageMaintenance/downloadsService";
@@ -97,6 +95,7 @@ const formData = ref<DownloadFormData>({
   files: [],
 });
 
+const showDraftTitleWarningModal = ref(false);
 const showUploadWarningModal = ref(false);
 const uploadWarningMessage = ref("");
 const editingDownload = ref<{ fileName?: string; category?: string; text?: string } | null>(null);
@@ -126,7 +125,21 @@ const isPublishDisabled = computed(() => {
 
 const downloadsFormUnsavedCheck = useFormUnsavedCheck(() => buildFormSnapshot());
 
+const applyUploadWarning = (payload: { type: "size" | "format"; maxSize?: number }) => {
+  if (payload.type === "size") {
+    uploadWarningMessage.value = `檔案大小需限 ${payload.maxSize ?? 10}MB，請重新確認`;
+  } else {
+    uploadWarningMessage.value = "檔案格式不符，請重新確認";
+  }
+  showUploadWarningModal.value = true;
+};
+
 const handleSaveDraft = async () => {
+  if (!formData.value.title.trim()) {
+    showDraftTitleWarningModal.value = true;
+    return;
+  }
+
   if (downloadId.value) {
     await apiPutDownload({ ...formData.value, status: "draft", id: downloadId.value });
   } else {
@@ -232,11 +245,7 @@ const handleSaveFromUnsavedModal = async () => {
 };
 
 const handleFileError = (payload: { type: "size" | "format"; maxSize?: number }) => {
-  if (payload.type === "size") {
-    uploadWarningMessage.value = `檔案大小需限 ${payload.maxSize ?? 10}MB，請重新確認`;
-  } else {
-    uploadWarningMessage.value = "檔案格式不符，請重新確認";
-  }
-  showUploadWarningModal.value = true;
+  console.log("[DownloadsAddView] file-error received", payload);
+  applyUploadWarning(payload);
 };
 </script>

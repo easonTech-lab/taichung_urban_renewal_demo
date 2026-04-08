@@ -33,6 +33,7 @@
         </div>
         <div v-else-if="isDataLoaded" class="flex flex-col gap-0">
           <Table
+            borderless
             :columns="tableColumns"
             :rows="paginationState.paginatedRows"
             :pagination="paginationState.pagination"

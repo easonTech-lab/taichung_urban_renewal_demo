@@ -36,9 +36,10 @@
           </div>
         </div>
         <div v-if="isDataLoaded && hasAnyStatistics" class="overflow-x-auto">
-          <div class="min-w-[460px] rounded-lg border border-gray-300 bg-white">
+          <div class="min-w-[460px] rounded-lg bg-white">
           <Table
             v-if="filteredStatistics.length > 0"
+            borderless
             :columns="tableColumns"
             :rows="paginationState.paginatedRows"
             :pagination="paginationState.pagination"
@@ -168,7 +169,7 @@ const tableColumns: TableColumn[] = [
   {
     key: "action",
     label: "動作",
-    width: "16%",
+    width: "10%",
   },
 ];
 const filteredStatistics = computed(() => {

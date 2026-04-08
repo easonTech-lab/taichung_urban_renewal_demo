@@ -106,33 +106,7 @@
           下一步
         </ButtonCTA>
       </div>
-      <Modal v-model="showDraftNameWarningModal" size="md" :static="false" :show-close-button="false" close-action="emit" backdrop-class="bg-gray-600/80">
-        <template #header>
-          <div class="flex w-full items-center justify-end px-4 pt-4">
-            <button
-              type="button"
-              class="flex h-6 w-6 items-center justify-center text-gray-400 hover:text-gray-500"
-              aria-label="關閉"
-              @click="showDraftNameWarningModal = false"
-            >
-              <Icon name="close" :size="20" aria-hidden="true" />
-            </button>
-          </div>
-        </template>
-        <template #body>
-          <div class="flex w-full flex-col items-center gap-4 px-6 py-5">
-            <div class="flex h-[42px] w-[42px] items-center justify-center rounded-full bg-gray-400 text-[28px] font-medium leading-none text-white">!</div>
-            <p class="w-[311px] text-center text-base font-normal leading-[1.5] text-gray-600">請先填寫案件名稱，才能暫存案件</p>
-          </div>
-        </template>
-        <template #footer>
-          <div class="flex w-full items-center justify-center px-6 pb-6 pt-0">
-            <ButtonCTA variant="primary" size="xs" class="h-[37px] w-[120px] px-3 py-2 text-sm font-medium leading-[1.5]" @click="showDraftNameWarningModal = false">
-              確認
-            </ButtonCTA>
-          </div>
-        </template>
-      </Modal>
+      <AlertModal v-model="showDraftNameWarningModal" message="請先填寫案件名稱，才能暫存案件" />
       <input ref="renderInputRef" type="file" accept="image/*" multiple class="hidden" @change="handleImageUpload('render', $event)" />
       <input ref="demolitionInputRef" type="file" accept="image/*" multiple class="hidden" @change="handleImageUpload('demolition', $event)" />
     </div>
@@ -140,15 +114,17 @@
 </template>
 <script setup lang="ts">
 import { computed, ref } from "vue";
-import { useRouter } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import Icon from "@/components/atoms/Icon.vue";
 import Input from "@/components/atoms/Input.vue";
-import Modal from "@/components/atoms/Modal.vue";
 import ButtonCTA from "@/components/atoms/ButtonCTA.vue";
 import Breadcrumb from "@/components/atoms/Breadcrumb.vue";
+import AlertModal from "@/components/molecules/AlertModal.vue";
 import ImageCard from "@/components/molecules/ImageCard.vue";
 import StageProgressBar from "@/components/molecules/StageProgressBar.vue";
 import SidebarSection from "@/components/sections/backend/SidebarSection.vue";
+import { getDangerousCaseAddBreadcrumbItems } from "@/utils/breadcrumbs";
+const route = useRoute();
 const router = useRouter();
 const renderInputRef = ref<HTMLInputElement | null>(null);
 const demolitionInputRef = ref<HTMLInputElement | null>(null);
@@ -172,12 +148,7 @@ const formData = ref({
   demolitionImages: [] as string[],
 });
 const showDraftNameWarningModal = ref(false);
-const breadcrumbItems = [
-  { label: "首頁", to: "/" },
-  { label: "我的案件", to: "/case-management" },
-  { label: "危老重建案件", to: "/case-management-dangerous" },
-  { label: "新增危老重建案件" },
-];
+const breadcrumbItems = computed(() => getDangerousCaseAddBreadcrumbItems(route));
 const canGoNextToApplication = computed(() => {
   if (!hasTextValue(formData.value.caseName)) {
     return false;

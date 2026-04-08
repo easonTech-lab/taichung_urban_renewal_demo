@@ -3,7 +3,7 @@
     <SidebarSection :backdrop-closable="!addItemUnsavedDialog.showUnsavedChangesModal.value" @item-select="handleSidebarItemSelect" />
     <div class="flex flex-1 flex-col gap-10 p-4 sm:ml-[328px] sm:p-10">
       <div class="flex flex-col gap-6">
-        <Breadcrumb />
+        <Breadcrumb :items="breadcrumbItems" />
         <div class="flex items-center justify-between gap-6">
           <h1 class="max-w-[520px] truncate text-3xl font-bold leading-[30px] text-gray-900">{{ stageTitle }}</h1>
           <ButtonCTA variant="red-outline" size="l" class="!min-w-0">刪除階段</ButtonCTA>
@@ -362,8 +362,10 @@ import UnsavedChangesModal from "@/components/molecules/UnsavedChangesModal.vue"
 import SidebarSection from "@/components/sections/backend/SidebarSection.vue";
 import InputDropdown, { type InputDropdownItem } from "@/components/atoms/InputDropdown.vue";
 import ButtonDropdown, { type ButtonDropdownItem } from "@/components/atoms/ButtonDropdown.vue";
+import { getCaseStageDetailBreadcrumbItems } from "@/utils/breadcrumbs";
 import type { AddReviewItemForm, ReviewFileCategory, ReviewFileItem } from "@/types/backend/caseManagement/common/CaseStageDetailView.d";
 const route = useRoute();
+const breadcrumbItems = computed(() => getCaseStageDetailBreadcrumbItems(route));
 const addItemUnsavedDialog = useUnsavedChangesDialog();
 const showSaveToast = ref(false);
 const addItemUnsavedCheck = useFormUnsavedCheck(() => getAddItemSnapshot());

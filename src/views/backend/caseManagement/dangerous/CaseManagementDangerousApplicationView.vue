@@ -189,6 +189,7 @@ import Breadcrumb from "@/components/atoms/Breadcrumb.vue";
 import StageProgressBar from "@/components/molecules/StageProgressBar.vue";
 import SidebarSection from "@/components/sections/backend/SidebarSection.vue";
 import InputDropdown, { type InputDropdownItem } from "@/components/atoms/InputDropdown.vue";
+import { getDangerousCaseApplicationBreadcrumbItems } from "@/utils/breadcrumbs";
 import type { DangerousApplicationFormData } from "@/types/backend/caseManagement/dangerous/CaseManagementDangerousApplicationView.d";
 type DropdownStringKey = "builderType" | "district" | "landOwner" | "buildingOwner";
 const route = useRoute();
@@ -232,6 +233,7 @@ const districtOptions: InputDropdownItem[] = [];
 const landOwnerOptions: InputDropdownItem[] = [];
 const buildingOwnerOptions: InputDropdownItem[] = [];
 const STORAGE_KEY_CASE_FOR_APPLICATION = "caseDetailForApplication";
+const breadcrumbItems = computed(() => getDangerousCaseApplicationBreadcrumbItems(route));
 const cancelTarget = computed(() => {
   const returnTo = route.query?.returnTo;
   if (typeof returnTo === "string" && returnTo.trim()) {
@@ -239,12 +241,6 @@ const cancelTarget = computed(() => {
   }
   return { path: "/case-management-dangerous" };
 });
-const breadcrumbItems = computed(() => [
-  { label: "首頁", to: "/" },
-  { label: "我的案件", to: "/case-management" },
-  { label: "危老重建案件", to: "/case-management-dangerous" },
-  { label: isFromCaseDetail.value ? "編輯危老重建案件" : "新增危老重建案件" },
-]);
 const buildDangerousApplicationSnapshot = () =>
   JSON.stringify({
     ...formData.value,

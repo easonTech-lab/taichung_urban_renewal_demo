@@ -3,7 +3,7 @@
     <SidebarSection @item-select="handleSidebarItemSelect" />
     <div class="flex flex-1 flex-col gap-10 p-4 sm:ml-[328px] sm:p-10">
       <div class="flex flex-col gap-6">
-        <Breadcrumb />
+        <Breadcrumb :items="breadcrumbItems" />
         <h1 class="text-3xl font-bold leading-[30px] text-gray-900">{{ isAdmin ? "人員帳號管理" : "編輯個人資料" }}</h1>
       </div>
       <div class="flex flex-col gap-10">
@@ -113,6 +113,7 @@ import ButtonCTA from "@/components/atoms/ButtonCTA.vue";
 import Breadcrumb from "@/components/atoms/Breadcrumb.vue";
 import InputDropdown from "@/components/atoms/InputDropdown.vue";
 import SidebarSection from "@/components/sections/backend/SidebarSection.vue";
+import { getAccountBreadcrumbItems } from "@/utils/breadcrumbs";
 const router = useRouter();
 const profileUnsavedCheck = useFormUnsavedCheck(() => buildProfileSnapshot());
 const adminFormData = ref({
@@ -155,6 +156,7 @@ const isAdmin = computed(() => {
   }
   return false;
 });
+const breadcrumbItems = computed(() => getAccountBreadcrumbItems());
 const buildProfileSnapshot = () =>
   JSON.stringify(
     isAdmin.value
