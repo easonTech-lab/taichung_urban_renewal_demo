@@ -102,19 +102,25 @@
             </div>
           </div>
           <div v-else class="flex flex-col gap-4 pt-4">
-            <div v-for="file in reviewFiles" :key="file.id" class="rounded-lg border border-blue-500 px-5 py-8">
+            <div
+              v-for="file in reviewFiles"
+              :key="file.id"
+              class="cursor-pointer rounded-lg border px-5 py-8 transition-colors"
+              :class="file.isExpanded ? 'border-blue-500' : 'border-gray-300 hover:border-blue-500'"
+              @click="file.isExpanded = !file.isExpanded"
+            >
               <div class="flex items-center justify-between">
                 <div class="flex items-center gap-5">
-                  <button class="flex items-center justify-center text-gray-800" @click="file.isExpanded = !file.isExpanded" aria-label="切換展開">
-                    <Icon :name="file.isExpanded ? 'chevronUp' : 'chevronDown'" :size="24" />
+                  <button class="flex items-center justify-center text-gray-800" aria-label="切換展開">
+                    <Icon :name="file.isExpanded ? 'chevronDown' : 'arrowRight'" :size="24" />
                   </button>
                   <p class="text-lg text-gray-900">{{ file.name }}</p>
                 </div>
                 <div class="flex items-center gap-4 text-primary-700">
-                  <button class="flex items-center justify-center" aria-label="編輯項目" @click="handleEditReviewFile(file)">
+                  <button class="flex items-center justify-center" aria-label="編輯項目" @click.stop="handleEditReviewFile(file)">
                     <Icon name="editOutline" :size="24" color="#1A56DB" />
                   </button>
-                  <button class="flex items-center justify-center" aria-label="刪除項目" @click="openDeleteModal(file)">
+                  <button class="flex items-center justify-center" aria-label="刪除項目" @click.stop="openDeleteModal(file)">
                     <Icon name="trashCan" :size="24" color="#1A56DB" />
                   </button>
                 </div>
@@ -126,7 +132,7 @@
                       <p class="text-base font-medium text-gray-500">上傳截止日</p>
                       <p v-if="isUploadDeadlineReopen(file)" class="text-lg text-gray-900">
                         已截止
-                        <button type="button" class="text-primary-700 underline" @click="handleEditReviewFile(file)">重新開放</button>
+                        <button type="button" class="text-left text-lg text-blue-500 underline" @click="handleEditReviewFile(file)">重新開放</button>
                       </p>
                       <p v-else class="text-lg text-gray-900">{{ getUploadDeadlineDisplay(file) }}</p>
                     </div>
