@@ -1,9 +1,21 @@
 <template>
   <div class="flex flex-col gap-10">
     <div class="rounded-lg bg-white p-6 shadow-sm">
-      <div class="flex items-center gap-3">
-        <div class="h-7 w-1 rounded bg-primary-600"></div>
-        <h2 class="text-2xl font-medium leading-6 text-gray-900">專案檔案</h2>
+      <div class="flex items-center justify-between gap-6">
+        <div class="flex items-center gap-3">
+          <div class="h-7 w-1 rounded bg-primary-600"></div>
+          <h2 class="text-2xl font-medium leading-6 text-gray-900">專案檔案</h2>
+        </div>
+        <ButtonCTA
+          v-if="hasAnyFiles"
+          variant="outline"
+          size="xs"
+          left-icon="plus"
+          class="!h-9 !min-w-[96px] px-3 py-2 text-sm"
+          @click="handleFileUpload"
+        >
+          新增檔案
+        </ButtonCTA>
       </div>
       <div v-if="hasAnyFiles" class="mt-6 flex flex-col gap-4">
         <div class="flex flex-wrap items-center gap-3">
@@ -34,7 +46,14 @@
         </Table>
         <Empty v-else type="search" :show-button="false" class="py-12" />
       </div>
-      <Empty v-else type="case-management" :show-button="false" message="尚無專案檔案" class="pt-6" />
+      <Empty
+        v-else
+        type="case-management"
+        message="尚無專案檔案"
+        button-text="新增檔案"
+        class="pt-6"
+        @button-click="handleFileUpload"
+      />
     </div>
   </div>
 </template>
@@ -43,6 +62,7 @@ import { ref, computed, reactive } from "vue";
 import { useTablePagination } from "@/composables/useTablePagination";
 import Icon from "@/components/atoms/Icon.vue";
 import Empty from "@/components/atoms/Empty.vue";
+import ButtonCTA from "@/components/atoms/ButtonCTA.vue";
 import Table, { type TableColumn } from "@/components/atoms/Table.vue";
 import Dropdown, { type DropdownItem } from "@/components/atoms/Dropdown.vue";
 import type { ProjectFile } from "@/types/backend/caseManagement/common/CaseDetailView.d";
@@ -50,6 +70,7 @@ const props = defineProps<{ files: ProjectFile[] }>();
 const emit = defineEmits<{
   download: [file: ProjectFile];
   "request-delete": [file: ProjectFile];
+  upload: [];
 }>();
 const selectedFileStage = ref<string>("全部案件階段");
 const selectedFileCategory = ref<string>("檔案類別");
@@ -133,5 +154,8 @@ const handleFileDownload = (file: ProjectFile) => {
 }
 const handleFileDelete = (file: ProjectFile) => {
   emit("request-delete", file);
+}
+const handleFileUpload = () => {
+  emit("upload");
 }
 </script>

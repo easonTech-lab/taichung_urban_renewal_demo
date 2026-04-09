@@ -49,6 +49,7 @@
           :files="allFiles"
           @request-delete="handleRequestDeleteProjectFile"
           @download="handleDownloadFile"
+          @upload="handleUploadProjectFile"
         />
       </div>
     </div>
@@ -77,6 +78,16 @@
       aria-hidden="true"
       tabindex="-1"
       @change="handleComplaintFileInputChange"
+    />
+    <input
+      ref="projectFileInputRef"
+      type="file"
+      accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+      multiple
+      class="sr-only"
+      aria-hidden="true"
+      tabindex="-1"
+      @change="handleProjectFileInputChange"
     />
     <Modal v-model="showUploadComplaintWarning" size="md" backdrop-class="bg-gray-600/80" :show-close-button="true">
       <template #body>
@@ -124,6 +135,7 @@ const confirmDeleteDescription = ref("內容將完全刪除無法復原");
 const confirmDeleteAction = ref<(() => void) | null>(null);
 const uploadTargetSection = ref<ComplaintSection | null>(null);
 const complaintFileInputRef = ref<HTMLInputElement | null>(null);
+const projectFileInputRef = ref<HTMLInputElement | null>(null);
 const caseInfo = ref({
   name: "臺中市東區行政段645地號等21筆土地 都市更新事業計畫及權利變換計畫案",
   number: "abc13456788999",
@@ -437,6 +449,11 @@ const formatUploadedAt = (date: Date): string => {
   const min = String(date.getMinutes()).padStart(2, "0");
   return `${y}/${m}/${d} ${h}:${min}`;
 };
+const formatFileSize = (sizeInBytes: number): string => {
+  if (sizeInBytes < 1024) return `${sizeInBytes} B`;
+  if (sizeInBytes < 1024 * 1024) return `${Math.round(sizeInBytes / 1024)} KB`;
+  return `${(sizeInBytes / (1024 * 1024)).toFixed(1)} MB`;
+};
 const handleUploadComplaint = (section: ComplaintSection) => {
   uploadTargetSection.value = section;
   complaintFileInputRef.value?.click();
@@ -492,6 +509,65 @@ const handleComplaintFileInputChange = (event: Event) => {
     deleteToastMessage.value = "已新增至表格";
     showDeleteToast.value = true;
   }
+  input.value = "";
+};
+const handleUploadProjectFile = () => {
+  projectFileInputRef.value?.click();
+};
+const handleProjectFileInputChange = (event: Event) => {
+  const input = event.target as HTMLInputElement;
+  const files = input.files;
+  if (!files || files.length === 0) {
+    input.value = "";
+    return;
+  }
+
+  const maxBytes = COMPLAINT_FILE_MAX_SIZE_MB * 1024 * 1024;
+  const now = formatUploadedAt(new Date());
+  let added = 0;
+
+  for (let i = 0; i < files.length; i++) {
+    const file = files[i];
+    const lowerName = file.name.toLowerCase();
+    const fileType = file.type.toLowerCase();
+    const isAcceptedFormat =
+      lowerName.endsWith(".pdf") ||
+      lowerName.endsWith(".doc") ||
+      lowerName.endsWith(".docx") ||
+      fileType === "application/pdf" ||
+      fileType === "application/msword" ||
+      fileType === "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+
+    if (!isAcceptedFormat) {
+      uploadComplaintWarningMessage.value = "檔案格式不符，請重新確認";
+      showUploadComplaintWarning.value = true;
+      input.value = "";
+      return;
+    }
+
+    if (file.size > maxBytes) {
+      uploadComplaintWarningMessage.value = `檔案大小需限 ${COMPLAINT_FILE_MAX_SIZE_MB}MB，請重新確認`;
+      showUploadComplaintWarning.value = true;
+      input.value = "";
+      return;
+    }
+
+    allFiles.value.unshift({
+      fileName: file.name,
+      uploadTime: now,
+      caseStage: "都更大會",
+      fileCategory: "承辦上傳",
+      uploaderType: "承辦",
+      fileSize: formatFileSize(file.size),
+    });
+    added++;
+  }
+
+  if (added > 0) {
+    deleteToastMessage.value = "已新增至表格";
+    showDeleteToast.value = true;
+  }
+
   input.value = "";
 };
 const handleDownloadComplaint = (row: ComplaintRow) => {
