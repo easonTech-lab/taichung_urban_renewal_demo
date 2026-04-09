@@ -1,12 +1,12 @@
 <template>
-  <div :class="containerClass">
-    <label v-if="label" :for="inputId" class="mb-2 block text-base font-medium text-gray-900">
+  <div class="inline-flex flex-col items-start gap-2" :class="[containerClass || 'w-full']">
+    <label v-if="label" :for="inputId" class="relative inline-block text-base font-medium text-gray-900">
       {{ label }}
-      <span v-if="required" class="ml-1 text-red-500">*</span>
+      <span v-if="required" class="absolute -right-2 -top-1 text-xs leading-none text-red-500">*</span>
     </label>
     <div :class="displayClasses">
       <span :class="displayTextClasses">{{ displayText }}</span>
-      <Icon name="calendar" :size="20" class="text-gray-600" aria-hidden="true" />
+      <Icon name="calendar" :size="24" class="shrink-0 text-gray-500" aria-hidden="true" />
       <input
         :id="inputId"
         ref="datePickerRef"
@@ -52,7 +52,7 @@ const props = withDefaults(
     disabled: false,
     required: false,
     readonly: false,
-    containerClass: "max-w-sm",
+    containerClass: "",
     inputClass: "",
     ariaLabel: "Select date",
     dateFormat: "YYYY-MM-DD",
@@ -79,7 +79,7 @@ const inputClasses = computed(() => {
 });
 const displayClasses = computed(() => {
   const baseClasses =
-    "relative flex w-full items-center justify-between gap-3 rounded-lg border border-gray-300 bg-gray-50 px-3 py-2.5 text-sm text-gray-900 focus-within:border-blue-500 focus-within:ring-1 focus-within:ring-blue-500";
+    "relative flex h-[52px] w-full items-center justify-between gap-3 rounded-lg border border-gray-300 bg-gray-50 px-4 py-3.5 text-lg font-medium leading-5 text-gray-900 shadow-sm focus-within:border-primary-500 focus-within:ring-2 focus-within:ring-primary-500";
   const stateClasses = props.disabled ? "opacity-50 cursor-not-allowed" : "";
   return `${baseClasses} ${stateClasses}`.trim();
 });
@@ -88,7 +88,7 @@ const displayText = computed(() => {
   return internalValue.value.replace(/-/g, "/");
 });
 const displayTextClasses = computed(() => {
-  return internalValue.value ? "text-sm text-gray-900" : "text-sm text-gray-400";
+  return internalValue.value ? "text-lg font-medium leading-5 text-gray-900" : "text-lg font-medium leading-5 text-gray-500";
 });
 // Convert Date to YYYY-MM-DD string format for HTML5 date input
 const convertToDateString = (value: string | Date | null): string => {
