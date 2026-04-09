@@ -71,6 +71,7 @@
     <input
       ref="complaintFileInputRef"
       type="file"
+      accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
       multiple
       class="sr-only"
       aria-hidden="true"
@@ -457,6 +458,23 @@ const handleComplaintFileInputChange = (event: Event) => {
   let added = 0;
   for (let i = 0; i < files.length; i++) {
     const file = files[i];
+    const lowerName = file.name.toLowerCase();
+    const fileType = file.type.toLowerCase();
+    const isAcceptedFormat =
+      lowerName.endsWith(".pdf") ||
+      lowerName.endsWith(".doc") ||
+      lowerName.endsWith(".docx") ||
+      fileType === "application/pdf" ||
+      fileType === "application/msword" ||
+      fileType === "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+
+    if (!isAcceptedFormat) {
+      uploadComplaintWarningMessage.value = "檔案格式不符，請重新確認";
+      showUploadComplaintWarning.value = true;
+      input.value = "";
+      return;
+    }
+
     if (file.size > maxBytes) {
       uploadComplaintWarningMessage.value = `檔案大小需限 ${COMPLAINT_FILE_MAX_SIZE_MB}MB，請重新確認`;
       showUploadComplaintWarning.value = true;
