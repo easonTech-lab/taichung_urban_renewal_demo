@@ -124,7 +124,11 @@
                   <div class="flex flex-wrap gap-10">
                     <div class="flex w-[150px] flex-col gap-1">
                       <p class="text-base font-medium text-gray-500">上傳截止日</p>
-                      <p class="text-lg text-gray-900">{{ file.uploadDeadline }}</p>
+                      <p v-if="isUploadDeadlineReopen(file)" class="text-lg text-gray-900">
+                        已截止
+                        <button type="button" class="text-primary-700 underline" @click="handleEditReviewFile(file)">重新開放</button>
+                      </p>
+                      <p v-else class="text-lg text-gray-900">{{ getUploadDeadlineDisplay(file) }}</p>
                     </div>
                     <div class="flex flex-1 flex-col gap-1">
                       <p class="text-base font-medium text-gray-500">權限設定</p>
@@ -145,7 +149,11 @@
                       <p class="text-base font-medium text-gray-500">發文日期</p>
                       <p class="text-lg text-gray-900">{{ file.publishDate }}</p>
                     </div>
-                    <div class="flex w-[150px] flex-col gap-1">
+                    <div v-if="file.category === '修正意見/會議記錄'" class="flex flex-1 flex-col gap-1">
+                      <p class="text-base font-medium text-gray-500">發文字號</p>
+                      <p class="text-lg text-gray-900">{{ file.documentNo || "-" }}</p>
+                    </div>
+                    <div v-else class="flex w-[150px] flex-col gap-1">
                       <p class="text-base font-medium text-gray-500">收文日期</p>
                       <button
                         v-if="!file.receiveDate || file.receiveDate === '-'"
@@ -160,7 +168,23 @@
                   </div>
                 </div>
                 <div class="h-px w-full bg-neutral-300"></div>
-                <div class="flex flex-col gap-5 px-10">
+                <div v-if="file.category === '修正意見/會議記錄'" class="flex flex-col gap-5 px-10">
+                  <div
+                    v-for="attachment in file.attachments || []"
+                    :key="attachment.name"
+                    class="flex items-center justify-between px-5 py-3"
+                  >
+                    <p class="text-lg text-gray-900">{{ attachment.name }}</p>
+                    <div class="flex items-center gap-4">
+                      <div class="flex items-center gap-2">
+                        <Icon name="clip" :size="20" class="h-5 w-5 shrink-0 text-primary-700" />
+                        <p class="text-sm font-medium text-gray-500">夾帶檔案</p>
+                      </div>
+                      <button type="button" class="text-sm font-medium text-primary-700 underline">下載</button>
+                    </div>
+                  </div>
+                </div>
+                <div v-else class="flex flex-col gap-5 px-10">
                   <div v-for="item in file.uploadItems" :key="item.label" class="flex items-center justify-between px-5 py-3">
                     <div class="flex items-center gap-5">
                       <span class="rounded-md px-3 py-0.5 text-sm font-medium" :class="getUploadStatusClasses(item.status)">
@@ -275,7 +299,14 @@
         <template v-else-if="isRevisionCategory">
           <Input v-model="addItemForm.documentNo" label="發文字號" placeholder="輸入發文字號" size="lg" required />
           <DatePicker v-model="addItemForm.publishDate" label="發文日期" placeholder="選擇發文日期" containerClass="w-full" required />
-          <FileUpload v-model="addItemForm.attachments" label="公文及修正意見上傳" :max-size="10" multiple @file-error="handleFileError" />
+          <FileUpload
+            v-model="addItemForm.attachments"
+            label="公文及修正意見上傳"
+            accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+            :max-size="50"
+            multiple
+            @file-error="handleFileError"
+          />
         </template>
       </div>
     </template>
@@ -673,7 +704,7 @@ const handleEditReviewFile = (file: ReviewFileItem) => {
     deadline: parseRocDate(file.uploadDeadline),
     staffVisible: file.staffVisible,
     applicantVisible: file.applicantVisible,
-    documentNo: "",
+    documentNo: file.documentNo ?? "",
     publishDate: parseRocDate(file.publishDate),
     receiveDate: parseRocDate(file.receiveDate),
     receiveNumber: file.receiveNumber ?? "",
@@ -705,6 +736,27 @@ const formatDateDisplay = (value: string | Date | null | undefined) => {
   }
   return value.toString();
 };
+const parseRocDateString = (value: string | undefined) => {
+  if (!value || value === "-") return null;
+  const match = value.match(/^(\d{2,3})\/(\d{2})\/(\d{2})$/);
+  if (!match) return null;
+  const [, rocYear, month, day] = match;
+  return new Date(Number(rocYear) + 1911, Number(month) - 1, Number(day), 23, 59, 59, 999);
+};
+const getUploadDeadlineDisplay = (file: ReviewFileItem) => {
+  if (!file.uploadDeadline || file.uploadDeadline === "-") return "-";
+
+  const deadline = parseRocDateString(file.uploadDeadline);
+  if (!deadline) return file.uploadDeadline;
+
+  const hasUploadedRecord = file.uploadItems.some((item) => item.status === "uploaded");
+  if (Date.now() > deadline.getTime()) {
+    return hasUploadedRecord ? `${file.uploadDeadline} 已截止` : "已截止重新開放";
+  }
+
+  return file.uploadDeadline;
+};
+const isUploadDeadlineReopen = (file: ReviewFileItem) => getUploadDeadlineDisplay(file) === "已截止重新開放";
 const getUploadStatusClasses = (status: "uploaded" | "pending") => {
   if (status === "uploaded") {
     return "bg-green-100 text-green-800";
@@ -723,8 +775,14 @@ const handleSaveAddItem = () => {
             staffVisible: addItemForm.value.staffVisible,
             applicantVisible: addItemForm.value.applicantVisible,
             publishDate: isRevisionCategory.value ? formatDateDisplay(addItemForm.value.publishDate) : "-",
+            documentNo: isRevisionCategory.value ? addItemForm.value.documentNo.trim() : "",
             receiveDate: formatDateDisplay(addItemForm.value.receiveDate),
             receiveNumber: addItemForm.value.receiveNumber.trim(),
+            attachments: isRevisionCategory.value
+              ? addItemForm.value.attachments.length > 0
+                ? addItemForm.value.attachments.map((attachment) => ({ name: attachment.name }))
+                : item.attachments ?? []
+              : [],
           }
         : item
     );
@@ -753,9 +811,11 @@ const handleSaveAddItem = () => {
       staffVisible: addItemForm.value.staffVisible,
       applicantVisible: addItemForm.value.applicantVisible,
       publishDate: formatDateDisplay(addItemForm.value.publishDate),
+      documentNo: addItemForm.value.documentNo.trim(),
       receiveDate: "",
       receiveNumber: "",
       uploadItems,
+      attachments: addItemForm.value.attachments.map((attachment) => ({ name: attachment.name })),
       isExpanded: false,
     },
   ];

@@ -13,9 +13,13 @@ export interface ReviewFileItem {
   staffVisible: boolean;
   applicantVisible: boolean;
   publishDate: string;
+  documentNo?: string;
   receiveDate?: string;
   receiveNumber?: string;
   uploadItems: ReviewUploadItem[];
+  attachments?: Array<{
+    name: string;
+  }>;
   isExpanded: boolean;
 }
 
