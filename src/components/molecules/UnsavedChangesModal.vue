@@ -23,7 +23,7 @@
     <template #body>
       <div class="flex w-full flex-col items-center gap-4 px-6 py-5">
         <div class="flex h-[42px] w-[42px] items-center justify-center rounded-full bg-gray-400 text-[28px] font-medium leading-none text-white">!</div>
-        <p class="w-[311px] text-center text-base font-normal leading-[1.5] text-gray-600">
+        <p class="w-[311px] whitespace-pre-line text-center text-base font-normal leading-[1.5] text-gray-600">
           {{ message }}
         </p>
       </div>

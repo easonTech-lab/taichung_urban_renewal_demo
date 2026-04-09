@@ -118,6 +118,8 @@
     <UnsavedChangesModal
       :model-value="unsavedDialog.showUnsavedChangesModal.value"
       @update:modelValue="(value) => (unsavedDialog.showUnsavedChangesModal.value = value)"
+      message="尚未完成新增，確定離開？
+未儲存內容將遺失。"
       confirm-label="儲存"
       confirm-variant="red"
       :confirm-disabled="isSubmitDisabled"
