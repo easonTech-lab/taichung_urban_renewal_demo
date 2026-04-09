@@ -40,7 +40,21 @@
             <div class="flex flex-1 items-center justify-between gap-4 rounded-lg p-4" :class="statusDisplay.containerClass">
               <div class="flex items-center gap-4">
                 <div class="flex items-center gap-4">
-                  <Icon :name="statusDisplay.icon" :size="32" />
+                  <div
+                    class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full"
+                    :class="statusDisplay.iconContainerClass"
+                  >
+                    <span
+                      v-if="statusDisplay.iconVariant === 'check'"
+                      class="block h-[10px] w-[6px] -translate-y-[1px] rotate-45 border-b-[2.5px] border-r-[2.5px] border-white"
+                    ></span>
+                    <span
+                      v-else-if="statusDisplay.iconVariant === 'close'"
+                      class="-mt-px text-sm font-bold leading-none text-white"
+                    >
+                      ×
+                    </span>
+                  </div>
                   <div class="flex flex-col gap-1">
                     <p class="text-sm font-medium uppercase text-gray-500">階段狀態</p>
                     <p class="text-2xl font-semibold text-gray-900">{{ statusDisplay.statusText }}</p>
@@ -482,7 +496,8 @@ const statusDisplay = computed(() => {
   const status = savedStatus.value;
   if (status === "completed") {
     return {
-      icon: "stepCheck",
+      iconVariant: "check",
+      iconContainerClass: "bg-green-600",
       statusText: "已完成",
       description: getNextStageLabel(stageTitle.value),
       containerClass: "bg-green-50",
@@ -490,7 +505,8 @@ const statusDisplay = computed(() => {
   }
   if (status === "in-progress") {
     return {
-      icon: "setpUncheck",
+      iconVariant: "circle-blue",
+      iconContainerClass: "border-2 border-primary-500 bg-white",
       statusText: "進行中",
       description: getCurrentProgressDescription(),
       containerClass: "bg-blue-50",
@@ -498,7 +514,8 @@ const statusDisplay = computed(() => {
   }
   if (status === "withdrawn") {
     return {
-      icon: "deleteCircle",
+      iconVariant: "close",
+      iconContainerClass: "bg-pink-800",
       statusText: "已撤案",
       description: "申請人撤回",
       containerClass: "bg-pink-50",
@@ -506,14 +523,16 @@ const statusDisplay = computed(() => {
   }
   if (status === "terminated") {
     return {
-      icon: "deleteCircle",
+      iconVariant: "close",
+      iconContainerClass: "bg-pink-800",
       statusText: "案件廢止",
       description: "案件廢止-階段中斷",
       containerClass: "bg-pink-50",
     };
   }
   return {
-    icon: "stepUncheckGray",
+    iconVariant: "circle-gray",
+    iconContainerClass: "border-2 border-gray-300 bg-white",
     statusText: "未開始",
     description: "未開始",
     containerClass: "bg-gray-50",
