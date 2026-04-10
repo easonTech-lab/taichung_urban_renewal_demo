@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory, type RouteRecordRaw } from "vue-router";
+import { ensureAdminSession } from "@/utils/mockAuth";
 
 // 導出路由配置，供組件使用
 export const routes: RouteRecordRaw[] = [
@@ -537,6 +538,16 @@ const router = createRouter({
     if (savedPosition) return savedPosition;
     return { top: 0 };
   },
+});
+
+router.beforeEach((to) => {
+  ensureAdminSession();
+
+  if (to.path === "/login") {
+    return "/case-management-admin";
+  }
+
+  return true;
 });
 
 export default router;

@@ -38,6 +38,7 @@
 import { ref, computed, onMounted, onUnmounted, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useSidebarMenuConfig } from "@/composables/useSidebarMenuConfig";
+import { ensureAdminSession } from "@/utils/mockAuth";
 import * as routerModule from "@/router/index";
 import ButtonCTA from "@/components/atoms/ButtonCTA.vue";
 import AvatarDropdown, { type AvatarDropdownItem } from "@/components/atoms/AvatarDropdown.vue";
@@ -93,13 +94,14 @@ const getNavRoutes = (): Array<{ path: string; label: string }> => {
     }));
 };
 const checkLoginStatus = () => {
+  ensureAdminSession();
   userInfo.value = localStorage.getItem("userInfo");
 };
 const handleLogout = () => {
-  localStorage.removeItem("userInfo");
-  userInfo.value = null;
+  ensureAdminSession();
+  userInfo.value = localStorage.getItem("userInfo");
   window.dispatchEvent(new Event("login-status-changed"));
-  router.push("/login");
+  router.push("/case-management-admin");
 };
 const handleAvatarItemClick = (item: AvatarDropdownItem) => {
   const config = useSidebarMenuConfig(isAdmin.value);

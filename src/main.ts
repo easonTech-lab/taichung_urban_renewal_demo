@@ -2,8 +2,11 @@ import { createApp } from "vue";
 import { createPinia } from "pinia";
 import router from "./router";
 import App from "./App.vue";
+import { ensureAdminSession } from "./utils/mockAuth";
 import "./style.css";
 import "flowbite";
+
+ensureAdminSession();
 
 const app = createApp(App);
 const pinia = createPinia();
