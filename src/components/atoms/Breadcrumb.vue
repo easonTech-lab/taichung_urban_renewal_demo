@@ -46,10 +46,10 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import Icon from "@/components/atoms/Icon.vue";
-import { useRoute, type RouteLocationNormalizedLoaded } from "vue-router";
+import { useRoute, type RouteLocationNormalizedLoaded, type RouteLocationRaw } from "vue-router";
 export interface BreadcrumbItem {
   label: string;
-  to?: string; // Vue Router 路徑
+  to?: RouteLocationRaw; // Vue Router 路徑或 location object
   href?: string; // 外部連結
 }
 const route = useRoute();

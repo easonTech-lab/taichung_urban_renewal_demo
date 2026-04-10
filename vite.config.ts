@@ -1,5 +1,5 @@
 import { fileURLToPath, URL } from 'node:url'
-import { defineConfig } from 'vite'
+import { defineConfig, loadEnv } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import { mockApiPlugin } from './vite/mockApiPlugin'
 
@@ -38,26 +38,30 @@ const getManualChunk = (id: string) => {
   return undefined
 }
 
-export default defineConfig({
-  base: process.env.VITE_BASE || '/',
-  plugins: [vue(), mockApiPlugin()],
-  resolve: {
-    alias: {
-      '@': fileURLToPath(new URL('./src', import.meta.url)),
-    },
-  },
-  optimizeDeps: {
-    include: ['vue', 'vue-router', 'pinia'],
-  },
-  build: {
-    commonjsOptions: {
-      include: [/node_modules/],
-      transformMixedEsModules: true,
-    },
-    rollupOptions: {
-      output: {
-        manualChunks: getManualChunk,
+export default defineConfig(({ mode }) => {
+  const env = loadEnv(mode, process.cwd(), '')
+
+  return {
+    base: env.VITE_BASE || '/',
+    plugins: [vue(), mockApiPlugin()],
+    resolve: {
+      alias: {
+        '@': fileURLToPath(new URL('./src', import.meta.url)),
       },
     },
-  },
+    optimizeDeps: {
+      include: ['vue', 'vue-router', 'pinia'],
+    },
+    build: {
+      commonjsOptions: {
+        include: [/node_modules/],
+        transformMixedEsModules: true,
+      },
+      rollupOptions: {
+        output: {
+          manualChunks: getManualChunk,
+        },
+      },
+    },
+  }
 })

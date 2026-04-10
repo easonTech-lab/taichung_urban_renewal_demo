@@ -14,7 +14,7 @@ RUN npm ci
 COPY . .
 
 # 構建應用
-RUN npm run build
+RUN npm run build:sit
 
 # 生產階段
 FROM nginx:alpine

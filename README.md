@@ -64,10 +64,65 @@ npm install
 npm run dev
 ```
 
+### 環境版號
+
+本專案目前已分環境版號：
+
+- `dev`: `.env.development`
+- `sit`: `.env.sit`
+- `uat`: `.env.uat`
+- `prod`: `.env.production`
+
+可用環境變數：
+
+- `VITE_APP_ENV`
+- `VITE_APP_VERSION`
+
+前端若要讀取，可直接使用：
+
+```ts
+import { appEnv, appVersion, appVersionLabel } from "@/config/appInfo";
+```
+
+### Mock API 機制
+
+本專案目前有兩層 mock：
+
+- `vite/mockApiPlugin.ts`
+  - 只在 `npm run dev` 的 Vite 開發伺服器下生效
+- `src/mocks/runtimeApi.ts`
+  - 在瀏覽器執行期攔截 `/api/...` 請求
+  - 適用於靜態部署後仍需使用 mock 的環境，例如 `sit`
+
+[src/api/http.ts](src/api/http.ts) 會依 `VITE_USE_MOCK` 決定請求行為：
+
+- `VITE_USE_MOCK=true`
+  - 走前端 mock
+  - `/api/...` 會由 `runtimeApi.ts` 直接回傳假資料
+- `VITE_USE_MOCK=false`
+  - 打真 API
+  - 會依 `VITE_API_BASE_URL` 或同網域 `/api/...` 發送請求
+
+目前環境預設如下：
+
+- `dev`: mock
+- `sit`: mock
+- `uat`: real API
+- `prod`: real API
+
 ### 構建生產版本
 
 ```bash
 npm run build
+```
+
+### 環境建置
+
+```bash
+npm run build:dev
+npm run build:sit
+npm run build:uat
+npm run build:prod
 ```
 
 ### 預覽生產版本

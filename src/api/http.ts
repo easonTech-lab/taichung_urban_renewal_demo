@@ -1,4 +1,5 @@
 import axios, { AxiosHeaders, type AxiosError, type AxiosInstance } from "axios";
+import { mockAdapter } from "@/mocks/runtimeApi";
 
 const useMock = import.meta.env.VITE_USE_MOCK === "true";
 const baseURL = useMock ? "" : (import.meta.env.VITE_API_BASE_URL ?? "");
@@ -17,6 +18,9 @@ http.interceptors.request.use((config) => {
     const headers = config.headers ?? new AxiosHeaders();
     headers.set("Authorization", `Bearer ${token}`);
     config.headers = headers;
+  }
+  if (useMock && config.url?.startsWith("/api/")) {
+    config.adapter = mockAdapter;
   }
   return config;
 });

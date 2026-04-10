@@ -78,8 +78,15 @@
           <p class="text-center font-sans text-sm font-normal leading-[1.5] tracking-[1.4px] text-gray-500 md:text-right">
             ©2025 UDBT All Rights Reserved.
           </p>
+          <p class="text-center font-sans text-sm font-normal leading-[1.5] tracking-[1.4px] text-gray-500 md:text-right">
+            版本號：{{ appVersionLabel }}
+          </p>
         </div>
       </div>
     </div>
   </footer>
 </template>
+
+<script setup lang="ts">
+import { appVersionLabel } from "@/config/appInfo";
+</script>
