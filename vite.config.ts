@@ -40,9 +40,10 @@ const getManualChunk = (id: string) => {
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '')
+  const base = process.env.VITE_BASE || env.VITE_BASE || '/'
 
   return {
-    base: env.VITE_BASE || '/',
+    base,
     plugins: [vue(), mockApiPlugin()],
     resolve: {
       alias: {
